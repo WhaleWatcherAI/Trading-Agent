@@ -1,0 +1,162 @@
+[
+  {
+    "symbol": "SPX",
+    "date": "2025-10-27",
+    "mode": "intraday",
+    "netGex": 0,
+    "regime": "negative_gex",
+    "technicals": {
+      "bbUpper": null,
+      "bbMiddle": null,
+      "bbLower": null,
+      "avgRSI": null
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "totalProfit": 0,
+      "grossProfit": 0,
+      "grossLoss": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "profitFactor": 0,
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": [
+      "Failed to fetch price data: Request failed with status code 400",
+      "Insufficient bars (0, need at least 20)"
+    ]
+  },
+  {
+    "symbol": "SPX",
+    "date": "2025-10-28",
+    "mode": "intraday",
+    "netGex": 0,
+    "regime": "negative_gex",
+    "technicals": {
+      "bbUpper": null,
+      "bbMiddle": null,
+      "bbLower": null,
+      "avgRSI": null
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "totalProfit": 0,
+      "grossProfit": 0,
+      "grossLoss": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "profitFactor": 0,
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": [
+      "Failed to fetch price data: Request failed with status code 400",
+      "Insufficient bars (0, need at least 20)"
+    ]
+  },
+  {
+    "symbol": "SPX",
+    "date": "2025-10-29",
+    "mode": "intraday",
+    "netGex": 0,
+    "regime": "negative_gex",
+    "technicals": {
+      "bbUpper": null,
+      "bbMiddle": null,
+      "bbLower": null,
+      "avgRSI": null
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "totalProfit": 0,
+      "grossProfit": 0,
+      "grossLoss": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "profitFactor": 0,
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": [
+      "Failed to fetch price data: Request failed with status code 400",
+      "Insufficient bars (0, need at least 20)"
+    ]
+  },
+  {
+    "symbol": "SPX",
+    "date": "2025-10-30",
+    "mode": "intraday",
+    "netGex": 0,
+    "regime": "negative_gex",
+    "technicals": {
+      "bbUpper": null,
+      "bbMiddle": null,
+      "bbLower": null,
+      "avgRSI": null
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "totalProfit": 0,
+      "grossProfit": 0,
+      "grossLoss": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "profitFactor": 0,
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": [
+      "Failed to fetch price data: Request failed with status code 400",
+      "Insufficient bars (0, need at least 20)"
+    ]
+  },
+  {
+    "symbol": "SPX",
+    "date": "2025-10-31",
+    "mode": "intraday",
+    "netGex": 0,
+    "regime": "negative_gex",
+    "technicals": {
+      "bbUpper": null,
+      "bbMiddle": null,
+      "bbLower": null,
+      "avgRSI": null
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "totalProfit": 0,
+      "grossProfit": 0,
+      "grossLoss": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "profitFactor": 0,
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": [
+      "Failed to fetch price data: Request failed with status code 400",
+      "Insufficient bars (0, need at least 20)"
+    ]
+  }
+]

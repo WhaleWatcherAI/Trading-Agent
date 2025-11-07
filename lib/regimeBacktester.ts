@@ -424,7 +424,8 @@ function attachPricesToTimeline(
 
   const barMap = new Map<string, TradierTimesaleBar>();
   bars.forEach(bar => {
-    const parsed = parseTimesaleTimestamp(bar.timestamp || bar.time, date);
+    // Use bar.time (ISO string) instead of bar.timestamp (Unix number)
+    const parsed = parseTimesaleTimestamp(bar.time || bar.timestamp, date);
     const key = toMinuteIso(parsed);
     barMap.set(key, bar);
   });
@@ -834,4 +835,34 @@ export async function runRegimeBacktest(
     aggregated,
     notes,
   };
+}
+
+/**
+ * Lists all available cached flow dates from the data directory
+ * @returns Array of date strings in YYYY-MM-DD format, sorted descending (newest first)
+ */
+export async function listCachedFlowDates(): Promise<string[]> {
+  const dataDir = path.join(process.cwd(), 'data');
+
+  try {
+    const files = await fs.readdir(dataDir);
+
+    // Filter for .json files and extract dates matching YYYY-MM-DD pattern
+    const datePattern = /^(\d{4}-\d{2}-\d{2})\.json$/;
+    const dates = files
+      .filter(file => datePattern.test(file))
+      .map(file => {
+        const match = file.match(datePattern);
+        return match ? match[1] : null;
+      })
+      .filter((date): date is string => date !== null)
+      .sort()
+      .reverse(); // Most recent first
+
+    return dates;
+  } catch (error) {
+    console.error('Error reading data directory:', error);
+    // If directory doesn't exist or can't be read, return empty array
+    return [];
+  }
 }

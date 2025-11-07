@@ -1,0 +1,128 @@
+//@version=5
+strategy(
+    title = "Mean Reversion 5m (TS Port)",
+    shorttitle = "MR-5m",
+    overlay = true,
+    max_bars_back = 500,
+    calc_on_every_tick = false,
+    process_orders_on_close = true,
+    default_qty_type = strategy.fixed,
+    default_qty_value = 2,
+    pyramiding = 0,
+    initial_capital = 100000,
+    commission_type = strategy.commission.percent,
+    commission_value = 0.0
+)
+
+// === Inputs ===
+rsiPeriod      = input.int(14,    "RSI Period",              minval = 2)
+rsiOversold    = input.float(30,  "RSI Oversold",            step = 0.1)
+rsiOverbought  = input.float(70,  "RSI Overbought",          step = 0.1)
+bbPeriod       = input.int(20,    "Bollinger Period",        minval = 5)
+bbStdDev       = input.float(2.0, "Bollinger StdDev",        step = 0.1)
+bandProxPct    = input.float(0.5, "Band proximity (%)",      step = 0.1, tooltip = "Maximum distance from the outer Bollinger Band to allow an entry.")
+stopLossPctInp = input.float(0.1, "Initial stop (%)",        step = 0.05, tooltip = "Matches the TS backtest (0.1% default).")
+scaleBufPctInp = input.float(0.1, "Post-scale stop buffer (%)", step = 0.05, tooltip = "Tightens the stop near the middle band once half the trade is taken off.")
+unitQty        = input.float(1.0, "Unit quantity",           minval = 0.1, step = 0.1, tooltip = "Each signal opens two units; half is peeled at the middle band.")
+enableLongs    = input.bool(true, "Enable long setups")
+enableShorts   = input.bool(true, "Enable short setups")
+exitOnNeutral  = input.bool(false, "Exit when RSI returns to neutral?")
+neutralLevel   = input.float(50,  "Neutral RSI level",       step = 0.1)
+
+bandThreshold  = bandProxPct * 0.01
+stopLossPct    = stopLossPctInp * 0.01
+scaleBufPct    = scaleBufPctInp * 0.01
+
+// === Technicals ===
+rsiValue   = ta.rsi(close, rsiPeriod)
+basis      = ta.sma(close, bbPeriod)
+dev        = ta.stdev(close, bbPeriod) * bbStdDev
+upperBand  = basis + dev
+lowerBand  = basis - dev
+bbWidth    = upperBand - lowerBand
+bbPercentB = bbWidth != 0 ? (close - lowerBand) / bbWidth : na
+
+haveData = not na(rsiValue) and not na(basis) and not na(dev)
+distLower = math.abs(close - lowerBand) / close
+distUpper = math.abs(upperBand - close) / close
+
+plot(basis,     color = color.new(color.orange, 0), title = "BB Basis")
+plot(upperBand, color = color.new(color.teal,   0), title = "BB Upper")
+plot(lowerBand, color = color.new(color.teal,  50), title = "BB Lower")
+
+plotshape(enableLongs and haveData and rsiValue < rsiOversold and distLower <= bandThreshold, title = "Long Watch", style = shape.triangleup,  color = color.new(color.green, 70), location = location.belowbar, size = size.tiny)
+plotshape(enableShorts and haveData and rsiValue > rsiOverbought and distUpper <= bandThreshold, title = "Short Watch", style = shape.triangledown, color = color.new(color.red, 70), location = location.abovebar, size = size.tiny)
+
+// === State ===
+var float entryPrice    = na
+var float targetMid     = na
+var float targetOuter   = na
+var float baseStop      = na
+var float scaledStop    = na
+var bool  scaledTrade   = false
+var int   direction     = 0  // 1 = long, -1 = short
+qtyTol = 1e-6
+
+isFlat = strategy.position_size == 0
+if isFlat and direction != 0
+    direction   := 0
+    scaledTrade := false
+    entryPrice  := na
+    targetMid   := na
+    targetOuter := na
+    baseStop    := na
+    scaledStop  := na
+
+// === Entry Conditions ===
+canEnter = haveData and isFlat
+longSignal  = enableLongs  and canEnter and rsiValue < rsiOversold   and distLower <= bandThreshold
+shortSignal = enableShorts and canEnter and rsiValue > rsiOverbought and distUpper <= bandThreshold
+
+if longSignal
+    direction   := 1
+    scaledTrade := false
+    entryPrice  := close
+    targetMid   := basis
+    targetOuter := upperBand
+    baseStop    := close * (1 - stopLossPct)
+    scaledStop  := nz(targetMid, close) * (1 - scaleBufPct)
+    strategy.entry("Long Core", strategy.long,  qty = unitQty,  comment = "Mean Reversion long (core)")
+    strategy.entry("Long Runner", strategy.long, qty = unitQty,  comment = "Mean Reversion long (runner)")
+
+if shortSignal
+    direction   := -1
+    scaledTrade := false
+    entryPrice  := close
+    targetMid   := basis
+    targetOuter := lowerBand
+    baseStop    := close * (1 + stopLossPct)
+    scaledStop  := nz(targetMid, close) * (1 + scaleBufPct)
+    strategy.entry("Short Core", strategy.short,  qty = unitQty, comment = "Mean Reversion short (core)")
+    strategy.entry("Short Runner", strategy.short, qty = unitQty, comment = "Mean Reversion short (runner)")
+
+// Detect when half the position has been peeled off at the middle band
+if direction == 1 and not scaledTrade and math.abs(strategy.position_size - unitQty) <= qtyTol
+    scaledTrade := true
+if direction == -1 and not scaledTrade and math.abs(strategy.position_size + unitQty) <= qtyTol
+    scaledTrade := true
+
+// === Exit Logic ===
+if direction == 1
+    runnerStop = scaledTrade ? scaledStop : baseStop
+    strategy.exit("Long Core Exit",  from_entry = "Long Core",  stop = baseStop,  limit = targetMid)
+    strategy.exit("Long Run Exit",   from_entry = "Long Runner", stop = runnerStop, limit = targetOuter)
+    if exitOnNeutral and rsiValue > neutralLevel
+        strategy.close("Long Core")
+        strategy.close("Long Runner")
+
+if direction == -1
+    runnerStop = scaledTrade ? scaledStop : baseStop
+    strategy.exit("Short Core Exit", from_entry = "Short Core",  stop = baseStop,  limit = targetMid)
+    strategy.exit("Short Run Exit",  from_entry = "Short Runner", stop = runnerStop, limit = targetOuter)
+    if exitOnNeutral and rsiValue < neutralLevel
+        strategy.close("Short Core")
+        strategy.close("Short Runner")
+
+// === Diagnostics ===
+plotchar(strategy.position_size != 0, title = "In Trade", char = "•", color = color.new(color.yellow, 50), location = location.bottom, size = size.tiny)
+plot(bbPercentB, title = "BB %B", color = color.new(color.purple, 60), display = display.data_window)

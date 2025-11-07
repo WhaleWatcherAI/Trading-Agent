@@ -58,7 +58,7 @@ export interface TradeSignal {
   expiration: string;
   type: 'call' | 'put';
   action: 'buy' | 'sell';
-  strategy: 'scalp' | 'intraday' | 'swing' | 'leap';
+  strategy: 'scalp' | 'intraday' | 'swing' | 'leap' | 'sma_crossover';
   currentPrice: number;
   targetPrice?: number;
   stopLoss?: number;

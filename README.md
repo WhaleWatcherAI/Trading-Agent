@@ -314,6 +314,34 @@ npm run build
 npm start
 ```
 
+## SMA Crossover Live Trader
+
+Run a live simple moving average crossover strategy on Alpaca paper trading with automated logging of entries, exits, and realized PnL.
+
+```bash
+npx tsx run-live-sma-crossover.ts
+```
+
+### Environment Variables
+
+- `SMA_SYMBOLS` (default `SPY`): Comma-separated list of tickers to monitor.
+- `SMA_FAST` (default `9`): Fast SMA period.
+- `SMA_SLOW` (default `21`): Slow SMA period; must be greater than `SMA_FAST`.
+- `SMA_ORDER_QTY` (default `1`): Share quantity per trade.
+- `SMA_POLL_MS` (default `60000`): Polling interval in milliseconds.
+- `SMA_FILL_TIMEOUT_MS` (default `15000`): Time allowance for market orders to fill before cancellation.
+- `SMA_TIMEFRAME` (default `1Min`): Bar timeframe requested from the Alpaca data API.
+- `SMA_FLATTEN_BEFORE_CLOSE` (default `5`): Minutes before the U.S. equity close to automatically flatten positions (`0` disables).
+- `SMA_TRADE_LOG` (default `./logs/sma-crossover-trades.jsonl`): Destination file for structured trade logs.
+- `SMA_PRICE_CROSS` (default `false`): Set to `true` to trade price crossing a single SMA (e.g., price vs 9-SMA) instead of dual SMA crossover.
+- `SMA_USE_TWELVE_DATA` (default auto): When `true`, stream real-time prices from Twelve Data WebSocket (requires `TWELVE_DATA_API_KEY`); set to `false` to force Alpaca historical bars.
+- `SMA_TRADE_MODE` (default `option`): Set to `option` to trade OCC option contracts or `stock` to trade shares.
+- `SMA_OPTION_CONTRACTS` (default `2`): Number of option contracts to trade per signal when `SMA_TRADE_MODE=option`.
+- `SMA_MIN_DTE` (default `3`): Minimum days-to-expiration filter for option selection; the strategy chooses the nearest contract with DTE ≥ this value (or the closest available if none qualify).
+
+Ensure `ALPACA_KEY_ID`, `ALPACA_SECRET_KEY`, and optional `ALPACA_BASE_URL` / `ALPACA_DATA_URL` are set for paper trading access prior to launching the strategy.
+If `TWELVE_DATA_API_KEY` is present (and optionally `TWELVE_DATA_WS_URL`), the runner will automatically pull live prices from Twelve Data for faster crossover detection unless disabled with `SMA_USE_TWELVE_DATA=false`.
+
 ## Limitations & Disclaimers
 
 - This is a trading analysis tool, NOT financial advice

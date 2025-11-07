@@ -260,6 +260,7 @@ export async function getWhaleFlowAlerts(options?: {
   minContracts?: number;
   lookbackMinutes?: number;
   limit?: number;
+  date?: string;
 }): Promise<WhaleFlowAlert[]> {
   try {
     const {
@@ -268,13 +269,21 @@ export async function getWhaleFlowAlerts(options?: {
       minContracts = 50,
       lookbackMinutes = 30,
       limit = 200,
+      date,
     } = options || {};
+
+    const params: any = {
+      limit: Math.min(limit, 500),
+    };
+
+    // Add date parameter if provided for historical data
+    if (date) {
+      params.date = date;
+    }
 
     const response = await fetchWithRateLimit(() =>
       uwClient.get('/option-trades/flow-alerts', {
-        params: {
-          limit: Math.min(limit, 500),
-        },
+        params,
       })
     );
 
@@ -372,8 +381,9 @@ export async function getVolatilityStats(date?: string, tickers?: string[]): Pro
     // Fetch sequentially with delays
     for (const ticker of uniqueTickers) {
       try {
-        // Don't pass date parameter - endpoint returns latest data
-        const response = await uwClient.get(`/stock/${ticker}/volatility/stats`);
+        // Pass date parameter to get historical data
+        const params = date ? { date } : {};
+        const response = await uwClient.get(`/stock/${ticker}/volatility/stats`, { params });
 
         const data = response.data?.data;
         if (data) {
@@ -395,13 +405,52 @@ export async function getVolatilityStats(date?: string, tickers?: string[]): Pro
           await delay(500);
         }
       } catch (err: any) {
-        console.warn(`Failed to fetch volatility stats for ${ticker}:`, err.response?.status);
+        console.error(`Failed to fetch volatility stats for ${ticker}:`, err.message || err);
+        console.error('Full error:', err.response?.data || err);
       }
     }
 
     return stats;
   } catch (error) {
     console.error('Error fetching volatility stats:', error);
+    return [];
+  }
+}
+
+// IV Rank History - /stock/{ticker}/iv-rank
+export interface IvRankHistoryEntry {
+  date: string;
+  close: number;
+  volatility: number;
+  iv_rank_1y?: number;
+  iv_rank_30d?: number;
+}
+
+export async function getIvRankHistory(
+  ticker: string,
+  date?: string,
+): Promise<IvRankHistoryEntry[]> {
+  try {
+    const params = date ? { date } : {};
+    const response = await uwClient.get(`/stock/${ticker}/iv-rank`, { params });
+
+    console.log(`📊 IV Rank response for ${ticker}:`, JSON.stringify(response.data).slice(0, 500));
+
+    const data = response.data?.data;
+    if (!data || !Array.isArray(data)) {
+      return [];
+    }
+
+    return data.map((entry: any) => ({
+      date: entry.date,
+      close: parseFloat(entry.close || 0),
+      volatility: parseFloat(entry.volatility || entry.iv || 0),
+      iv_rank_1y: entry.iv_rank_1y ? parseFloat(entry.iv_rank_1y) : undefined,
+      iv_rank_30d: entry.iv_rank_30d ? parseFloat(entry.iv_rank_30d) : undefined,
+    }));
+  } catch (error: any) {
+    console.error(`Failed to fetch IV rank history for ${ticker}:`, error.message || error);
+    console.error('Full error:', error.response?.data || error);
     return [];
   }
 }
@@ -577,5 +626,57 @@ export async function getPutCallRatio(symbol?: string): Promise<number> {
   } catch (error) {
     console.error('Error fetching put/call ratio:', error);
     return 1.0;
+  }
+}
+
+// Get ticker-specific call/put ratio and volume data
+// NOTE: This currently returns MARKET-WIDE data, not per-ticker
+// TODO: Find the correct per-ticker endpoint
+export async function getTickerCallPutRatio(symbol: string, date?: string): Promise<{
+  callVolume: number;
+  putVolume: number;
+  callPutRatio: number;
+  bias: 'BULLISH' | 'BEARISH' | 'NEUTRAL';
+}> {
+  try {
+    console.log(`🔍 Fetching market-wide options volume from UW${date ? ` for ${date}` : ''}...`);
+    console.log(`⚠️  WARNING: /market/total-options-volume returns MARKET-WIDE data, not ${symbol}-specific`);
+
+    const params: any = { limit: 1 };
+    // Note: API doesn't seem to support date parameter based on docs
+
+    const response = await uwClient.get('/market/total-options-volume', { params });
+
+    console.log(`✅ UW API response status: ${response.status}`);
+
+    const data = response.data?.data;
+
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      console.warn(`⚠️  No data returned from UW`);
+      return { callVolume: 0, putVolume: 0, callPutRatio: 1.0, bias: 'NEUTRAL' };
+    }
+
+    // Get the first (most recent) entry
+    const marketData = data[0];
+    console.log(`📅 Market data for date: ${marketData.date}`);
+
+    const callVolume = parseInt(marketData.call_volume || 0);
+    const putVolume = parseInt(marketData.put_volume || 0);
+
+    console.log(`📊 MARKET-WIDE (not ${symbol}-specific) - Call: ${callVolume}, Put: ${putVolume}`);
+
+    const callPutRatio = putVolume > 0 ? callVolume / putVolume : 1.0;
+    const bias = callPutRatio > 1.0 ? 'BULLISH' : callPutRatio < 1.0 ? 'BEARISH' : 'NEUTRAL';
+
+    console.log(`📊 Market C/P Ratio: ${callPutRatio.toFixed(2)} (${bias})`);
+    console.log(`⚠️  This is MARKET-WIDE sentiment, not ${symbol}-specific!`);
+
+    return { callVolume, putVolume, callPutRatio, bias };
+  } catch (error: any) {
+    console.error(`❌ Error fetching call/put ratio:`, error.message);
+    console.error(`Error status:`, error.response?.status);
+    console.error(`Error data:`, error.response?.data);
+    // Fallback to neutral
+    return { callVolume: 0, putVolume: 0, callPutRatio: 1.0, bias: 'NEUTRAL' };
   }
 }

@@ -1,0 +1,2483 @@
+[
+  {
+    "symbol": "SPY",
+    "date": "2025-10-27",
+    "mode": "intraday",
+    "netGex": 2354080449.8416677,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 684.1564303643232,
+      "bbMiddle": 683.432245,
+      "bbLower": 682.7080596356767,
+      "avgRSI": 71.42142857142856
+    },
+    "trades": [
+      {
+        "id": "SPY-2025-10-27T19:30:00.000Z",
+        "symbol": "SPY",
+        "direction": "short",
+        "entryTimestamp": "2025-10-27T19:30:00.000Z",
+        "exitTimestamp": "2025-10-27T20:00:00.000Z",
+        "stock": {
+          "entryPrice": 684.65,
+          "exitPrice": 685.4,
+          "profit": -0.75,
+          "profitPct": -0.10954502300445483
+        },
+        "option": {
+          "contract": "SPY251105P00685000",
+          "strike": 685,
+          "expiration": "2025-11-05",
+          "entryPremium": 7.635,
+          "exitPremium": 6.885,
+          "profit": -106.07999999999996,
+          "profitPct": -9.82318271119843,
+          "commission": 0.08,
+          "slippage": 30.99999999999996
+        },
+        "stopLoss": 685.3346499999999,
+        "target": 683.7252449999999,
+        "entryRSI": 73.2,
+        "exitRSI": 79.45,
+        "durationMinutes": 30,
+        "exitReason": "stop",
+        "netGex": 2354080449.8416677
+      },
+      {
+        "id": "SPY-2025-10-27T20:00:00.000Z",
+        "symbol": "SPY",
+        "direction": "short",
+        "entryTimestamp": "2025-10-27T20:00:00.000Z",
+        "exitTimestamp": "2025-10-27T20:00:00.000Z",
+        "stock": {
+          "entryPrice": 685.4,
+          "exitPrice": 685.4,
+          "profit": 0,
+          "profitPct": 0
+        },
+        "option": {
+          "contract": "SPY251105P00686000",
+          "strike": 686,
+          "expiration": "2025-11-05",
+          "entryPremium": 8.695,
+          "exitPremium": 8.695,
+          "profit": -29.079999999999913,
+          "profitPct": 0,
+          "commission": 0.08,
+          "slippage": 28.999999999999915
+        },
+        "stopLoss": 686.0853999999999,
+        "target": 683.9682449999999,
+        "entryRSI": 79.45,
+        "exitRSI": 79.45,
+        "durationMinutes": 1,
+        "exitReason": "end_of_day",
+        "netGex": 2354080449.8416677
+      }
+    ],
+    "summary": {
+      "tradeCount": 2,
+      "winCount": 0,
+      "lossCount": 2,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": -0.75,
+        "grossProfit": 0,
+        "grossLoss": 0.75,
+        "averageWin": 0,
+        "averageLoss": 0.375,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": -135.15999999999985,
+        "grossProfit": 0,
+        "grossLoss": 135.15999999999985,
+        "averageWin": 0,
+        "averageLoss": 67.57999999999993,
+        "profitFactor": 0,
+        "contractsTraded": 2
+      },
+      "maxDrawdown": 0.75,
+      "averageDurationMinutes": 15.5
+    },
+    "notes": []
+  },
+  {
+    "symbol": "SPY",
+    "date": "2025-10-28",
+    "mode": "intraday",
+    "netGex": 2366601949.3017077,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 688.0626457269141,
+      "bbMiddle": 686.3942399999999,
+      "bbLower": 684.7258342730856,
+      "avgRSI": 63.44
+    },
+    "trades": [
+      {
+        "id": "SPY-2025-10-28T18:30:00.000Z",
+        "symbol": "SPY",
+        "direction": "short",
+        "entryTimestamp": "2025-10-28T18:30:00.000Z",
+        "exitTimestamp": "2025-10-28T19:15:00.000Z",
+        "stock": {
+          "entryPrice": 687.98,
+          "exitPrice": 688.69,
+          "profit": -0.7100000000000364,
+          "profitPct": -0.1032006744382157
+        },
+        "option": {
+          "contract": "SPY251105P00688000",
+          "strike": 688,
+          "expiration": "2025-11-05",
+          "entryPremium": 10.684999999999999,
+          "exitPremium": 9.974999999999962,
+          "profit": -104.08000000000365,
+          "profitPct": -6.644829199813163,
+          "commission": 0.08,
+          "slippage": 33.00000000000001
+        },
+        "stopLoss": 688.66798,
+        "target": 686.4942399999999,
+        "entryRSI": 70.28,
+        "exitRSI": 76.02,
+        "durationMinutes": 45,
+        "exitReason": "stop",
+        "netGex": 2366601949.3017077
+      },
+      {
+        "id": "SPY-2025-10-28T19:15:00.000Z",
+        "symbol": "SPY",
+        "direction": "short",
+        "entryTimestamp": "2025-10-28T19:15:00.000Z",
+        "exitTimestamp": "2025-10-28T19:45:00.000Z",
+        "stock": {
+          "entryPrice": 688.69,
+          "exitPrice": 686.98,
+          "profit": 1.7100000000000364,
+          "profitPct": 0.24829749234053586
+        },
+        "option": {
+          "contract": "SPY251105P00689000",
+          "strike": 689,
+          "expiration": "2025-11-05",
+          "entryPremium": 11.635,
+          "exitPremium": 13.345000000000036,
+          "profit": 139.92000000000377,
+          "profitPct": 14.697034808766965,
+          "commission": 0.08,
+          "slippage": 30.999999999999872
+        },
+        "stopLoss": 689.37869,
+        "target": 686.8692349999999,
+        "entryRSI": 76.02,
+        "exitRSI": 49.53,
+        "durationMinutes": 30,
+        "exitReason": "rsi_neutral",
+        "netGex": 2366601949.3017077
+      }
+    ],
+    "summary": {
+      "tradeCount": 2,
+      "winCount": 1,
+      "lossCount": 1,
+      "winRate": 0.5,
+      "stock": {
+        "totalProfit": 1,
+        "grossProfit": 1.7100000000000364,
+        "grossLoss": 0.7100000000000364,
+        "averageWin": 1.7100000000000364,
+        "averageLoss": 0.7100000000000364,
+        "profitFactor": 2.40845070422528
+      },
+      "options": {
+        "totalProfit": 35.84000000000012,
+        "grossProfit": 139.92000000000377,
+        "grossLoss": 104.08000000000365,
+        "averageWin": 139.92000000000377,
+        "averageLoss": 104.08000000000365,
+        "profitFactor": 1.3443504996156692,
+        "contractsTraded": 2
+      },
+      "maxDrawdown": 0.7100000000000364,
+      "averageDurationMinutes": 37.5
+    },
+    "notes": []
+  },
+  {
+    "symbol": "SPY",
+    "date": "2025-10-29",
+    "mode": "intraday",
+    "netGex": 2368875888.1081567,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 689.3125858609374,
+      "bbMiddle": 688.408745,
+      "bbLower": 687.5049041390625,
+      "avgRSI": 36.91428571428571
+    },
+    "trades": [
+      {
+        "id": "SPY-2025-10-29T18:30:00.000Z",
+        "symbol": "SPY",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:30:00.000Z",
+        "exitTimestamp": "2025-10-29T20:00:00.000Z",
+        "stock": {
+          "entryPrice": 683.29,
+          "exitPrice": 686.6613,
+          "profit": 3.3713000000000193,
+          "profitPct": 0.49339226389966473
+        },
+        "option": {
+          "contract": "SPY251106C00683000",
+          "strike": 683,
+          "expiration": "2025-11-06",
+          "entryPremium": 0.175,
+          "exitPremium": 0.46526542321447506,
+          "profit": 27.946542321447513,
+          "profitPct": 165.86595612255718,
+          "commission": 0.08,
+          "slippage": 0.9999999999999981
+        },
+        "stopLoss": 682.6067099999999,
+        "target": 688.1117449999999,
+        "entryRSI": 16.22,
+        "exitRSI": 44.84,
+        "durationMinutes": 90,
+        "exitReason": "end_of_day",
+        "netGex": 2368875888.1081567
+      }
+    ],
+    "summary": {
+      "tradeCount": 1,
+      "winCount": 1,
+      "lossCount": 0,
+      "winRate": 1,
+      "stock": {
+        "totalProfit": 3.3713000000000193,
+        "grossProfit": 3.3713000000000193,
+        "grossLoss": 0,
+        "averageWin": 3.3713000000000193,
+        "averageLoss": 0,
+        "profitFactor": null
+      },
+      "options": {
+        "totalProfit": 27.946542321447513,
+        "grossProfit": 27.946542321447513,
+        "grossLoss": 0,
+        "averageWin": 27.946542321447513,
+        "averageLoss": 0,
+        "profitFactor": null,
+        "contractsTraded": 1
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 90
+    },
+    "notes": []
+  },
+  {
+    "symbol": "SPY",
+    "date": "2025-10-30",
+    "mode": "intraday",
+    "netGex": 3302038612.6974053,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 685.8134764145783,
+      "bbMiddle": 684.1575050000001,
+      "bbLower": 682.501533585422,
+      "avgRSI": 44.421428571428564
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "SPY",
+    "date": "2025-10-31",
+    "mode": "intraday",
+    "netGex": 3424637971.6632857,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 685.1795122683928,
+      "bbMiddle": 682.27825,
+      "bbLower": 679.3769877316071,
+      "avgRSI": 52.60000000000001
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "QQQ",
+    "date": "2025-10-27",
+    "mode": "intraday",
+    "netGex": 321077630.4023148,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 627.733644803457,
+      "bbMiddle": 626.4387,
+      "bbLower": 625.1437551965431,
+      "avgRSI": 71.87428571428572
+    },
+    "trades": [
+      {
+        "id": "QQQ-2025-10-27T18:30:00.000Z",
+        "symbol": "QQQ",
+        "direction": "short",
+        "entryTimestamp": "2025-10-27T18:30:00.000Z",
+        "exitTimestamp": "2025-10-27T20:00:00.000Z",
+        "stock": {
+          "entryPrice": 627.425,
+          "exitPrice": 628.41,
+          "profit": -0.9850000000000136,
+          "profitPct": -0.15699087540343687
+        },
+        "option": {
+          "contract": "QQQ251105P00628000",
+          "strike": 628,
+          "expiration": "2025-11-05",
+          "entryPremium": 5.66,
+          "exitPremium": 4.6749999999999865,
+          "profit": -158.58000000000132,
+          "profitPct": -17.402826855123916,
+          "commission": 0.08,
+          "slippage": 59.999999999999964
+        },
+        "stopLoss": 628.67985,
+        "target": 626.55745,
+        "entryRSI": 73.03,
+        "exitRSI": 76.45,
+        "durationMinutes": 90,
+        "exitReason": "end_of_day",
+        "netGex": 321077630.4023148
+      }
+    ],
+    "summary": {
+      "tradeCount": 1,
+      "winCount": 0,
+      "lossCount": 1,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": -0.9850000000000136,
+        "grossProfit": 0,
+        "grossLoss": 0.9850000000000136,
+        "averageWin": 0,
+        "averageLoss": 0.9850000000000136,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": -158.58000000000132,
+        "grossProfit": 0,
+        "grossLoss": 158.58000000000132,
+        "averageWin": 0,
+        "averageLoss": 158.58000000000132,
+        "profitFactor": 0,
+        "contractsTraded": 1
+      },
+      "maxDrawdown": 0.9850000000000136,
+      "averageDurationMinutes": 90
+    },
+    "notes": []
+  },
+  {
+    "symbol": "QQQ",
+    "date": "2025-10-28",
+    "mode": "intraday",
+    "netGex": 326034779.17066514,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 633.44705459682,
+      "bbMiddle": 631.2250950000001,
+      "bbLower": 629.0031354031803,
+      "avgRSI": 67.51
+    },
+    "trades": [
+      {
+        "id": "QQQ-2025-10-28T18:30:00.000Z",
+        "symbol": "QQQ",
+        "direction": "short",
+        "entryTimestamp": "2025-10-28T18:30:00.000Z",
+        "exitTimestamp": "2025-10-28T20:00:00.000Z",
+        "stock": {
+          "entryPrice": 633.5352,
+          "exitPrice": 632.92,
+          "profit": 0.6152000000000726,
+          "profitPct": 0.09710589088026562
+        },
+        "option": {
+          "contract": "QQQ251105P00634000",
+          "strike": 634,
+          "expiration": "2025-11-05",
+          "entryPremium": 11.665,
+          "exitPremium": 12.280200000000072,
+          "profit": 2.440000000007096,
+          "profitPct": 5.273896270896465,
+          "commission": 0.08,
+          "slippage": 59.00000000000016
+        },
+        "stopLoss": 634.8022704,
+        "target": 631.3533550000002,
+        "entryRSI": 71.51,
+        "exitRSI": 55.34,
+        "durationMinutes": 90,
+        "exitReason": "end_of_day",
+        "netGex": 326034779.17066514
+      }
+    ],
+    "summary": {
+      "tradeCount": 1,
+      "winCount": 1,
+      "lossCount": 0,
+      "winRate": 1,
+      "stock": {
+        "totalProfit": 0.6152000000000726,
+        "grossProfit": 0.6152000000000726,
+        "grossLoss": 0,
+        "averageWin": 0.6152000000000726,
+        "averageLoss": 0,
+        "profitFactor": null
+      },
+      "options": {
+        "totalProfit": 2.440000000007096,
+        "grossProfit": 2.440000000007096,
+        "grossLoss": 0,
+        "averageWin": 2.440000000007096,
+        "averageLoss": 0,
+        "profitFactor": null,
+        "contractsTraded": 1
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 90
+    },
+    "notes": []
+  },
+  {
+    "symbol": "QQQ",
+    "date": "2025-10-29",
+    "mode": "intraday",
+    "netGex": 328977619.28949344,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 636.4938042281817,
+      "bbMiddle": 635.34585,
+      "bbLower": 634.1978957718184,
+      "avgRSI": 43.61285714285714
+    },
+    "trades": [
+      {
+        "id": "QQQ-2025-10-29T18:30:00.000Z",
+        "symbol": "QQQ",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:30:00.000Z",
+        "exitTimestamp": "2025-10-29T19:45:00.000Z",
+        "stock": {
+          "entryPrice": 630.79,
+          "exitPrice": 635.865,
+          "profit": 5.0750000000000455,
+          "profitPct": 0.8045466795605583
+        },
+        "option": {
+          "contract": "QQQ251106C00630000",
+          "strike": 630,
+          "expiration": "2025-11-06",
+          "entryPremium": 0.21500000000000002,
+          "exitPremium": 0.7441261412787901,
+          "profit": 49.832614127879,
+          "profitPct": 246.10518199013484,
+          "commission": 0.08,
+          "slippage": 3
+        },
+        "stopLoss": 629.52842,
+        "target": 635.0948500000001,
+        "entryRSI": 25.52,
+        "exitRSI": 54.68,
+        "durationMinutes": 75,
+        "exitReason": "target",
+        "netGex": 328977619.28949344
+      }
+    ],
+    "summary": {
+      "tradeCount": 1,
+      "winCount": 1,
+      "lossCount": 0,
+      "winRate": 1,
+      "stock": {
+        "totalProfit": 5.0750000000000455,
+        "grossProfit": 5.0750000000000455,
+        "grossLoss": 0,
+        "averageWin": 5.0750000000000455,
+        "averageLoss": 0,
+        "profitFactor": null
+      },
+      "options": {
+        "totalProfit": 49.832614127879,
+        "grossProfit": 49.832614127879,
+        "grossLoss": 0,
+        "averageWin": 49.832614127879,
+        "averageLoss": 0,
+        "profitFactor": null,
+        "contractsTraded": 1
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 75
+    },
+    "notes": []
+  },
+  {
+    "symbol": "QQQ",
+    "date": "2025-10-30",
+    "mode": "intraday",
+    "netGex": 992164381.6403359,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 632.3094177367865,
+      "bbMiddle": 630.3116399999999,
+      "bbLower": 628.3138622632133,
+      "avgRSI": 46.08857142857143
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "QQQ",
+    "date": "2025-10-31",
+    "mode": "intraday",
+    "netGex": 1035643591.3717594,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 634.5642544569554,
+      "bbMiddle": 630.427025,
+      "bbLower": 626.2897955430445,
+      "avgRSI": 46.49857142857143
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "AAPL",
+    "date": "2025-10-27",
+    "mode": "intraday",
+    "netGex": 522947210.3282182,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 266.250226069871,
+      "bbMiddle": 265.77750499999996,
+      "bbLower": 265.3047839301289,
+      "avgRSI": 66.23428571428572
+    },
+    "trades": [
+      {
+        "id": "AAPL-2025-10-27T19:30:00.000Z",
+        "symbol": "AAPL",
+        "direction": "short",
+        "entryTimestamp": "2025-10-27T19:30:00.000Z",
+        "exitTimestamp": "2025-10-27T19:45:00.000Z",
+        "stock": {
+          "entryPrice": 267.7301,
+          "exitPrice": 268.74,
+          "profit": -1.009900000000016,
+          "profitPct": -0.3772082406871756
+        },
+        "option": {
+          "contract": "AAPL251107P00270000",
+          "strike": 270,
+          "expiration": "2025-11-07",
+          "entryPremium": 1.865,
+          "exitPremium": 1.4040329549326322,
+          "profit": -41.17670450673678,
+          "profitPct": -24.71673163900095,
+          "commission": 0.08,
+          "slippage": -4.999999999999982
+        },
+        "stopLoss": 268.2655602,
+        "target": 265.9675249999999,
+        "entryRSI": 71.37,
+        "exitRSI": 77.32,
+        "durationMinutes": 15,
+        "exitReason": "stop",
+        "netGex": 522947210.3282182
+      },
+      {
+        "id": "AAPL-2025-10-27T19:45:00.000Z",
+        "symbol": "AAPL",
+        "direction": "short",
+        "entryTimestamp": "2025-10-27T19:45:00.000Z",
+        "exitTimestamp": "2025-10-27T20:00:00.000Z",
+        "stock": {
+          "entryPrice": 268.74,
+          "exitPrice": 268.73,
+          "profit": 0.009999999999990905,
+          "profitPct": 0.00372106869092465
+        },
+        "option": {
+          "contract": "AAPL251107P00270000",
+          "strike": 270,
+          "expiration": "2025-11-07",
+          "entryPremium": 1.865,
+          "exitPremium": 1.8695644820780963,
+          "profit": 5.3764482078096165,
+          "profitPct": 0.24474434735101036,
+          "commission": 0.08,
+          "slippage": -4.999999999999982
+        },
+        "stopLoss": 269.27748,
+        "target": 266.13452499999994,
+        "entryRSI": 77.32,
+        "exitRSI": 77.15,
+        "durationMinutes": 15,
+        "exitReason": "end_of_day",
+        "netGex": 522947210.3282182
+      }
+    ],
+    "summary": {
+      "tradeCount": 2,
+      "winCount": 1,
+      "lossCount": 1,
+      "winRate": 0.5,
+      "stock": {
+        "totalProfit": -0.9999000000000251,
+        "grossProfit": 0.009999999999990905,
+        "grossLoss": 1.009900000000016,
+        "averageWin": 0.009999999999990905,
+        "averageLoss": 1.009900000000016,
+        "profitFactor": 0.00990197049211877
+      },
+      "options": {
+        "totalProfit": -35.80025629892717,
+        "grossProfit": 5.3764482078096165,
+        "grossLoss": 41.17670450673678,
+        "averageWin": 5.3764482078096165,
+        "averageLoss": 41.17670450673678,
+        "profitFactor": 0.1305701432937644,
+        "contractsTraded": 2
+      },
+      "maxDrawdown": 1.009900000000016,
+      "averageDurationMinutes": 15
+    },
+    "notes": []
+  },
+  {
+    "symbol": "AAPL",
+    "date": "2025-10-28",
+    "mode": "intraday",
+    "netGex": 523686729.57762724,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 269.59233448609706,
+      "bbMiddle": 268.93635,
+      "bbLower": 268.28036551390295,
+      "avgRSI": 46.00571428571429
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "AAPL",
+    "date": "2025-10-29",
+    "mode": "intraday",
+    "netGex": 526415782.91929483,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 271.54002157753746,
+      "bbMiddle": 269.46175,
+      "bbLower": 267.38347842246253,
+      "avgRSI": 44.808571428571426
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "AAPL",
+    "date": "2025-10-30",
+    "mode": "intraday",
+    "netGex": 533073011.4254871,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 272.9499860368219,
+      "bbMiddle": 271.07584499999996,
+      "bbLower": 269.20170396317803,
+      "avgRSI": 51.07857142857143
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "AAPL",
+    "date": "2025-10-31",
+    "mode": "intraday",
+    "netGex": 529034519.8033735,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 272.57124748626916,
+      "bbMiddle": 271.11263500000007,
+      "bbLower": 269.654022513731,
+      "avgRSI": 54.394285714285715
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "MSFT",
+    "date": "2025-10-27",
+    "mode": "intraday",
+    "netGex": -448040076.1974588,
+    "regime": "negative_gex",
+    "technicals": {
+      "bbUpper": null,
+      "bbMiddle": null,
+      "bbLower": null,
+      "avgRSI": null
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "totalProfit": 0,
+      "grossProfit": 0,
+      "grossLoss": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "profitFactor": 0,
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": [
+      "Skipped: Net GEX is -448.0M (not positive)"
+    ]
+  },
+  {
+    "symbol": "MSFT",
+    "date": "2025-10-28",
+    "mode": "intraday",
+    "netGex": -466002649.69292074,
+    "regime": "negative_gex",
+    "technicals": {
+      "bbUpper": null,
+      "bbMiddle": null,
+      "bbLower": null,
+      "avgRSI": null
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "totalProfit": 0,
+      "grossProfit": 0,
+      "grossLoss": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "profitFactor": 0,
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": [
+      "Skipped: Net GEX is -466.0M (not positive)"
+    ]
+  },
+  {
+    "symbol": "MSFT",
+    "date": "2025-10-29",
+    "mode": "intraday",
+    "netGex": -465109019.16504127,
+    "regime": "negative_gex",
+    "technicals": {
+      "bbUpper": null,
+      "bbMiddle": null,
+      "bbLower": null,
+      "avgRSI": null
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "totalProfit": 0,
+      "grossProfit": 0,
+      "grossLoss": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "profitFactor": 0,
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": [
+      "Skipped: Net GEX is -465.1M (not positive)"
+    ]
+  },
+  {
+    "symbol": "MSFT",
+    "date": "2025-10-30",
+    "mode": "intraday",
+    "netGex": -438382010.81189156,
+    "regime": "negative_gex",
+    "technicals": {
+      "bbUpper": null,
+      "bbMiddle": null,
+      "bbLower": null,
+      "avgRSI": null
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "totalProfit": 0,
+      "grossProfit": 0,
+      "grossLoss": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "profitFactor": 0,
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": [
+      "Skipped: Net GEX is -438.4M (not positive)"
+    ]
+  },
+  {
+    "symbol": "MSFT",
+    "date": "2025-10-31",
+    "mode": "intraday",
+    "netGex": -425224723.593449,
+    "regime": "negative_gex",
+    "technicals": {
+      "bbUpper": null,
+      "bbMiddle": null,
+      "bbLower": null,
+      "avgRSI": null
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "totalProfit": 0,
+      "grossProfit": 0,
+      "grossLoss": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "profitFactor": 0,
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": [
+      "Skipped: Net GEX is -425.2M (not positive)"
+    ]
+  },
+  {
+    "symbol": "NVDA",
+    "date": "2025-10-27",
+    "mode": "intraday",
+    "netGex": 230841353.78523216,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 191.695680056566,
+      "bbMiddle": 190.88689000000002,
+      "bbLower": 190.07809994343404,
+      "avgRSI": 49.215714285714284
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "NVDA",
+    "date": "2025-10-28",
+    "mode": "intraday",
+    "netGex": 254415261.5062092,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 198.5409429757347,
+      "bbMiddle": 194.546906,
+      "bbLower": 190.5528690242653,
+      "avgRSI": 74.41999999999999
+    },
+    "trades": [
+      {
+        "id": "NVDA-2025-10-28T18:30:00.000Z",
+        "symbol": "NVDA",
+        "direction": "short",
+        "entryTimestamp": "2025-10-28T18:30:00.000Z",
+        "exitTimestamp": "2025-10-28T19:00:00.000Z",
+        "stock": {
+          "entryPrice": 199.685,
+          "exitPrice": 201.585,
+          "profit": -1.9000000000000057,
+          "profitPct": -0.9514986103112429
+        },
+        "option": {
+          "contract": "NVDA251107P00200000",
+          "strike": 200,
+          "expiration": "2025-11-07",
+          "entryPremium": 5.75,
+          "exitPremium": 4.34535027272158,
+          "profit": -150.54497272784195,
+          "profitPct": -24.42869090918991,
+          "commission": 0.08,
+          "slippage": 9.999999999999964
+        },
+        "stopLoss": 200.08437,
+        "target": 194.836406,
+        "entryRSI": 72.94,
+        "exitRSI": 77.82,
+        "durationMinutes": 30,
+        "exitReason": "stop",
+        "netGex": 254415261.5062092
+      },
+      {
+        "id": "NVDA-2025-10-28T19:00:00.000Z",
+        "symbol": "NVDA",
+        "direction": "short",
+        "entryTimestamp": "2025-10-28T19:00:00.000Z",
+        "exitTimestamp": "2025-10-28T19:15:00.000Z",
+        "stock": {
+          "entryPrice": 201.585,
+          "exitPrice": 202.015,
+          "profit": -0.4299999999999784,
+          "profitPct": -0.21330952203783932
+        },
+        "option": {
+          "contract": "NVDA251107P00202500",
+          "strike": 202.5,
+          "expiration": "2025-11-07",
+          "entryPremium": 7.574999999999999,
+          "exitPremium": 7.212405607002088,
+          "profit": -81.33943929979114,
+          "profitPct": -4.786724660038432,
+          "commission": 0.08,
+          "slippage": 45.000000000000014
+        },
+        "stopLoss": 201.98817,
+        "target": 195.54268100000002,
+        "entryRSI": 77.82,
+        "exitRSI": 78.77,
+        "durationMinutes": 15,
+        "exitReason": "stop",
+        "netGex": 254415261.5062092
+      },
+      {
+        "id": "NVDA-2025-10-28T19:15:00.000Z",
+        "symbol": "NVDA",
+        "direction": "short",
+        "entryTimestamp": "2025-10-28T19:15:00.000Z",
+        "exitTimestamp": "2025-10-28T20:00:00.000Z",
+        "stock": {
+          "entryPrice": 202.015,
+          "exitPrice": 201.11,
+          "profit": 0.9049999999999727,
+          "profitPct": 0.4479865356532796
+        },
+        "option": {
+          "contract": "NVDA251107P00202500",
+          "strike": 202.5,
+          "expiration": "2025-11-07",
+          "entryPremium": 7.574999999999999,
+          "exitPremium": 8.338134710844455,
+          "profit": 31.233471084445597,
+          "profitPct": 10.074385621708993,
+          "commission": 0.08,
+          "slippage": 45.000000000000014
+        },
+        "stopLoss": 202.41903,
+        "target": 196.002181,
+        "entryRSI": 78.77,
+        "exitRSI": 71.24,
+        "durationMinutes": 45,
+        "exitReason": "end_of_day",
+        "netGex": 254415261.5062092
+      }
+    ],
+    "summary": {
+      "tradeCount": 3,
+      "winCount": 1,
+      "lossCount": 2,
+      "winRate": 0.3333333333333333,
+      "stock": {
+        "totalProfit": -1.4250000000000114,
+        "grossProfit": 0.9049999999999727,
+        "grossLoss": 2.329999999999984,
+        "averageWin": 0.9049999999999727,
+        "averageLoss": 1.164999999999992,
+        "profitFactor": 0.3884120171673729
+      },
+      "options": {
+        "totalProfit": -200.6509409431875,
+        "grossProfit": 31.233471084445597,
+        "grossLoss": 231.8844120276331,
+        "averageWin": 31.233471084445597,
+        "averageLoss": 115.94220601381654,
+        "profitFactor": 0.13469413839134467,
+        "contractsTraded": 3
+      },
+      "maxDrawdown": 2.329999999999984,
+      "averageDurationMinutes": 30
+    },
+    "notes": []
+  },
+  {
+    "symbol": "NVDA",
+    "date": "2025-10-29",
+    "mode": "intraday",
+    "netGex": 269854666.31839573,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 211.48425353650794,
+      "bbMiddle": 208.115975,
+      "bbLower": 204.74769646349205,
+      "avgRSI": 38.83857142857142
+    },
+    "trades": [
+      {
+        "id": "NVDA-2025-10-29T18:30:00.000Z",
+        "symbol": "NVDA",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:30:00.000Z",
+        "exitTimestamp": "2025-10-29T20:00:00.000Z",
+        "stock": {
+          "entryPrice": 205.2,
+          "exitPrice": 207.7,
+          "profit": 2.5,
+          "profitPct": 1.2183235867446396
+        },
+        "option": {
+          "contract": "NVDA251107C00205000",
+          "strike": 205,
+          "expiration": "2025-11-07",
+          "entryPremium": 0.29000000000000004,
+          "exitPremium": 0.5140866039269414,
+          "profit": 20.32866039269414,
+          "profitPct": 77.27124273342805,
+          "commission": 0.08,
+          "slippage": 1.9999999999999962
+        },
+        "stopLoss": 204.78959999999998,
+        "target": 207.83197499999997,
+        "entryRSI": 28.26,
+        "exitRSI": 45.65,
+        "durationMinutes": 90,
+        "exitReason": "end_of_day",
+        "netGex": 269854666.31839573
+      }
+    ],
+    "summary": {
+      "tradeCount": 1,
+      "winCount": 1,
+      "lossCount": 0,
+      "winRate": 1,
+      "stock": {
+        "totalProfit": 2.5,
+        "grossProfit": 2.5,
+        "grossLoss": 0,
+        "averageWin": 2.5,
+        "averageLoss": 0,
+        "profitFactor": null
+      },
+      "options": {
+        "totalProfit": 20.32866039269414,
+        "grossProfit": 20.32866039269414,
+        "grossLoss": 0,
+        "averageWin": 20.32866039269414,
+        "averageLoss": 0,
+        "profitFactor": null,
+        "contractsTraded": 1
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 90
+    },
+    "notes": []
+  },
+  {
+    "symbol": "NVDA",
+    "date": "2025-10-30",
+    "mode": "intraday",
+    "netGex": 259144919.2668098,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 204.29225495679287,
+      "bbMiddle": 203.28056000000007,
+      "bbLower": 202.26886504320726,
+      "avgRSI": 49.425714285714285
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "NVDA",
+    "date": "2025-10-31",
+    "mode": "intraday",
+    "netGex": 258124112.0682203,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 207.17054882116477,
+      "bbMiddle": 204.492005,
+      "bbLower": 201.81346117883524,
+      "avgRSI": 37.03857142857142
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "AMZN",
+    "date": "2025-10-27",
+    "mode": "intraday",
+    "netGex": 392059388.7702893,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 228.03109238422158,
+      "bbMiddle": 227.40508499999996,
+      "bbLower": 226.77907761577833,
+      "avgRSI": 42.82285714285714
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "AMZN",
+    "date": "2025-10-28",
+    "mode": "intraday",
+    "netGex": 399975722.7890116,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 231.2729492699627,
+      "bbMiddle": 228.518895,
+      "bbLower": 225.76484073003726,
+      "avgRSI": 59.75
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "AMZN",
+    "date": "2025-10-29",
+    "mode": "intraday",
+    "netGex": 403648013.1498667,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 231.97626261462307,
+      "bbMiddle": 230.17734900000005,
+      "bbLower": 228.37843538537703,
+      "avgRSI": 47.43571428571429
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "AMZN",
+    "date": "2025-10-30",
+    "mode": "intraday",
+    "netGex": 377989029.6858298,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 228.32265995264774,
+      "bbMiddle": 226.29847,
+      "bbLower": 224.27428004735228,
+      "avgRSI": 50.542857142857144
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "AMZN",
+    "date": "2025-10-31",
+    "mode": "intraday",
+    "netGex": 453917991.7328486,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 248.55584445513355,
+      "bbMiddle": 246.760157,
+      "bbLower": 244.96446954486643,
+      "avgRSI": 43.059999999999995
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "TSLA",
+    "date": "2025-10-27",
+    "mode": "intraday",
+    "netGex": 622214866.2590054,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 463.44011550038033,
+      "bbMiddle": 453.7539099999999,
+      "bbLower": 444.0677044996195,
+      "avgRSI": 57.42
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "TSLA",
+    "date": "2025-10-28",
+    "mode": "intraday",
+    "netGex": 644778230.0174097,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 467.17799672514616,
+      "bbMiddle": 463.14049000000006,
+      "bbLower": 459.10298327485395,
+      "avgRSI": 48.77857142857143
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "TSLA",
+    "date": "2025-10-29",
+    "mode": "intraday",
+    "netGex": 647469065.883444,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 463.28605545413654,
+      "bbMiddle": 460.184565,
+      "bbLower": 457.0830745458635,
+      "avgRSI": 48.31
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "TSLA",
+    "date": "2025-10-30",
+    "mode": "intraday",
+    "netGex": 588788785.5826174,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 450.27217967652973,
+      "bbMiddle": 444.88235000000003,
+      "bbLower": 439.49252032347033,
+      "avgRSI": 33.96714285714285
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "TSLA",
+    "date": "2025-10-31",
+    "mode": "intraday",
+    "netGex": 633654482.6478571,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 458.9076906616091,
+      "bbMiddle": 451.8397149999999,
+      "bbLower": 444.7717393383907,
+      "avgRSI": 60.76142857142857
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "META",
+    "date": "2025-10-27",
+    "mode": "intraday",
+    "netGex": -123369982.43936953,
+    "regime": "negative_gex",
+    "technicals": {
+      "bbUpper": null,
+      "bbMiddle": null,
+      "bbLower": null,
+      "avgRSI": null
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "totalProfit": 0,
+      "grossProfit": 0,
+      "grossLoss": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "profitFactor": 0,
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": [
+      "Skipped: Net GEX is -123.4M (not positive)"
+    ]
+  },
+  {
+    "symbol": "META",
+    "date": "2025-10-28",
+    "mode": "intraday",
+    "netGex": -123573815.50241527,
+    "regime": "negative_gex",
+    "technicals": {
+      "bbUpper": null,
+      "bbMiddle": null,
+      "bbLower": null,
+      "avgRSI": null
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "totalProfit": 0,
+      "grossProfit": 0,
+      "grossLoss": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "profitFactor": 0,
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": [
+      "Skipped: Net GEX is -123.6M (not positive)"
+    ]
+  },
+  {
+    "symbol": "META",
+    "date": "2025-10-29",
+    "mode": "intraday",
+    "netGex": -123649473.77786155,
+    "regime": "negative_gex",
+    "technicals": {
+      "bbUpper": null,
+      "bbMiddle": null,
+      "bbLower": null,
+      "avgRSI": null
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "totalProfit": 0,
+      "grossProfit": 0,
+      "grossLoss": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "profitFactor": 0,
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": [
+      "Skipped: Net GEX is -123.6M (not positive)"
+    ]
+  },
+  {
+    "symbol": "META",
+    "date": "2025-10-30",
+    "mode": "intraday",
+    "netGex": -97207337.49294667,
+    "regime": "negative_gex",
+    "technicals": {
+      "bbUpper": null,
+      "bbMiddle": null,
+      "bbLower": null,
+      "avgRSI": null
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "totalProfit": 0,
+      "grossProfit": 0,
+      "grossLoss": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "profitFactor": 0,
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": [
+      "Skipped: Net GEX is -97.2M (not positive)"
+    ]
+  },
+  {
+    "symbol": "META",
+    "date": "2025-10-31",
+    "mode": "intraday",
+    "netGex": -91993441.87232915,
+    "regime": "negative_gex",
+    "technicals": {
+      "bbUpper": null,
+      "bbMiddle": null,
+      "bbLower": null,
+      "avgRSI": null
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "totalProfit": 0,
+      "grossProfit": 0,
+      "grossLoss": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "profitFactor": 0,
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": [
+      "Skipped: Net GEX is -92.0M (not positive)"
+    ]
+  },
+  {
+    "symbol": "GOOGL",
+    "date": "2025-10-27",
+    "mode": "intraday",
+    "netGex": 289295355.7149374,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 269.12805677517645,
+      "bbMiddle": 266.69587500000006,
+      "bbLower": 264.26369322482367,
+      "avgRSI": 70.69285714285715
+    },
+    "trades": [
+      {
+        "id": "GOOGL-2025-10-27T18:30:00.000Z",
+        "symbol": "GOOGL",
+        "direction": "short",
+        "entryTimestamp": "2025-10-27T18:30:00.000Z",
+        "exitTimestamp": "2025-10-27T20:00:00.000Z",
+        "stock": {
+          "entryPrice": 269.49,
+          "exitPrice": 268.94,
+          "profit": 0.5500000000000114,
+          "profitPct": 0.20408920553638774
+        },
+        "option": {
+          "contract": "GOOGL251107P00270000",
+          "strike": 270,
+          "expiration": "2025-11-07",
+          "entryPremium": 0.13,
+          "exitPremium": 0.15870396372528017,
+          "profit": 0.790396372528015,
+          "profitPct": 22.07997209636936,
+          "commission": 0.08,
+          "slippage": 2.0000000000000018
+        },
+        "stopLoss": 270.02898,
+        "target": 266.911125,
+        "entryRSI": 84.22,
+        "exitRSI": 66.83,
+        "durationMinutes": 90,
+        "exitReason": "end_of_day",
+        "netGex": 289295355.7149374
+      }
+    ],
+    "summary": {
+      "tradeCount": 1,
+      "winCount": 1,
+      "lossCount": 0,
+      "winRate": 1,
+      "stock": {
+        "totalProfit": 0.5500000000000114,
+        "grossProfit": 0.5500000000000114,
+        "grossLoss": 0,
+        "averageWin": 0.5500000000000114,
+        "averageLoss": 0,
+        "profitFactor": null
+      },
+      "options": {
+        "totalProfit": 0.790396372528015,
+        "grossProfit": 0.790396372528015,
+        "grossLoss": 0,
+        "averageWin": 0.790396372528015,
+        "averageLoss": 0,
+        "profitFactor": null,
+        "contractsTraded": 1
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 90
+    },
+    "notes": []
+  },
+  {
+    "symbol": "GOOGL",
+    "date": "2025-10-28",
+    "mode": "intraday",
+    "netGex": 285440554.49373823,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 268.85723179317455,
+      "bbMiddle": 267.537595,
+      "bbLower": 266.2179582068255,
+      "avgRSI": 39.27428571428571
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "GOOGL",
+    "date": "2025-10-29",
+    "mode": "intraday",
+    "netGex": 300795744.9055713,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 273.9724106591016,
+      "bbMiddle": 271.04852500000004,
+      "bbLower": 268.12463934089845,
+      "avgRSI": 69.80857142857143
+    },
+    "trades": [
+      {
+        "id": "GOOGL-2025-10-29T19:45:00.000Z",
+        "symbol": "GOOGL",
+        "direction": "short",
+        "entryTimestamp": "2025-10-29T19:45:00.000Z",
+        "exitTimestamp": "2025-10-29T20:00:00.000Z",
+        "stock": {
+          "entryPrice": 275.04,
+          "exitPrice": 289.224,
+          "profit": -14.183999999999969,
+          "profitPct": -5.157068062827213
+        },
+        "option": {
+          "contract": "GOOGL251107P00277500",
+          "strike": 277.5,
+          "expiration": "2025-11-07",
+          "entryPremium": 0.685,
+          "exitPremium": 0.01,
+          "profit": -70.57999999999998,
+          "profitPct": -98.54014598540147,
+          "commission": 0.08,
+          "slippage": 2.9999999999999916
+        },
+        "stopLoss": 275.59008,
+        "target": 272.2930249999999,
+        "entryRSI": 72.36,
+        "exitRSI": 89.77,
+        "durationMinutes": 15,
+        "exitReason": "stop",
+        "netGex": 300795744.9055713
+      }
+    ],
+    "summary": {
+      "tradeCount": 1,
+      "winCount": 0,
+      "lossCount": 1,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": -14.183999999999969,
+        "grossProfit": 0,
+        "grossLoss": 14.183999999999969,
+        "averageWin": 0,
+        "averageLoss": 14.183999999999969,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": -70.57999999999998,
+        "grossProfit": 0,
+        "grossLoss": 70.57999999999998,
+        "averageWin": 0,
+        "averageLoss": 70.57999999999998,
+        "profitFactor": 0,
+        "contractsTraded": 1
+      },
+      "maxDrawdown": 14.183999999999969,
+      "averageDurationMinutes": 15
+    },
+    "notes": []
+  },
+  {
+    "symbol": "GOOGL",
+    "date": "2025-10-30",
+    "mode": "intraday",
+    "netGex": 316126283.52101916,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 291.17471891300056,
+      "bbMiddle": 286.33206499999994,
+      "bbLower": 281.4894110869993,
+      "avgRSI": 52.68857142857143
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "GOOGL",
+    "date": "2025-10-31",
+    "mode": "intraday",
+    "netGex": 315475229.11964506,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 282.02078273148356,
+      "bbMiddle": 280.05813,
+      "bbLower": 278.09547726851645,
+      "avgRSI": 49.708571428571425
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "AMD",
+    "date": "2025-10-27",
+    "mode": "intraday",
+    "netGex": 106794233.81253126,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 256.99990115865296,
+      "bbMiddle": 254.78525999999997,
+      "bbLower": 252.57061884134694,
+      "avgRSI": 60.96714285714285
+    },
+    "trades": [
+      {
+        "id": "AMD-2025-10-27T19:45:00.000Z",
+        "symbol": "AMD",
+        "direction": "short",
+        "entryTimestamp": "2025-10-27T19:45:00.000Z",
+        "exitTimestamp": "2025-10-27T20:00:00.000Z",
+        "stock": {
+          "entryPrice": 259.64,
+          "exitPrice": 259.76,
+          "profit": -0.12000000000000455,
+          "profitPct": -0.04621784008627505
+        },
+        "option": {
+          "contract": "AMD251107P00260000",
+          "strike": 260,
+          "expiration": "2025-11-07",
+          "entryPremium": 7.275,
+          "exitPremium": 7.205224200959091,
+          "profit": -22.057579904090836,
+          "profitPct": -0.9591175125898133,
+          "commission": 0.08,
+          "slippage": 14.999999999999947
+        },
+        "stopLoss": 260.15927999999997,
+        "target": 255.85659399999994,
+        "entryRSI": 70.21,
+        "exitRSI": 70.62,
+        "durationMinutes": 15,
+        "exitReason": "end_of_day",
+        "netGex": 106794233.81253126
+      }
+    ],
+    "summary": {
+      "tradeCount": 1,
+      "winCount": 0,
+      "lossCount": 1,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": -0.12000000000000455,
+        "grossProfit": 0,
+        "grossLoss": 0.12000000000000455,
+        "averageWin": 0,
+        "averageLoss": 0.12000000000000455,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": -22.057579904090836,
+        "grossProfit": 0,
+        "grossLoss": 22.057579904090836,
+        "averageWin": 0,
+        "averageLoss": 22.057579904090836,
+        "profitFactor": 0,
+        "contractsTraded": 1
+      },
+      "maxDrawdown": 0.12000000000000455,
+      "averageDurationMinutes": 15
+    },
+    "notes": []
+  },
+  {
+    "symbol": "AMD",
+    "date": "2025-10-28",
+    "mode": "intraday",
+    "netGex": 105433184.93022802,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 263.6077587359461,
+      "bbMiddle": 261.18621499999995,
+      "bbLower": 258.7646712640538,
+      "avgRSI": 44.74571428571429
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "AMD",
+    "date": "2025-10-29",
+    "mode": "intraday",
+    "netGex": 110661654.82104763,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 265.7115021821351,
+      "bbMiddle": 261.934495,
+      "bbLower": 258.15748781786493,
+      "avgRSI": 46.71142857142858
+    },
+    "trades": [
+      {
+        "id": "AMD-2025-10-29T18:30:00.000Z",
+        "symbol": "AMD",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:30:00.000Z",
+        "exitTimestamp": "2025-10-29T18:45:00.000Z",
+        "stock": {
+          "entryPrice": 258.965,
+          "exitPrice": 261.805,
+          "profit": 2.840000000000032,
+          "profitPct": 1.0966732956191116
+        },
+        "option": {
+          "contract": "AMD251107C00257500",
+          "strike": 257.5,
+          "expiration": "2025-11-07",
+          "entryPremium": 4.825,
+          "exitPremium": 6.220620733789971,
+          "profit": 124.48207337899706,
+          "profitPct": 28.92478204746054,
+          "commission": 0.08,
+          "slippage": 15.000000000000036
+        },
+        "stopLoss": 258.44707,
+        "target": 261.628245,
+        "entryRSI": 28.32,
+        "exitRSI": 43.73,
+        "durationMinutes": 15,
+        "exitReason": "target",
+        "netGex": 110661654.82104763
+      }
+    ],
+    "summary": {
+      "tradeCount": 1,
+      "winCount": 1,
+      "lossCount": 0,
+      "winRate": 1,
+      "stock": {
+        "totalProfit": 2.840000000000032,
+        "grossProfit": 2.840000000000032,
+        "grossLoss": 0,
+        "averageWin": 2.840000000000032,
+        "averageLoss": 0,
+        "profitFactor": null
+      },
+      "options": {
+        "totalProfit": 124.48207337899706,
+        "grossProfit": 124.48207337899706,
+        "grossLoss": 0,
+        "averageWin": 124.48207337899706,
+        "averageLoss": 0,
+        "profitFactor": null,
+        "contractsTraded": 1
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 15
+    },
+    "notes": []
+  },
+  {
+    "symbol": "AMD",
+    "date": "2025-10-30",
+    "mode": "intraday",
+    "netGex": 102857233.74210452,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 262.7552032730403,
+      "bbMiddle": 259.65504500000003,
+      "bbLower": 256.55488672695975,
+      "avgRSI": 46.43428571428571
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "AMD",
+    "date": "2025-10-31",
+    "mode": "intraday",
+    "netGex": 103894183.58768505,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 262.67724328638474,
+      "bbMiddle": 257.868055,
+      "bbLower": 253.05886671361532,
+      "avgRSI": 44.99285714285715
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  }
+]

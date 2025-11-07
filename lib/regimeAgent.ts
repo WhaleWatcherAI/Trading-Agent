@@ -49,6 +49,7 @@ const DEFAULT_SYMBOLS = ['SPY', 'QQQ', 'AAPL', 'NVDA', 'TSLA', 'MSFT'];
 export interface RegimeAgentOptions {
   symbols?: string[];
   mode?: 'scalp' | 'swing' | 'leaps';
+  date?: string; // For historical backtesting - fetch data from this date
 }
 
 interface QuoteDetails {
@@ -81,7 +82,35 @@ const MODE_TO_GEX: Record<'scalp' | 'swing' | 'leaps', GexMode> = {
   leaps: 'leaps',
 };
 
-async function fetchQuote(symbol: string): Promise<QuoteDetails> {
+async function fetchQuote(symbol: string, date?: string): Promise<QuoteDetails> {
+  // For historical data, use /markets/history
+  if (date) {
+    const response = await tradierClient.get('/markets/history', {
+      params: {
+        symbol,
+        start: date,
+        end: date,
+      },
+    });
+
+    const history = response.data?.history?.day;
+    if (!history) {
+      throw new Error(`No historical data for ${symbol} on ${date}`);
+    }
+
+    const bar = Array.isArray(history) ? history[0] : history;
+
+    return {
+      symbol,
+      last: bar.close,
+      marketCap: null,
+      averageVolume: null,
+      optionsVolume: null,
+      timestamp: new Date(date),
+    };
+  }
+
+  // Current quote
   const response = await tradierClient.get('/markets/quotes', {
     params: { symbols: symbol },
   });
@@ -121,7 +150,7 @@ function determineLiquidityTier(
 function computeStage1Thresholds(tier: LiquidityTier): RegimeStage1Thresholds {
   if (tier === 'large') {
     return {
-      ivRank: 0.35,
+      ivRank: 35, // IV Rank as percentage (0-100), prefer low IVR
       volumeToOi: 1.5,
       whaleContracts: 200,
       whalePremium: 500_000,
@@ -129,7 +158,7 @@ function computeStage1Thresholds(tier: LiquidityTier): RegimeStage1Thresholds {
   }
 
   return {
-    ivRank: 0.25,
+    ivRank: 25, // IV Rank as percentage (0-100), prefer low IVR
     volumeToOi: 2.0,
     whaleContracts: 100,
     whalePremium: 250_000,
@@ -272,11 +301,8 @@ function buildStage1Result(
     failedCriteria.push('Volume/OI');
   }
 
-  const ivMomentum = metrics.ivDelta15m ?? metrics.ivDelta30m ?? null;
-
-  if (ivMomentum === null || ivMomentum <= 0) {
-    failedCriteria.push('IVΔ');
-  }
+  // Note: IV rising check (ivDelta) is in Stage 2, not Stage 1
+  // Stage 1 is just universe filtering from whale flow
 
   if (whaleTrades.length === 0) {
     failedCriteria.push('Whale Flow');
@@ -688,15 +714,17 @@ function buildTradeSignals(
   stage2: RegimeStage2Summary,
   stage3: RegimeStage3Profile,
 ): RegimeTradeSignal[] {
-  if (!stage1.passes) {
-    return [];
-  }
+  // TEMPORARY: Skip Stage 1 filtering - generate signals purely based on GEX levels
+  // if (!stage1.passes) {
+  //   return [];
+  // }
 
   const signals: RegimeTradeSignal[] = [];
   const ivDelta = stage1.metrics.ivDelta15m ?? 0;
-  if (ivDelta <= 0) {
-    return [];
-  }
+  // TEMPORARY: Skip IV delta check for backtesting
+  // if (ivDelta <= 0) {
+  //   return [];
+  // }
 
   const size = determinePositionSize(stage1.metrics.ivRank);
   const timeframeByMode: Record<'scalp' | 'swing' | 'leaps', number> = {
@@ -708,20 +736,76 @@ function buildTradeSignals(
   const whaleCalls = stage1.whaleTrades.filter(trade => trade.optionType === 'call');
   const whalePuts = stage1.whaleTrades.filter(trade => trade.optionType === 'put');
 
+  // Calculate net whale flow: positive = bullish, negative = bearish
+  const totalCallPremium = whaleCalls.reduce((sum, t) => sum + t.premium, 0);
+  const totalPutPremium = whalePuts.reduce((sum, t) => sum + t.premium, 0);
+  const netWhaleFlow = totalCallPremium - totalPutPremium;
+  const whaleFlowBias = netWhaleFlow > 0 ? 'bullish' : netWhaleFlow < 0 ? 'bearish' : 'neutral';
+
+  // Stop loss percentages by mode
+  const stopPctByMode: Record<'scalp' | 'swing' | 'leaps', number> = {
+    scalp: 0.01,   // 1% for scalp
+    swing: 0.015,  // 1.5% for swing
+    leaps: 0.02,   // 2% for leaps
+  };
+  const stopPct = stopPctByMode[stage2.mode];
+
+  // Target percentages by mode
+  const targetPctByMode: Record<'scalp' | 'swing' | 'leaps', number> = {
+    scalp: 0.003,   // 0.3% for scalp first target (tighter)
+    swing: 0.015,   // 1.5% for swing first target
+    leaps: 0.03,    // 3% for leaps first target
+  };
+  const targetPct = targetPctByMode[stage2.mode];
+
+  // Minimum whale flow strength filter
+  const minWhaleFlowStrength = 500_000; // $500K minimum net flow (relaxed from $1M)
+  if (Math.abs(netWhaleFlow) < minWhaleFlowStrength) {
+    return signals; // Whale flow too weak, skip
+  }
+
+  // Maximum distance from price for trigger levels (by mode)
+  const maxTriggerDistanceByMode: Record<'scalp' | 'swing' | 'leaps', number> = {
+    scalp: 0.005,  // 0.5% max for scalp (very tight - must be at the wall NOW)
+    swing: 0.03,   // 3% max for swing
+    leaps: 0.08,   // 8% max for leaps
+  };
+  const maxTriggerDistance = maxTriggerDistanceByMode[stage2.mode];
+
   if (stage2.regime === 'expansion') {
     const breakoutWall = stage3.callWalls[0] || stage3.profile.find(level => level.classification === 'call_wall');
     if (breakoutWall) {
-      const stopBase = stage2.gammaFlipLevel || breakoutWall.strike * 0.985;
-      const firstTarget = breakoutWall.strike + Math.max(1, breakoutWall.strike * 0.02);
+      // For expansion breakout LONG: wall must be ABOVE current price (we're waiting to break higher)
+      if (breakoutWall.strike <= price) {
+        return signals; // Price already above breakout level, skip
+      }
+
+      // Check if breakout wall is close enough to current price
+      const distanceToWall = Math.abs(breakoutWall.strike - price) / price;
+      if (distanceToWall > maxTriggerDistance) {
+        return signals; // Wall too far from current price, skip
+      }
+
+      // Only generate LONG signal if whale flow is bullish or neutral
+      if (whaleFlowBias === 'bearish') {
+        return signals; // Skip - whale flow contradicts regime
+      }
+
+      // Stop: Below trigger level by stop %
+      const stopBase = breakoutWall.strike * (1 - stopPct);
+      // Target: Use percentage-based targets from trigger level
+      const firstTarget = breakoutWall.strike * (1 + targetPct);
+      const secondaryTarget = breakoutWall.strike * (1 + targetPct * 2);
+
       const rationale = [
-        `Negative net GEX ($${stage2.netGex.toFixed(2)}), dealers short gamma`,
-        `Price approaching call wall at ${breakoutWall.strike.toFixed(2)}`,
-        `IV rising by ${(ivDelta * 100).toFixed(2)}% (approx)`,
+        `Negative net GEX ($${(stage2.netGex / 1_000_000).toFixed(1)}M), dealers short gamma`,
+        `Price at $${price.toFixed(2)}, breakout trigger at call wall $${breakoutWall.strike.toFixed(2)}`,
+        `Whale flow: ${whaleFlowBias.toUpperCase()} (net $${(netWhaleFlow / 1_000_000).toFixed(1)}M)`,
       ];
       if (whaleCalls.length > 0) {
-        rationale.push(`Recent call sweep: ${whaleCalls[0].contracts} contracts ~$${(whaleCalls[0].premium / 1000).toFixed(1)}k`);
+        rationale.push(`Top call sweep: ${whaleCalls[0].contracts} contracts @ $${whaleCalls[0].strike} (~$${(whaleCalls[0].premium / 1000).toFixed(0)}k)`);
       }
-      const risk = Math.max(0.01, Math.abs(breakoutWall.strike - stopBase));
+      const risk = breakoutWall.strike - stopBase;
 
       signals.push({
         id: `${symbol}-expansion-long`,
@@ -738,7 +822,7 @@ function buildTradeSignals(
         },
         stopLoss: stopBase,
         firstTarget,
-        secondaryTarget: firstTarget + Math.max(1, breakoutWall.strike * 0.015),
+        secondaryTarget,
         rationale,
         whaleConfirmation: whaleCalls[0] || null,
         riskPerShare: risk,
@@ -752,18 +836,35 @@ function buildTradeSignals(
       const distanceToUpper = Math.abs(price - upperWall.strike) / price;
       const distanceToLower = Math.abs(price - lowerZone.strike) / price;
 
+      // Only trade if price is near a wall (use mode-based distance filter)
+      if (Math.min(distanceToUpper, distanceToLower) > maxTriggerDistance) {
+        return signals; // Price not near any wall, skip
+      }
+
       if (distanceToUpper < distanceToLower) {
-        const stop = upperWall.strike + Math.max(1, upperWall.strike * 0.01);
-        const target = lowerZone.strike + Math.max(1, lowerZone.strike * 0.01);
+        // Price near upper wall - consider SHORT fade if whale flow supports
+        // For SHORT fade: wall must be ABOVE current price (we're waiting for price to test resistance)
+        if (upperWall.strike <= price) {
+          return signals; // Price already above upper wall, skip
+        }
+
+        if (whaleFlowBias === 'bullish') {
+          return signals; // Skip - whale flow contradicts fade
+        }
+
+        const stop = upperWall.strike * (1 + stopPct);
+        const target = upperWall.strike * (1 - targetPct); // Target from trigger towards lower zone
+        const secondaryTarget = lowerZone.strike * (1 + targetPct * 2);
+
         const rationale = [
-          `Positive net GEX ($${stage2.netGex.toFixed(2)}) indicates range`,
-          `Price nearing call wall ${upperWall.strike.toFixed(2)} (dealer fade)`,
-          `IV still rising supports short premium scalp`,
+          `Positive net GEX ($${(stage2.netGex / 1_000_000).toFixed(1)}M) indicates range`,
+          `Price at $${price.toFixed(2)} near call wall $${upperWall.strike.toFixed(2)} (dealer fade)`,
+          `Whale flow: ${whaleFlowBias.toUpperCase()} (net $${(netWhaleFlow / 1_000_000).toFixed(1)}M)`,
         ];
         if (whalePuts.length > 0) {
-          rationale.push(`Put whale hedge spotted (${whalePuts[0].contracts} contracts)`);
+          rationale.push(`Put hedge: ${whalePuts[0].contracts} contracts @ $${whalePuts[0].strike}`);
         }
-        const risk = Math.max(0.01, Math.abs(stop - upperWall.strike));
+        const risk = Math.abs(stop - upperWall.strike);
 
         signals.push({
           id: `${symbol}-pin-short`,
@@ -780,24 +881,36 @@ function buildTradeSignals(
           },
           stopLoss: stop,
           firstTarget: target,
-          secondaryTarget: lowerZone.strike,
+          secondaryTarget,
           rationale,
           whaleConfirmation: whalePuts[0] || whaleCalls[0] || null,
           riskPerShare: risk,
           timeframeMinutes: timeframe,
         });
       } else {
-        const stop = lowerZone.strike - Math.max(1, lowerZone.strike * 0.01);
-        const target = upperWall.strike - Math.max(1, upperWall.strike * 0.01);
+        // Price near lower zone - consider LONG reversion if whale flow supports
+        // For LONG reversion: wall must be BELOW current price (we're waiting for price to dip to support)
+        if (lowerZone.strike >= price) {
+          return signals; // Price already below support level, skip
+        }
+
+        if (whaleFlowBias === 'bearish') {
+          return signals; // Skip - whale flow contradicts reversion
+        }
+
+        const stop = lowerZone.strike * (1 - stopPct);
+        const target = lowerZone.strike * (1 + targetPct); // Target from trigger upwards
+        const secondaryTarget = lowerZone.strike * (1 + targetPct * 2);
+
         const rationale = [
-          `Positive net GEX ($${stage2.netGex.toFixed(2)}) provides support`,
-          `Price bouncing near put wall ${lowerZone.strike.toFixed(2)}`,
-          `IV expansion plus whale flow support long fade`,
+          `Positive net GEX ($${(stage2.netGex / 1_000_000).toFixed(1)}M) provides support`,
+          `Price at $${price.toFixed(2)} near put wall $${lowerZone.strike.toFixed(2)} (reversion)`,
+          `Whale flow: ${whaleFlowBias.toUpperCase()} (net $${(netWhaleFlow / 1_000_000).toFixed(1)}M)`,
         ];
         if (whaleCalls.length > 0) {
-          rationale.push(`Call whale support: ${whaleCalls[0].contracts}c`);
+          rationale.push(`Call support: ${whaleCalls[0].contracts} contracts @ $${whaleCalls[0].strike}`);
         }
-        const risk = Math.max(0.01, Math.abs(lowerZone.strike - stop));
+        const risk = Math.abs(lowerZone.strike - stop);
 
         signals.push({
           id: `${symbol}-pin-long`,
@@ -814,7 +927,7 @@ function buildTradeSignals(
           },
           stopLoss: stop,
           firstTarget: target,
-          secondaryTarget: upperWall.strike,
+          secondaryTarget,
           rationale,
           whaleConfirmation: whaleCalls[0] || null,
           riskPerShare: risk,
@@ -879,39 +992,81 @@ function buildAnalysisRecord(
 export async function analyzeVolatilityRegime(
   options: RegimeAgentOptions = {},
 ): Promise<VolatilityRegimeResponse> {
-  const symbols = options.symbols && options.symbols.length > 0 ? options.symbols : DEFAULT_SYMBOLS;
   const mode: 'scalp' | 'swing' | 'leaps' = options.mode || 'scalp';
   const gexMode = MODE_TO_GEX[mode];
+  const date = options.date; // Optional date for historical backtesting
+  let symbols = options.symbols || [];
+  const whaleMap = new Map<string, WhaleFlowAlert[]>();
 
-  const [volatilityStats, whaleAlerts] = await Promise.all([
-    getVolatilityStats(undefined, symbols).catch(() => [] as VolatilityStats[]),
-    getWhaleFlowAlerts({
-      symbols,
-      lookbackMinutes: 30,
-      limit: 400,
-    }).catch(() => [] as WhaleFlowAlert[]),
-  ]);
+  // If symbols are not provided, fetch them from whale flow
+  if (symbols.length === 0) {
+    // Step 1: Fetch ALL whale flow alerts (no symbol filter)
+    // This gives us the universe of tickers that whales traded today (or historical date)
+    const whaleAlerts = await getWhaleFlowAlerts({
+      symbols: [], // Empty = fetch all
+      lookbackMinutes: 390, // Full trading day
+      limit: 500,
+      date, // Pass date for historical data
+    })
+      .then(alerts => {
+        console.log('✅ Whale alerts received:', alerts.length);
+        return alerts;
+      })
+      .catch((err) => {
+        console.error('❌ getWhaleFlowAlerts error:', err.message || err);
+        return [] as WhaleFlowAlert[];
+      });
+
+    // Step 2: Extract unique tickers from whale alerts - this is our Stage 1 universe
+    whaleAlerts.forEach(alert => {
+      const key = alert.ticker.toUpperCase();
+      const existing = whaleMap.get(key) || [];
+      existing.push(alert);
+      whaleMap.set(key, existing);
+    });
+
+    symbols = Array.from(whaleMap.keys());
+    console.log(`📋 Stage 1 Universe: ${symbols.length} tickers from whale flow`);
+  } else {
+    console.log(`📋 Using provided universe of ${symbols.length} tickers.`);
+  }
+
+  if (symbols.length === 0) {
+    console.log('⚠️ No whale flow alerts found - empty universe');
+    return {
+      symbols: [],
+      mode,
+      universe: [],
+      analyses: [],
+    };
+  }
+
+  // Step 3: Fetch volatility stats for whale tickers
+  console.log(`Fetching volatility stats for ${date ? date : 'today'}...`);
+  const volatilityStats = await getVolatilityStats(date, symbols)
+    .then(stats => {
+      console.log('✅ Volatility stats received:', stats.length);
+      return stats;
+    })
+    .catch((err) => {
+      console.error('❌ getVolatilityStats error:', err.message || err);
+      console.error('Full error details:', err.response?.data || err);
+      return [] as VolatilityStats[];
+    });
 
   const statsMap = new Map(
     volatilityStats.map(item => [item.ticker.toUpperCase(), item]),
   );
 
-  const whaleMap = new Map<string, WhaleFlowAlert[]>();
-  whaleAlerts.forEach(alert => {
-    const key = alert.ticker.toUpperCase();
-    const existing = whaleMap.get(key) || [];
-    existing.push(alert);
-    whaleMap.set(key, existing);
-  });
-
   const analyses: VolatilityRegimeAnalysis[] = [];
   const universeResults: RegimeStage1Result[] = [];
 
+  // Step 4: Process each whale ticker through Stage 1 filtering
   for (const symbol of symbols) {
     try {
       const [quote, gex] = await Promise.all([
-        fetchQuote(symbol),
-        calculateGexForSymbol(symbol, gexMode),
+        fetchQuote(symbol, date),
+        calculateGexForSymbol(symbol, gexMode, date),
       ]);
 
       const stats = statsMap.get(symbol.toUpperCase());

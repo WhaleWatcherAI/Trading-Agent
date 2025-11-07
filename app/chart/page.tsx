@@ -44,16 +44,17 @@ export default function ChartPage() {
   const macdSignalSeriesRef = useRef<any>(null);
   const macdHistogramSeriesRef = useRef<any>(null);
 
-  const [symbol, setSymbol] = useState('AAPL');
-  const [debouncedSymbol, setDebouncedSymbol] = useState('AAPL'); // Debounced version for fetching
+  const [symbol, setSymbol] = useState('TSLA');
+  const [debouncedSymbol, setDebouncedSymbol] = useState('TSLA'); // Debounced version for fetching
   const [timeInterval, setTimeInterval] = useState('1min'); // Renamed to avoid conflict with window.setInterval
-  const [days, setDays] = useState(5);
+  const [days, setDays] = useState(2); // Set to 2 days to match backtest (48 hours)
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showVolume, setShowVolume] = useState(false);
   const [showRSI, setShowRSI] = useState(true);
   const [showMACD, setShowMACD] = useState(false);
-  const [showSMA20, setShowSMA20] = useState(false);
+  const [showSMA9, setShowSMA9] = useState(false);
+  const [showSMA20, setShowSMA20] = useState(true); // Enable SMA20 by default for backtest
   const [showSMA50, setShowSMA50] = useState(false);
   const [showSMA200, setShowSMA200] = useState(false);
   const [showBB, setShowBB] = useState(false);
@@ -91,9 +92,19 @@ const [sessionProfiles, setSessionProfiles] = useState<any[] | null>(null);
   const [rsiHeight, setRsiHeight] = useState(200);
   const [macdHeight, setMacdHeight] = useState(200);
 
+  const sma9Ref = useRef<any>(null);
   const sma20Ref = useRef<any>(null);
   const sma50Ref = useRef<any>(null);
   const sma200Ref = useRef<any>(null);
+  const sma9BuySignalsRef = useRef<any>(null); // For buy markers
+  const sma9SellSignalsRef = useRef<any>(null); // For sell markers
+  const sma20BuySignalsRef = useRef<any>(null); // For SMA20 buy markers
+  const sma20SellSignalsRef = useRef<any>(null); // For SMA20 sell markers
+
+  // Backtest state
+  const [backtestData, setBacktestData] = useState<any>(null);
+  const [backtestLoading, setBacktestLoading] = useState(false);
+  const [backtestError, setBacktestError] = useState<string | null>(null);
   const bbUpperRef = useRef<any>(null);
   const bbMiddleRef = useRef<any>(null);
   const bbLowerRef = useRef<any>(null);
@@ -146,6 +157,15 @@ const [sessionProfiles, setSessionProfiles] = useState<any[] | null>(null);
     const unrealizedPercent = costBasis !== 0 ? unrealized / costBasis : 0;
     return { marketValue, costBasis, unrealized, unrealizedPercent };
   }, [accountSnapshot]);
+
+  const callPutMix = useMemo(() => {
+    if (!backtestData || !Array.isArray(backtestData.trades)) {
+      return { callCount: 0, putCount: 0 };
+    }
+    const callCount = backtestData.trades.filter((trade: any) => trade.direction === 'CALL').length;
+    const putCount = backtestData.trades.length - callCount;
+    return { callCount, putCount };
+  }, [backtestData]);
 
 useEffect(() => {
   if (!stage3 || !sessionProfiles || sessionProfiles.length === 0) {
@@ -1115,6 +1135,47 @@ useEffect(() => {
     }
   };
 
+  const fetchBacktestData = useCallback(
+    async (overrideSymbol?: string) => {
+      const targetSymbol = sanitizeTicker(overrideSymbol ?? debouncedSymbol);
+      if (!targetSymbol) {
+        setBacktestError('Invalid symbol');
+        return;
+      }
+
+      setBacktestLoading(true);
+      setBacktestError(null);
+
+      try {
+        const params = new URLSearchParams({
+          symbol: targetSymbol,
+          days: '2',
+          interval: '15',
+          intrabar: '1',
+        });
+        const response = await fetch(`/api/mean-reversion/backtest?${params.toString()}`);
+        const data = await response.json();
+
+        if (!response.ok || data.error) {
+          setBacktestError(data.error || 'Failed to fetch mean reversion backtest data');
+          setBacktestData(null);
+        } else {
+          setBacktestData(data);
+          console.log(
+            `✅ Mean reversion backtest loaded for ${targetSymbol}: ${data.stats.totalTrades} trades (${data.stats.startDate} → ${data.stats.endDate})`,
+          );
+        }
+      } catch (error: any) {
+        console.error('Error fetching mean reversion backtest data:', error);
+        setBacktestError(error.message || 'Failed to fetch mean reversion backtest');
+        setBacktestData(null);
+      } finally {
+        setBacktestLoading(false);
+      }
+    },
+    [debouncedSymbol],
+  );
+
   const fetchChartData = useCallback(async () => {
     // Guard against undefined values (not empty strings, just undefined/null)
     if (timeInterval === undefined || timeInterval === null) {
@@ -1337,7 +1398,7 @@ useEffect(() => {
       setTimeout(() => fitChartContent(3), 600);
       setTimeout(() => fitChartContent(4), 1000);
 
-      // Add SMAs
+      // Add SMA20 (signals are handled separately in useEffect after backtest loads)
       if (showSMA20 && chartRef.current) {
         const sma20 = calculateSMA(data.candlesticks, 20);
         if (!sma20Ref.current) {
@@ -1351,6 +1412,14 @@ useEffect(() => {
       } else if (!showSMA20 && sma20Ref.current && chartRef.current) {
         chartRef.current.removeSeries(sma20Ref.current);
         sma20Ref.current = null;
+        if (sma20BuySignalsRef.current) {
+          chartRef.current.removeSeries(sma20BuySignalsRef.current);
+          sma20BuySignalsRef.current = null;
+        }
+        if (sma20SellSignalsRef.current) {
+          chartRef.current.removeSeries(sma20SellSignalsRef.current);
+          sma20SellSignalsRef.current = null;
+        }
       }
 
       if (showSMA50 && chartRef.current) {
@@ -1381,6 +1450,94 @@ useEffect(() => {
       } else if (!showSMA200 && sma200Ref.current && chartRef.current) {
         chartRef.current.removeSeries(sma200Ref.current);
         sma200Ref.current = null;
+      }
+
+      // Add SMA9 with Buy/Sell Signals
+      if (showSMA9 && chartRef.current) {
+        const sma9 = calculateSMA(data.candlesticks, 9);
+        if (!sma9Ref.current) {
+          sma9Ref.current = chartRef.current.addSeries(LineSeries, {
+            color: '#00E676',
+            lineWidth: 2,
+            title: 'SMA 9',
+          });
+        }
+        sma9Ref.current.setData(sma9);
+
+        // Calculate buy/sell signals using LineSeries for markers
+        const buySignals: any[] = [];
+        const sellSignals: any[] = [];
+        const candlesticks = data.candlesticks;
+
+        for (let i = 9; i < candlesticks.length; i++) {
+          const currentBar = candlesticks[i];
+          const previousClose = candlesticks[i - 1].close;
+          const currentSma = sma9[i - 9]?.value;
+          const previousSma = i > 9 ? sma9[i - 10]?.value : null;
+
+          if (currentSma && previousSma) {
+            // Bullish crossover: price crosses ABOVE SMA
+            const crossesUp = previousClose <= previousSma && currentBar.high > currentSma;
+            // Bearish crossover: price crosses BELOW SMA
+            const crossesDown = previousClose >= previousSma && currentBar.low < currentSma;
+
+            if (crossesUp) {
+              // Place marker below the bar
+              buySignals.push({
+                time: currentBar.time,
+                value: currentBar.low * 0.998, // Slightly below the low
+              });
+            } else if (crossesDown) {
+              // Place marker above the bar
+              sellSignals.push({
+                time: currentBar.time,
+                value: currentBar.high * 1.002, // Slightly above the high
+              });
+            }
+          }
+        }
+
+        console.log(`📍 Generated ${buySignals.length} buy signals and ${sellSignals.length} sell signals for SMA9`);
+
+        // Create buy signal markers (green triangles pointing up)
+        if (!sma9BuySignalsRef.current) {
+          sma9BuySignalsRef.current = chartRef.current.addSeries(LineSeries, {
+            color: '#00E676',
+            lineWidth: 0, // No line connecting the points
+            pointMarkersVisible: true,
+            pointMarkersRadius: 5,
+            title: 'BUY',
+          });
+        }
+        sma9BuySignalsRef.current.setData(buySignals);
+
+        // Create sell signal markers (red triangles pointing down)
+        if (!sma9SellSignalsRef.current) {
+          sma9SellSignalsRef.current = chartRef.current.addSeries(LineSeries, {
+            color: '#FF1744',
+            lineWidth: 0, // No line connecting the points
+            pointMarkersVisible: true,
+            pointMarkersRadius: 5,
+            title: 'SELL',
+          });
+        }
+        sma9SellSignalsRef.current.setData(sellSignals);
+
+        console.log('✅ Buy/Sell marker series created successfully');
+      } else if (!showSMA9 && sma9Ref.current && chartRef.current) {
+        // Remove SMA9 line
+        chartRef.current.removeSeries(sma9Ref.current);
+        sma9Ref.current = null;
+
+        // Remove buy/sell marker series
+        if (sma9BuySignalsRef.current) {
+          chartRef.current.removeSeries(sma9BuySignalsRef.current);
+          sma9BuySignalsRef.current = null;
+        }
+        if (sma9SellSignalsRef.current) {
+          chartRef.current.removeSeries(sma9SellSignalsRef.current);
+          sma9SellSignalsRef.current = null;
+        }
       }
 
       // Add Bollinger Bands
@@ -1688,12 +1845,14 @@ useEffect(() => {
   }, [debouncedSymbol, timeInterval, days, fetchChartData]);
 
   // Re-render indicators when they are toggled on/off
+  // Note: backtestData is intentionally NOT in dependencies to avoid unnecessary re-renders
   useEffect(() => {
     if (chartRef.current && candlestickDataRef.current && candlestickDataRef.current.length > 0) {
       console.log('🔄 Indicator toggled, re-rendering chart data');
       fetchChartData();
     }
-  }, [showVolume, showRSI, showMACD, showSMA20, showSMA50, showSMA200, showBB, showEMA, showVolumeProfile, fetchChartData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showVolume, showRSI, showMACD, showSMA9, showSMA20, showSMA50, showSMA200, showBB, showEMA, showVolumeProfile]);
 
   // Auto-fetch GEX when symbol changes or mode changes
   useEffect(() => {
@@ -1703,6 +1862,136 @@ useEffect(() => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSymbol, gexMode, showGEX]);
+
+  // Auto-fetch backtest data when symbol changes
+  useEffect(() => {
+    if (debouncedSymbol) {
+      console.log(`🔄 Auto-fetching mean reversion backtest for ${debouncedSymbol}`);
+      fetchBacktestData();
+    }
+  }, [debouncedSymbol, fetchBacktestData]);
+
+  const resolveIntervalSeconds = useCallback((interval: string) => {
+    switch (interval) {
+      case '1min':
+        return 60;
+      case '5min':
+        return 5 * 60;
+      case '15min':
+        return 15 * 60;
+      case '30min':
+        return 30 * 60;
+      case '1hour':
+        return 60 * 60;
+      case '4hour':
+        return 4 * 60 * 60;
+      case 'daily':
+        return 24 * 60 * 60;
+      case 'weekly':
+        return 7 * 24 * 60 * 60;
+      case 'monthly':
+        return 30 * 24 * 60 * 60;
+      default:
+        return 60;
+    }
+  }, []);
+
+  // Update signal markers when backtest data loads (without refetching chart data)
+  useEffect(() => {
+    if (!backtestData || !backtestData.trades || !candlestickDataRef.current || !chartRef.current) {
+      return;
+    }
+
+    const candlesticks = candlestickDataRef.current;
+    if (!Array.isArray(candlesticks) || candlesticks.length === 0) {
+      return;
+    }
+
+    console.log(`📍 Updating signal markers with ${backtestData.trades.length} backtest trades`);
+    console.log(`📊 Chart has ${candlesticks.length} candlesticks at interval ${timeInterval}`);
+
+    const intervalSeconds = resolveIntervalSeconds(timeInterval);
+    const buySignals: any[] = [];
+    const sellSignals: any[] = [];
+
+    backtestData.trades.forEach((trade: any, idx: number) => {
+      const entryTimeIso = trade.entryTimestamp || trade.entry?.time;
+      if (!entryTimeIso) {
+        return;
+      }
+      const entryEpoch = Math.floor(new Date(entryTimeIso).getTime() / 1000);
+
+      let targetCandle: any | null = null;
+      for (let i = 0; i < candlesticks.length; i++) {
+        const start =
+          typeof candlesticks[i].time === 'number'
+            ? candlesticks[i].time
+            : Math.floor(new Date(candlesticks[i].time).getTime() / 1000);
+        const end =
+          i < candlesticks.length - 1
+            ? typeof candlesticks[i + 1].time === 'number'
+              ? candlesticks[i + 1].time
+              : Math.floor(new Date(candlesticks[i + 1].time).getTime() / 1000)
+            : start + intervalSeconds;
+        if (entryEpoch >= start && entryEpoch < end) {
+          targetCandle = candlesticks[i];
+          if (idx === 0) {
+            console.log(
+              `✅ Matched trade at ${new Date(entryEpoch * 1000).toLocaleString()} to candle starting ${new Date(
+                start * 1000,
+              ).toLocaleString()}`,
+            );
+          }
+          break;
+        }
+      }
+
+      if (!targetCandle) {
+        if (idx < 3) {
+          console.log(
+            `❌ No candle match for trade ${idx + 1} (${new Date(entryEpoch * 1000).toLocaleString()})`,
+          );
+        }
+        return;
+      }
+
+      if (trade.direction === 'CALL') {
+        buySignals.push({
+          time: targetCandle.time,
+          value: typeof targetCandle.low === 'number' ? targetCandle.low * 0.998 : targetCandle.close * 0.998,
+        });
+      } else {
+        sellSignals.push({
+          time: targetCandle.time,
+          value: typeof targetCandle.high === 'number' ? targetCandle.high * 1.002 : targetCandle.close * 1.002,
+        });
+      }
+    });
+
+    if (!sma20BuySignalsRef.current && chartRef.current) {
+      sma20BuySignalsRef.current = chartRef.current.addSeries(LineSeries, {
+        color: '#00E676',
+        lineWidth: 0,
+        pointMarkersVisible: true,
+        pointMarkersRadius: 5,
+      });
+    }
+    if (!sma20SellSignalsRef.current && chartRef.current) {
+      sma20SellSignalsRef.current = chartRef.current.addSeries(LineSeries, {
+        color: '#FF1744',
+        lineWidth: 0,
+        pointMarkersVisible: true,
+        pointMarkersRadius: 5,
+      });
+    }
+
+    sma20BuySignalsRef.current?.setData(buySignals);
+    sma20SellSignalsRef.current?.setData(sellSignals);
+
+    console.log(
+      `✅ Plotted ${buySignals.length} CALL markers and ${sellSignals.length} PUT markers (out of ${backtestData.trades.length} trades)`,
+    );
+  }, [backtestData, timeInterval, resolveIntervalSeconds]);
 
 const fetchRegime = useCallback(
   async (options?: { silent?: boolean }) => {
@@ -1805,13 +2094,14 @@ useEffect(() => {
     };
   }, [fetchAccountSnapshot]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetchChartData();
-    }, 60_000);
+  // Disabled auto-refresh to prevent chart zoom reset during backtesting
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     fetchChartData();
+  //   }, 60_000);
 
-    return () => clearInterval(interval);
-  }, [fetchChartData]);
+  //   return () => clearInterval(interval);
+  // }, [fetchChartData]);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !enableRegimeStream) {
@@ -2223,6 +2513,14 @@ useEffect(() => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
             </svg>
           </div>
+
+          <button
+            onClick={() => fetchBacktestData(symbol)}
+            disabled={backtestLoading}
+            className="px-5 py-2.5 rounded-lg border-2 border-purple-500/40 bg-purple-500/15 hover:bg-purple-500/30 text-sm font-semibold uppercase tracking-wide text-purple-100 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed shadow-[0_8px_24px_rgba(168,85,247,0.25)]"
+          >
+            {backtestLoading ? 'Running Backtest…' : 'Run Mean Reversion Backtest'}
+          </button>
         </div>
 
         <div className="flex items-center gap-4">
@@ -2419,6 +2717,225 @@ useEffect(() => {
             </div>
           )}
         </div>
+
+        {/* Backtest Statistics and Trade Log */}
+        {backtestData && backtestData.stats && (
+          <div className="px-6 pb-8">
+            <div className="bg-slate-950 rounded-xl shadow-[0_6px_24px_rgba(147,51,234,0.15)] border-2 border-purple-500/40 overflow-hidden">
+              <div className="bg-gradient-to-r from-slate-900 to-slate-800 px-6 py-4 border-b-2 border-purple-500/30">
+                <h3 className="text-lg font-bold text-slate-100">Mean Reversion Options Backtest (15m ➜ 1m)</h3>
+                <p className="text-sm text-slate-400 mt-1">
+                  {backtestData.stats.symbol} • {backtestData.stats.startDate} → {backtestData.stats.endDate} • ATM weekly contracts with 2-leg scaling
+                </p>
+              </div>
+
+              {/* Call/Put Ratio Banner */}
+              <div className="px-6 pt-4">
+                <div className={`rounded-lg p-4 border-2 ${
+                  callPutMix.callCount > callPutMix.putCount
+                    ? 'bg-emerald-900/20 border-emerald-500/40'
+                    : callPutMix.putCount > callPutMix.callCount
+                    ? 'bg-rose-900/20 border-rose-500/40'
+                    : 'bg-slate-900/40 border-slate-600/40'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">Trade Mix</p>
+                      <p className="text-3xl font-bold text-slate-100">
+                        {callPutMix.callCount} CALL / {callPutMix.putCount} PUT
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">Call/Put Ratio</p>
+                      <p className={`text-2xl font-bold ${
+                        backtestData.stats.bias === 'BULLISH'
+                          ? 'text-emerald-400'
+                          : backtestData.stats.bias === 'BEARISH'
+                          ? 'text-rose-400'
+                          : 'text-slate-400'
+                      }`}>
+                        {backtestData.stats.bias}
+                      </p>
+                      <p className="text-xs text-slate-500 mt-1">
+                        Ratio {backtestData.stats.callPutRatio.toFixed(2)} across sampled trades
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* GEX Filter Banner */}
+              <div className="px-6 pt-4">
+                <div className={`rounded-lg p-4 border-2 ${
+                  backtestData.stats.hasNegativeGex
+                    ? 'bg-emerald-900/20 border-emerald-500/40'
+                    : 'bg-rose-900/20 border-rose-500/40'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">Average Net GEX (Informational)</p>
+                      <p className="text-3xl font-bold text-slate-100">{formatNumber(backtestData.stats.netGex, 2)}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">GEX Status</p>
+                      <p className={`text-2xl font-bold ${
+                        backtestData.stats.hasNegativeGex
+                          ? 'text-emerald-400'
+                          : 'text-rose-400'
+                      }`}>
+                        {backtestData.stats.hasNegativeGex ? 'AVERAGE NEGATIVE' : 'AVERAGE POSITIVE'}
+                      </p>
+                      <p className="text-xs text-slate-500 mt-1">
+                        Calculated from 15m signal bars for reference; live strategy bypasses GEX gating.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Statistics Grid */}
+              <div className="p-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-slate-900/60 rounded-lg p-4 border border-slate-700">
+                  <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">Total Trades</p>
+                  <p className="text-2xl font-bold text-slate-100">{backtestData.stats.totalTrades}</p>
+                </div>
+
+                <div className="bg-slate-900/60 rounded-lg p-4 border border-slate-700">
+                  <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">Win Rate</p>
+                  <p className="text-2xl font-bold text-emerald-400">{backtestData.stats.winRate.toFixed(1)}%</p>
+                  <p className="text-xs text-slate-500 mt-1">{backtestData.stats.winners}W / {backtestData.stats.losers}L</p>
+                </div>
+
+                <div className="bg-slate-900/60 rounded-lg p-4 border border-slate-700">
+                  <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">Total P&L</p>
+                  <p className={`text-2xl font-bold ${backtestData.stats.totalPnL >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    ${backtestData.stats.totalPnL.toFixed(2)}
+                  </p>
+                </div>
+
+                <div className="bg-slate-900/60 rounded-lg p-4 border border-slate-700">
+                  <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">Avg P&L</p>
+                  <p className={`text-2xl font-bold ${backtestData.stats.avgPnL >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    ${backtestData.stats.avgPnL.toFixed(2)}
+                  </p>
+                </div>
+
+                <div className="bg-slate-900/60 rounded-lg p-4 border border-slate-700">
+                  <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">Avg Win</p>
+                  <p className="text-2xl font-bold text-emerald-400">${backtestData.stats.avgWin.toFixed(2)}</p>
+                </div>
+
+                <div className="bg-slate-900/60 rounded-lg p-4 border border-slate-700">
+                  <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">Avg Loss</p>
+                  <p className="text-2xl font-bold text-rose-400">${backtestData.stats.avgLoss.toFixed(2)}</p>
+                </div>
+
+                <div className="bg-slate-900/60 rounded-lg p-4 border border-slate-700">
+                  <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">Profit Factor</p>
+                  <p className="text-2xl font-bold text-slate-100">{backtestData.stats.profitFactor.toFixed(2)}</p>
+                </div>
+
+                <div className="bg-slate-900/60 rounded-lg p-4 border border-slate-700">
+                  <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">Avg Hold</p>
+                  <p className="text-2xl font-bold text-slate-100">{backtestData.stats.avgHoldMinutes.toFixed(1)} min</p>
+                </div>
+              </div>
+
+              {/* Trade Log Table */}
+              {backtestData.trades && backtestData.trades.length > 0 && (
+                <div className="px-6 pb-6">
+                  <h4 className="text-sm font-bold text-slate-200 mb-3 uppercase tracking-wide">Trade Log</h4>
+                  <div className="bg-slate-950/80 rounded-lg border border-slate-700 overflow-hidden">
+                    <div className="overflow-x-auto max-h-96 overflow-y-auto">
+                      <table className="w-full text-sm">
+                        <thead className="bg-slate-900 sticky top-0 z-10">
+                          <tr className="border-b border-slate-700">
+                            <th className="px-3 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">#</th>
+                            <th className="px-3 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Direction</th>
+                            <th className="px-3 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Entry Time</th>
+                            <th className="px-3 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Entry Stock</th>
+                            <th className="px-3 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Option Strike</th>
+                            <th className="px-3 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Entry Premium</th>
+                            <th className="px-3 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Exit Time</th>
+                            <th className="px-3 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Exit Stock</th>
+                            <th className="px-3 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Stock Move</th>
+                            <th className="px-3 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Exit Premium</th>
+                            <th className="px-3 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">P&L</th>
+                            <th className="px-3 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Hold</th>
+                            <th className="px-3 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Exit Reason</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800">
+                          {backtestData.trades.map((trade: any) => (
+                            <tr key={trade.tradeNumber} className={`hover:bg-slate-900/40 ${trade.optionPnL >= 0 ? 'bg-emerald-950/20' : 'bg-rose-950/20'}`}>
+                              <td className="px-3 py-3 text-slate-300 font-medium">{trade.tradeNumber}</td>
+                              <td className="px-3 py-3">
+                                <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                                  trade.direction === 'CALL' ? 'bg-emerald-900/40 text-emerald-300 border border-emerald-500/30' : 'bg-rose-900/40 text-rose-300 border border-rose-500/30'
+                                }`}>
+                                  {trade.direction}
+                                </span>
+                              </td>
+                              <td className="px-3 py-3 text-slate-400 font-mono text-xs">{trade.entry.time}</td>
+                              <td className="px-3 py-3 text-slate-300 font-mono">${trade.entry.stockPrice.toFixed(2)}</td>
+                              <td className="px-3 py-3 text-slate-300 font-mono">
+                                {trade.entry.optionStrike !== null ? `$${trade.entry.optionStrike.toFixed(2)}` : '—'}
+                              </td>
+                              <td className="px-3 py-3 text-slate-300 font-mono">
+                                {trade.entry.optionPremium !== null ? `$${trade.entry.optionPremium.toFixed(2)}` : '—'}
+                              </td>
+                              <td className="px-3 py-3 text-slate-400 font-mono text-xs">{trade.exit.time}</td>
+                              <td className="px-3 py-3 text-slate-300 font-mono">${trade.exit.stockPrice.toFixed(2)}</td>
+                              <td className="px-3 py-3 font-mono">
+                                <span className={trade.stockMove >= 0 ? 'text-emerald-400' : 'text-rose-400'}>
+                                  {trade.stockMove >= 0 ? '+' : ''}{trade.stockMove.toFixed(2)}
+                                </span>
+                                <span className="text-slate-500 text-xs ml-1">
+                                  ({trade.stockMovePercent >= 0 ? '+' : ''}{trade.stockMovePercent.toFixed(2)}%)
+                                </span>
+                              </td>
+                              <td className="px-3 py-3 text-slate-300 font-mono">
+                                {trade.exit.optionPremium !== null ? `$${trade.exit.optionPremium.toFixed(2)}` : '—'}
+                              </td>
+                              <td className="px-3 py-3 font-mono font-semibold">
+                                <span className={trade.optionPnL >= 0 ? 'text-emerald-400' : 'text-rose-400'}>
+                                  {trade.optionPnL >= 0 ? '+' : ''}${trade.optionPnL.toFixed(2)}
+                                </span>
+                                {trade.optionReturnPercent !== null && (
+                                  <span className="text-slate-500 text-xs ml-1">
+                                    ({trade.optionReturnPercent >= 0 ? '+' : ''}{trade.optionReturnPercent.toFixed(1)}%)
+                                  </span>
+                                )}
+                              </td>
+                              <td className="px-3 py-3 text-slate-400 text-xs">{trade.holdMinutes} min</td>
+                              <td className="px-3 py-3 text-slate-400 text-xs">{trade.exit.reason}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {backtestLoading && (
+          <div className="px-6 pb-8">
+            <div className="bg-slate-950 rounded-xl shadow-lg border-2 border-purple-500/40 p-8 text-center">
+              <p className="text-slate-400">Running mean reversion backtest...</p>
+            </div>
+          </div>
+        )}
+
+        {backtestError && (
+          <div className="px-6 pb-8">
+            <div className="bg-slate-950 rounded-xl shadow-lg border-2 border-rose-500/40 p-8 text-center">
+              <p className="text-rose-400">Error running mean reversion backtest: {backtestError}</p>
+            </div>
+          </div>
+        )}
 
         <section className="px-6 pb-12 space-y-8">
           <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
@@ -2795,6 +3312,17 @@ useEffect(() => {
                   type="checkbox"
                   checked={showMACD}
                   onChange={(e) => setShowMACD(e.target.checked)}
+                  className={checkboxClasses}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                />
+              </label>
+
+              <label className={indicatorToggleClasses}>
+                <span className={indicatorToggleTextClass}>SMA 9 + Signals</span>
+                <input
+                  type="checkbox"
+                  checked={showSMA9}
+                  onChange={(e) => setShowSMA9(e.target.checked)}
                   className={checkboxClasses}
                   style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 />

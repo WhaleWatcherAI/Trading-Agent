@@ -1,0 +1,97 @@
+[
+  {
+    "symbol": "SPY",
+    "startDate": "2025-09-16",
+    "endDate": "2025-11-04",
+    "trades": [
+      {
+        "id": "SPY-2025-10-23",
+        "symbol": "SPY",
+        "direction": "bearish",
+        "entryDate": "2025-10-23",
+        "exitDate": "2025-10-28",
+        "option": {
+          "contract": "SPY251105P00672000",
+          "type": "put",
+          "strike": 672,
+          "expiration": "2025-11-05",
+          "entryPremium": 0.015,
+          "exitPremium": 0.014949106005363368,
+          "profit": -1.0850893994636632,
+          "profitPct": -0.3392932975775434,
+          "commission": 0.08,
+          "slippage": 1
+        },
+        "entryPrice": 671.84,
+        "exitPrice": 687.03,
+        "durationDays": 5,
+        "exitReason": "opposite_cross",
+        "entryNetGex": 0,
+        "exitNetGex": 0
+      },
+      {
+        "id": "SPY-2025-10-28",
+        "symbol": "SPY",
+        "direction": "bullish",
+        "entryDate": "2025-10-28",
+        "exitDate": "2025-10-30",
+        "option": {
+          "contract": "SPY251106C00687000",
+          "type": "call",
+          "strike": 687,
+          "expiration": "2025-11-06",
+          "entryPremium": 0.055,
+          "exitPremium": 0.01,
+          "profit": -5.58,
+          "profitPct": -81.81818181818181,
+          "commission": 0.08,
+          "slippage": 0.9999999999999996
+        },
+        "entryPrice": 687.03,
+        "exitPrice": 682.08,
+        "durationDays": 2,
+        "exitReason": "stop_loss",
+        "entryNetGex": 0,
+        "exitNetGex": 0
+      }
+    ],
+    "summary": {
+      "tradeCount": 2,
+      "winCount": 0,
+      "lossCount": 2,
+      "winRate": 0,
+      "totalProfit": -6.665089399463663,
+      "grossProfit": 0,
+      "grossLoss": 6.665089399463663,
+      "averageWin": 0,
+      "averageLoss": 3.3325446997318315,
+      "profitFactor": 0,
+      "averageDurationDays": 3.5,
+      "totalCommission": 0.16,
+      "totalSlippage": 1.9999999999999996
+    },
+    "notes": []
+  },
+  {
+    "symbol": "GLD",
+    "startDate": "2025-09-16",
+    "endDate": "2025-11-04",
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "totalProfit": 0,
+      "grossProfit": 0,
+      "grossLoss": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "profitFactor": 0,
+      "averageDurationDays": 0,
+      "totalCommission": 0,
+      "totalSlippage": 0
+    },
+    "notes": []
+  }
+]

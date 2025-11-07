@@ -1,0 +1,2 @@
+{"timestamp":"2025-11-06T18:16:58.489Z","type":"entry","symbol":"META","side":"long","qty":1,"entryPrice":623.86,"entryOrderId":"8ebf8d17-0b75-4d59-8041-00cc4e6f074a","priceContext":624.25,"fastSma":624.198888888889,"slowSma":null}
+{"timestamp":"2025-11-06T18:21:38.756Z","type":"existing_position","symbol":"META","qty":1,"entryPrice":623.86,"detectedAt":"2025-11-06T18:21:38.755Z"}

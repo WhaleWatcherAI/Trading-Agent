@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import axios from 'axios';
 import {
   StockPrice,
@@ -6,7 +7,8 @@ import {
   TradierPosition,
   TradierOrder,
   TradierOrderStatus,
-} from '@/types';
+} from '../types';
+import { AlpacaOptionContract } from './alpaca';
 
 const TRADIER_API_KEY = process.env.TRADIER_API_KEY || '';
 const TRADIER_BASE_URL = process.env.TRADIER_BASE_URL || 'https://api.tradier.com/v1';
@@ -30,8 +32,36 @@ export interface TradierTimesaleBar {
   volume: number;
 }
 
-export async function getStockPrice(symbol: string): Promise<StockPrice> {
+export async function getStockPrice(symbol: string, date?: string): Promise<StockPrice> {
   try {
+    // For historical quotes, use /markets/history endpoint
+    if (date) {
+      const response = await tradierClient.get('/markets/history', {
+        params: {
+          symbol,
+          start: date,
+          end: date,
+        },
+      });
+
+      const history = response.data?.history?.day;
+      if (!history) {
+        throw new Error(`No historical data for ${symbol} on ${date}`);
+      }
+
+      const bar = Array.isArray(history) ? history[0] : history;
+
+      return {
+        symbol,
+        price: bar.close,
+        change: 0,
+        changePercent: 0,
+        volume: bar.volume,
+        timestamp: new Date(date),
+      };
+    }
+
+    // Current quote
     const response = await tradierClient.get('/markets/quotes', {
       params: { symbols: symbol },
     });
@@ -52,23 +82,119 @@ export async function getStockPrice(symbol: string): Promise<StockPrice> {
   }
 }
 
-export async function getOptionsChain(symbol: string, expiration?: string): Promise<OptionsTrade[]> {
+// Get call/put ratio aggregated across ALL expirations
+export async function getCallPutRatioAllExpirations(
+  symbol: string,
+  date?: string
+): Promise<{
+  callVolume: number;
+  putVolume: number;
+  callPutRatio: number;
+  bias: 'BULLISH' | 'BEARISH' | 'NEUTRAL';
+}> {
+  try {
+    // Get all expirations for this symbol
+    const params: any = { symbol };
+    if (date) {
+      params.date = date;
+    }
+
+    const expResponse = await tradierClient.get('/markets/options/expirations', {
+      params,
+    });
+
+    const expirations = expResponse.data.expirations?.date || [];
+    if (expirations.length === 0) {
+      console.warn(`No expirations found for ${symbol}`);
+      return { callVolume: 0, putVolume: 0, callPutRatio: 1.0, bias: 'NEUTRAL' };
+    }
+
+    console.log(`📅 Found ${expirations.length} expirations for ${symbol}`);
+
+    let totalCallVolume = 0;
+    let totalPutVolume = 0;
+
+    // Fetch options for ALL expirations and aggregate volume
+    for (const expiration of expirations) {
+      try {
+        const chainParams: any = {
+          symbol,
+          expiration,
+          greeks: false, // Don't need greeks, just volume
+        };
+
+        if (date) {
+          chainParams.date = date;
+        }
+
+        const response = await tradierClient.get('/markets/options/chains', {
+          params: chainParams,
+        });
+
+        const options = response.data.options?.option || [];
+
+        options.forEach((opt: any) => {
+          const volume = opt.volume || 0;
+          if (opt.option_type?.toLowerCase() === 'call') {
+            totalCallVolume += volume;
+          } else if (opt.option_type?.toLowerCase() === 'put') {
+            totalPutVolume += volume;
+          }
+        });
+
+        // Small delay to avoid rate limits
+        await new Promise(resolve => setTimeout(resolve, 50));
+      } catch (err: any) {
+        console.warn(`Failed to fetch chain for expiration ${expiration}:`, err.message);
+      }
+    }
+
+    const callPutRatio = totalPutVolume > 0 ? totalCallVolume / totalPutVolume : 1.0;
+    const bias = callPutRatio > 1.0 ? 'BULLISH' : callPutRatio < 1.0 ? 'BEARISH' : 'NEUTRAL';
+
+    console.log(`📊 ${symbol} TOTAL - Call: ${totalCallVolume}, Put: ${totalPutVolume}, C/P Ratio: ${callPutRatio.toFixed(2)} (${bias})`);
+
+    return {
+      callVolume: totalCallVolume,
+      putVolume: totalPutVolume,
+      callPutRatio,
+      bias,
+    };
+  } catch (error: any) {
+    console.error(`Error fetching call/put ratio for ${symbol}:`, error.message);
+    return { callVolume: 0, putVolume: 0, callPutRatio: 1.0, bias: 'NEUTRAL' };
+  }
+}
+
+export async function getOptionsChain(symbol: string, expiration?: string, date?: string): Promise<OptionsTrade[]> {
   try {
     // Get expirations if not provided
     let exp = expiration;
     if (!exp) {
+      const params: any = { symbol };
+      if (date) {
+        params.date = date;
+      }
+
       const expResponse = await tradierClient.get('/markets/options/expirations', {
-        params: { symbol },
+        params,
       });
       exp = expResponse.data.expirations.date[0]; // Get nearest expiration
     }
 
+    const params: any = {
+      symbol,
+      expiration: exp,
+      greeks: true,
+    };
+
+    // Add date for historical options data
+    if (date) {
+      params.date = date;
+    }
+
     const response = await tradierClient.get('/markets/options/chains', {
-      params: {
-        symbol,
-        expiration: exp,
-        greeks: true,
-      },
+      params,
     });
 
     const options = response.data.options.option || [];
@@ -85,6 +211,18 @@ export async function getOptionsChain(symbol: string, expiration?: string): Prom
       openInterest: opt.open_interest,
       timestamp: new Date(),
       unusual: opt.volume > opt.open_interest * 0.5, // Simple unusual activity detection
+      greeks: opt.greeks ? {
+        delta: opt.greeks.delta,
+        gamma: opt.greeks.gamma,
+        theta: opt.greeks.theta,
+        vega: opt.greeks.vega,
+        rho: opt.greeks.rho,
+        phi: opt.greeks.phi,
+        bid_iv: opt.greeks.bid_iv,
+        mid_iv: opt.greeks.mid_iv,
+        ask_iv: opt.greeks.ask_iv,
+        smv_vol: opt.greeks.smv_vol,
+      } : undefined,
     }));
   } catch (error) {
     console.error(`Error fetching options chain for ${symbol}:`, error);
@@ -116,6 +254,91 @@ export async function getMarketData(): Promise<{ putCallRatio: number; spy: numb
     };
   } catch (error: any) {
     console.error('Error fetching market data from Tradier:', error.response?.data || error.message);
+    throw error;
+  }
+}
+
+function ensureArray<T>(value: T | T[] | undefined | null): T[] {
+  if (Array.isArray(value)) {
+    return value;
+  }
+  if (value === undefined || value === null) {
+    return [];
+  }
+  return [value];
+}
+
+function toNumberOrNull(value: any): number | null {
+  if (value === undefined || value === null || value === '') {
+    return null;
+  }
+  const num = Number(value);
+  return Number.isFinite(num) ? num : null;
+}
+
+export async function fetchTradierOptionExpirations(symbol: string, date?: string): Promise<string[]> {
+  try {
+    const params: Record<string, string> = { symbol };
+    if (date) {
+      params.date = date;
+    }
+    const response = await tradierClient.get('/markets/options/expirations', { params });
+    const dates = ensureArray(response.data?.expirations?.date);
+    return dates.filter((d): d is string => typeof d === 'string' && d.length > 0);
+  } catch (error: any) {
+    const message = error?.response?.data || error?.message || error;
+    console.error(`Tradier option expiration fetch failed for ${symbol}:`, message);
+    throw error;
+  }
+}
+
+function mapTradierOptionToContract(opt: any, fallbackExpiration: string): AlpacaOptionContract | null {
+  const symbol = opt?.symbol;
+  const optionTypeRaw = (opt?.option_type || '').toString().toLowerCase();
+  const strike = Number(opt?.strike);
+  if (!symbol || !Number.isFinite(strike) || (optionTypeRaw !== 'call' && optionTypeRaw !== 'put')) {
+    return null;
+  }
+  const expirationDate = opt?.expiration_date || fallbackExpiration;
+  return {
+    symbol,
+    option_type: optionTypeRaw,
+    strike_price: strike,
+    expiration_date: expirationDate,
+    underlying_symbol: opt?.underlying,
+    ask_price: toNumberOrNull(opt?.ask),
+    bid_price: toNumberOrNull(opt?.bid),
+    last_trade_price: toNumberOrNull(opt?.last),
+    implied_volatility:
+      toNumberOrNull(opt?.greeks?.mid_iv ?? opt?.greeks?.bid_iv ?? opt?.greeks?.ask_iv ?? null),
+  };
+}
+
+export async function fetchTradierOptionChain(
+  symbol: string,
+  expiration: string,
+  options: { date?: string } = {},
+): Promise<AlpacaOptionContract[]> {
+  try {
+    const params: Record<string, string> = {
+      symbol,
+      expiration,
+      greeks: 'true',
+    };
+    if (options.date) {
+      params.date = options.date;
+    }
+    const response = await tradierClient.get('/markets/options/chains', { params });
+    const rawOptions = ensureArray(response.data?.options?.option);
+    return rawOptions
+      .map(opt => mapTradierOptionToContract(opt, expiration))
+      .filter((opt): opt is AlpacaOptionContract => !!opt);
+  } catch (error: any) {
+    const message = error?.response?.data || error?.message || error;
+    console.error(
+      `Tradier option chain fetch failed for ${symbol} ${expiration}:`,
+      message,
+    );
     throw error;
   }
 }
@@ -252,6 +475,47 @@ export async function getOpenOrders(): Promise<TradierOrder[]> {
   }
 }
 
+/**
+ * Get historical daily bars for a date range
+ */
+export async function getHistoricalBars(
+  symbol: string,
+  startDate: string,
+  endDate: string,
+  interval: 'daily' | 'weekly' | 'monthly' = 'daily',
+): Promise<any[]> {
+  try {
+    const response = await tradierClient.get('/markets/history', {
+      params: {
+        symbol,
+        start: startDate,
+        end: endDate,
+        interval,
+      },
+    });
+
+    const history = response.data?.history?.day;
+    if (!history) {
+      return [];
+    }
+
+    const bars = Array.isArray(history) ? history : [history];
+    return bars
+      .map((bar: any) => ({
+        date: bar.date,
+        open: parseFloat(bar.open),
+        high: parseFloat(bar.high),
+        low: parseFloat(bar.low),
+        close: parseFloat(bar.close),
+        volume: parseFloat(bar.volume),
+      }))
+      .filter(bar => Number.isFinite(bar.close) && bar.close > 0);
+  } catch (error) {
+    console.error(`Error fetching historical bars for ${symbol}`, error);
+    throw error;
+  }
+}
+
 export async function getHistoricalTimesales(
   symbol: string,
   date: string,
@@ -259,10 +523,13 @@ export async function getHistoricalTimesales(
   sessionFilter: 'all' | 'open' = 'all',
 ): Promise<TradierTimesaleBar[]> {
   try {
+    // Tradier API expects interval as '1min', '5min', etc., not just the number
+    const intervalParam = `${interval}min`;
+
     const response = await tradierClient.get('/markets/timesales', {
       params: {
         symbol,
-        interval,
+        interval: intervalParam,
         start: `${date} 09:30`,
         end: `${date} 16:00`,
         session_filter: sessionFilter,

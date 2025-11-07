@@ -74,39 +74,89 @@ const DTE_RANGES: Record<GexMode, { min: number; max: number }> = {
   leaps: { min: 45, max: 400 },
 };
 
-export async function calculateGexForSymbol(symbol: string, mode: GexMode = 'intraday'): Promise<GexCalculationResult> {
-  console.log(`📊 Calculating GEX profile for ${symbol} (${mode})`);
+export async function calculateGexForSymbol(symbol: string, mode: GexMode = 'intraday', date?: string): Promise<GexCalculationResult> {
+  console.log(`📊 Calculating GEX profile for ${symbol} (${mode})${date ? ` on ${date}` : ''}`);
 
-  const quoteResponse = await tradierClient.get('/markets/quotes', {
-    params: { symbols: symbol },
-  });
+  // Get stock price (historical if date provided)
+  let stockPrice: number;
+  if (date) {
+    const historyResponse = await tradierClient.get('/markets/history', {
+      params: {
+        symbol,
+        start: date,
+        end: date,
+      },
+    });
 
-  const quote = quoteResponse.data?.quotes?.quote;
-  if (!quote) {
-    throw new Error(`No quote data returned for ${symbol}`);
+    const history = historyResponse.data?.history?.day;
+    if (!history) {
+      throw new Error(`No historical data for ${symbol} on ${date}`);
+    }
+
+    const bar = Array.isArray(history) ? history[0] : history;
+    stockPrice = parseFloat(bar.close);
+  } else {
+    const quoteResponse = await tradierClient.get('/markets/quotes', {
+      params: { symbols: symbol },
+    });
+
+    const quote = quoteResponse.data?.quotes?.quote;
+    if (!quote) {
+      throw new Error(`No quote data returned for ${symbol}`);
+    }
+
+    stockPrice = parseFloat(quote.last || quote.close || quote.prevclose || 0);
   }
 
-  const stockPrice = parseFloat(quote.last || quote.close || quote.prevclose || 0);
   if (!Number.isFinite(stockPrice) || stockPrice <= 0) {
     throw new Error(`Invalid stock price for ${symbol}`);
   }
 
+  // Get all expirations (without date filter - sandbox ignores it anyway)
+  const expirationParams: any = {
+    symbol,
+    includeAllRoots: true,
+    strikes: false,
+  };
+
   const expirationsResponse = await tradierClient.get('/markets/options/expirations', {
-    params: {
-      symbol,
-      includeAllRoots: true,
-      strikes: false,
-    },
+    params: expirationParams,
   });
 
-  const expirations = expirationsResponse.data?.expirations?.date;
+  let expirations = expirationsResponse.data?.expirations?.date;
+
   if (!expirations || (Array.isArray(expirations) && expirations.length === 0)) {
     throw new Error(`No options expirations found for ${symbol}`);
   }
 
+  // IMPORTANT: Filter to only expirations that would have existed on the historical date
+  // On any given date, only future expirations exist
+  if (date) {
+    const historicalDate = new Date(date);
+    const expArray = Array.isArray(expirations) ? expirations : [expirations];
+
+    // Filter: keep only expirations that are >= historical date (future from that point)
+    // AND < 60 days from historical date (reasonable options window)
+    const filteredExps = expArray.filter((expStr: string) => {
+      const expDate = new Date(expStr);
+      const daysDiff = (expDate.getTime() - historicalDate.getTime()) / (1000 * 60 * 60 * 24);
+      return daysDiff >= 0 && daysDiff <= 60; // Expirations within 60 days
+    });
+
+    console.log(`  Filtered expirations for ${date}: ${filteredExps.length} valid (out of ${expArray.length} total)`);
+    console.log(`  Valid expirations:`, filteredExps.slice(0, 5));
+
+    if (filteredExps.length === 0) {
+      throw new Error(`No valid expirations found for historical date ${date}`);
+    }
+
+    expirations = filteredExps;
+  }
+
   const MS_PER_DAY = 1000 * 60 * 60 * 24;
-  const today = new Date();
-  const todayUTC = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+  // Use provided date or today for DTE calculation
+  const referenceDate = date ? new Date(date) : new Date();
+  const todayUTC = Date.UTC(referenceDate.getUTCFullYear(), referenceDate.getUTCMonth(), referenceDate.getUTCDate());
 
   const normalizedExpirations = (Array.isArray(expirations) ? expirations : [expirations])
     .map((dateStr: string) => {
@@ -146,18 +196,29 @@ export async function calculateGexForSymbol(symbol: string, mode: GexMode = 'int
   const dteLookup = Object.fromEntries(selectedExpirations.map(item => [item.date, item.dte]));
 
   for (const { date: expiration } of selectedExpirations) {
+    const chainParams: any = {
+      symbol,
+      expiration,
+      greeks: true,
+    };
+
+    if (date) {
+      chainParams.date = date;
+    }
+
     const chainResponse = await tradierClient.get('/markets/options/chains', {
-      params: {
-        symbol,
-        expiration,
-        greeks: true,
-      },
+      params: chainParams,
     });
 
+    // DEBUG: Check if we got any data
     const options = chainResponse.data?.options?.option;
-    if (!options) continue;
+    if (!options) {
+      console.log(`    ⚠️  No options data for ${expiration} on ${date || 'current'}`);
+      continue;
+    }
 
     const optionsArray = Array.isArray(options) ? options : [options];
+    console.log(`    ✓ Got ${optionsArray.length} contracts for ${expiration}`);
 
     optionsArray.forEach((option: any) => {
       const strike = parseFloat(option.strike);

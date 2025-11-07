@@ -93,6 +93,10 @@ export function getWithStaleness<T>(key: string, budget: number): {
   };
 }
 
+export function getCacheKeys(): string[] {
+  return Array.from(cache.keys());
+}
+
 /**
  * Clear all cache (useful for testing)
  */

@@ -1,0 +1,2 @@
+{"display":"auth","pastedContents":{},"timestamp":1762358959250,"project":"/Users/coreycosta/trading-agent","sessionId":"8a3d4b2c-524f-4ea3-bf3e-2dab33c69de8"}
+{"display":"TMP1=$(mktemp -d); TMP2=$(mktemp -d)\nXDG_CONFIG_HOME=\"$TMP1\" CLAUDE_CONFIG_DIR=\"$TMP2\" claude auth login\n","pastedContents":{},"timestamp":1762358968797,"project":"/Users/coreycosta/trading-agent","sessionId":"8a3d4b2c-524f-4ea3-bf3e-2dab33c69de8"}

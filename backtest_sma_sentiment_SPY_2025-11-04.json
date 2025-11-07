@@ -1,0 +1,448 @@
+{
+  "symbol": "SPY",
+  "date": "2025-11-04",
+  "smaPeriod": 20,
+  "initialCapital": 10000,
+  "finalCapital": 198262.79999999996,
+  "totalReturn": 188262.79999999996,
+  "totalReturnPercent": 1882.6279999999997,
+  "totalTrades": 1,
+  "winningTrades": 1,
+  "losingTrades": 0,
+  "winRate": 100,
+  "avgWin": 188262.79999999996,
+  "avgLoss": 0,
+  "largestWin": 188262.79999999996,
+  "largestLoss": 0,
+  "profitFactor": null,
+  "trades": [
+    {
+      "entryTime": "2025-11-04T13:50:00",
+      "exitTime": "2025-11-04T16:00:00",
+      "type": "call",
+      "strike": 676,
+      "expiration": "2025-11-05",
+      "entryPrice": 2.13,
+      "exitPrice": 472.7869999999999,
+      "contracts": 4,
+      "entryReason": "SMA crossover with bullish sentiment",
+      "exitReason": "Market close",
+      "pnl": 188262.79999999996,
+      "pnlPercent": 22096.572769953047,
+      "sentiment": "bullish",
+      "confidence": 0.6
+    }
+  ],
+  "priceData": [
+    {
+      "time": "2025-11-04T11:05:00",
+      "price": 678.03,
+      "sma": 678.306775
+    },
+    {
+      "time": "2025-11-04T11:10:00",
+      "price": 678.1,
+      "sma": 678.463775
+    },
+    {
+      "time": "2025-11-04T11:15:00",
+      "price": 677.79,
+      "sma": 678.5903350000001
+    },
+    {
+      "time": "2025-11-04T11:20:00",
+      "price": 677.82,
+      "sma": 678.631585
+    },
+    {
+      "time": "2025-11-04T11:25:00",
+      "price": 678.2,
+      "sma": 678.6850850000001
+    },
+    {
+      "time": "2025-11-04T11:30:00",
+      "price": 678.11,
+      "sma": 678.6775850000001
+    },
+    {
+      "time": "2025-11-04T11:35:00",
+      "price": 678.55,
+      "sma": 678.671
+    },
+    {
+      "time": "2025-11-04T11:40:00",
+      "price": 678.21,
+      "sma": 678.6320000000002
+    },
+    {
+      "time": "2025-11-04T11:45:00",
+      "price": 677.6299,
+      "sma": 678.5759950000001
+    },
+    {
+      "time": "2025-11-04T11:50:00",
+      "price": 678.3,
+      "sma": 678.5457450000001
+    },
+    {
+      "time": "2025-11-04T11:55:00",
+      "price": 678.19,
+      "sma": 678.4892450000001
+    },
+    {
+      "time": "2025-11-04T12:00:00",
+      "price": 677.63,
+      "sma": 678.4117450000001
+    },
+    {
+      "time": "2025-11-04T12:05:00",
+      "price": 677.29,
+      "sma": 678.310245
+    },
+    {
+      "time": "2025-11-04T12:10:00",
+      "price": 676.97,
+      "sma": 678.186995
+    },
+    {
+      "time": "2025-11-04T12:15:00",
+      "price": 676,
+      "sma": 678.000495
+    },
+    {
+      "time": "2025-11-04T12:20:00",
+      "price": 676.96,
+      "sma": 677.8764950000001
+    },
+    {
+      "time": "2025-11-04T12:25:00",
+      "price": 676.93,
+      "sma": 677.7864950000001
+    },
+    {
+      "time": "2025-11-04T12:30:00",
+      "price": 676.73,
+      "sma": 677.7029950000001
+    },
+    {
+      "time": "2025-11-04T12:35:00",
+      "price": 676.33,
+      "sma": 677.6104950000001
+    },
+    {
+      "time": "2025-11-04T12:40:00",
+      "price": 676.15,
+      "sma": 677.495995
+    },
+    {
+      "time": "2025-11-04T12:45:00",
+      "price": 676.69,
+      "sma": 677.428995
+    },
+    {
+      "time": "2025-11-04T12:50:00",
+      "price": 676.2499,
+      "sma": 677.33649
+    },
+    {
+      "time": "2025-11-04T12:55:00",
+      "price": 676.011,
+      "sma": 677.2475400000001
+    },
+    {
+      "time": "2025-11-04T13:00:00",
+      "price": 675.745,
+      "sma": 677.1437900000001
+    },
+    {
+      "time": "2025-11-04T13:05:00",
+      "price": 675.6399,
+      "sma": 677.015785
+    },
+    {
+      "time": "2025-11-04T13:10:00",
+      "price": 675.8694,
+      "sma": 676.903755
+    },
+    {
+      "time": "2025-11-04T13:15:00",
+      "price": 675.16,
+      "sma": 676.7342550000001
+    },
+    {
+      "time": "2025-11-04T13:20:00",
+      "price": 675.59,
+      "sma": 676.603255
+    },
+    {
+      "time": "2025-11-04T13:25:00",
+      "price": 675.25,
+      "sma": 676.48426
+    },
+    {
+      "time": "2025-11-04T13:30:00",
+      "price": 675.12,
+      "sma": 676.3252600000001
+    },
+    {
+      "time": "2025-11-04T13:35:00",
+      "price": 674.83,
+      "sma": 676.1572600000001
+    },
+    {
+      "time": "2025-11-04T13:40:00",
+      "price": 675.83,
+      "sma": 676.06726
+    },
+    {
+      "time": "2025-11-04T13:45:00",
+      "price": 675.48,
+      "sma": 675.9767600000001
+    },
+    {
+      "time": "2025-11-04T13:50:00",
+      "price": 676.305,
+      "sma": 675.9435100000002
+    },
+    {
+      "time": "2025-11-04T13:55:00",
+      "price": 676.15,
+      "sma": 675.9510100000001
+    },
+    {
+      "time": "2025-11-04T14:00:00",
+      "price": 676.61,
+      "sma": 675.9335100000002
+    },
+    {
+      "time": "2025-11-04T14:05:00",
+      "price": 675.78,
+      "sma": 675.8760100000002
+    },
+    {
+      "time": "2025-11-04T14:10:00",
+      "price": 676.06,
+      "sma": 675.8425100000002
+    },
+    {
+      "time": "2025-11-04T14:15:00",
+      "price": 675.925,
+      "sma": 675.8222600000001
+    },
+    {
+      "time": "2025-11-04T14:20:00",
+      "price": 676.3901,
+      "sma": 675.8342650000002
+    },
+    {
+      "time": "2025-11-04T14:25:00",
+      "price": 676.295,
+      "sma": 675.8145150000003
+    },
+    {
+      "time": "2025-11-04T14:30:00",
+      "price": 675.95,
+      "sma": 675.7995200000003
+    },
+    {
+      "time": "2025-11-04T14:35:00",
+      "price": 675.075,
+      "sma": 675.7527200000002
+    },
+    {
+      "time": "2025-11-04T14:40:00",
+      "price": 674.915,
+      "sma": 675.7112200000001
+    },
+    {
+      "time": "2025-11-04T14:45:00",
+      "price": 674.86,
+      "sma": 675.6722250000001
+    },
+    {
+      "time": "2025-11-04T14:50:00",
+      "price": 674.9,
+      "sma": 675.6237550000002
+    },
+    {
+      "time": "2025-11-04T14:55:00",
+      "price": 675.17,
+      "sma": 675.6242550000002
+    },
+    {
+      "time": "2025-11-04T15:00:00",
+      "price": 675.18,
+      "sma": 675.6037550000002
+    },
+    {
+      "time": "2025-11-04T15:05:00",
+      "price": 675.42,
+      "sma": 675.6122550000002
+    },
+    {
+      "time": "2025-11-04T15:10:00",
+      "price": 675.94,
+      "sma": 675.6532550000002
+    },
+    {
+      "time": "2025-11-04T15:15:00",
+      "price": 675.88,
+      "sma": 675.7057550000002
+    },
+    {
+      "time": "2025-11-04T15:20:00",
+      "price": 675.28,
+      "sma": 675.6782550000001
+    },
+    {
+      "time": "2025-11-04T15:25:00",
+      "price": 675.96,
+      "sma": 675.7022550000002
+    },
+    {
+      "time": "2025-11-04T15:30:00",
+      "price": 675.54,
+      "sma": 675.6640050000002
+    },
+    {
+      "time": "2025-11-04T15:35:00",
+      "price": 675.79,
+      "sma": 675.6460050000002
+    },
+    {
+      "time": "2025-11-04T15:40:00",
+      "price": 676.27,
+      "sma": 675.6290050000001
+    },
+    {
+      "time": "2025-11-04T15:45:00",
+      "price": 675.45,
+      "sma": 675.6125050000002
+    },
+    {
+      "time": "2025-11-04T15:50:00",
+      "price": 675.02,
+      "sma": 675.5605050000001
+    },
+    {
+      "time": "2025-11-04T15:55:00",
+      "price": 675.34,
+      "sma": 675.5312550000002
+    },
+    {
+      "time": "2025-11-04T16:00:00",
+      "price": 675.41,
+      "sma": 675.4822500000002
+    }
+  ],
+  "tradeMarkers": [
+    {
+      "time": "2025-11-04T13:50:00",
+      "price": 676.305,
+      "type": "buy",
+      "optionType": "call",
+      "strike": 676,
+      "premium": 2.13,
+      "sentiment": "bullish",
+      "reasoning": [
+        "Daily Call/Put Ratio: 0.14",
+        "Daily: bullish (more calls)"
+      ]
+    },
+    {
+      "time": "2025-11-04T16:00:00",
+      "price": 675.41,
+      "type": "sell",
+      "optionType": "call",
+      "strike": 676,
+      "premium": 472.7869999999999,
+      "sentiment": "bullish",
+      "reasoning": [
+        "Market close",
+        "P&L: $188262.80"
+      ]
+    }
+  ],
+  "sentimentLog": [
+    {
+      "time": "2025-11-04T13:50:00",
+      "sentiment": "bullish crossover | Sentiment: bullish",
+      "reasoning": [
+        "Daily Call/Put Ratio: 0.14",
+        "Daily: bullish (more calls)"
+      ]
+    },
+    {
+      "time": "2025-11-04T14:05:00",
+      "sentiment": "bearish crossover | Sentiment: bullish",
+      "reasoning": [
+        "Daily Call/Put Ratio: 0.14",
+        "Daily: bullish (more calls)"
+      ]
+    },
+    {
+      "time": "2025-11-04T14:10:00",
+      "sentiment": "bullish crossover | Sentiment: bullish",
+      "reasoning": [
+        "Daily Call/Put Ratio: 0.14",
+        "Daily: bullish (more calls)"
+      ]
+    },
+    {
+      "time": "2025-11-04T14:35:00",
+      "sentiment": "bearish crossover | Sentiment: bullish",
+      "reasoning": [
+        "Daily Call/Put Ratio: 0.14",
+        "Daily: bullish (more calls)"
+      ]
+    },
+    {
+      "time": "2025-11-04T15:10:00",
+      "sentiment": "bullish crossover | Sentiment: bullish",
+      "reasoning": [
+        "Daily Call/Put Ratio: 0.14",
+        "Daily: bullish (more calls)"
+      ]
+    },
+    {
+      "time": "2025-11-04T15:20:00",
+      "sentiment": "bearish crossover | Sentiment: bullish",
+      "reasoning": [
+        "Daily Call/Put Ratio: 0.14",
+        "Daily: bullish (more calls)"
+      ]
+    },
+    {
+      "time": "2025-11-04T15:25:00",
+      "sentiment": "bullish crossover | Sentiment: bullish",
+      "reasoning": [
+        "Daily Call/Put Ratio: 0.14",
+        "Daily: bullish (more calls)"
+      ]
+    },
+    {
+      "time": "2025-11-04T15:30:00",
+      "sentiment": "bearish crossover | Sentiment: bullish",
+      "reasoning": [
+        "Daily Call/Put Ratio: 0.14",
+        "Daily: bullish (more calls)"
+      ]
+    },
+    {
+      "time": "2025-11-04T15:35:00",
+      "sentiment": "bullish crossover | Sentiment: bullish",
+      "reasoning": [
+        "Daily Call/Put Ratio: 0.14",
+        "Daily: bullish (more calls)"
+      ]
+    },
+    {
+      "time": "2025-11-04T15:45:00",
+      "sentiment": "bearish crossover | Sentiment: bullish",
+      "reasoning": [
+        "Daily Call/Put Ratio: 0.14",
+        "Daily: bullish (more calls)"
+      ]
+    }
+  ]
+}

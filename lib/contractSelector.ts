@@ -375,3 +375,72 @@ export async function getMultiStrategyContracts(
 
   return results as Record<Strategy, ContractRecommendation | null>;
 }
+
+/**
+ * Select ATM/ITM option with nearest expiration for mean reversion trading
+ * Simplified version for backtesting
+ */
+export async function selectMeanReversionOption(
+  symbol: string,
+  currentPrice: number,
+  direction: 'long' | 'short',
+  date?: string
+): Promise<OptionContract | null> {
+  try {
+    // Get all available expirations
+    const allExpirations = await getExpirationDates(symbol);
+
+    if (allExpirations.length === 0) {
+      return null;
+    }
+
+    // Sort by date to get nearest expiration
+    const sortedExpirations = allExpirations.sort((a, b) =>
+      new Date(a).getTime() - new Date(b).getTime()
+    );
+
+    // Try first 3 nearest expirations
+    for (const expiration of sortedExpirations.slice(0, 3)) {
+      const chainData = await getOptionsChain(symbol, expiration);
+      const contracts = chainData.map(opt => parseOptionContract(opt, symbol));
+
+      // Filter by option type
+      const optionType = direction === 'long' ? 'call' : 'put';
+      const filteredByType = contracts.filter(c => c.type === optionType);
+
+      if (filteredByType.length === 0) continue;
+
+      // Find ATM strike
+      const atmStrike = filteredByType.reduce((prev, curr) =>
+        Math.abs(curr.strike - currentPrice) < Math.abs(prev.strike - currentPrice) ? curr : prev
+      );
+
+      // Look for ATM or closest ITM option
+      let bestOption: OptionContract | null = null;
+
+      if (direction === 'long') {
+        // For calls: prefer strike <= currentPrice (ATM or ITM)
+        const atmOrItm = filteredByType.filter(c => c.strike <= currentPrice);
+        bestOption = atmOrItm.length > 0
+          ? atmOrItm.reduce((prev, curr) => curr.strike > prev.strike ? curr : prev)
+          : atmStrike;
+      } else {
+        // For puts: prefer strike >= currentPrice (ATM or ITM)
+        const atmOrItm = filteredByType.filter(c => c.strike >= currentPrice);
+        bestOption = atmOrItm.length > 0
+          ? atmOrItm.reduce((prev, curr) => curr.strike < prev.strike ? curr : prev)
+          : atmStrike;
+      }
+
+      // Ensure option has valid pricing
+      if (bestOption && bestOption.bid > 0 && bestOption.ask > 0 && bestOption.mid > 0) {
+        return bestOption;
+      }
+    }
+
+    return null;
+  } catch (error) {
+    console.error(`Error selecting mean reversion option for ${symbol}:`, error);
+    return null;
+  }
+}

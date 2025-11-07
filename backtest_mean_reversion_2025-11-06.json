@@ -1,0 +1,485 @@
+[
+  {
+    "symbol": "SPY",
+    "date": "2025-10-27",
+    "mode": "intraday",
+    "netGex": -1062071762.5314347,
+    "regime": "negative_gex",
+    "technicals": {
+      "bbUpper": null,
+      "bbMiddle": null,
+      "bbLower": null,
+      "avgRSI": 71.42142857142856
+    },
+    "trades": [
+      {
+        "id": "SPY-2025-10-27T19:30:00.000Z",
+        "symbol": "SPY",
+        "direction": "short",
+        "entryTimestamp": "2025-10-27T19:30:00.000Z",
+        "exitTimestamp": "2025-10-27T19:51:00.000Z",
+        "stock": {
+          "entryPrice": 684.65,
+          "exitPrice": 685.3346499999999,
+          "profit": -1.3692999999998392,
+          "profitPct": -0.09999999999998826
+        },
+        "futures": {
+          "esProfit": -688.6499999999196,
+          "mesProfit": -72.46499999999196,
+          "indexPoints": 6.846499999999196,
+          "commission": 4
+        },
+        "option": {
+          "contract": "SPY251106P00685000",
+          "strike": 685,
+          "expiration": "2025-11-06",
+          "entryPremium": 7.68,
+          "exitPremium": 7.016134042477626,
+          "profit": -80.46659575223735,
+          "profitPct": -8.644087988572576,
+          "commission": 0.08,
+          "slippage": 13.999999999999968,
+          "grossProfit": -66.38659575223738
+        },
+        "stopLoss": 685.3346499999999,
+        "target": 683.7252449999999,
+        "entryRSI": 73.2,
+        "exitRSI": 77.93,
+        "durationMinutes": 21,
+        "exitReason": "stop",
+        "netGex": -1062071762.5314347
+      },
+      {
+        "id": "SPY-2025-10-27T19:45:00.000Z",
+        "symbol": "SPY",
+        "direction": "short",
+        "entryTimestamp": "2025-10-27T19:45:00.000Z",
+        "exitTimestamp": "2025-10-27T20:00:00.000Z",
+        "stock": {
+          "entryPrice": 685.19,
+          "exitPrice": 685.4,
+          "profit": -0.4199999999998454,
+          "profitPct": -0.03064843328126836
+        },
+        "futures": {
+          "esProfit": -213.9999999999227,
+          "mesProfit": -24.99999999999227,
+          "indexPoints": 2.099999999999227,
+          "commission": 4
+        },
+        "option": {
+          "contract": "SPY251106P00686000",
+          "strike": 686,
+          "expiration": "2025-11-06",
+          "entryPremium": 8.675,
+          "exitPremium": 8.468456935047186,
+          "profit": -33.73430649528154,
+          "profitPct": -2.380899884182301,
+          "commission": 0.08,
+          "slippage": 13.000000000000078,
+          "grossProfit": -20.65430649528146
+        },
+        "stopLoss": 685.87519,
+        "target": 683.8502449999999,
+        "entryRSI": 77.93,
+        "exitRSI": 79.45,
+        "durationMinutes": 15,
+        "exitReason": "end_of_day",
+        "netGex": -1062071762.5314347
+      }
+    ],
+    "summary": {
+      "tradeCount": 2,
+      "winCount": 0,
+      "lossCount": 2,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": -1.7892999999996846,
+        "grossProfit": 0,
+        "grossLoss": 1.7892999999996846,
+        "averageWin": 0,
+        "averageLoss": 0.8946499999998423,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": -114.20090224751888,
+        "grossProfit": 0,
+        "grossLoss": 114.20090224751888,
+        "averageWin": 0,
+        "averageLoss": 57.10045112375944,
+        "profitFactor": 0,
+        "contractsTraded": 2,
+        "totalCommission": 0.16,
+        "totalSlippage": 27.000000000000046,
+        "leverage": {
+          "50x": {
+            "netProfit": -5710.045112375944,
+            "grossProfit": -4352.045112375942,
+            "commission": 8,
+            "slippage": 1350.0000000000023
+          },
+          "100x": {
+            "netProfit": -11420.090224751888,
+            "grossProfit": -8704.090224751884,
+            "commission": 16,
+            "slippage": 2700.0000000000045
+          }
+        }
+      },
+      "maxDrawdown": 1.7892999999996846,
+      "averageDurationMinutes": 18
+    },
+    "notes": [
+      "Trading on negative_gex day: Net GEX -1062.1M"
+    ]
+  },
+  {
+    "symbol": "SPY",
+    "date": "2025-10-28",
+    "mode": "intraday",
+    "netGex": -1067720987.9017726,
+    "regime": "negative_gex",
+    "technicals": {
+      "bbUpper": null,
+      "bbMiddle": null,
+      "bbLower": null,
+      "avgRSI": 63.44
+    },
+    "trades": [
+      {
+        "id": "SPY-2025-10-28T18:30:00.000Z",
+        "symbol": "SPY",
+        "direction": "short",
+        "entryTimestamp": "2025-10-28T18:30:00.000Z",
+        "exitTimestamp": "2025-10-28T19:27:00.000Z",
+        "stock": {
+          "entryPrice": 687.98,
+          "exitPrice": 688.66798,
+          "profit": -1.37595999999985,
+          "profitPct": -0.0999999999999891
+        },
+        "futures": {
+          "esProfit": -691.979999999925,
+          "mesProfit": -72.7979999999925,
+          "indexPoints": 6.87979999999925,
+          "commission": 4
+        },
+        "option": {
+          "contract": "SPY251106P00688000",
+          "strike": 688,
+          "expiration": "2025-11-06",
+          "entryPremium": 10.475,
+          "exitPremium": 9.791098061587864,
+          "profit": -157.47019384121364,
+          "profitPct": -6.528896786750702,
+          "commission": 0.08,
+          "slippage": 89.00000000000006,
+          "grossProfit": -68.3901938412136
+        },
+        "stopLoss": 688.66798,
+        "target": 686.4942399999999,
+        "entryRSI": 70.28,
+        "exitRSI": 76.02,
+        "durationMinutes": 57,
+        "exitReason": "stop",
+        "netGex": -1067720987.9017726
+      },
+      {
+        "id": "SPY-2025-10-28T19:15:00.000Z",
+        "symbol": "SPY",
+        "direction": "short",
+        "entryTimestamp": "2025-10-28T19:15:00.000Z",
+        "exitTimestamp": "2025-10-28T20:00:00.000Z",
+        "stock": {
+          "entryPrice": 688.69,
+          "exitPrice": 686.85,
+          "profit": 5.777365018213345,
+          "profitPct": 0.4194459784673325
+        },
+        "futures": {
+          "esProfit": 1836.0000000000318,
+          "mesProfit": 180.00000000000318,
+          "indexPoints": 18.40000000000032,
+          "commission": 4
+        },
+        "option": {
+          "contract": "SPY251106P00689000",
+          "strike": 689,
+          "expiration": "2025-11-06",
+          "entryPremium": 11.375,
+          "exitPremium": 13.20957950173467,
+          "profit": 72.37795017346699,
+          "profitPct": 16.12817144382127,
+          "commission": 0.08,
+          "slippage": 110.99999999999994,
+          "grossProfit": 183.45795017346694
+        },
+        "stopLoss": 693.73792735,
+        "target": 691.6001613316046,
+        "entryRSI": 76.02,
+        "exitRSI": 48.08,
+        "durationMinutes": 45,
+        "exitReason": "end_of_day",
+        "netGex": -1067720987.9017726
+      }
+    ],
+    "summary": {
+      "tradeCount": 2,
+      "winCount": 1,
+      "lossCount": 1,
+      "winRate": 0.5,
+      "stock": {
+        "totalProfit": 4.401405018213495,
+        "grossProfit": 5.777365018213345,
+        "grossLoss": 1.37595999999985,
+        "averageWin": 5.777365018213345,
+        "averageLoss": 1.37595999999985,
+        "profitFactor": 4.198788495460605
+      },
+      "options": {
+        "totalProfit": -85.09224366774666,
+        "grossProfit": 72.37795017346699,
+        "grossLoss": 157.47019384121364,
+        "averageWin": 72.37795017346699,
+        "averageLoss": 157.47019384121364,
+        "profitFactor": 0.45962952358114123,
+        "contractsTraded": 2,
+        "totalCommission": 0.16,
+        "totalSlippage": 200,
+        "leverage": {
+          "50x": {
+            "netProfit": -4254.612183387333,
+            "grossProfit": 5753.387816612667,
+            "commission": 8,
+            "slippage": 10000
+          },
+          "100x": {
+            "netProfit": -8509.224366774666,
+            "grossProfit": 11506.775633225334,
+            "commission": 16,
+            "slippage": 20000
+          }
+        }
+      },
+      "maxDrawdown": 1.37595999999985,
+      "averageDurationMinutes": 51
+    },
+    "notes": [
+      "Trading on negative_gex day: Net GEX -1067.7M"
+    ]
+  },
+  {
+    "symbol": "SPY",
+    "date": "2025-10-29",
+    "mode": "intraday",
+    "netGex": -1068746902.7961489,
+    "regime": "negative_gex",
+    "technicals": {
+      "bbUpper": null,
+      "bbMiddle": null,
+      "bbLower": null,
+      "avgRSI": 36.91428571428571
+    },
+    "trades": [
+      {
+        "id": "SPY-2025-10-29T18:30:00.000Z",
+        "symbol": "SPY",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:30:00.000Z",
+        "exitTimestamp": "2025-10-29T20:00:00.000Z",
+        "stock": {
+          "entryPrice": 683.29,
+          "exitPrice": 686.6613,
+          "profit": 10.553026021512665,
+          "profitPct": 0.7722216058710552
+        },
+        "futures": {
+          "esProfit": 3367.3000000000193,
+          "mesProfit": 333.1300000000019,
+          "indexPoints": 33.71300000000019,
+          "commission": 4
+        },
+        "option": {
+          "contract": "SPY251106C00683000",
+          "strike": 683,
+          "expiration": "2025-11-06",
+          "entryPremium": 0.175,
+          "exitPremium": 0.46526542321447506,
+          "profit": 27.946542321447513,
+          "profitPct": 165.86595612255718,
+          "commission": 0.08,
+          "slippage": 0.9999999999999981,
+          "grossProfit": 29.026542321447508
+        },
+        "stopLoss": 681.2306275499999,
+        "target": 683.5670087612975,
+        "entryRSI": 16.22,
+        "exitRSI": 44.84,
+        "durationMinutes": 90,
+        "exitReason": "end_of_day",
+        "netGex": -1068746902.7961489
+      }
+    ],
+    "summary": {
+      "tradeCount": 1,
+      "winCount": 1,
+      "lossCount": 0,
+      "winRate": 1,
+      "stock": {
+        "totalProfit": 10.553026021512665,
+        "grossProfit": 10.553026021512665,
+        "grossLoss": 0,
+        "averageWin": 10.553026021512665,
+        "averageLoss": 0,
+        "profitFactor": null
+      },
+      "options": {
+        "totalProfit": 27.946542321447513,
+        "grossProfit": 27.946542321447513,
+        "grossLoss": 0,
+        "averageWin": 27.946542321447513,
+        "averageLoss": 0,
+        "profitFactor": null,
+        "contractsTraded": 1,
+        "totalCommission": 0.08,
+        "totalSlippage": 0.9999999999999981,
+        "leverage": {
+          "50x": {
+            "netProfit": 1397.3271160723757,
+            "grossProfit": 1451.3271160723755,
+            "commission": 4,
+            "slippage": 49.99999999999991
+          },
+          "100x": {
+            "netProfit": 2794.6542321447514,
+            "grossProfit": 2902.654232144751,
+            "commission": 8,
+            "slippage": 99.99999999999982
+          }
+        }
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 90
+    },
+    "notes": [
+      "Trading on negative_gex day: Net GEX -1068.7M"
+    ]
+  },
+  {
+    "symbol": "SPY",
+    "date": "2025-10-30",
+    "mode": "intraday",
+    "netGex": -1045367756.5461711,
+    "regime": "negative_gex",
+    "technicals": {
+      "bbUpper": null,
+      "bbMiddle": null,
+      "bbLower": null,
+      "avgRSI": 44.421428571428564
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0,
+        "totalCommission": 0,
+        "totalSlippage": 0,
+        "leverage": {
+          "50x": {
+            "netProfit": 0,
+            "grossProfit": 0,
+            "commission": 0,
+            "slippage": 0
+          },
+          "100x": {
+            "netProfit": 0,
+            "grossProfit": 0,
+            "commission": 0,
+            "slippage": 0
+          }
+        }
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": [
+      "Trading on negative_gex day: Net GEX -1045.4M"
+    ]
+  },
+  {
+    "symbol": "SPY",
+    "date": "2025-10-31",
+    "mode": "intraday",
+    "netGex": 100900925.01784118,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 685.1795122683928,
+      "bbMiddle": 682.27825,
+      "bbLower": 679.3769877316071,
+      "avgRSI": 52.60000000000001
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0,
+        "totalCommission": 0,
+        "totalSlippage": 0,
+        "leverage": {
+          "50x": {
+            "netProfit": 0,
+            "grossProfit": 0,
+            "commission": 0,
+            "slippage": 0
+          },
+          "100x": {
+            "netProfit": 0,
+            "grossProfit": 0,
+            "commission": 0,
+            "slippage": 0
+          }
+        }
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": [
+      "Trading on positive_gex day: Net GEX 100.9M"
+    ]
+  }
+]

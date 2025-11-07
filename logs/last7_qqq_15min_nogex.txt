@@ -1,0 +1,107 @@
+🚀 15-Min Mean Reversion Backtest
+Symbols: AAPL, QQQ, SPY, NVDA
+Dates:   2025-11-05, 2025-11-04, 2025-11-03, 2025-10-31, 2025-10-30, 2025-10-29, 2025-10-28
+
+🔄 Running mean reversion backtest for AAPL on 2025-11-05 (intraday mode)
+
+🔄 Running mean reversion backtest for AAPL on 2025-11-04 (intraday mode)
+
+🔄 Running mean reversion backtest for AAPL on 2025-11-03 (intraday mode)
+
+🔄 Running mean reversion backtest for AAPL on 2025-10-31 (intraday mode)
+
+🔄 Running mean reversion backtest for AAPL on 2025-10-30 (intraday mode)
+
+🔄 Running mean reversion backtest for AAPL on 2025-10-29 (intraday mode)
+
+🔄 Running mean reversion backtest for AAPL on 2025-10-28 (intraday mode)
+
+🔄 Running mean reversion backtest for QQQ on 2025-11-05 (intraday mode)
+
+🔄 Running mean reversion backtest for QQQ on 2025-11-04 (intraday mode)
+
+🔄 Running mean reversion backtest for QQQ on 2025-11-03 (intraday mode)
+
+🔄 Running mean reversion backtest for QQQ on 2025-10-31 (intraday mode)
+
+🔄 Running mean reversion backtest for QQQ on 2025-10-30 (intraday mode)
+
+🔄 Running mean reversion backtest for QQQ on 2025-10-29 (intraday mode)
+
+🔄 Running mean reversion backtest for QQQ on 2025-10-28 (intraday mode)
+
+🔄 Running mean reversion backtest for SPY on 2025-11-05 (intraday mode)
+
+🔄 Running mean reversion backtest for SPY on 2025-11-04 (intraday mode)
+
+🔄 Running mean reversion backtest for SPY on 2025-11-03 (intraday mode)
+
+🔄 Running mean reversion backtest for SPY on 2025-10-31 (intraday mode)
+
+🔄 Running mean reversion backtest for SPY on 2025-10-30 (intraday mode)
+
+🔄 Running mean reversion backtest for SPY on 2025-10-29 (intraday mode)
+
+🔄 Running mean reversion backtest for SPY on 2025-10-28 (intraday mode)
+
+🔄 Running mean reversion backtest for NVDA on 2025-11-05 (intraday mode)
+
+🔄 Running mean reversion backtest for NVDA on 2025-11-04 (intraday mode)
+
+🔄 Running mean reversion backtest for NVDA on 2025-11-03 (intraday mode)
+
+🔄 Running mean reversion backtest for NVDA on 2025-10-31 (intraday mode)
+
+🔄 Running mean reversion backtest for NVDA on 2025-10-30 (intraday mode)
+
+🔄 Running mean reversion backtest for NVDA on 2025-10-29 (intraday mode)
+
+🔄 Running mean reversion backtest for NVDA on 2025-10-28 (intraday mode)
+
+AAPL
+────
+  Days processed: 7
+  Days traded:   0
+  Trades:        0
+  Win rate:      0.00%
+  Total P&L:     $0.00
+  Profit factor: 0.00
+
+QQQ
+───
+  Days processed: 7
+  Days traded:   3
+  Trades:        4
+  Win rate:      75.00%
+  Total P&L:     $33.23
+  Profit factor: 27.22
+  Avg duration:  70 minutes
+  Exit reasons:
+    end_of_day: 3 (75.0%)
+    stop: 1 (25.0%)
+
+SPY
+───
+  Days processed: 7
+  Days traded:   3
+  Trades:        4
+  Win rate:      75.00%
+  Total P&L:     $42.07
+  Profit factor: 31.58
+  Avg duration:  71 minutes
+  Exit reasons:
+    end_of_day: 3 (75.0%)
+    stop: 1 (25.0%)
+
+NVDA
+────
+  Days processed: 7
+  Days traded:   3
+  Trades:        6
+  Win rate:      33.33%
+  Total P&L:     $29.27
+  Profit factor: 25.34
+  Avg duration:  24 minutes
+  Exit reasons:
+    end_of_day: 1 (16.7%)
+    stop: 5 (83.3%)

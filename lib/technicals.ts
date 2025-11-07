@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { RSI, SMA, EMA, MACD, BollingerBands } from 'technicalindicators';
+import { getHistoricalTimesales } from './tradier';
 
 const TRADIER_API_KEY = process.env.TRADIER_API_KEY || '';
 const TRADIER_BASE_URL = process.env.TRADIER_BASE_URL || 'https://api.tradier.com/v1';
@@ -61,17 +62,56 @@ interface HistoricalDataPoint {
 /**
  * Fetches historical price data from Tradier
  */
-async function getHistoricalData(symbol: string, days: number = 200): Promise<HistoricalDataPoint[]> {
+export async function getHistoricalData(symbol: string, interval: string = 'daily', lookbackDays: number = 200, date?: string): Promise<HistoricalDataPoint[]> {
   try {
-    // Calculate start date
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - days);
+    // For minute-level intervals, use the timesales endpoint
+    if (interval.endsWith('min')) {
+      const intervalMinutes = parseInt(interval.replace('min', '')) || 1;
+      const allBars: HistoricalDataPoint[] = [];
+
+      // Calculate date range
+      const endDate = date ? new Date(date) : new Date();
+      const startDate = new Date(endDate);
+      startDate.setDate(startDate.getDate() - lookbackDays);
+
+      // Fetch timesales data for each day
+      const currentDate = new Date(startDate);
+      while (currentDate <= endDate) {
+        // Skip weekends
+        const dayOfWeek = currentDate.getDay();
+        if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+          const dateStr = currentDate.toISOString().split('T')[0];
+          try {
+            const dayBars = await getHistoricalTimesales(symbol, dateStr, intervalMinutes);
+            const convertedBars = dayBars.map(bar => ({
+              date: bar.timestamp,
+              open: bar.open,
+              high: bar.high,
+              low: bar.low,
+              close: bar.close,
+              volume: bar.volume,
+            }));
+            allBars.push(...convertedBars);
+          } catch (error) {
+            // Skip days with no data (e.g., holidays, market closed)
+            console.warn(`No data for ${symbol} on ${dateStr}`);
+          }
+        }
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+
+      return allBars;
+    }
+
+    // For daily/weekly/monthly intervals, use the /markets/history endpoint
+    const endDate = date ? new Date(date) : new Date();
+    const startDate = new Date(endDate);
+    startDate.setDate(startDate.getDate() - lookbackDays);
 
     const response = await tradierClient.get('/markets/history', {
       params: {
         symbol,
-        interval: 'daily',
+        interval,
         start: startDate.toISOString().split('T')[0],
         end: endDate.toISOString().split('T')[0],
       },
@@ -206,7 +246,7 @@ function calculateMomentum(
 export async function getTechnicalIndicators(symbol: string): Promise<TechnicalIndicators | null> {
   try {
     // Get historical data (200 days for 200 SMA)
-    const history = await getHistoricalData(symbol, 200);
+    const history = await getHistoricalData(symbol, 'daily', 200);
 
     if (history.length < 50) {
       console.warn(`Insufficient historical data for ${symbol} (${history.length} days)`);

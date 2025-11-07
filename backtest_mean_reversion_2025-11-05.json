@@ -1,0 +1,2892 @@
+[
+  {
+    "symbol": "SPY",
+    "date": "2025-10-27",
+    "mode": "intraday",
+    "netGex": 2354080449.8416677,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 684.1564303643232,
+      "bbMiddle": 683.432245,
+      "bbLower": 682.7080596356767,
+      "avgRSI": 71.42142857142856
+    },
+    "trades": [
+      {
+        "id": "SPY-2025-10-27T19:30:00.000Z",
+        "symbol": "SPY",
+        "direction": "short",
+        "entryTimestamp": "2025-10-27T19:30:00.000Z",
+        "exitTimestamp": "2025-10-27T19:48:00.000Z",
+        "stock": {
+          "entryPrice": 684.32,
+          "exitPrice": 685.00432,
+          "profit": -0.684319999999957,
+          "profitPct": -0.09999999999999372
+        },
+        "option": {
+          "contract": "SPY251105P00685000",
+          "strike": 685,
+          "expiration": "2025-11-05",
+          "entryPremium": 7.635,
+          "exitPremium": 6.950680000000043,
+          "profit": -99.51199999999565,
+          "profitPct": -8.962933857235848,
+          "commission": 0.08,
+          "slippage": 30.99999999999996,
+          "grossProfit": -68.4319999999957
+        },
+        "stopLoss": 685.00432,
+        "target": 683.7252449999999,
+        "entryRSI": 73.2,
+        "exitRSI": 77.93,
+        "durationMinutes": 18,
+        "exitReason": "stop",
+        "netGex": 2354080449.8416677
+      },
+      {
+        "id": "SPY-2025-10-27T19:48:00.000Z",
+        "symbol": "SPY",
+        "direction": "short",
+        "entryTimestamp": "2025-10-27T19:48:00.000Z",
+        "exitTimestamp": "2025-10-27T20:00:00.000Z",
+        "stock": {
+          "entryPrice": 685.11,
+          "exitPrice": 685.4,
+          "profit": -0.2899999999999636,
+          "profitPct": -0.04232896907065487
+        },
+        "option": {
+          "contract": "SPY251105P00686000",
+          "strike": 686,
+          "expiration": "2025-11-05",
+          "entryPremium": 8.695,
+          "exitPremium": 8.405000000000037,
+          "profit": -58.079999999996275,
+          "profitPct": -3.3352501437603634,
+          "commission": 0.08,
+          "slippage": 28.999999999999915,
+          "grossProfit": -28.999999999996362
+        },
+        "stopLoss": 685.7951099999999,
+        "target": 683.8502449999999,
+        "entryRSI": 77.93,
+        "exitRSI": 79.45,
+        "durationMinutes": 12,
+        "exitReason": "end_of_day",
+        "netGex": 2354080449.8416677
+      }
+    ],
+    "summary": {
+      "tradeCount": 2,
+      "winCount": 0,
+      "lossCount": 2,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": -0.9743199999999206,
+        "grossProfit": 0,
+        "grossLoss": 0.9743199999999206,
+        "averageWin": 0,
+        "averageLoss": 0.4871599999999603,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": -157.5919999999919,
+        "grossProfit": 0,
+        "grossLoss": 157.5919999999919,
+        "averageWin": 0,
+        "averageLoss": 78.79599999999596,
+        "profitFactor": 0,
+        "contractsTraded": 2,
+        "totalCommission": 0.16,
+        "totalSlippage": 59.99999999999987,
+        "leverage": {
+          "50x": {
+            "netProfit": -7879.599999999596,
+            "grossProfit": -4871.599999999602,
+            "commission": 8,
+            "slippage": 2999.9999999999936
+          },
+          "100x": {
+            "netProfit": -15759.199999999191,
+            "grossProfit": -9743.199999999204,
+            "commission": 16,
+            "slippage": 5999.999999999987
+          }
+        }
+      },
+      "maxDrawdown": 0.9743199999999206,
+      "averageDurationMinutes": 15
+    },
+    "notes": []
+  },
+  {
+    "symbol": "SPY",
+    "date": "2025-10-28",
+    "mode": "intraday",
+    "netGex": 2366601949.3017077,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 688.0626457269141,
+      "bbMiddle": 686.3942399999999,
+      "bbLower": 684.7258342730856,
+      "avgRSI": 63.44
+    },
+    "trades": [
+      {
+        "id": "SPY-2025-10-28T18:30:00.000Z",
+        "symbol": "SPY",
+        "direction": "short",
+        "entryTimestamp": "2025-10-28T18:30:00.000Z",
+        "exitTimestamp": "2025-10-28T19:28:00.000Z",
+        "stock": {
+          "entryPrice": 688.085,
+          "exitPrice": 688.7730849999999,
+          "profit": -0.6880849999998873,
+          "profitPct": -0.0999999999999836
+        },
+        "option": {
+          "contract": "SPY251105P00689000",
+          "strike": 689,
+          "expiration": "2025-11-05",
+          "entryPremium": 11.635,
+          "exitPremium": 10.946915000000113,
+          "profit": -99.8884999999886,
+          "profitPct": -5.913923506659968,
+          "commission": 0.08,
+          "slippage": 30.999999999999872,
+          "grossProfit": -68.80849999998873
+        },
+        "stopLoss": 688.7730849999999,
+        "target": 686.4942399999999,
+        "entryRSI": 70.28,
+        "exitRSI": 76.02,
+        "durationMinutes": 58,
+        "exitReason": "stop",
+        "netGex": 2366601949.3017077
+      },
+      {
+        "id": "SPY-2025-10-28T19:28:00.000Z",
+        "symbol": "SPY",
+        "direction": "short",
+        "entryTimestamp": "2025-10-28T19:28:00.000Z",
+        "exitTimestamp": "2025-10-28T19:45:00.000Z",
+        "stock": {
+          "entryPrice": 688.81,
+          "exitPrice": 687.68,
+          "profit": 1.1299999999999955,
+          "profitPct": 0.16405104455510164
+        },
+        "option": {
+          "contract": "SPY251105P00689000",
+          "strike": 689,
+          "expiration": "2025-11-05",
+          "entryPremium": 11.635,
+          "exitPremium": 12.764999999999995,
+          "profit": 81.91999999999967,
+          "profitPct": 9.712075633863304,
+          "commission": 0.08,
+          "slippage": 30.999999999999872,
+          "grossProfit": 112.99999999999955
+        },
+        "stopLoss": 689.4988099999998,
+        "target": 686.8692349999999,
+        "entryRSI": 76.02,
+        "exitRSI": 49.53,
+        "durationMinutes": 17,
+        "exitReason": "rsi_neutral",
+        "netGex": 2366601949.3017077
+      }
+    ],
+    "summary": {
+      "tradeCount": 2,
+      "winCount": 1,
+      "lossCount": 1,
+      "winRate": 0.5,
+      "stock": {
+        "totalProfit": 0.4419150000001082,
+        "grossProfit": 1.1299999999999955,
+        "grossLoss": 0.6880849999998873,
+        "averageWin": 1.1299999999999955,
+        "averageLoss": 0.6880849999998873,
+        "profitFactor": 1.642238967569676
+      },
+      "options": {
+        "totalProfit": -17.96849999998892,
+        "grossProfit": 81.91999999999967,
+        "grossLoss": 99.8884999999886,
+        "averageWin": 81.91999999999967,
+        "averageLoss": 99.8884999999886,
+        "profitFactor": 0.8201144275868496,
+        "contractsTraded": 2,
+        "totalCommission": 0.16,
+        "totalSlippage": 61.999999999999744,
+        "leverage": {
+          "50x": {
+            "netProfit": -898.4249999994461,
+            "grossProfit": 2209.575000000541,
+            "commission": 8,
+            "slippage": 3099.9999999999873
+          },
+          "100x": {
+            "netProfit": -1796.8499999988921,
+            "grossProfit": 4419.150000001082,
+            "commission": 16,
+            "slippage": 6199.9999999999745
+          }
+        }
+      },
+      "maxDrawdown": 0.6880849999998873,
+      "averageDurationMinutes": 37.5
+    },
+    "notes": []
+  },
+  {
+    "symbol": "SPY",
+    "date": "2025-10-29",
+    "mode": "intraday",
+    "netGex": 2368875888.1081567,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 689.3125858609374,
+      "bbMiddle": 688.408745,
+      "bbLower": 687.5049041390625,
+      "avgRSI": 36.91428571428571
+    },
+    "trades": [
+      {
+        "id": "SPY-2025-10-29T18:30:00.000Z",
+        "symbol": "SPY",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:30:00.000Z",
+        "exitTimestamp": "2025-10-29T18:31:00.000Z",
+        "stock": {
+          "entryPrice": 687.87,
+          "exitPrice": 688.1117449999999,
+          "profit": 0.2417449999999235,
+          "profitPct": 0.03514399523164602
+        },
+        "option": {
+          "contract": "SPY251106C00687000",
+          "strike": 687,
+          "expiration": "2025-11-06",
+          "entryPremium": 0.025,
+          "exitPremium": 0.027016888540661255,
+          "profit": -0.8783111459338746,
+          "profitPct": 8.067554162645013,
+          "commission": 0.08,
+          "slippage": 0.9999999999999999,
+          "grossProfit": 0.20168885406612533
+        },
+        "stopLoss": 687.18213,
+        "target": 688.1117449999999,
+        "entryRSI": 16.22,
+        "exitRSI": 16.22,
+        "durationMinutes": 1,
+        "exitReason": "target",
+        "netGex": 2368875888.1081567
+      },
+      {
+        "id": "SPY-2025-10-29T18:31:00.000Z",
+        "symbol": "SPY",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:31:00.000Z",
+        "exitTimestamp": "2025-10-29T18:32:00.000Z",
+        "stock": {
+          "entryPrice": 688,
+          "exitPrice": 688.1117449999999,
+          "profit": 0.11174499999992804,
+          "profitPct": 0.016242005813943028
+        },
+        "option": {
+          "contract": "SPY251106C00688000",
+          "strike": 688,
+          "expiration": "2025-11-06",
+          "entryPremium": 0.015,
+          "exitPremium": 0.01566237825536687,
+          "profit": -1.0137621744633127,
+          "profitPct": 4.415855035779145,
+          "commission": 0.08,
+          "slippage": 1,
+          "grossProfit": 0.06623782553668717
+        },
+        "stopLoss": 687.312,
+        "target": 688.1117449999999,
+        "entryRSI": 16.22,
+        "exitRSI": 16.22,
+        "durationMinutes": 1,
+        "exitReason": "target",
+        "netGex": 2368875888.1081567
+      },
+      {
+        "id": "SPY-2025-10-29T18:32:00.000Z",
+        "symbol": "SPY",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:32:00.000Z",
+        "exitTimestamp": "2025-10-29T18:33:00.000Z",
+        "stock": {
+          "entryPrice": 688.3001,
+          "exitPrice": 688.1117449999999,
+          "profit": -0.18835500000011507,
+          "profitPct": -0.027365243735997576
+        },
+        "option": {
+          "contract": "SPY251106C00688000",
+          "strike": 688,
+          "expiration": "2025-11-06",
+          "entryPremium": 0.015,
+          "exitPremium": 0.013883509272989541,
+          "profit": -1.1916490727010458,
+          "profitPct": -7.443271513403056,
+          "commission": 0.08,
+          "slippage": 1,
+          "grossProfit": -0.11164907270104582
+        },
+        "stopLoss": 687.6117999,
+        "target": 688.1117449999999,
+        "entryRSI": 16.22,
+        "exitRSI": 16.22,
+        "durationMinutes": 1,
+        "exitReason": "target",
+        "netGex": 2368875888.1081567
+      },
+      {
+        "id": "SPY-2025-10-29T18:33:00.000Z",
+        "symbol": "SPY",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:33:00.000Z",
+        "exitTimestamp": "2025-10-29T18:34:00.000Z",
+        "stock": {
+          "entryPrice": 688.57,
+          "exitPrice": 688.1117449999999,
+          "profit": -0.458255000000122,
+          "profitPct": -0.06655169409066936
+        },
+        "option": {
+          "contract": "SPY251106C00688000",
+          "strike": 688,
+          "expiration": "2025-11-06",
+          "entryPremium": 0.015,
+          "exitPremium": 0.012283653430458437,
+          "profit": -1.3516346569541562,
+          "profitPct": -18.108977130277086,
+          "commission": 0.08,
+          "slippage": 1,
+          "grossProfit": -0.2716346569541563
+        },
+        "stopLoss": 687.88143,
+        "target": 688.1117449999999,
+        "entryRSI": 16.22,
+        "exitRSI": 16.22,
+        "durationMinutes": 1,
+        "exitReason": "target",
+        "netGex": 2368875888.1081567
+      },
+      {
+        "id": "SPY-2025-10-29T18:34:00.000Z",
+        "symbol": "SPY",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:34:00.000Z",
+        "exitTimestamp": "2025-10-29T18:35:00.000Z",
+        "stock": {
+          "entryPrice": 688.48,
+          "exitPrice": 688.1117449999999,
+          "profit": -0.36825500000009015,
+          "profitPct": -0.05348811875437051
+        },
+        "option": {
+          "contract": "SPY251106C00688000",
+          "strike": 688,
+          "expiration": "2025-11-06",
+          "entryPremium": 0.015,
+          "exitPremium": 0.012817136297549384,
+          "profit": -1.2982863702450615,
+          "profitPct": -14.552424683004103,
+          "commission": 0.08,
+          "slippage": 1,
+          "grossProfit": -0.21828637024506153
+        },
+        "stopLoss": 687.79152,
+        "target": 688.1117449999999,
+        "entryRSI": 16.22,
+        "exitRSI": 16.22,
+        "durationMinutes": 1,
+        "exitReason": "target",
+        "netGex": 2368875888.1081567
+      },
+      {
+        "id": "SPY-2025-10-29T18:35:00.000Z",
+        "symbol": "SPY",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:35:00.000Z",
+        "exitTimestamp": "2025-10-29T18:36:00.000Z",
+        "stock": {
+          "entryPrice": 685.54,
+          "exitPrice": 684.85446,
+          "profit": -0.6855399999999463,
+          "profitPct": -0.09999999999999218
+        },
+        "option": {
+          "contract": "SPY251106C00685000",
+          "strike": 685,
+          "expiration": "2025-11-06",
+          "entryPremium": 0.065,
+          "exitPremium": 0.04418893963330519,
+          "profit": -3.1611060366694823,
+          "profitPct": -32.017015948761255,
+          "commission": 0.08,
+          "slippage": 1.0000000000000009,
+          "grossProfit": -2.0811060366694814
+        },
+        "stopLoss": 684.85446,
+        "target": 688.1117449999999,
+        "entryRSI": 16.22,
+        "exitRSI": 16.22,
+        "durationMinutes": 1,
+        "exitReason": "stop",
+        "netGex": 2368875888.1081567
+      },
+      {
+        "id": "SPY-2025-10-29T18:36:00.000Z",
+        "symbol": "SPY",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:36:00.000Z",
+        "exitTimestamp": "2025-10-29T18:37:00.000Z",
+        "stock": {
+          "entryPrice": 685.6201,
+          "exitPrice": 684.9344798999999,
+          "profit": -0.685620100000051,
+          "profitPct": -0.10000000000000744
+        },
+        "option": {
+          "contract": "SPY251106C00685000",
+          "strike": 685,
+          "expiration": "2025-11-06",
+          "entryPremium": 0.065,
+          "exitPremium": 0.04418650802327871,
+          "profit": -3.16134919767213,
+          "profitPct": -32.02075688726352,
+          "commission": 0.08,
+          "slippage": 1.0000000000000009,
+          "grossProfit": -2.0813491976721292
+        },
+        "stopLoss": 684.9344798999999,
+        "target": 688.1117449999999,
+        "entryRSI": 16.22,
+        "exitRSI": 16.22,
+        "durationMinutes": 1,
+        "exitReason": "stop",
+        "netGex": 2368875888.1081567
+      },
+      {
+        "id": "SPY-2025-10-29T18:37:00.000Z",
+        "symbol": "SPY",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:37:00.000Z",
+        "exitTimestamp": "2025-10-29T18:38:00.000Z",
+        "stock": {
+          "entryPrice": 685.13,
+          "exitPrice": 684.44487,
+          "profit": -0.6851299999999583,
+          "profitPct": -0.09999999999999391
+        },
+        "option": {
+          "contract": "SPY251106C00685000",
+          "strike": 685,
+          "expiration": "2025-11-06",
+          "entryPremium": 0.065,
+          "exitPremium": 0.044201386076620094,
+          "profit": -3.1598613923379917,
+          "profitPct": -31.99786757443063,
+          "commission": 0.08,
+          "slippage": 1.0000000000000009,
+          "grossProfit": -2.0798613923379907
+        },
+        "stopLoss": 684.44487,
+        "target": 688.1117449999999,
+        "entryRSI": 16.22,
+        "exitRSI": 16.22,
+        "durationMinutes": 1,
+        "exitReason": "stop",
+        "netGex": 2368875888.1081567
+      },
+      {
+        "id": "SPY-2025-10-29T18:38:00.000Z",
+        "symbol": "SPY",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:38:00.000Z",
+        "exitTimestamp": "2025-10-29T18:39:00.000Z",
+        "stock": {
+          "entryPrice": 685.0525,
+          "exitPrice": 684.3674475,
+          "profit": -0.6850524999999834,
+          "profitPct": -0.09999999999999758
+        },
+        "option": {
+          "contract": "SPY251106C00685000",
+          "strike": 685,
+          "expiration": "2025-11-06",
+          "entryPremium": 0.065,
+          "exitPremium": 0.0442037387579777,
+          "profit": -3.159626124202231,
+          "profitPct": -31.994248064649693,
+          "commission": 0.08,
+          "slippage": 1.0000000000000009,
+          "grossProfit": -2.07962612420223
+        },
+        "stopLoss": 684.3674475,
+        "target": 688.1117449999999,
+        "entryRSI": 16.22,
+        "exitRSI": 16.22,
+        "durationMinutes": 1,
+        "exitReason": "stop",
+        "netGex": 2368875888.1081567
+      },
+      {
+        "id": "SPY-2025-10-29T18:39:00.000Z",
+        "symbol": "SPY",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:39:00.000Z",
+        "exitTimestamp": "2025-10-29T20:00:00.000Z",
+        "stock": {
+          "entryPrice": 683.54,
+          "exitPrice": 688.1117449999999,
+          "profit": 4.571744999999964,
+          "profitPct": 0.6688335722854499
+        },
+        "option": {
+          "contract": "SPY251106C00683000",
+          "strike": 683,
+          "expiration": "2025-11-06",
+          "entryPremium": 0.175,
+          "exitPremium": 0.5686224890260856,
+          "profit": 38.282248902608565,
+          "profitPct": 224.92713658633465,
+          "commission": 0.08,
+          "slippage": 0.9999999999999981,
+          "grossProfit": 39.36224890260856
+        },
+        "stopLoss": 682.85646,
+        "target": 688.1117449999999,
+        "entryRSI": 16.22,
+        "exitRSI": 44.84,
+        "durationMinutes": 81,
+        "exitReason": "target",
+        "netGex": 2368875888.1081567
+      }
+    ],
+    "summary": {
+      "tradeCount": 10,
+      "winCount": 3,
+      "lossCount": 7,
+      "winRate": 0.3,
+      "stock": {
+        "totalProfit": 1.1690273999995497,
+        "grossProfit": 4.925234999999816,
+        "grossLoss": 3.756207600000266,
+        "averageWin": 1.6417449999999387,
+        "averageLoss": 0.5366010857143237,
+        "profitFactor": 1.311225449839212
+      },
+      "options": {
+        "totalProfit": 19.90666273142928,
+        "grossProfit": 38.282248902608565,
+        "grossLoss": 18.375586171179286,
+        "averageWin": 38.282248902608565,
+        "averageLoss": 2.0417317967976985,
+        "profitFactor": 2.0833212364485747,
+        "contractsTraded": 10,
+        "totalCommission": 0.7999999999999999,
+        "totalSlippage": 10.000000000000002,
+        "leverage": {
+          "50x": {
+            "netProfit": 995.3331365714639,
+            "grossProfit": 1535.3331365714641,
+            "commission": 40,
+            "slippage": 500.0000000000001
+          },
+          "100x": {
+            "netProfit": 1990.6662731429278,
+            "grossProfit": 3070.6662731429283,
+            "commission": 80,
+            "slippage": 1000.0000000000002
+          }
+        }
+      },
+      "maxDrawdown": 3.756207600000266,
+      "averageDurationMinutes": 9
+    },
+    "notes": []
+  },
+  {
+    "symbol": "SPY",
+    "date": "2025-10-30",
+    "mode": "intraday",
+    "netGex": 3302038612.6974053,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 685.8134764145783,
+      "bbMiddle": 684.1575050000001,
+      "bbLower": 682.501533585422,
+      "avgRSI": 44.421428571428564
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0,
+        "totalCommission": 0,
+        "totalSlippage": 0,
+        "leverage": {
+          "50x": {
+            "netProfit": 0,
+            "grossProfit": 0,
+            "commission": 0,
+            "slippage": 0
+          },
+          "100x": {
+            "netProfit": 0,
+            "grossProfit": 0,
+            "commission": 0,
+            "slippage": 0
+          }
+        }
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "SPY",
+    "date": "2025-10-31",
+    "mode": "intraday",
+    "netGex": 3424637971.6632857,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 685.1795122683928,
+      "bbMiddle": 682.27825,
+      "bbLower": 679.3769877316071,
+      "avgRSI": 52.60000000000001
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0,
+        "totalCommission": 0,
+        "totalSlippage": 0,
+        "leverage": {
+          "50x": {
+            "netProfit": 0,
+            "grossProfit": 0,
+            "commission": 0,
+            "slippage": 0
+          },
+          "100x": {
+            "netProfit": 0,
+            "grossProfit": 0,
+            "commission": 0,
+            "slippage": 0
+          }
+        }
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "GLD",
+    "date": "2025-10-27",
+    "mode": "intraday",
+    "netGex": 38327887.54540955,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 370.05924307163065,
+      "bbMiddle": 367.88087499999995,
+      "bbLower": 365.70250692836925,
+      "avgRSI": 36.91285714285714
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0,
+        "totalCommission": 0,
+        "totalSlippage": 0,
+        "leverage": {
+          "50x": {
+            "netProfit": 0,
+            "grossProfit": 0,
+            "commission": 0,
+            "slippage": 0
+          },
+          "100x": {
+            "netProfit": 0,
+            "grossProfit": 0,
+            "commission": 0,
+            "slippage": 0
+          }
+        }
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "GLD",
+    "date": "2025-10-28",
+    "mode": "intraday",
+    "netGex": 37780539.143053584,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 366.0332686865561,
+      "bbMiddle": 363.925785,
+      "bbLower": 361.81830131344395,
+      "avgRSI": 62.957142857142856
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0,
+        "totalCommission": 0,
+        "totalSlippage": 0,
+        "leverage": {
+          "50x": {
+            "netProfit": 0,
+            "grossProfit": 0,
+            "commission": 0,
+            "slippage": 0
+          },
+          "100x": {
+            "netProfit": 0,
+            "grossProfit": 0,
+            "commission": 0,
+            "slippage": 0
+          }
+        }
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "GLD",
+    "date": "2025-10-29",
+    "mode": "intraday",
+    "netGex": 37494911.96436059,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 369.952483804977,
+      "bbMiddle": 368.025785,
+      "bbLower": 366.09908619502295,
+      "avgRSI": 30.457142857142856
+    },
+    "trades": [
+      {
+        "id": "GLD-2025-10-29T18:30:00.000Z",
+        "symbol": "GLD",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:30:00.000Z",
+        "exitTimestamp": "2025-10-29T18:32:00.000Z",
+        "stock": {
+          "entryPrice": 366.51,
+          "exitPrice": 366.14349,
+          "profit": -0.3665100000000052,
+          "profitPct": -0.10000000000000143
+        },
+        "option": {
+          "contract": "GLD251105C00366000",
+          "strike": 366,
+          "expiration": "2025-11-05",
+          "entryPremium": 0.52,
+          "exitPremium": 0.1776379233769445,
+          "profit": -78.31620766230554,
+          "profitPct": -65.83886088904913,
+          "commission": 0.08,
+          "slippage": 44,
+          "grossProfit": -34.23620766230555
+        },
+        "stopLoss": 366.14349,
+        "target": 367.77929,
+        "entryRSI": 22.04,
+        "exitRSI": 22.04,
+        "durationMinutes": 2,
+        "exitReason": "stop",
+        "netGex": 37494911.96436059
+      },
+      {
+        "id": "GLD-2025-10-29T18:32:00.000Z",
+        "symbol": "GLD",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:32:00.000Z",
+        "exitTimestamp": "2025-10-29T18:35:00.000Z",
+        "stock": {
+          "entryPrice": 366.49,
+          "exitPrice": 366.12351,
+          "profit": -0.36648999999999887,
+          "profitPct": -0.0999999999999997
+        },
+        "option": {
+          "contract": "GLD251105C00366000",
+          "strike": 366,
+          "expiration": "2025-11-05",
+          "entryPremium": 0.52,
+          "exitPremium": 0.17765660565446662,
+          "profit": -78.31433943455335,
+          "profitPct": -65.8352681433718,
+          "commission": 0.08,
+          "slippage": 44,
+          "grossProfit": -34.23433943455334
+        },
+        "stopLoss": 366.12351,
+        "target": 367.77929,
+        "entryRSI": 22.04,
+        "exitRSI": 22.04,
+        "durationMinutes": 3,
+        "exitReason": "stop",
+        "netGex": 37494911.96436059
+      },
+      {
+        "id": "GLD-2025-10-29T18:35:00.000Z",
+        "symbol": "GLD",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:35:00.000Z",
+        "exitTimestamp": "2025-10-29T18:36:00.000Z",
+        "stock": {
+          "entryPrice": 365.19,
+          "exitPrice": 364.82481,
+          "profit": -0.36518999999998414,
+          "profitPct": -0.09999999999999566
+        },
+        "option": {
+          "contract": "GLD251105C00365000",
+          "strike": 365,
+          "expiration": "2025-11-05",
+          "entryPremium": 1.98,
+          "exitPremium": 1.6148337680579004,
+          "profit": -208.59662319420994,
+          "profitPct": -18.44273898697473,
+          "commission": 0.08,
+          "slippage": 171.99999999999997,
+          "grossProfit": -36.51662319420996
+        },
+        "stopLoss": 364.82481,
+        "target": 367.77929,
+        "entryRSI": 22.04,
+        "exitRSI": 22.04,
+        "durationMinutes": 1,
+        "exitReason": "stop",
+        "netGex": 37494911.96436059
+      },
+      {
+        "id": "GLD-2025-10-29T18:36:00.000Z",
+        "symbol": "GLD",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:36:00.000Z",
+        "exitTimestamp": "2025-10-29T18:40:00.000Z",
+        "stock": {
+          "entryPrice": 363.84,
+          "exitPrice": 363.47616,
+          "profit": -0.36383999999998196,
+          "profitPct": -0.09999999999999507
+        },
+        "option": {
+          "contract": "GLD251105C00363000",
+          "strike": 363,
+          "expiration": "2025-11-05",
+          "entryPremium": 3.48,
+          "exitPremium": 3.116159999999837,
+          "profit": -330.46400000001637,
+          "profitPct": -10.455172413797792,
+          "commission": 0.08,
+          "slippage": 294.00000000000006,
+          "grossProfit": -36.384000000016314
+        },
+        "stopLoss": 363.47616,
+        "target": 367.77929,
+        "entryRSI": 22.04,
+        "exitRSI": 22.04,
+        "durationMinutes": 4,
+        "exitReason": "stop",
+        "netGex": 37494911.96436059
+      },
+      {
+        "id": "GLD-2025-10-29T18:40:00.000Z",
+        "symbol": "GLD",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:40:00.000Z",
+        "exitTimestamp": "2025-10-29T18:41:00.000Z",
+        "stock": {
+          "entryPrice": 363.725,
+          "exitPrice": 363.36127500000003,
+          "profit": -0.3637249999999881,
+          "profitPct": -0.09999999999999673
+        },
+        "option": {
+          "contract": "GLD251105C00363000",
+          "strike": 363,
+          "expiration": "2025-11-05",
+          "entryPremium": 3.48,
+          "exitPremium": 3.1162749999998307,
+          "profit": -330.452500000017,
+          "profitPct": -10.451867816096819,
+          "commission": 0.08,
+          "slippage": 294.00000000000006,
+          "grossProfit": -36.37250000001693
+        },
+        "stopLoss": 363.36127500000003,
+        "target": 367.77929,
+        "entryRSI": 22.04,
+        "exitRSI": 22.04,
+        "durationMinutes": 1,
+        "exitReason": "stop",
+        "netGex": 37494911.96436059
+      },
+      {
+        "id": "GLD-2025-10-29T18:42:00.000Z",
+        "symbol": "GLD",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:42:00.000Z",
+        "exitTimestamp": "2025-10-29T18:43:00.000Z",
+        "stock": {
+          "entryPrice": 363.45,
+          "exitPrice": 363.08655,
+          "profit": -0.3634500000000003,
+          "profitPct": -0.10000000000000009
+        },
+        "option": {
+          "contract": "GLD251105C00363000",
+          "strike": 363,
+          "expiration": "2025-11-05",
+          "entryPremium": 3.48,
+          "exitPremium": 3.1165499999998185,
+          "profit": -330.4250000000182,
+          "profitPct": -10.443965517246594,
+          "commission": 0.08,
+          "slippage": 294.00000000000006,
+          "grossProfit": -36.345000000018146
+        },
+        "stopLoss": 363.08655,
+        "target": 367.77929,
+        "entryRSI": 22.04,
+        "exitRSI": 22.04,
+        "durationMinutes": 1,
+        "exitReason": "stop",
+        "netGex": 37494911.96436059
+      },
+      {
+        "id": "GLD-2025-10-29T18:43:00.000Z",
+        "symbol": "GLD",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:43:00.000Z",
+        "exitTimestamp": "2025-10-29T18:49:00.000Z",
+        "stock": {
+          "entryPrice": 363.91,
+          "exitPrice": 363.54609000000005,
+          "profit": -0.36390999999997575,
+          "profitPct": -0.09999999999999332
+        },
+        "option": {
+          "contract": "GLD251105C00363000",
+          "strike": 363,
+          "expiration": "2025-11-05",
+          "entryPremium": 3.48,
+          "exitPremium": 3.116089999999843,
+          "profit": -330.47100000001575,
+          "profitPct": -10.457183908050487,
+          "commission": 0.08,
+          "slippage": 294.00000000000006,
+          "grossProfit": -36.391000000015694
+        },
+        "stopLoss": 363.54609000000005,
+        "target": 367.77929,
+        "entryRSI": 22.04,
+        "exitRSI": 35.16,
+        "durationMinutes": 6,
+        "exitReason": "stop",
+        "netGex": 37494911.96436059
+      },
+      {
+        "id": "GLD-2025-10-29T19:30:00.000Z",
+        "symbol": "GLD",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T19:30:00.000Z",
+        "exitTimestamp": "2025-10-29T19:31:00.000Z",
+        "stock": {
+          "entryPrice": 363.82,
+          "exitPrice": 363.45618,
+          "profit": -0.3638199999999756,
+          "profitPct": -0.0999999999999933
+        },
+        "option": {
+          "contract": "GLD251105C00363000",
+          "strike": 363,
+          "expiration": "2025-11-05",
+          "entryPremium": 3.48,
+          "exitPremium": 3.116179999999843,
+          "profit": -330.46200000001573,
+          "profitPct": -10.454597701153931,
+          "commission": 0.08,
+          "slippage": 294.00000000000006,
+          "grossProfit": -36.38200000001568
+        },
+        "stopLoss": 363.45618,
+        "target": 366.70204,
+        "entryRSI": 23.6,
+        "exitRSI": 23.6,
+        "durationMinutes": 1,
+        "exitReason": "stop",
+        "netGex": 37494911.96436059
+      },
+      {
+        "id": "GLD-2025-10-29T19:31:00.000Z",
+        "symbol": "GLD",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T19:31:00.000Z",
+        "exitTimestamp": "2025-10-29T19:32:00.000Z",
+        "stock": {
+          "entryPrice": 363.29,
+          "exitPrice": 362.92671,
+          "profit": -0.36329000000000633,
+          "profitPct": -0.10000000000000174
+        },
+        "option": {
+          "contract": "GLD251105C00363000",
+          "strike": 363,
+          "expiration": "2025-11-05",
+          "entryPremium": 3.48,
+          "exitPremium": 3.1167099999998125,
+          "profit": -330.4090000000188,
+          "profitPct": -10.439367816097342,
+          "commission": 0.08,
+          "slippage": 294.00000000000006,
+          "grossProfit": -36.32900000001875
+        },
+        "stopLoss": 362.92671,
+        "target": 366.70204,
+        "entryRSI": 23.6,
+        "exitRSI": 23.6,
+        "durationMinutes": 1,
+        "exitReason": "stop",
+        "netGex": 37494911.96436059
+      },
+      {
+        "id": "GLD-2025-10-29T19:32:00.000Z",
+        "symbol": "GLD",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T19:32:00.000Z",
+        "exitTimestamp": "2025-10-29T19:33:00.000Z",
+        "stock": {
+          "entryPrice": 362.92,
+          "exitPrice": 362.55708000000004,
+          "profit": -0.36291999999997415,
+          "profitPct": -0.09999999999999287
+        },
+        "option": {
+          "contract": "GLD251105C00362000",
+          "strike": 362,
+          "expiration": "2025-11-05",
+          "entryPremium": 4.425,
+          "exitPremium": 4.0620800000000585,
+          "profit": -321.37199999999405,
+          "profitPct": -8.201581920902628,
+          "commission": 0.08,
+          "slippage": 284.99999999999994,
+          "grossProfit": -36.29199999999413
+        },
+        "stopLoss": 362.55708000000004,
+        "target": 366.70204,
+        "entryRSI": 23.6,
+        "exitRSI": 23.6,
+        "durationMinutes": 1,
+        "exitReason": "stop",
+        "netGex": 37494911.96436059
+      },
+      {
+        "id": "GLD-2025-10-29T19:33:00.000Z",
+        "symbol": "GLD",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T19:33:00.000Z",
+        "exitTimestamp": "2025-10-29T19:39:00.000Z",
+        "stock": {
+          "entryPrice": 362.78,
+          "exitPrice": 362.41722,
+          "profit": -0.36277999999998656,
+          "profitPct": -0.0999999999999963
+        },
+        "option": {
+          "contract": "GLD251105C00362000",
+          "strike": 362,
+          "expiration": "2025-11-05",
+          "entryPremium": 4.425,
+          "exitPremium": 4.062220000000046,
+          "profit": -321.3579999999953,
+          "profitPct": -8.198418079095,
+          "commission": 0.08,
+          "slippage": 284.99999999999994,
+          "grossProfit": -36.27799999999537
+        },
+        "stopLoss": 362.41722,
+        "target": 366.70204,
+        "entryRSI": 23.6,
+        "exitRSI": 23.6,
+        "durationMinutes": 6,
+        "exitReason": "stop",
+        "netGex": 37494911.96436059
+      },
+      {
+        "id": "GLD-2025-10-29T19:39:00.000Z",
+        "symbol": "GLD",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T19:39:00.000Z",
+        "exitTimestamp": "2025-10-29T19:40:00.000Z",
+        "stock": {
+          "entryPrice": 362.43,
+          "exitPrice": 362.06757,
+          "profit": -0.36243000000001757,
+          "profitPct": -0.10000000000000484
+        },
+        "option": {
+          "contract": "GLD251105C00362000",
+          "strike": 362,
+          "expiration": "2025-11-05",
+          "entryPremium": 4.425,
+          "exitPremium": 4.062570000000015,
+          "profit": -321.3229999999984,
+          "profitPct": -8.190508474575926,
+          "commission": 0.08,
+          "slippage": 284.99999999999994,
+          "grossProfit": -36.242999999998474
+        },
+        "stopLoss": 362.06757,
+        "target": 366.70204,
+        "entryRSI": 23.6,
+        "exitRSI": 23.6,
+        "durationMinutes": 1,
+        "exitReason": "stop",
+        "netGex": 37494911.96436059
+      },
+      {
+        "id": "GLD-2025-10-29T19:40:00.000Z",
+        "symbol": "GLD",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T19:40:00.000Z",
+        "exitTimestamp": "2025-10-29T19:44:00.000Z",
+        "stock": {
+          "entryPrice": 362.02,
+          "exitPrice": 361.65798,
+          "profit": -0.3620199999999727,
+          "profitPct": -0.09999999999999246
+        },
+        "option": {
+          "contract": "GLD251105C00362000",
+          "strike": 362,
+          "expiration": "2025-11-05",
+          "entryPremium": 4.425,
+          "exitPremium": 4.06298000000006,
+          "profit": -321.2819999999939,
+          "profitPct": -8.181242937851747,
+          "commission": 0.08,
+          "slippage": 284.99999999999994,
+          "grossProfit": -36.20199999999399
+        },
+        "stopLoss": 361.65798,
+        "target": 366.70204,
+        "entryRSI": 23.6,
+        "exitRSI": 23.6,
+        "durationMinutes": 4,
+        "exitReason": "stop",
+        "netGex": 37494911.96436059
+      },
+      {
+        "id": "GLD-2025-10-29T19:44:00.000Z",
+        "symbol": "GLD",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T19:44:00.000Z",
+        "exitTimestamp": "2025-10-29T20:00:00.000Z",
+        "stock": {
+          "entryPrice": 361.475,
+          "exitPrice": 362.6,
+          "profit": 1.125,
+          "profitPct": 0.31122484265855177
+        },
+        "option": {
+          "contract": "GLD251105C00361000",
+          "strike": 361,
+          "expiration": "2025-11-05",
+          "entryPremium": 5.425,
+          "exitPremium": 6.549999999999911,
+          "profit": -172.58000000000882,
+          "profitPct": 20.737327188938455,
+          "commission": 0.08,
+          "slippage": 284.99999999999994,
+          "grossProfit": 112.49999999999112
+        },
+        "stopLoss": 361.11352500000004,
+        "target": 366.70204,
+        "entryRSI": 23.6,
+        "exitRSI": 32.53,
+        "durationMinutes": 16,
+        "exitReason": "end_of_day",
+        "netGex": 37494911.96436059
+      }
+    ],
+    "summary": {
+      "tradeCount": 14,
+      "winCount": 1,
+      "lossCount": 13,
+      "winRate": 0.07142857142857142,
+      "stock": {
+        "totalProfit": -3.605374999999867,
+        "grossProfit": 1.125,
+        "grossLoss": 4.730374999999867,
+        "averageWin": 1.125,
+        "averageLoss": 0.3638749999999898,
+        "profitFactor": 0.23782469677351828
+      },
+      "options": {
+        "totalProfit": -3805.825670291161,
+        "grossProfit": 0,
+        "grossLoss": 3805.825670291161,
+        "averageWin": 0,
+        "averageLoss": 271.8446907350829,
+        "profitFactor": 0,
+        "contractsTraded": 14,
+        "totalCommission": 1.1199999999999999,
+        "totalSlippage": 3449,
+        "leverage": {
+          "50x": {
+            "netProfit": -190291.28351455805,
+            "grossProfit": -17785.283514558047,
+            "commission": 55.99999999999999,
+            "slippage": 172450
+          },
+          "100x": {
+            "netProfit": -380582.5670291161,
+            "grossProfit": -35570.56702911609,
+            "commission": 111.99999999999999,
+            "slippage": 344900
+          }
+        }
+      },
+      "maxDrawdown": 4.730374999999867,
+      "averageDurationMinutes": 3.4285714285714284
+    },
+    "notes": []
+  },
+  {
+    "symbol": "GLD",
+    "date": "2025-10-30",
+    "mode": "intraday",
+    "netGex": 50223434.39774839,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 369.42759458449825,
+      "bbMiddle": 367.93963500000007,
+      "bbLower": 366.4516754155019,
+      "avgRSI": 67.42428571428573
+    },
+    "trades": [
+      {
+        "id": "GLD-2025-10-30T19:00:00.000Z",
+        "symbol": "GLD",
+        "direction": "short",
+        "entryTimestamp": "2025-10-30T19:00:00.000Z",
+        "exitTimestamp": "2025-10-30T19:05:00.000Z",
+        "stock": {
+          "entryPrice": 369.645,
+          "exitPrice": 370.0146449999999,
+          "profit": -0.3696449999999345,
+          "profitPct": -0.09999999999998228
+        },
+        "option": {
+          "contract": "GLD251105P00370000",
+          "strike": 370,
+          "expiration": "2025-11-05",
+          "entryPremium": 4.025,
+          "exitPremium": 3.655355000000066,
+          "profit": -222.04449999999343,
+          "profitPct": -9.183726708072907,
+          "commission": 0.08,
+          "slippage": 185,
+          "grossProfit": -36.96449999999345
+        },
+        "stopLoss": 370.0146449999999,
+        "target": 368.27198500000003,
+        "entryRSI": 70.49,
+        "exitRSI": 70.49,
+        "durationMinutes": 5,
+        "exitReason": "stop",
+        "netGex": 50223434.39774839
+      },
+      {
+        "id": "GLD-2025-10-30T19:05:00.000Z",
+        "symbol": "GLD",
+        "direction": "short",
+        "entryTimestamp": "2025-10-30T19:05:00.000Z",
+        "exitTimestamp": "2025-10-30T20:00:00.000Z",
+        "stock": {
+          "entryPrice": 370.13,
+          "exitPrice": 370.06,
+          "profit": 0.06999999999999318,
+          "profitPct": 0.018912274065866905
+        },
+        "option": {
+          "contract": "GLD251105P00371000",
+          "strike": 371,
+          "expiration": "2025-11-05",
+          "entryPremium": 4.55,
+          "exitPremium": 4.619999999999993,
+          "profit": -283.08000000000067,
+          "profitPct": 1.5384615384613887,
+          "commission": 0.08,
+          "slippage": 290,
+          "grossProfit": 6.999999999999318
+        },
+        "stopLoss": 370.50012999999996,
+        "target": 368.27198500000003,
+        "entryRSI": 70.49,
+        "exitRSI": 66.79,
+        "durationMinutes": 55,
+        "exitReason": "end_of_day",
+        "netGex": 50223434.39774839
+      }
+    ],
+    "summary": {
+      "tradeCount": 2,
+      "winCount": 1,
+      "lossCount": 1,
+      "winRate": 0.5,
+      "stock": {
+        "totalProfit": -0.2996449999999413,
+        "grossProfit": 0.06999999999999318,
+        "grossLoss": 0.3696449999999345,
+        "averageWin": 0.06999999999999318,
+        "averageLoss": 0.3696449999999345,
+        "profitFactor": 0.18937088287412404
+      },
+      "options": {
+        "totalProfit": -505.1244999999941,
+        "grossProfit": 0,
+        "grossLoss": 505.1244999999941,
+        "averageWin": 0,
+        "averageLoss": 252.56224999999705,
+        "profitFactor": 0,
+        "contractsTraded": 2,
+        "totalCommission": 0.16,
+        "totalSlippage": 475,
+        "leverage": {
+          "50x": {
+            "netProfit": -25256.224999999704,
+            "grossProfit": -1498.2249999997039,
+            "commission": 8,
+            "slippage": 23750
+          },
+          "100x": {
+            "netProfit": -50512.44999999941,
+            "grossProfit": -2996.4499999994077,
+            "commission": 16,
+            "slippage": 47500
+          }
+        }
+      },
+      "maxDrawdown": 0.3696449999999345,
+      "averageDurationMinutes": 30
+    },
+    "notes": []
+  },
+  {
+    "symbol": "GLD",
+    "date": "2025-10-31",
+    "mode": "intraday",
+    "netGex": 49679436.343793966,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 371.1753715249458,
+      "bbMiddle": 368.38396,
+      "bbLower": 365.59254847505423,
+      "avgRSI": 44.77571428571429
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0,
+        "totalCommission": 0,
+        "totalSlippage": 0,
+        "leverage": {
+          "50x": {
+            "netProfit": 0,
+            "grossProfit": 0,
+            "commission": 0,
+            "slippage": 0
+          },
+          "100x": {
+            "netProfit": 0,
+            "grossProfit": 0,
+            "commission": 0,
+            "slippage": 0
+          }
+        }
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "QQQ",
+    "date": "2025-10-27",
+    "mode": "intraday",
+    "netGex": 321077630.4023148,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 627.733644803457,
+      "bbMiddle": 626.4387,
+      "bbLower": 625.1437551965431,
+      "avgRSI": 71.87428571428572
+    },
+    "trades": [
+      {
+        "id": "QQQ-2025-10-27T18:30:00.000Z",
+        "symbol": "QQQ",
+        "direction": "short",
+        "entryTimestamp": "2025-10-27T18:30:00.000Z",
+        "exitTimestamp": "2025-10-27T19:50:00.000Z",
+        "stock": {
+          "entryPrice": 627.26,
+          "exitPrice": 627.88726,
+          "profit": -0.6272599999999784,
+          "profitPct": -0.09999999999999655
+        },
+        "option": {
+          "contract": "QQQ251105P00628000",
+          "strike": 628,
+          "expiration": "2025-11-05",
+          "entryPremium": 5.66,
+          "exitPremium": 5.032740000000022,
+          "profit": -122.8059999999978,
+          "profitPct": -11.08233215547665,
+          "commission": 0.08,
+          "slippage": 59.999999999999964,
+          "grossProfit": -62.72599999999784
+        },
+        "stopLoss": 627.88726,
+        "target": 626.55745,
+        "entryRSI": 73.03,
+        "exitRSI": 74.2,
+        "durationMinutes": 80,
+        "exitReason": "stop",
+        "netGex": 321077630.4023148
+      },
+      {
+        "id": "QQQ-2025-10-27T19:50:00.000Z",
+        "symbol": "QQQ",
+        "direction": "short",
+        "entryTimestamp": "2025-10-27T19:50:00.000Z",
+        "exitTimestamp": "2025-10-27T20:00:00.000Z",
+        "stock": {
+          "entryPrice": 628.06,
+          "exitPrice": 628.41,
+          "profit": -0.35000000000002274,
+          "profitPct": -0.05572715982549801
+        },
+        "option": {
+          "contract": "QQQ251105P00629000",
+          "strike": 629,
+          "expiration": "2025-11-05",
+          "entryPremium": 5.755,
+          "exitPremium": 5.404999999999977,
+          "profit": -250.08000000000231,
+          "profitPct": -6.081668114683279,
+          "commission": 0.08,
+          "slippage": 215.00000000000003,
+          "grossProfit": -35.000000000002274
+        },
+        "stopLoss": 628.6880599999998,
+        "target": 627.019255,
+        "entryRSI": 74.2,
+        "exitRSI": 76.45,
+        "durationMinutes": 10,
+        "exitReason": "end_of_day",
+        "netGex": 321077630.4023148
+      }
+    ],
+    "summary": {
+      "tradeCount": 2,
+      "winCount": 0,
+      "lossCount": 2,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": -0.9772600000000011,
+        "grossProfit": 0,
+        "grossLoss": 0.9772600000000011,
+        "averageWin": 0,
+        "averageLoss": 0.48863000000000056,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": -372.8860000000001,
+        "grossProfit": 0,
+        "grossLoss": 372.8860000000001,
+        "averageWin": 0,
+        "averageLoss": 186.44300000000004,
+        "profitFactor": 0,
+        "contractsTraded": 2,
+        "totalCommission": 0.16,
+        "totalSlippage": 275,
+        "leverage": {
+          "50x": {
+            "netProfit": -18644.300000000003,
+            "grossProfit": -4886.300000000003,
+            "commission": 8,
+            "slippage": 13750
+          },
+          "100x": {
+            "netProfit": -37288.600000000006,
+            "grossProfit": -9772.600000000006,
+            "commission": 16,
+            "slippage": 27500
+          }
+        }
+      },
+      "maxDrawdown": 0.9772600000000011,
+      "averageDurationMinutes": 45
+    },
+    "notes": []
+  },
+  {
+    "symbol": "QQQ",
+    "date": "2025-10-28",
+    "mode": "intraday",
+    "netGex": 326034779.17066514,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 633.44705459682,
+      "bbMiddle": 631.2250950000001,
+      "bbLower": 629.0031354031803,
+      "avgRSI": 67.51
+    },
+    "trades": [
+      {
+        "id": "QQQ-2025-10-28T18:30:00.000Z",
+        "symbol": "QQQ",
+        "direction": "short",
+        "entryTimestamp": "2025-10-28T18:30:00.000Z",
+        "exitTimestamp": "2025-10-28T19:09:00.000Z",
+        "stock": {
+          "entryPrice": 633.47,
+          "exitPrice": 634.1034699999999,
+          "profit": -0.6334699999998747,
+          "profitPct": -0.09999999999998023
+        },
+        "option": {
+          "contract": "QQQ251105P00634000",
+          "strike": 634,
+          "expiration": "2025-11-05",
+          "entryPremium": 11.665,
+          "exitPremium": 11.031530000000124,
+          "profit": -122.42699999998763,
+          "profitPct": -5.430518645519715,
+          "commission": 0.08,
+          "slippage": 59.00000000000016,
+          "grossProfit": -63.346999999987474
+        },
+        "stopLoss": 634.1034699999999,
+        "target": 631.3533550000002,
+        "entryRSI": 71.51,
+        "exitRSI": 75.02,
+        "durationMinutes": 39,
+        "exitReason": "stop",
+        "netGex": 326034779.17066514
+      },
+      {
+        "id": "QQQ-2025-10-28T19:09:00.000Z",
+        "symbol": "QQQ",
+        "direction": "short",
+        "entryTimestamp": "2025-10-28T19:09:00.000Z",
+        "exitTimestamp": "2025-10-28T20:00:00.000Z",
+        "stock": {
+          "entryPrice": 634.13,
+          "exitPrice": 632.92,
+          "profit": 1.2100000000000364,
+          "profitPct": 0.1908126094018634
+        },
+        "option": {
+          "contract": "QQQ251105P00635000",
+          "strike": 635,
+          "expiration": "2025-11-05",
+          "entryPremium": 11.82,
+          "exitPremium": 13.030000000000037,
+          "profit": -107.07999999999647,
+          "profitPct": 10.236886632826026,
+          "commission": 0.08,
+          "slippage": 228.0000000000001,
+          "grossProfit": 121.00000000000364
+        },
+        "stopLoss": 634.7641299999999,
+        "target": 631.6758600000002,
+        "entryRSI": 75.02,
+        "exitRSI": 55.34,
+        "durationMinutes": 51,
+        "exitReason": "end_of_day",
+        "netGex": 326034779.17066514
+      }
+    ],
+    "summary": {
+      "tradeCount": 2,
+      "winCount": 1,
+      "lossCount": 1,
+      "winRate": 0.5,
+      "stock": {
+        "totalProfit": 0.5765300000001616,
+        "grossProfit": 1.2100000000000364,
+        "grossLoss": 0.6334699999998747,
+        "averageWin": 1.2100000000000364,
+        "averageLoss": 0.6334699999998747,
+        "profitFactor": 1.9101141332664147
+      },
+      "options": {
+        "totalProfit": -229.5069999999841,
+        "grossProfit": 0,
+        "grossLoss": 229.5069999999841,
+        "averageWin": 0,
+        "averageLoss": 114.75349999999204,
+        "profitFactor": 0,
+        "contractsTraded": 2,
+        "totalCommission": 0.16,
+        "totalSlippage": 287.0000000000003,
+        "leverage": {
+          "50x": {
+            "netProfit": -11475.349999999204,
+            "grossProfit": 2882.6500000008095,
+            "commission": 8,
+            "slippage": 14350.000000000015
+          },
+          "100x": {
+            "netProfit": -22950.699999998407,
+            "grossProfit": 5765.300000001619,
+            "commission": 16,
+            "slippage": 28700.00000000003
+          }
+        }
+      },
+      "maxDrawdown": 0.6334699999998747,
+      "averageDurationMinutes": 45
+    },
+    "notes": []
+  },
+  {
+    "symbol": "QQQ",
+    "date": "2025-10-29",
+    "mode": "intraday",
+    "netGex": 328977619.28949344,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 636.4938042281817,
+      "bbMiddle": 635.34585,
+      "bbLower": 634.1978957718184,
+      "avgRSI": 43.61285714285714
+    },
+    "trades": [
+      {
+        "id": "QQQ-2025-10-29T18:30:00.000Z",
+        "symbol": "QQQ",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:30:00.000Z",
+        "exitTimestamp": "2025-10-29T18:31:00.000Z",
+        "stock": {
+          "entryPrice": 634.87,
+          "exitPrice": 635.0948500000001,
+          "profit": 0.2248500000000604,
+          "profitPct": 0.035416699481793185
+        },
+        "option": {
+          "contract": "QQQ251106C00634000",
+          "strike": 634,
+          "expiration": "2025-11-06",
+          "entryPremium": 0.065,
+          "exitPremium": 0.07122271183902124,
+          "profit": -0.4577288160978775,
+          "profitPct": 9.573402829263436,
+          "commission": 0.08,
+          "slippage": 1.0000000000000009,
+          "grossProfit": 0.6222711839021233
+        },
+        "stopLoss": 634.23513,
+        "target": 635.0948500000001,
+        "entryRSI": 25.52,
+        "exitRSI": 25.52,
+        "durationMinutes": 1,
+        "exitReason": "target",
+        "netGex": 328977619.28949344
+      },
+      {
+        "id": "QQQ-2025-10-29T18:31:00.000Z",
+        "symbol": "QQQ",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:31:00.000Z",
+        "exitTimestamp": "2025-10-29T18:32:00.000Z",
+        "stock": {
+          "entryPrice": 635.0928,
+          "exitPrice": 635.0948500000001,
+          "profit": 0.002050000000053842,
+          "profitPct": 0.000322787472957313
+        },
+        "option": {
+          "contract": "QQQ251106C00635000",
+          "strike": 635,
+          "expiration": "2025-11-06",
+          "entryPremium": 0.05,
+          "exitPremium": 0.05004922137750849,
+          "profit": -2.0750778622491515,
+          "profitPct": 0.09844275501696975,
+          "commission": 0.08,
+          "slippage": 1.9999999999999998,
+          "grossProfit": 0.004922137750848488
+        },
+        "stopLoss": 634.4577072,
+        "target": 635.0948500000001,
+        "entryRSI": 25.52,
+        "exitRSI": 25.52,
+        "durationMinutes": 1,
+        "exitReason": "target",
+        "netGex": 328977619.28949344
+      },
+      {
+        "id": "QQQ-2025-10-29T18:32:00.000Z",
+        "symbol": "QQQ",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:32:00.000Z",
+        "exitTimestamp": "2025-10-29T18:33:00.000Z",
+        "stock": {
+          "entryPrice": 635.4399,
+          "exitPrice": 635.0948500000001,
+          "profit": -0.34504999999990105,
+          "profitPct": -0.054300965362719764
+        },
+        "option": {
+          "contract": "QQQ251106C00635000",
+          "strike": 635,
+          "expiration": "2025-11-06",
+          "entryPremium": 0.05,
+          "exitPremium": 0.04171520180055962,
+          "profit": -2.9084798199440383,
+          "profitPct": -16.56959639888077,
+          "commission": 0.08,
+          "slippage": 1.9999999999999998,
+          "grossProfit": -0.8284798199440384
+        },
+        "stopLoss": 634.8044600999999,
+        "target": 635.0948500000001,
+        "entryRSI": 25.52,
+        "exitRSI": 25.52,
+        "durationMinutes": 1,
+        "exitReason": "target",
+        "netGex": 328977619.28949344
+      },
+      {
+        "id": "QQQ-2025-10-29T18:33:00.000Z",
+        "symbol": "QQQ",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:33:00.000Z",
+        "exitTimestamp": "2025-10-29T18:34:00.000Z",
+        "stock": {
+          "entryPrice": 635.78,
+          "exitPrice": 635.0948500000001,
+          "profit": -0.6851499999999078,
+          "profitPct": -0.10776526471419483
+        },
+        "option": {
+          "contract": "QQQ251106C00635000",
+          "strike": 635,
+          "expiration": "2025-11-06",
+          "entryPremium": 0.05,
+          "exitPremium": 0.03354925521997554,
+          "profit": -3.7250744780024463,
+          "profitPct": -32.90148956004893,
+          "commission": 0.08,
+          "slippage": 1.9999999999999998,
+          "grossProfit": -1.6450744780024464
+        },
+        "stopLoss": 635.14422,
+        "target": 635.0948500000001,
+        "entryRSI": 25.52,
+        "exitRSI": 25.52,
+        "durationMinutes": 1,
+        "exitReason": "target",
+        "netGex": 328977619.28949344
+      },
+      {
+        "id": "QQQ-2025-10-29T18:34:00.000Z",
+        "symbol": "QQQ",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:34:00.000Z",
+        "exitTimestamp": "2025-10-29T18:35:00.000Z",
+        "stock": {
+          "entryPrice": 635.5952,
+          "exitPrice": 635.0948500000001,
+          "profit": -0.5003499999999121,
+          "profitPct": -0.07872148814212444
+        },
+        "option": {
+          "contract": "QQQ251106C00635000",
+          "strike": 635,
+          "expiration": "2025-11-06",
+          "entryPremium": 0.05,
+          "exitPremium": 0.03798638232403868,
+          "profit": -3.2813617675961324,
+          "profitPct": -24.027235351922652,
+          "commission": 0.08,
+          "slippage": 1.9999999999999998,
+          "grossProfit": -1.2013617675961326
+        },
+        "stopLoss": 634.9596048,
+        "target": 635.0948500000001,
+        "entryRSI": 25.52,
+        "exitRSI": 25.52,
+        "durationMinutes": 1,
+        "exitReason": "target",
+        "netGex": 328977619.28949344
+      },
+      {
+        "id": "QQQ-2025-10-29T18:35:00.000Z",
+        "symbol": "QQQ",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:35:00.000Z",
+        "exitTimestamp": "2025-10-29T18:36:00.000Z",
+        "stock": {
+          "entryPrice": 632.76,
+          "exitPrice": 632.12724,
+          "profit": -0.632759999999962,
+          "profitPct": -0.099999999999994
+        },
+        "option": {
+          "contract": "QQQ251106C00632000",
+          "strike": 632,
+          "expiration": "2025-11-06",
+          "entryPremium": 0.11499999999999999,
+          "exitPremium": 0.0834501313311379,
+          "profit": -4.234986866886208,
+          "profitPct": -27.434668407706162,
+          "commission": 0.08,
+          "slippage": 0.9999999999999996,
+          "grossProfit": -3.1549868668862087
+        },
+        "stopLoss": 632.12724,
+        "target": 635.0948500000001,
+        "entryRSI": 25.52,
+        "exitRSI": 25.52,
+        "durationMinutes": 1,
+        "exitReason": "stop",
+        "netGex": 328977619.28949344
+      },
+      {
+        "id": "QQQ-2025-10-29T18:36:00.000Z",
+        "symbol": "QQQ",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:36:00.000Z",
+        "exitTimestamp": "2025-10-29T18:37:00.000Z",
+        "stock": {
+          "entryPrice": 632.97,
+          "exitPrice": 632.33703,
+          "profit": -0.6329700000000003,
+          "profitPct": -0.10000000000000005
+        },
+        "option": {
+          "contract": "QQQ251106C00632000",
+          "strike": 632,
+          "expiration": "2025-11-06",
+          "entryPremium": 0.11499999999999999,
+          "exitPremium": 0.08343966058010803,
+          "profit": -4.236033941989196,
+          "profitPct": -27.443773408601707,
+          "commission": 0.08,
+          "slippage": 0.9999999999999996,
+          "grossProfit": -3.1560339419891963
+        },
+        "stopLoss": 632.33703,
+        "target": 635.0948500000001,
+        "entryRSI": 25.52,
+        "exitRSI": 25.52,
+        "durationMinutes": 1,
+        "exitReason": "stop",
+        "netGex": 328977619.28949344
+      },
+      {
+        "id": "QQQ-2025-10-29T18:37:00.000Z",
+        "symbol": "QQQ",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:37:00.000Z",
+        "exitTimestamp": "2025-10-29T18:38:00.000Z",
+        "stock": {
+          "entryPrice": 632.401,
+          "exitPrice": 631.768599,
+          "profit": -0.6324009999999589,
+          "profitPct": -0.09999999999999352
+        },
+        "option": {
+          "contract": "QQQ251106C00632000",
+          "strike": 632,
+          "expiration": "2025-11-06",
+          "entryPremium": 0.11499999999999999,
+          "exitPremium": 0.08346803132932398,
+          "profit": -4.2331968670676,
+          "profitPct": -27.419103191892187,
+          "commission": 0.08,
+          "slippage": 0.9999999999999996,
+          "grossProfit": -3.1531968670676007
+        },
+        "stopLoss": 631.768599,
+        "target": 635.0948500000001,
+        "entryRSI": 25.52,
+        "exitRSI": 25.52,
+        "durationMinutes": 1,
+        "exitReason": "stop",
+        "netGex": 328977619.28949344
+      },
+      {
+        "id": "QQQ-2025-10-29T18:38:00.000Z",
+        "symbol": "QQQ",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:38:00.000Z",
+        "exitTimestamp": "2025-10-29T18:39:00.000Z",
+        "stock": {
+          "entryPrice": 632.54,
+          "exitPrice": 631.90746,
+          "profit": -0.632539999999949,
+          "profitPct": -0.09999999999999196
+        },
+        "option": {
+          "contract": "QQQ251106C00632000",
+          "strike": 632,
+          "expiration": "2025-11-06",
+          "entryPremium": 0.11499999999999999,
+          "exitPremium": 0.08346110068935833,
+          "profit": -4.233889931064166,
+          "profitPct": -27.425129835340577,
+          "commission": 0.08,
+          "slippage": 0.9999999999999996,
+          "grossProfit": -3.153889931064166
+        },
+        "stopLoss": 631.90746,
+        "target": 635.0948500000001,
+        "entryRSI": 25.52,
+        "exitRSI": 25.52,
+        "durationMinutes": 1,
+        "exitReason": "stop",
+        "netGex": 328977619.28949344
+      },
+      {
+        "id": "QQQ-2025-10-29T18:39:00.000Z",
+        "symbol": "QQQ",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:39:00.000Z",
+        "exitTimestamp": "2025-10-29T18:41:00.000Z",
+        "stock": {
+          "entryPrice": 631.03,
+          "exitPrice": 630.39897,
+          "profit": -0.6310300000000097,
+          "profitPct": -0.10000000000000155
+        },
+        "option": {
+          "contract": "QQQ251106C00631000",
+          "strike": 631,
+          "expiration": "2025-11-06",
+          "entryPremium": 0.15000000000000002,
+          "exitPremium": 0.10451023280540067,
+          "profit": -6.628976719459934,
+          "profitPct": -30.32651146306623,
+          "commission": 0.08,
+          "slippage": 1.9999999999999991,
+          "grossProfit": -4.548976719459935
+        },
+        "stopLoss": 630.39897,
+        "target": 635.0948500000001,
+        "entryRSI": 25.52,
+        "exitRSI": 25.52,
+        "durationMinutes": 2,
+        "exitReason": "stop",
+        "netGex": 328977619.28949344
+      },
+      {
+        "id": "QQQ-2025-10-29T18:41:00.000Z",
+        "symbol": "QQQ",
+        "direction": "long",
+        "entryTimestamp": "2025-10-29T18:41:00.000Z",
+        "exitTimestamp": "2025-10-29T19:45:00.000Z",
+        "stock": {
+          "entryPrice": 630.76,
+          "exitPrice": 634.51,
+          "profit": 3.75,
+          "profitPct": 0.594520895427738
+        },
+        "option": {
+          "contract": "QQQ251106C00630000",
+          "strike": 630,
+          "expiration": "2025-11-06",
+          "entryPremium": 0.21500000000000002,
+          "exitPremium": 0.6059799073488561,
+          "profit": 36.01799073488561,
+          "profitPct": 181.85111969714234,
+          "commission": 0.08,
+          "slippage": 3,
+          "grossProfit": 39.097990734885606
+        },
+        "stopLoss": 630.12924,
+        "target": 635.0948500000001,
+        "entryRSI": 25.52,
+        "exitRSI": 54.68,
+        "durationMinutes": 64,
+        "exitReason": "rsi_neutral",
+        "netGex": 328977619.28949344
+      }
+    ],
+    "summary": {
+      "tradeCount": 11,
+      "winCount": 3,
+      "lossCount": 8,
+      "winRate": 0.2727272727272727,
+      "stock": {
+        "totalProfit": -0.7153509999994867,
+        "grossProfit": 3.9769000000001142,
+        "grossLoss": 4.692250999999601,
+        "averageWin": 1.3256333333333714,
+        "averageLoss": 0.5865313749999501,
+        "profitFactor": 0.8475463056005428
+      },
+      "options": {
+        "totalProfit": 0.0031836645288620957,
+        "grossProfit": 36.01799073488561,
+        "grossLoss": 36.014807070356746,
+        "averageWin": 36.01799073488561,
+        "averageLoss": 3.6014807070356745,
+        "profitFactor": 1.000088398766725,
+        "contractsTraded": 11,
+        "totalCommission": 0.8799999999999999,
+        "totalSlippage": 18,
+        "leverage": {
+          "50x": {
+            "netProfit": 0.15918322644310479,
+            "grossProfit": 944.159183226443,
+            "commission": 43.99999999999999,
+            "slippage": 900
+          },
+          "100x": {
+            "netProfit": 0.31836645288620957,
+            "grossProfit": 1888.318366452886,
+            "commission": 87.99999999999999,
+            "slippage": 1800
+          }
+        }
+      },
+      "maxDrawdown": 4.692250999999601,
+      "averageDurationMinutes": 6.818181818181818
+    },
+    "notes": []
+  },
+  {
+    "symbol": "QQQ",
+    "date": "2025-10-30",
+    "mode": "intraday",
+    "netGex": 992164381.6403359,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 632.3094177367865,
+      "bbMiddle": 630.3116399999999,
+      "bbLower": 628.3138622632133,
+      "avgRSI": 46.08857142857143
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0,
+        "totalCommission": 0,
+        "totalSlippage": 0,
+        "leverage": {
+          "50x": {
+            "netProfit": 0,
+            "grossProfit": 0,
+            "commission": 0,
+            "slippage": 0
+          },
+          "100x": {
+            "netProfit": 0,
+            "grossProfit": 0,
+            "commission": 0,
+            "slippage": 0
+          }
+        }
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "QQQ",
+    "date": "2025-10-31",
+    "mode": "intraday",
+    "netGex": 1035643591.3717594,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 634.5642544569554,
+      "bbMiddle": 630.427025,
+      "bbLower": 626.2897955430445,
+      "avgRSI": 46.49857142857143
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0,
+        "totalCommission": 0,
+        "totalSlippage": 0,
+        "leverage": {
+          "50x": {
+            "netProfit": 0,
+            "grossProfit": 0,
+            "commission": 0,
+            "slippage": 0
+          },
+          "100x": {
+            "netProfit": 0,
+            "grossProfit": 0,
+            "commission": 0,
+            "slippage": 0
+          }
+        }
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "BAC",
+    "date": "2025-10-27",
+    "mode": "intraday",
+    "netGex": 105572983.13320673,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 52.92643618528962,
+      "bbMiddle": 52.82588,
+      "bbLower": 52.72532381471038,
+      "avgRSI": 65.07714285714286
+    },
+    "trades": [
+      {
+        "id": "BAC-2025-10-27T19:45:00.000Z",
+        "symbol": "BAC",
+        "direction": "short",
+        "entryTimestamp": "2025-10-27T19:45:00.000Z",
+        "exitTimestamp": "2025-10-27T20:00:00.000Z",
+        "stock": {
+          "entryPrice": 53.025,
+          "exitPrice": 53.02,
+          "profit": 0.0049999999999954525,
+          "profitPct": 0.009429514380000854
+        },
+        "option": {
+          "contract": "BAC251107P00053500",
+          "strike": 53.5,
+          "expiration": "2025-11-07",
+          "entryPremium": 1.1800000000000002,
+          "exitPremium": 1.1839126637755313,
+          "profit": -13.688733622446877,
+          "profitPct": 0.3315816758924679,
+          "commission": 0.08,
+          "slippage": 13.99999999999999,
+          "grossProfit": 0.3912663775531122
+        },
+        "stopLoss": 53.07802499999999,
+        "target": 52.872879999999995,
+        "entryRSI": 70.29,
+        "exitRSI": 70.29,
+        "durationMinutes": 15,
+        "exitReason": "end_of_day",
+        "netGex": 105572983.13320673
+      }
+    ],
+    "summary": {
+      "tradeCount": 1,
+      "winCount": 1,
+      "lossCount": 0,
+      "winRate": 1,
+      "stock": {
+        "totalProfit": 0.0049999999999954525,
+        "grossProfit": 0.0049999999999954525,
+        "grossLoss": 0,
+        "averageWin": 0.0049999999999954525,
+        "averageLoss": 0,
+        "profitFactor": null
+      },
+      "options": {
+        "totalProfit": -13.688733622446877,
+        "grossProfit": 0,
+        "grossLoss": 13.688733622446877,
+        "averageWin": 0,
+        "averageLoss": 13.688733622446877,
+        "profitFactor": 0,
+        "contractsTraded": 1,
+        "totalCommission": 0.08,
+        "totalSlippage": 13.99999999999999,
+        "leverage": {
+          "50x": {
+            "netProfit": -684.4366811223439,
+            "grossProfit": 19.56331887765561,
+            "commission": 4,
+            "slippage": 699.9999999999994
+          },
+          "100x": {
+            "netProfit": -1368.8733622446878,
+            "grossProfit": 39.12663775531122,
+            "commission": 8,
+            "slippage": 1399.9999999999989
+          }
+        }
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 15
+    },
+    "notes": []
+  },
+  {
+    "symbol": "BAC",
+    "date": "2025-10-28",
+    "mode": "intraday",
+    "netGex": 104976470.62609516,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 53.04357004471903,
+      "bbMiddle": 52.70367,
+      "bbLower": 52.36376995528097,
+      "avgRSI": 47.631428571428565
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0,
+        "totalCommission": 0,
+        "totalSlippage": 0,
+        "leverage": {
+          "50x": {
+            "netProfit": 0,
+            "grossProfit": 0,
+            "commission": 0,
+            "slippage": 0
+          },
+          "100x": {
+            "netProfit": 0,
+            "grossProfit": 0,
+            "commission": 0,
+            "slippage": 0
+          }
+        }
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "BAC",
+    "date": "2025-10-29",
+    "mode": "intraday",
+    "netGex": 103828005.19191991,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 52.987158607237134,
+      "bbMiddle": 52.80047999999999,
+      "bbLower": 52.61380139276285,
+      "avgRSI": 43.74571428571429
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0,
+        "totalCommission": 0,
+        "totalSlippage": 0,
+        "leverage": {
+          "50x": {
+            "netProfit": 0,
+            "grossProfit": 0,
+            "commission": 0,
+            "slippage": 0
+          },
+          "100x": {
+            "netProfit": 0,
+            "grossProfit": 0,
+            "commission": 0,
+            "slippage": 0
+          }
+        }
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "BAC",
+    "date": "2025-10-30",
+    "mode": "intraday",
+    "netGex": 105612810.7224529,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 53.410149113909,
+      "bbMiddle": 53.174000000000014,
+      "bbLower": 52.93785088609103,
+      "avgRSI": 53.318571428571424
+    },
+    "trades": [],
+    "summary": {
+      "tradeCount": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "stock": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0
+      },
+      "options": {
+        "totalProfit": 0,
+        "grossProfit": 0,
+        "grossLoss": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "profitFactor": 0,
+        "contractsTraded": 0,
+        "totalCommission": 0,
+        "totalSlippage": 0,
+        "leverage": {
+          "50x": {
+            "netProfit": 0,
+            "grossProfit": 0,
+            "commission": 0,
+            "slippage": 0
+          },
+          "100x": {
+            "netProfit": 0,
+            "grossProfit": 0,
+            "commission": 0,
+            "slippage": 0
+          }
+        }
+      },
+      "maxDrawdown": 0,
+      "averageDurationMinutes": 0
+    },
+    "notes": []
+  },
+  {
+    "symbol": "BAC",
+    "date": "2025-10-31",
+    "mode": "intraday",
+    "netGex": 107292351.99094145,
+    "regime": "positive_gex",
+    "technicals": {
+      "bbUpper": 53.17943674052793,
+      "bbMiddle": 53.01523999999999,
+      "bbLower": 52.85104325947205,
+      "avgRSI": 73.74428571428571
+    },
+    "trades": [
+      {
+        "id": "BAC-2025-10-31T18:30:00.000Z",
+        "symbol": "BAC",
+        "direction": "short",
+        "entryTimestamp": "2025-10-31T18:30:00.000Z",
+        "exitTimestamp": "2025-10-31T18:42:00.000Z",
+        "stock": {
+          "entryPrice": 53.235,
+          "exitPrice": 53.28823499999999,
+          "profit": -0.053234999999993704,
+          "profitPct": -0.09999999999998818
+        },
+        "option": {
+          "contract": "BAC251107P00053500",
+          "strike": 53.5,
+          "expiration": "2025-11-07",
+          "entryPremium": 1.1800000000000002,
+          "exitPremium": 1.1383418687818867,
+          "profit": -18.245813121811334,
+          "profitPct": -3.530350103229954,
+          "commission": 0.08,
+          "slippage": 13.99999999999999,
+          "grossProfit": -4.165813121811346
+        },
+        "stopLoss": 53.28823499999999,
+        "target": 53.03324,
+        "entryRSI": 70.25,
+        "exitRSI": 70.25,
+        "durationMinutes": 12,
+        "exitReason": "stop",
+        "netGex": 107292351.99094145
+      },
+      {
+        "id": "BAC-2025-10-31T18:42:00.000Z",
+        "symbol": "BAC",
+        "direction": "short",
+        "entryTimestamp": "2025-10-31T18:42:00.000Z",
+        "exitTimestamp": "2025-10-31T19:04:00.000Z",
+        "stock": {
+          "entryPrice": 53.2833,
+          "exitPrice": 53.336583299999994,
+          "profit": -0.053283299999996814,
+          "profitPct": -0.09999999999999401
+        },
+        "option": {
+          "contract": "BAC251107P00053500",
+          "strike": 53.5,
+          "expiration": "2025-11-07",
+          "entryPremium": 1.1800000000000002,
+          "exitPremium": 1.1383040724498126,
+          "profit": -18.249592755018746,
+          "profitPct": -3.5335531822192867,
+          "commission": 0.08,
+          "slippage": 13.99999999999999,
+          "grossProfit": -4.169592755018758
+        },
+        "stopLoss": 53.336583299999994,
+        "target": 53.03324,
+        "entryRSI": 70.25,
+        "exitRSI": 75.99,
+        "durationMinutes": 22,
+        "exitReason": "stop",
+        "netGex": 107292351.99094145
+      },
+      {
+        "id": "BAC-2025-10-31T19:04:00.000Z",
+        "symbol": "BAC",
+        "direction": "short",
+        "entryTimestamp": "2025-10-31T19:04:00.000Z",
+        "exitTimestamp": "2025-10-31T19:10:00.000Z",
+        "stock": {
+          "entryPrice": 53.345,
+          "exitPrice": 53.39834499999999,
+          "profit": -0.05334499999999309,
+          "profitPct": -0.09999999999998706
+        },
+        "option": {
+          "contract": "BAC251107P00053500",
+          "strike": 53.5,
+          "expiration": "2025-11-07",
+          "entryPremium": 1.1800000000000002,
+          "exitPremium": 1.1382557901788255,
+          "profit": -18.254420982117455,
+          "profitPct": -3.537644900099547,
+          "commission": 0.08,
+          "slippage": 13.99999999999999,
+          "grossProfit": -4.174420982117466
+        },
+        "stopLoss": 53.39834499999999,
+        "target": 53.067200000000014,
+        "entryRSI": 75.99,
+        "exitRSI": 75.99,
+        "durationMinutes": 6,
+        "exitReason": "stop",
+        "netGex": 107292351.99094145
+      },
+      {
+        "id": "BAC-2025-10-31T19:10:00.000Z",
+        "symbol": "BAC",
+        "direction": "short",
+        "entryTimestamp": "2025-10-31T19:10:00.000Z",
+        "exitTimestamp": "2025-10-31T19:21:00.000Z",
+        "stock": {
+          "entryPrice": 53.425,
+          "exitPrice": 53.478424999999994,
+          "profit": -0.05342499999999717,
+          "profitPct": -0.0999999999999947
+        },
+        "option": {
+          "contract": "BAC251107P00053500",
+          "strike": 53.5,
+          "expiration": "2025-11-07",
+          "entryPremium": 1.1800000000000002,
+          "exitPremium": 1.1381931875584137,
+          "profit": -18.260681244158636,
+          "profitPct": -3.542950206914106,
+          "commission": 0.08,
+          "slippage": 13.99999999999999,
+          "grossProfit": -4.180681244158646
+        },
+        "stopLoss": 53.478424999999994,
+        "target": 53.067200000000014,
+        "entryRSI": 75.99,
+        "exitRSI": 77.96,
+        "durationMinutes": 11,
+        "exitReason": "stop",
+        "netGex": 107292351.99094145
+      },
+      {
+        "id": "BAC-2025-10-31T19:21:00.000Z",
+        "symbol": "BAC",
+        "direction": "short",
+        "entryTimestamp": "2025-10-31T19:21:00.000Z",
+        "exitTimestamp": "2025-10-31T19:32:00.000Z",
+        "stock": {
+          "entryPrice": 53.475,
+          "exitPrice": 53.52847499999999,
+          "profit": -0.053474999999991724,
+          "profitPct": -0.09999999999998452
+        },
+        "option": {
+          "contract": "BAC251107P00053500",
+          "strike": 53.5,
+          "expiration": "2025-11-07",
+          "entryPremium": 1.1800000000000002,
+          "exitPremium": 1.1381540609206626,
+          "profit": -18.264593907933744,
+          "profitPct": -3.546266023672672,
+          "commission": 0.08,
+          "slippage": 13.99999999999999,
+          "grossProfit": -4.1845939079337535
+        },
+        "stopLoss": 53.52847499999999,
+        "target": 53.09124000000001,
+        "entryRSI": 77.96,
+        "exitRSI": 80.11,
+        "durationMinutes": 11,
+        "exitReason": "stop",
+        "netGex": 107292351.99094145
+      },
+      {
+        "id": "BAC-2025-10-31T19:32:00.000Z",
+        "symbol": "BAC",
+        "direction": "short",
+        "entryTimestamp": "2025-10-31T19:32:00.000Z",
+        "exitTimestamp": "2025-10-31T19:44:00.000Z",
+        "stock": {
+          "entryPrice": 53.525,
+          "exitPrice": 53.57852499999999,
+          "profit": -0.05352499999999338,
+          "profitPct": -0.09999999999998764
+        },
+        "option": {
+          "contract": "BAC251107P00054000",
+          "strike": 54,
+          "expiration": "2025-11-07",
+          "entryPremium": 1.615,
+          "exitPremium": 1.568361353412889,
+          "profit": -27.743864658711093,
+          "profitPct": -2.8878418939387567,
+          "commission": 0.08,
+          "slippage": 23,
+          "grossProfit": -4.663864658711092
+        },
+        "stopLoss": 53.57852499999999,
+        "target": 53.11274000000002,
+        "entryRSI": 80.11,
+        "exitRSI": 80.11,
+        "durationMinutes": 12,
+        "exitReason": "stop",
+        "netGex": 107292351.99094145
+      },
+      {
+        "id": "BAC-2025-10-31T19:44:00.000Z",
+        "symbol": "BAC",
+        "direction": "short",
+        "entryTimestamp": "2025-10-31T19:44:00.000Z",
+        "exitTimestamp": "2025-10-31T19:55:00.000Z",
+        "stock": {
+          "entryPrice": 53.565,
+          "exitPrice": 53.61856499999999,
+          "profit": -0.05356499999999187,
+          "profitPct": -0.09999999999998482
+        },
+        "option": {
+          "contract": "BAC251107P00054000",
+          "strike": 54,
+          "expiration": "2025-11-07",
+          "entryPremium": 1.615,
+          "exitPremium": 1.5683264996835398,
+          "profit": -27.74735003164602,
+          "profitPct": -2.8900000195950604,
+          "commission": 0.08,
+          "slippage": 23,
+          "grossProfit": -4.667350031646023
+        },
+        "stopLoss": 53.61856499999999,
+        "target": 53.11274000000002,
+        "entryRSI": 80.11,
+        "exitRSI": 71.21,
+        "durationMinutes": 11,
+        "exitReason": "stop",
+        "netGex": 107292351.99094145
+      },
+      {
+        "id": "BAC-2025-10-31T19:55:00.000Z",
+        "symbol": "BAC",
+        "direction": "short",
+        "entryTimestamp": "2025-10-31T19:55:00.000Z",
+        "exitTimestamp": "2025-10-31T19:56:00.000Z",
+        "stock": {
+          "entryPrice": 53.555,
+          "exitPrice": 53.608554999999996,
+          "profit": -0.0535549999999958,
+          "profitPct": -0.09999999999999215
+        },
+        "option": {
+          "contract": "BAC251107P00054000",
+          "strike": 54,
+          "expiration": "2025-11-07",
+          "entryPremium": 1.615,
+          "exitPremium": 1.568335213115874,
+          "profit": -27.74647868841259,
+          "profitPct": -2.8894604881811703,
+          "commission": 0.08,
+          "slippage": 23,
+          "grossProfit": -4.66647868841259
+        },
+        "stopLoss": 53.608554999999996,
+        "target": 53.13399000000002,
+        "entryRSI": 71.21,
+        "exitRSI": 71.21,
+        "durationMinutes": 1,
+        "exitReason": "stop",
+        "netGex": 107292351.99094145
+      },
+      {
+        "id": "BAC-2025-10-31T19:56:00.000Z",
+        "symbol": "BAC",
+        "direction": "short",
+        "entryTimestamp": "2025-10-31T19:56:00.000Z",
+        "exitTimestamp": "2025-10-31T20:00:00.000Z",
+        "stock": {
+          "entryPrice": 53.605,
+          "exitPrice": 53.44,
+          "profit": 0.16499999999999915,
+          "profitPct": 0.3078071075459363
+        },
+        "option": {
+          "contract": "BAC251107P00054000",
+          "strike": 54,
+          "expiration": "2025-11-07",
+          "entryPremium": 1.615,
+          "exitPremium": 1.7587716335707468,
+          "profit": -8.702836642925314,
+          "profitPct": 8.902268332553986,
+          "commission": 0.08,
+          "slippage": 23,
+          "grossProfit": 14.377163357074686
+        },
+        "stopLoss": 53.658604999999994,
+        "target": 53.13399000000002,
+        "entryRSI": 71.21,
+        "exitRSI": 68.61,
+        "durationMinutes": 4,
+        "exitReason": "end_of_day",
+        "netGex": 107292351.99094145
+      }
+    ],
+    "summary": {
+      "tradeCount": 9,
+      "winCount": 1,
+      "lossCount": 8,
+      "winRate": 0.1111111111111111,
+      "stock": {
+        "totalProfit": -0.2624082999999544,
+        "grossProfit": 0.16499999999999915,
+        "grossLoss": 0.42740829999995356,
+        "averageWin": 0.16499999999999915,
+        "averageLoss": 0.053426037499994194,
+        "profitFactor": 0.3860477206456147
+      },
+      "options": {
+        "totalProfit": -183.21563203273493,
+        "grossProfit": 0,
+        "grossLoss": 183.21563203273493,
+        "averageWin": 0,
+        "averageLoss": 20.357292448081658,
+        "profitFactor": 0,
+        "contractsTraded": 9,
+        "totalCommission": 0.72,
+        "totalSlippage": 161.99999999999994,
+        "leverage": {
+          "50x": {
+            "netProfit": -9160.781601636747,
+            "grossProfit": -1024.7816016367494,
+            "commission": 36,
+            "slippage": 8099.999999999997
+          },
+          "100x": {
+            "netProfit": -18321.563203273494,
+            "grossProfit": -2049.563203273499,
+            "commission": 72,
+            "slippage": 16199.999999999995
+          }
+        }
+      },
+      "maxDrawdown": 0.42740829999995356,
+      "averageDurationMinutes": 10
+    },
+    "notes": []
+  }
+]
