@@ -314,6 +314,43 @@ npm run build
 npm start
 ```
 
+## Mean Reversion Live Trader
+
+Run the mean reversion option strategy in real time (default: 15-minute bar logic with optional Twelve Data streaming).
+
+```bash
+npx tsx run-live-mean-reversion.ts
+```
+
+### Environment Variables
+
+- `MR_SYMBOLS` (default `SPY,GLD,TSLA,NVDA`): Comma-separated tickers to monitor.
+- `MR_OPTION_CONTRACTS` (default `2`): Contracts per entry in option mode.
+- `MR_STOCK_SHARES` (optional): Override share quantity when `MR_TRADE_MODE=stock`.
+- `MR_TRADE_MODE` (default `option`): `option` for OCC contracts, `stock` for shares.
+- `MR_OPTION_MIN_DTE` (default `7`): Minimum days-to-expiration when picking contracts.
+- `MR_POLL_MS` (default `15000`): Signal polling cadence.
+- `MR_MINUTE_BACKFILL` (default `600`): Minute bars to retain when using Twelve Data.
+- `MR_TRADE_LOG` (default `./logs/mean-reversion-trades.jsonl`): JSONL trade log.
+- Twelve Data (`TWELVE_DATA_*`) and Alpaca (`ALPACA_*`) credentials are shared with the other runners.
+
+## Mean Reversion 5-Minute Trader
+
+Variant tuned for five-minute bars (same option workflow, faster cadence).
+
+```bash
+npx tsx run-live-mean-reversion-5min.ts
+```
+
+Key env overrides:
+
+- `MR5_SYMBOLS` (default `SPY,GLD,TSLA,NVDA`)
+- `MR5_TRADE_MODE` / `MR5_OPTION_CONTRACTS` / `MR5_OPTION_MIN_DTE`
+- `MR5_STOCK_SHARES`, `MR5_POLL_MS`, `MR5_MINUTE_BACKFILL`
+- `MR5_TRADE_LOG` (default `./logs/mean-reversion-5min-trades.jsonl`)
+
+All other Twelve Data and Alpaca credentials mirror the primary runner.
+
 ## SMA Crossover Live Trader
 
 Run a live simple moving average crossover strategy on Alpaca paper trading with automated logging of entries, exits, and realized PnL.
