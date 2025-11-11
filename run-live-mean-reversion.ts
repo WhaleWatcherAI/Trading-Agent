@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { randomUUID } from 'crypto';
 import { appendFileSync, existsSync, mkdirSync } from 'fs';
 import * as path from 'path';
+import { pathToFileURL } from 'url';
 import {
   submitOptionOrder,
   getOptionOrder,
@@ -31,6 +32,7 @@ import {
   TwelveDataPriceFeed,
   RealtimePriceSnapshot,
 } from './lib/twelveData';
+import { StrategyHooks, RunningStrategy } from './lib/strategyHooks';
 
 process.env.BYPASS_GEX = 'true';
 
@@ -77,6 +79,14 @@ interface OrderFillResult {
   status: AlpacaOptionOrder['status'];
 }
 
+export const MEAN_REVERSION_STRATEGY_ID = 'mean-reversion';
+
+export interface MeanReversionOptions {
+  feed?: TwelveDataPriceFeed | null;
+  hooks?: StrategyHooks;
+  manageProcessSignals?: boolean;
+}
+
 const CONFIG = {
   symbols: (process.env.MR_SYMBOLS || 'SPY,GLD,TSLA,NVDA')
     .split(',')
@@ -109,27 +119,73 @@ const STOCK_SHARE_QTY =
     ? CONFIG.stockShares
     : STOCK_SHARE_DEFAULT;
 
-const twelveDataFeed = CONFIG.twelveDataApiKey
-  ? new TwelveDataPriceFeed({
+export const MEAN_REVERSION_MINUTE_BACKFILL = CONFIG.minuteBackfill;
+
+const CONFIG_SYMBOL_SET = new Set(CONFIG.symbols.map(symbol => symbol.toUpperCase()));
+
+let twelveDataFeed: TwelveDataPriceFeed | null = null;
+let twelveDataFeedOwned = false;
+let removePriceListener: (() => void) | null = null;
+let strategyHooks: StrategyHooks | undefined;
+let shouldExitProcessOnShutdown = true;
+let processSignalsRegistered = false;
+let shuttingDown = false;
+let totalRealizedPnL = 0;
+
+function initializeTwelveDataFeed(providedFeed?: TwelveDataPriceFeed | null) {
+  if (providedFeed) {
+    twelveDataFeed = providedFeed;
+    twelveDataFeedOwned = false;
+    return;
+  }
+  if (CONFIG.twelveDataApiKey) {
+    twelveDataFeed = new TwelveDataPriceFeed({
       apiKey: CONFIG.twelveDataApiKey,
       symbols: CONFIG.symbols,
       url: CONFIG.twelveDataUrl || undefined,
       maxMinuteBars: CONFIG.minuteBackfill,
-    })
-  : null;
+    });
+    twelveDataFeedOwned = true;
+    return;
+  }
+  twelveDataFeed = null;
+  twelveDataFeedOwned = false;
+}
 
-if (twelveDataFeed) {
-  const shutdown = () => {
-    twelveDataFeed.stop();
-  };
+function detachFeedListeners() {
+  removePriceListener?.();
+  removePriceListener = null;
+}
+
+function registerProcessSignalHandlers() {
+  if (processSignalsRegistered) {
+    return;
+  }
   process.on('SIGINT', () => {
-    shutdown();
-    process.exit(0);
+    shutdown('SIGINT').catch(err => {
+      console.error('Shutdown error', err);
+      process.exit(1);
+    });
   });
   process.on('SIGTERM', () => {
-    shutdown();
-    process.exit(0);
+    shutdown('SIGTERM').catch(err => {
+      console.error('Shutdown error', err);
+      process.exit(1);
+    });
   });
+  processSignalsRegistered = true;
+}
+
+function notifyPnLUpdate() {
+  strategyHooks?.onPnLUpdate?.(MEAN_REVERSION_STRATEGY_ID, totalRealizedPnL);
+}
+
+function recordRealizedPnl(delta: number) {
+  if (!Number.isFinite(delta) || delta === 0) {
+    return;
+  }
+  totalRealizedPnL += delta;
+  notifyPnLUpdate();
 }
 
 function nowIso() {
@@ -221,6 +277,7 @@ function logTradeEvent(event: Record<string, any>) {
       ...event,
     };
     appendFileSync(TRADE_LOG_FILE, `${JSON.stringify(payload)}\n`);
+    strategyHooks?.onTradeEvent?.(MEAN_REVERSION_STRATEGY_ID, payload);
   } catch (err) {
     console.error('[trade-log] failed to write entry', err);
   }
@@ -698,6 +755,9 @@ async function scaleTrade(trade: ActiveTrade) {
 
     const pnl = calculatePnL(trade, fill.avgPrice, fill.filledQty);
     trade.realizedPnL += pnl;
+    recordRealizedPnl(pnl);
+    recordRealizedPnl(pnl);
+    recordRealizedPnl(pnl);
     trade.costBasis = Math.max(
       0,
       trade.costBasis - trade.entryFillPrice * fill.filledQty * trade.multiplier,
@@ -760,6 +820,8 @@ async function scaleTrade(trade: ActiveTrade) {
 
   const pnl = calculatePnL(trade, fill.avgPrice, fill.filledQty);
   trade.realizedPnL += pnl;
+  recordRealizedPnl(pnl);
+  recordRealizedPnl(pnl);
   trade.costBasis = Math.max(
     0,
     trade.costBasis - trade.entryFillPrice * fill.filledQty * trade.multiplier,

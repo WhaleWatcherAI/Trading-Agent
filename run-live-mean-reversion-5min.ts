@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { randomUUID } from 'crypto';
 import { appendFileSync, existsSync, mkdirSync } from 'fs';
 import * as path from 'path';
+import { pathToFileURL } from 'url';
 import {
   submitOptionOrder,
   getOptionOrder,
@@ -32,6 +33,7 @@ import {
   RealtimePriceSnapshot,
   MinuteBar,
 } from './lib/twelveData';
+import { StrategyHooks, RunningStrategy } from './lib/strategyHooks';
 
 process.env.BYPASS_GEX = 'true';
 
@@ -78,7 +80,14 @@ interface OrderFillResult {
   status: AlpacaOptionOrder['status'];
 }
 
+interface MeanReversionRunnerOptions {
+  feed?: TwelveDataPriceFeed | null;
+  hooks?: StrategyHooks;
+  manageProcessSignals?: boolean;
+}
+
 const FIVE_MIN_MS = 5 * 60_000;
+const STOP_LOSS_PERCENT = 0.001; // 0.1%
 
 const CONFIG = {
   symbols: (process.env.MR5_SYMBOLS || 'SPY,GLD,TSLA,NVDA')
@@ -90,6 +99,7 @@ const CONFIG = {
   pollIntervalMs: Number(process.env.MR5_POLL_MS || '15000'),
   minuteBackfill: Number(process.env.MR5_MINUTE_BACKFILL || '600'),
   twelveDataApiKey: process.env.TWELVE_DATA_API_KEY || '',
+  twelveDataBackupApiKey: process.env.TWELVE_DATA_BACKUP_API_KEY || '',
   twelveDataUrl: process.env.TWELVE_DATA_WS_URL || '',
 };
 
@@ -113,27 +123,74 @@ const STOCK_SHARE_QTY =
     ? CONFIG.stockShares
     : STOCK_SHARE_DEFAULT;
 
-const twelveDataFeed = CONFIG.twelveDataApiKey
-  ? new TwelveDataPriceFeed({
-      apiKey: CONFIG.twelveDataApiKey,
-      symbols: CONFIG.symbols,
-      url: CONFIG.twelveDataUrl || undefined,
-      maxMinuteBars: CONFIG.minuteBackfill,
-    })
-  : null;
+export const MEAN_REVERSION_5M_STRATEGY_ID = 'mean-reversion-5m';
 
-if (twelveDataFeed) {
-  const shutdown = () => {
-    twelveDataFeed.stop();
+let twelveDataFeed: TwelveDataPriceFeed | null = null;
+let twelveDataFeedOwned = false;
+let removePriceListener: (() => void) | null = null;
+let processSignalsRegistered = false;
+let shouldExitProcessOnShutdown = true;
+let shuttingDown = false;
+let strategyHooks: StrategyHooks | undefined;
+let realizedPnLTotal = 0;
+
+function notifyPnLUpdate() {
+  strategyHooks?.onPnLUpdate?.(MEAN_REVERSION_5M_STRATEGY_ID, realizedPnLTotal);
+}
+
+function recordRealizedPnL(delta: number) {
+  if (!Number.isFinite(delta) || delta === 0) {
+    return;
+  }
+  realizedPnLTotal += delta;
+  notifyPnLUpdate();
+}
+
+function initializeTwelveDataFeed(sharedFeed?: TwelveDataPriceFeed | null) {
+  if (sharedFeed) {
+    twelveDataFeed = sharedFeed;
+    twelveDataFeedOwned = false;
+    return;
+  }
+  if (!CONFIG.twelveDataApiKey) {
+    twelveDataFeed = null;
+    twelveDataFeedOwned = false;
+    return;
+  }
+  twelveDataFeed = new TwelveDataPriceFeed({
+    apiKey: CONFIG.twelveDataApiKey,
+    backupApiKey: CONFIG.twelveDataBackupApiKey || undefined,
+    symbols: CONFIG.symbols,
+    url: CONFIG.twelveDataUrl || undefined,
+    maxMinuteBars: CONFIG.minuteBackfill,
+  });
+  twelveDataFeedOwned = true;
+}
+
+function detachFeedListeners() {
+  if (removePriceListener) {
+    try {
+      removePriceListener();
+    } catch {
+      /* noop */
+    }
+    removePriceListener = null;
+  }
+}
+
+function registerProcessSignalHandlers() {
+  if (processSignalsRegistered) {
+    return;
+  }
+  const handle = (reason: 'SIGINT' | 'SIGTERM') => {
+    shutdown(reason).catch(err => {
+      console.error('[mean-reversion-5m] Failed to shutdown cleanly:', err);
+      process.exit(1);
+    });
   };
-  process.on('SIGINT', () => {
-    shutdown();
-    process.exit(0);
-  });
-  process.on('SIGTERM', () => {
-    shutdown();
-    process.exit(0);
-  });
+  process.once('SIGINT', () => handle('SIGINT'));
+  process.once('SIGTERM', () => handle('SIGTERM'));
+  processSignalsRegistered = true;
 }
 
 function nowIso() {
@@ -507,10 +564,27 @@ async function getOptionChainWithFallback(
   return null;
 }
 
-function calculatePnL(trade: ActiveTrade, exitPrice: number, qty: number): number {
-  const directionMultiplier = trade.direction === 'long' ? 1 : -1;
+export function calculatePnL(trade: ActiveTrade, exitPrice: number, qty: number): number {
   const priceDiff = exitPrice - trade.entryFillPrice;
-  return priceDiff * trade.multiplier * qty * directionMultiplier;
+  const signedDiff = trade.positionSide === 'short' ? -priceDiff : priceDiff;
+  return signedDiff * trade.multiplier * qty;
+}
+
+function setRunnerLevelsFromSignal(trade: ActiveTrade, signal: MeanReversionSignal) {
+  const middleBand = signal.bbMiddle;
+  if (typeof middleBand === 'number') {
+    const multiplier = trade.direction === 'long' ? 1 - STOP_LOSS_PERCENT : 1 + STOP_LOSS_PERCENT;
+    trade.stopLoss = middleBand * multiplier;
+  }
+
+  const outerBand =
+    trade.direction === 'long'
+      ? signal.bbUpper ?? signal.bbMiddle ?? null
+      : signal.bbLower ?? signal.bbMiddle ?? null;
+
+  if (typeof outerBand === 'number') {
+    trade.target = outerBand;
+  }
 }
 
 
@@ -700,6 +774,8 @@ async function scaleTrade(trade: ActiveTrade) {
 
     const pnl = calculatePnL(trade, fill.avgPrice, fill.filledQty);
     trade.realizedPnL += pnl;
+    recordRealizedPnL(pnl);
+    recordRealizedPnL(pnl);
     trade.costBasis = Math.max(
       0,
       trade.costBasis - trade.entryFillPrice * fill.filledQty * trade.multiplier,
@@ -715,18 +791,7 @@ async function scaleTrade(trade: ActiveTrade) {
       realizedPnL: pnl,
     });
 
-    if (typeof trade.target === 'number') {
-      const middleBand = trade.target;
-      if (trade.direction === 'long') {
-        const outerBand = trade.signal.bbUpper ?? middleBand;
-        trade.stopLoss = middleBand * 0.999;
-        trade.target = outerBand;
-      } else {
-        const outerBand = trade.signal.bbLower ?? middleBand;
-        trade.stopLoss = middleBand * 1.001;
-        trade.target = outerBand;
-      }
-    }
+    setRunnerLevelsFromSignal(trade, trade.signal);
 
     log(
       trade.symbol,
@@ -763,6 +828,8 @@ async function scaleTrade(trade: ActiveTrade) {
 
   const pnl = calculatePnL(trade, fill.avgPrice, fill.filledQty);
   trade.realizedPnL += pnl;
+  recordRealizedPnL(pnl);
+  recordRealizedPnL(pnl);
   trade.costBasis = Math.max(
     0,
     trade.costBasis - trade.entryFillPrice * fill.filledQty * trade.multiplier,
@@ -778,18 +845,7 @@ async function scaleTrade(trade: ActiveTrade) {
     realizedPnL: pnl,
   });
 
-  if (typeof trade.target === 'number') {
-    const middleBand = trade.target;
-    if (trade.direction === 'long') {
-      const outerBand = trade.signal.bbUpper ?? middleBand;
-      trade.stopLoss = middleBand * 0.999;
-      trade.target = outerBand;
-    } else {
-      const outerBand = trade.signal.bbLower ?? middleBand;
-      trade.stopLoss = middleBand * 1.001;
-      trade.target = outerBand;
-    }
-  }
+  setRunnerLevelsFromSignal(trade, trade.signal);
 
   log(
     trade.symbol,
@@ -941,7 +997,11 @@ async function exitTrade(trade: ActiveTrade, reason: 'stop' | 'target' | 'end_of
 
 async function handleRealtimeTick(symbol: string, snapshot: RealtimePriceSnapshot) {
   const trade = trades.get(symbol);
-  if (!trade || trade.processing) {
+  if (!trade) {
+    log(symbol, `Realtime check price ${snapshot.price.toFixed(2)} stop n/a target n/a`);
+    return;
+  }
+  if (trade.processing) {
     return;
   }
 
@@ -955,8 +1015,14 @@ async function handleRealtimeTick(symbol: string, snapshot: RealtimePriceSnapsho
       return;
     }
 
+    log(
+      trade.symbol,
+      `Realtime check price ${price.toFixed(2)} stop ${trade.stopLoss?.toFixed(2) ?? 'n/a'} target ${trade.target?.toFixed(2) ?? 'n/a'}`
+    );
+
     const minuteMid = trade.signal.bbMiddle;
     if (
+      !trade.scaled &&
       typeof minuteMid === 'number' &&
       typeof trade.target === 'number' &&
       minuteMid !== trade.target
@@ -1183,8 +1249,7 @@ async function processSymbol(symbol: string) {
     bbPeriod: 20,
     bbStdDev: 2,
     bbThreshold: 0.005,
-    stopLossPercent: 0.01,
-    targetPercent: 0.02,
+    stopLossPercent: STOP_LOSS_PERCENT,
   });
 
   if (signal.direction === 'none') {
@@ -1194,13 +1259,17 @@ async function processSymbol(symbol: string) {
 
   const activeTrade = trades.get(symbol);
   if (activeTrade) {
-    const updatedStop = signal.stopLoss ?? null;
-    const updatedTarget = signal.target ?? null;
-    if (typeof updatedStop === 'number') {
-      activeTrade.stopLoss = updatedStop;
-    }
-    if (typeof updatedTarget === 'number') {
-      activeTrade.target = updatedTarget;
+    if (activeTrade.scaled) {
+      setRunnerLevelsFromSignal(activeTrade, signal);
+    } else {
+      const updatedStop = signal.stopLoss ?? null;
+      const updatedTarget = signal.target ?? null;
+      if (typeof updatedStop === 'number') {
+        activeTrade.stopLoss = updatedStop;
+      }
+      if (typeof updatedTarget === 'number') {
+        activeTrade.target = updatedTarget;
+      }
     }
     activeTrade.signal = signal;
     log(
@@ -1211,6 +1280,37 @@ async function processSymbol(symbol: string) {
   }
 
   await attemptEntry(symbol, signal, price);
+}
+
+async function shutdown(reason: 'SIGINT' | 'SIGTERM' | 'external' = 'external', exitProcess = true) {
+  if (shuttingDown) {
+    return;
+  }
+  shuttingDown = true;
+  detachFeedListeners();
+  if (twelveDataFeed && twelveDataFeedOwned) {
+    try {
+      twelveDataFeed.stop();
+    } catch {
+      /* noop */
+    }
+  }
+  const activeTrades = Array.from(trades.values());
+  for (const trade of activeTrades) {
+    try {
+      await exitTrade(trade, 'end_of_day');
+    } catch (err) {
+      log(trade.symbol, `Failed to exit during shutdown: ${(err as Error).message}`);
+    }
+  }
+  console.log(
+    `[mean-reversion-5m] Shutdown complete (${reason}). Realized PnL: ${realizedPnLTotal.toFixed(
+      2,
+    )}`,
+  );
+  if (exitProcess && shouldExitProcessOnShutdown) {
+    process.exit(0);
+  }
 }
 
 async function main() {
@@ -1224,21 +1324,28 @@ async function main() {
 
   if (!twelveDataFeed) {
     console.error('TWELVE_DATA_API_KEY not configured; unable to start live strategy without data feed');
+    shuttingDown = true;
     return;
   }
 
-  console.log('Using Twelve Data WebSocket feed for realtime price ticks');
+  console.log(
+    twelveDataFeedOwned
+      ? 'Using dedicated Twelve Data WebSocket feed for realtime price ticks'
+      : 'Using shared Twelve Data WebSocket feed for realtime price ticks',
+  );
 
-  await twelveDataFeed.bootstrap();
-  twelveDataFeed.start();
+  if (twelveDataFeedOwned) {
+    await twelveDataFeed.bootstrap();
+    twelveDataFeed.start();
+  }
 
-  twelveDataFeed.onPrice((symbol, snapshot) => {
+  removePriceListener = twelveDataFeed.onPrice((symbol, snapshot) => {
     handleRealtimeTick(symbol, snapshot).catch(err => {
       log(symbol, `Realtime tick error: ${(err as Error).message}`);
     });
   });
 
-  while (true) {
+  while (!shuttingDown) {
     try {
       const clock = await getClock();
       if (!clock.is_open) {
@@ -1266,7 +1373,42 @@ async function main() {
   }
 }
 
-main().catch(err => {
-  console.error('5m strategy crashed:', err);
-  process.exit(1);
-});
+export function startMeanReversion5mStrategy(
+  options: MeanReversionRunnerOptions = {},
+): RunningStrategy {
+  strategyHooks = options.hooks;
+  shouldExitProcessOnShutdown = options.manageProcessSignals !== false;
+  shuttingDown = false;
+  realizedPnLTotal = 0;
+  notifyPnLUpdate();
+  trades.clear();
+  lastProcessed5mBar.clear();
+  optionDataCooldownUntil.clear();
+  initializeTwelveDataFeed(options.feed ?? null);
+  if (options.manageProcessSignals !== false) {
+    registerProcessSignalHandlers();
+  }
+  const task = main();
+  return {
+    task,
+    shutdown: (reason: 'SIGINT' | 'SIGTERM' | 'external' = 'external') =>
+      shutdown(reason, false),
+  };
+}
+
+let invokedAsScript = false;
+if (typeof process !== 'undefined' && Array.isArray(process.argv) && process.argv[1]) {
+  try {
+    invokedAsScript = import.meta.url === pathToFileURL(process.argv[1]).href;
+  } catch {
+    invokedAsScript = false;
+  }
+}
+
+if (invokedAsScript) {
+  const runner = startMeanReversion5mStrategy();
+  runner.task.catch(err => {
+    console.error('5m strategy crashed:', err);
+    process.exit(1);
+  });
+}

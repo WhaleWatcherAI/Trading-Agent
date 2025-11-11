@@ -10,6 +10,7 @@ import {
 import { GexMode } from './gexCalculator';
 import { RSI, SMA } from 'technicalindicators';
 import { selectMeanReversionOption, OptionContract } from './contractSelector';
+import { fetchTopstepXFuturesBars, fetchTopstepXContract, TopstepXFuturesBar } from './topstepx';
 
 const TWELVE_DATA_API_KEY = process.env.TWELVE_DATA_API_KEY || '';
 const USE_TWELVE_DATA = (process.env.USE_TWELVE_DATA ?? 'true').toLowerCase() !== 'false';

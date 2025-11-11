@@ -19,6 +19,18 @@ export interface OptionsTrade {
   openInterest: number;
   timestamp: Date;
   unusual: boolean;
+  greeks?: {
+    delta?: number;
+    gamma?: number;
+    theta?: number;
+    vega?: number;
+    rho?: number;
+    phi?: number;
+    bid_iv?: number;
+    mid_iv?: number;
+    ask_iv?: number;
+    smv_vol?: number;
+  };
 }
 
 export interface InstitutionalTrade {

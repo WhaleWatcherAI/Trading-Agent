@@ -6,6 +6,7 @@ const REST_BASE_URL = 'https://api.twelvedata.com/time_series';
 
 export interface TwelveDataOptions {
   apiKey: string;
+  backupApiKey?: string;
   symbols: string[];
   url?: string;
   reconnectDelayMs?: number;
@@ -63,7 +64,10 @@ type PriceListener = (symbol: string, snapshot: RealtimePriceSnapshot) => void;
  */
 export class TwelveDataPriceFeed {
   private readonly url: string;
-  private readonly apiKey: string;
+  private readonly primaryApiKey: string;
+  private readonly backupApiKey: string | null;
+  private apiKey: string;
+  private usingBackup: boolean = false;
   private readonly symbols: string[];
   private readonly reconnectDelayMs: number;
   private readonly maxMinuteBars: number;
@@ -84,7 +88,9 @@ export class TwelveDataPriceFeed {
   private readonly connectionListeners = new Set<(status: string, info?: any) => void>();
 
   constructor(options: TwelveDataOptions) {
-    this.apiKey = options.apiKey;
+    this.primaryApiKey = options.apiKey;
+    this.backupApiKey = options.backupApiKey ?? null;
+    this.apiKey = this.primaryApiKey;
     const normalized = options.symbols.map(s => s.toUpperCase());
     const uniqueSymbols: string[] = [];
     const seen = new Set<string>();
@@ -110,7 +116,8 @@ export class TwelveDataPriceFeed {
       return;
     }
 
-    const url = `${this.url}?apikey=${encodeURIComponent(this.apiKey)}&symbol=${encodeURIComponent(this.symbols.join(','))}`;
+    const currentKey = this.usingBackup && this.backupApiKey ? this.backupApiKey : this.apiKey;
+    const url = `${this.url}?apikey=${encodeURIComponent(currentKey)}&symbol=${encodeURIComponent(this.symbols.join(','))}`;
     this.socket = new WebSocket(url);
 
     this.socket.on('open', () => {
@@ -284,8 +291,37 @@ export class TwelveDataPriceFeed {
     }
     const data = await response.json();
     if (data?.status === 'error') {
-      throw new Error(data?.message || 'Unknown Twelve Data error');
+      const errorMsg = data?.message || 'Unknown Twelve Data error';
+      // Check if we ran out of credits and have a backup key
+      if (errorMsg.includes('run out of API credits') && this.backupApiKey && !this.usingBackup) {
+        console.log('[twelve-data] Primary API key out of credits, switching to backup key');
+        this.apiKey = this.backupApiKey;
+        this.usingBackup = true;
+        // Retry with backup key
+        const retryParams = new URLSearchParams({
+          symbol,
+          interval,
+          outputsize: String(limit),
+          apikey: this.apiKey,
+          order: 'ASC',
+        });
+        const retryResponse = await fetch(`${REST_BASE_URL}?${retryParams.toString()}`);
+        if (!retryResponse.ok) {
+          const retryText = await retryResponse.text();
+          throw new Error(`REST ${retryResponse.status}: ${retryText}`);
+        }
+        const retryData = await retryResponse.json();
+        if (retryData?.status === 'error') {
+          throw new Error(retryData?.message || 'Unknown Twelve Data error');
+        }
+        return this.parseTimeSeriesData(retryData, limit);
+      }
+      throw new Error(errorMsg);
     }
+    return this.parseTimeSeriesData(data, limit);
+  }
+
+  private parseTimeSeriesData(data: any, limit: number): MinuteBar[] {
     const values: any[] = Array.isArray(data?.values) ? data.values : [];
     const mapped = values
       .map<MinuteBar | null>(item => {
@@ -327,6 +363,10 @@ export class TwelveDataPriceFeed {
       (a, b) => new Date(a.t).getTime() - new Date(b.t).getTime(),
     );
     const trimmed = sorted.slice(-this.maxMinuteBars);
+    console.log(`[twelve-data] Ingested ${bars.length} bars for ${sym}, after dedup: ${sorted.length}, stored: ${trimmed.length}`);
+    if (trimmed.length > 0) {
+      console.log(`[twelve-data] ${sym} bar range: ${trimmed[0].t} to ${trimmed[trimmed.length - 1].t}`);
+    }
     this.minuteHistory.set(sym, trimmed);
     this.minuteState.delete(sym);
     this.rebuildFifteenFromMinuteBars(sym);

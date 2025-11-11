@@ -1,0 +1,790 @@
+node:net:1917
+      const error = new UVExceptionWithHostPort(rval, 'listen', address, port);
+                    ^
+
+Error: listen EPERM: operation not permitted /var/folders/hy/h4vnlg8n2fx1zzwxcp2w8zpw0000gn/T/tsx-501/2569.pipe
+    at Server.setupListenHandle [as _listen2] (node:net:1917:21)
+    at listenInCluster (node:net:1996:12)
+    at Server.listen (node:net:2118:5)
+    at file:///Users/coreycosta/trading-agent/node_modules/tsx/dist/cli.mjs:53:31537
+    at new Promise (<anonymous>)
+    at createIpcServer (file:///Users/coreycosta/trading-agent/node_modules/tsx/dist/cli.mjs:53:31515)
+    at async file:///Users/coreycosta/trading-agent/node_modules/tsx/dist/cli.mjs:55:459 {
+  code: 'EPERM',
+  errno: -1,
+  syscall: 'listen',
+  address: '/var/folders/hy/h4vnlg8n2fx1zzwxcp2w8zpw0000gn/T/tsx-501/2569.pipe',
+  port: -1
+}
+
+Node.js v22.15.0
+Starting SMA crossover live trader with config: {
+  symbols: [ 'SPY' ],
+  fastPeriod: 9,
+  slowPeriod: null,
+  orderQty: 1,
+  optionContracts: 2,
+  optionMinDte: 3,
+  pollIntervalMs: 60000,
+  fillTimeoutMs: 15000,
+  timeframe: '1Min',
+  flattenMinutesBeforeClose: 5,
+  logFile: './logs/sma-crossover-trades.jsonl',
+  priceCross: true,
+  twelveDataApiKey: '140a344e341f4fbf9fd3da3d367a0ca0',
+  twelveDataBackupApiKey: '204fba571ccb4318885971179340f2ec',
+  twelveDataUrl: 'wss://ws.twelvedata.com/v1/quotes/price',
+  useTwelveData: true,
+  tradeMode: 'option'
+}
+[2025-11-07T17:07:44.761Z][system] Bootstrapping Twelve Data price feed...
+[twelve-data] sync failed for SPY TypeError: fetch failed
+    at node:internal/deps/undici/undici:13510:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async TwelveDataPriceFeed.fetchTimeSeries (/Users/coreycosta/trading-agent/lib/twelveData.ts:287:22)
+    at async TwelveDataPriceFeed.syncSymbol (/Users/coreycosta/trading-agent/lib/twelveData.ts:237:26)
+    at async TwelveDataPriceFeed.bootstrap (/Users/coreycosta/trading-agent/lib/twelveData.ts:215:9)
+    at async main (/Users/coreycosta/trading-agent/run-live-sma-crossover.ts:1415:9) {
+  [cause]: Error: getaddrinfo ENOTFOUND api.twelvedata.com
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'api.twelvedata.com'
+  }
+}
+[2025-11-07T17:07:44.794Z][system] Streaming prices via Twelve Data WebSocket feed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:07:44.797Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:07:44.797Z][system] [twelve-data] connection closed
+[2025-11-07T17:07:44.797Z][SPY] Failed to sync position: fetch failed
+[2025-11-07T17:07:44.799Z][SPY] Insufficient bars (0) for SMA calculation (need 10)
+[2025-11-07T17:07:44.799Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:07:49.804Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:07:49.804Z][system] [twelve-data] connection closed
+[2025-11-07T17:07:49.805Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:07:54.813Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:07:54.813Z][system] [twelve-data] connection closed
+[2025-11-07T17:07:54.814Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:07:59.822Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:07:59.822Z][system] [twelve-data] connection closed
+[2025-11-07T17:07:59.823Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:08:04.829Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:08:04.829Z][system] [twelve-data] connection closed
+[2025-11-07T17:08:04.830Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:08:09.836Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:08:09.837Z][system] [twelve-data] connection closed
+[2025-11-07T17:08:09.837Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:08:14.845Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:08:14.845Z][system] [twelve-data] connection closed
+[2025-11-07T17:08:14.846Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:08:19.850Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:08:19.850Z][system] [twelve-data] connection closed
+[2025-11-07T17:08:19.851Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:08:24.876Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:08:24.877Z][system] [twelve-data] connection closed
+[2025-11-07T17:08:24.882Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:08:29.883Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:08:29.883Z][system] [twelve-data] connection closed
+[2025-11-07T17:08:29.886Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:08:34.891Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:08:34.891Z][system] [twelve-data] connection closed
+[2025-11-07T17:08:34.892Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:08:39.897Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:08:39.898Z][system] [twelve-data] connection closed
+[2025-11-07T17:08:39.898Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:08:44.902Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:08:44.902Z][system] [twelve-data] connection closed
+[2025-11-07T17:08:44.903Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:08:49.907Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:08:49.907Z][system] [twelve-data] connection closed
+[2025-11-07T17:08:49.908Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:08:54.913Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:08:54.914Z][system] [twelve-data] connection closed
+[2025-11-07T17:08:54.916Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:08:59.919Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:08:59.919Z][system] [twelve-data] connection closed
+[2025-11-07T17:08:59.919Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:09:04.926Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:09:04.926Z][system] [twelve-data] connection closed
+[2025-11-07T17:09:04.927Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:09:09.932Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:09:09.932Z][system] [twelve-data] connection closed
+[2025-11-07T17:09:09.932Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:09:14.938Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:09:14.938Z][system] [twelve-data] connection closed
+[2025-11-07T17:09:14.939Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:09:19.945Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:09:19.946Z][system] [twelve-data] connection closed
+[2025-11-07T17:09:19.946Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:09:24.951Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:09:24.951Z][system] [twelve-data] connection closed
+[2025-11-07T17:09:24.952Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:09:29.957Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:09:29.957Z][system] [twelve-data] connection closed
+[2025-11-07T17:09:29.957Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:09:34.962Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:09:34.962Z][system] [twelve-data] connection closed
+[2025-11-07T17:09:34.963Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:09:39.967Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:09:39.967Z][system] [twelve-data] connection closed
+[2025-11-07T17:09:39.968Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:09:44.901Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:09:44.901Z][system] [twelve-data] connection closed
+[2025-11-07T17:09:44.902Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:09:49.907Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:09:49.907Z][system] [twelve-data] connection closed
+[2025-11-07T17:09:49.908Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:09:54.913Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:09:54.913Z][system] [twelve-data] connection closed
+[2025-11-07T17:09:54.913Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:09:59.917Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:09:59.917Z][system] [twelve-data] connection closed
+[2025-11-07T17:09:59.920Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:10:04.920Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:10:04.920Z][system] [twelve-data] connection closed
+[2025-11-07T17:10:04.922Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:10:09.925Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:10:09.925Z][system] [twelve-data] connection closed
+[2025-11-07T17:10:09.926Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:10:14.932Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:10:14.932Z][system] [twelve-data] connection closed
+[2025-11-07T17:10:14.932Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:10:19.937Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:10:19.937Z][system] [twelve-data] connection closed
+[2025-11-07T17:10:19.938Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:10:24.941Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:10:24.941Z][system] [twelve-data] connection closed
+[2025-11-07T17:10:24.942Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:10:29.945Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:10:29.945Z][system] [twelve-data] connection closed
+[2025-11-07T17:10:29.946Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:10:34.950Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:10:34.950Z][system] [twelve-data] connection closed
+[2025-11-07T17:10:34.950Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:10:39.954Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:10:39.954Z][system] [twelve-data] connection closed
+[2025-11-07T17:10:39.954Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:10:44.960Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:10:44.960Z][system] [twelve-data] connection closed
+[2025-11-07T17:10:44.960Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:10:49.966Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:10:49.966Z][system] [twelve-data] connection closed
+[2025-11-07T17:10:49.966Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:10:54.969Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:10:54.969Z][system] [twelve-data] connection closed
+[2025-11-07T17:10:54.970Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:10:59.975Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:10:59.975Z][system] [twelve-data] connection closed
+[2025-11-07T17:10:59.975Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:11:04.980Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:11:04.981Z][system] [twelve-data] connection closed
+[2025-11-07T17:11:04.983Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:11:09.983Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:11:09.984Z][system] [twelve-data] connection closed
+[2025-11-07T17:11:09.984Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:11:14.989Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:11:14.989Z][system] [twelve-data] connection closed
+[2025-11-07T17:11:14.989Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:11:19.994Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:11:19.994Z][system] [twelve-data] connection closed
+[2025-11-07T17:11:19.995Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:11:25.000Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:11:25.000Z][system] [twelve-data] connection closed
+[2025-11-07T17:11:25.000Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:11:30.004Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:11:30.004Z][system] [twelve-data] connection closed
+[2025-11-07T17:11:30.005Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:11:35.010Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:11:35.010Z][system] [twelve-data] connection closed
+[2025-11-07T17:11:35.011Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:11:40.017Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:11:40.017Z][system] [twelve-data] connection closed
+[2025-11-07T17:11:40.017Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:11:45.029Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:11:45.029Z][system] [twelve-data] connection closed
+[2025-11-07T17:11:45.029Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:11:50.035Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:11:50.035Z][system] [twelve-data] connection closed
+[2025-11-07T17:11:50.035Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:11:55.041Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:11:55.041Z][system] [twelve-data] connection closed
+[2025-11-07T17:11:55.041Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:12:00.046Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:12:00.046Z][system] [twelve-data] connection closed
+[2025-11-07T17:12:00.047Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:12:05.053Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:12:05.053Z][system] [twelve-data] connection closed
+[2025-11-07T17:12:05.053Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:12:10.059Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:12:10.059Z][system] [twelve-data] connection closed
+[2025-11-07T17:12:10.062Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:12:15.064Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:12:15.064Z][system] [twelve-data] connection closed
+[2025-11-07T17:12:15.065Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:12:20.071Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:12:20.071Z][system] [twelve-data] connection closed
+[2025-11-07T17:12:20.072Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:12:25.077Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:12:25.077Z][system] [twelve-data] connection closed
+[2025-11-07T17:12:25.077Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:12:30.082Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:12:30.082Z][system] [twelve-data] connection closed
+[2025-11-07T17:12:30.083Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:12:35.086Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:12:35.086Z][system] [twelve-data] connection closed
+[2025-11-07T17:12:35.087Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:12:40.090Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:12:40.090Z][system] [twelve-data] connection closed
+[2025-11-07T17:12:40.092Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:12:45.095Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:12:45.095Z][system] [twelve-data] connection closed
+[2025-11-07T17:12:45.096Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:12:50.103Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:12:50.103Z][system] [twelve-data] connection closed
+[2025-11-07T17:12:50.103Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:12:55.109Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:12:55.109Z][system] [twelve-data] connection closed
+[2025-11-07T17:12:55.109Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:13:00.115Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:13:00.115Z][system] [twelve-data] connection closed
+[2025-11-07T17:13:00.115Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:13:05.119Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:13:05.120Z][system] [twelve-data] connection closed
+[2025-11-07T17:13:05.120Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:13:10.125Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:13:10.125Z][system] [twelve-data] connection closed
+[2025-11-07T17:13:10.126Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:13:15.133Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:13:15.133Z][system] [twelve-data] connection closed
+[2025-11-07T17:13:15.134Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:13:20.138Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:13:20.138Z][system] [twelve-data] connection closed
+[2025-11-07T17:13:20.138Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:13:25.142Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:13:25.142Z][system] [twelve-data] connection closed
+[2025-11-07T17:13:25.143Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:13:30.150Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:13:30.150Z][system] [twelve-data] connection closed
+[2025-11-07T17:13:30.150Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:13:35.156Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:13:35.156Z][system] [twelve-data] connection closed
+[2025-11-07T17:13:35.157Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:13:40.161Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:13:40.162Z][system] [twelve-data] connection closed
+[2025-11-07T17:13:40.162Z][system] Failed to fetch clock: fetch failed
+[twelve-data] WebSocket error Error: getaddrinfo ENOTFOUND ws.twelvedata.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+  errno: -3008,
+  code: 'ENOTFOUND',
+  syscall: 'getaddrinfo',
+  hostname: 'ws.twelvedata.com'
+}
+[2025-11-07T17:13:45.167Z][system] [twelve-data] connection error: getaddrinfo ENOTFOUND ws.twelvedata.com
+[2025-11-07T17:13:45.167Z][system] [twelve-data] connection closed
+[2025-11-07T17:13:45.168Z][system] Failed to fetch clock: fetch failed
+[2025-11-07T17:13:48.318Z][system] Shutting down (SIGTERM); attempting to flatten open positions...
+[2025-11-07T17:13:48.318Z][system] Shutdown complete. Realized PnL: 0.00

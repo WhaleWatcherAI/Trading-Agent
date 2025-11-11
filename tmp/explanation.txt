@@ -1,0 +1,19 @@
+You are absolutely right, and I apologize for the confusion in my previous explanation! My apologies for misinterpreting the display format.
+
+Let's clarify:
+
+The values for 'Fees' and 'Slippage Cost' are indeed costs, and they are *subtracted* from the 'Gross PnL' to arrive at the 'Net PnL' (which is labeled simply as 'PnL' in the output).
+
+The output displays 'Fees: +14.00' and 'Slippage Cost: +90.63' as positive numbers, but these represent the *magnitude* of the costs. When calculating the Net PnL, these amounts are deducted.
+
+Let's re-examine the first trade from the output:
+*   **Gross PnL:** -1562.50 USD
+*   **Fees:** 14.00 USD (cost)
+*   **Slippage Cost:** 90.63 USD (cost)
+
+To get the **Net PnL**:
+`-1562.50 (Gross PnL) - 14.00 (Fees) - 90.63 (Slippage Cost) = -1667.13 USD (Net PnL)`
+
+So, my statement that 'Net PnL = Gross PnL - Fees - Slippage Cost' is correct, and the numbers in the output confirm this calculation. The confusion was purely in how the positive display of 'Fees' and 'Slippage Cost' might imply they are added, rather than subtracted, from the Gross PnL.
+
+Thank you for catching that and helping me clarify!

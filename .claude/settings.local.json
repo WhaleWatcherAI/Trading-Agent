@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsx:*)",
+      "Bash(TOPSTEPX_SECOND_SMA_SYMBOL=6EZ5 npx tsx:*)",
+      "Bash(cp:*)",
+      "Bash(sed:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

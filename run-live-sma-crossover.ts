@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { randomUUID } from 'crypto';
 import { appendFileSync, existsSync, mkdirSync } from 'fs';
 import * as path from 'path';
+import { pathToFileURL } from 'url';
 import {
   fetchBars,
   submitOrder,
@@ -16,8 +17,9 @@ import {
   AlpacaOptionOrder,
   AlpacaOptionContract,
 } from './lib/alpaca';
-import { TwelveDataPriceFeed, MinuteBar } from './lib/twelveData';
+import { TwelveDataPriceFeed, MinuteBar, RealtimePriceSnapshot } from './lib/twelveData';
 import { fetchTradierOptionExpirations, fetchTradierOptionChain } from './lib/tradier';
+import { BollingerBands, EMA, ATR } from 'technicalindicators';
 import {
   getCachedExpirations,
   setCachedExpirations,
@@ -26,6 +28,8 @@ import {
   isCacheEntryFresh,
   DEFAULT_CACHE_MAX_AGE_MS,
 } from './lib/optionCache';
+import { StrategyHooks, RunningStrategy } from './lib/strategyHooks';
+import { submitTopstepXOrder } from './lib/topstepx';
 
 type DirectionRelation = 'above' | 'below';
 
@@ -37,6 +41,10 @@ interface ActivePosition {
   entryOrderId: string;
   instrument: 'stock' | 'option';
   multiplier: number;
+  capitalUsed?: number;
+  notionalExposure?: number;
+  entrySma?: number;
+  squeezeOnEntry?: boolean;
   optionSymbol?: string;
   optionStrike?: number;
   optionExpiration?: string;
@@ -58,15 +66,23 @@ interface OrderFillResult {
   status: string;
 }
 
+export const SMA_STRATEGY_ID = 'sma-crossover';
+
+export interface SmaStrategyOptions {
+  feed?: TwelveDataPriceFeed | null;
+  hooks?: StrategyHooks;
+  manageProcessSignals?: boolean;
+}
+
 const CONFIG = {
   symbols: (process.env.SMA_SYMBOLS || 'SPY')
     .split(',')
     .map(s => s.trim().toUpperCase())
     .filter(Boolean),
-  fastPeriod: Number(process.env.SMA_FAST || '9'),
+  fastPeriod: Number(process.env.SMA_FAST || '12'),
   slowPeriod: process.env.SMA_SLOW ? Number(process.env.SMA_SLOW) : null,
   orderQty: Number(process.env.SMA_ORDER_QTY || '1'),
-  optionContracts: Number(process.env.SMA_OPTION_CONTRACTS || '2'),
+  optionContracts: Number(process.env.SMA_OPTION_CONTRACTS || '1'),
   optionMinDte: Number(process.env.SMA_MIN_DTE || '3'),
   pollIntervalMs: Number(process.env.SMA_POLL_MS || '60000'),
   fillTimeoutMs: Number(process.env.SMA_FILL_TIMEOUT_MS || '15000'),
@@ -74,12 +90,31 @@ const CONFIG = {
   flattenMinutesBeforeClose: Number(process.env.SMA_FLATTEN_BEFORE_CLOSE || '5'),
   logFile: process.env.SMA_TRADE_LOG || './logs/sma-crossover-trades.jsonl',
   priceCross: process.env.SMA_PRICE_CROSS === 'true',
+  useSqueezeFilter: process.env.SMA_USE_SQUEEZE === 'false' ? false : true,
   twelveDataApiKey: process.env.TWELVE_DATA_API_KEY || '',
+  twelveDataBackupApiKey: process.env.TWELVE_DATA_BACKUP_API_KEY || '',
   twelveDataUrl: process.env.TWELVE_DATA_WS_URL || '',
   useTwelveData: process.env.SMA_USE_TWELVE_DATA
     ? process.env.SMA_USE_TWELVE_DATA === 'true'
     : !!process.env.TWELVE_DATA_API_KEY,
-  tradeMode: (process.env.SMA_TRADE_MODE || 'option').toLowerCase(),
+  tradeMode: (process.env.SMA_TRADE_MODE || 'stock').toLowerCase(),
+};
+
+CONFIG.timeframe = '1Min';
+CONFIG.priceCross = true;
+CONFIG.slowPeriod = null;
+CONFIG.tradeMode = 'option'; // Trade options (calls and puts) to match backtest
+
+const BOLLINGER_PERIOD = 20;
+const BOLLINGER_STD_DEV = 2;
+const KELTNER_PERIOD = 20;
+const KELTNER_MULTIPLIER = 1.5;
+
+const STRATEGY = {
+  tradeBudget: Number(process.env.SMA_TRADE_BUDGET || '200'),
+  leverage: Math.max(1, Number(process.env.SMA_LEVERAGE || '100')),
+  stopLossPercent: Math.max(0.0001, Number(process.env.SMA_STOP_LOSS_PCT || '1') / 100),
+  slippagePercent: Math.max(0, Number(process.env.SMA_SLIPPAGE_PCT || '0.03') / 100),
 };
 
 if (CONFIG.symbols.length === 0) {
@@ -105,7 +140,7 @@ if (!Number.isFinite(CONFIG.orderQty) || CONFIG.orderQty <= 0) {
   throw new Error('Invalid SMA_ORDER_QTY; must be positive.');
 }
 
-const USE_STOCK_TRADING = CONFIG.tradeMode === 'stock';
+const USE_STOCK_TRADING = false; // Trade options instead of stocks
 const OPTION_DATA_RETRY_MS = 5 * 60 * 1000;
 const OPTION_CACHE_MAX_AGE_MS =
   Number(process.env.ALPACA_OPTION_CACHE_MAX_AGE_MS || '') || DEFAULT_CACHE_MAX_AGE_MS;
@@ -113,7 +148,7 @@ const OPTION_EXPIRATION_EOD_SUFFIX = 'T21:00:00Z';
 
 const optionDataCooldownUntil = new Map<string, number>();
 
-type PriceBar = { t: string; c: number; partial?: boolean };
+type PriceBar = { t: string; o: number; h: number; l: number; c: number; partial?: boolean };
 
 const TIMEFRAME_MINUTES = parseTimeframeMinutes(CONFIG.timeframe);
 const USE_TWELVE_DATA_FEED =
@@ -131,19 +166,20 @@ if (CONFIG.useTwelveData && TIMEFRAME_MINUTES === null) {
   );
 }
 
-const TWELVE_DATA_MAX_MINUTE_BARS = Math.max(
+// For squeeze calculation we need at least 40 bars (20 Bollinger/Keltner + 20 momentum)
+// Request enough for a full trading day (390 minutes) to ensure we have data even at market open
+export const SMA_TWELVE_DATA_MAX_MINUTE_BARS = Math.max(
   (CONFIG.fastPeriod + (CONFIG.slowPeriod ?? CONFIG.fastPeriod)) * (TIMEFRAME_MINUTES ?? 1) * 3,
-  200,
+  390, // Full trading day worth of minute bars
 );
 
-const twelveDataFeed = USE_TWELVE_DATA_FEED
-  ? new TwelveDataPriceFeed({
-      apiKey: CONFIG.twelveDataApiKey,
-      symbols: CONFIG.symbols,
-      url: CONFIG.twelveDataUrl || undefined,
-      maxMinuteBars: TWELVE_DATA_MAX_MINUTE_BARS,
-    })
-  : null;
+let twelveDataFeed: TwelveDataPriceFeed | null = null;
+let twelveDataFeedOwned = false;
+let removePriceListener: (() => void) | null = null;
+let removeConnectionListener: (() => void) | null = null;
+let strategyHooks: StrategyHooks | undefined;
+let shouldExitProcessOnShutdown = true;
+let processSignalsRegistered = false;
 
 const LOG_DIR = path.dirname(CONFIG.logFile);
 
@@ -154,6 +190,63 @@ let realizedPnL = 0;
 let shuttingDown = false;
 let lastClock: { timestamp: string; is_open: boolean; next_open: string; next_close: string } | null =
   null;
+
+function notifyPnLUpdate() {
+  strategyHooks?.onPnLUpdate?.(SMA_STRATEGY_ID, realizedPnL);
+}
+
+function initializeTwelveDataFeed(providedFeed?: TwelveDataPriceFeed | null) {
+  if (providedFeed) {
+    twelveDataFeed = providedFeed;
+    twelveDataFeedOwned = false;
+    return;
+  }
+  if (USE_TWELVE_DATA_FEED) {
+    if (!CONFIG.twelveDataApiKey) {
+      twelveDataFeed = null;
+      twelveDataFeedOwned = false;
+      return;
+    }
+    twelveDataFeed = new TwelveDataPriceFeed({
+      apiKey: CONFIG.twelveDataApiKey,
+      backupApiKey: CONFIG.twelveDataBackupApiKey || undefined,
+      symbols: CONFIG.symbols,
+      url: CONFIG.twelveDataUrl || undefined,
+      maxMinuteBars: SMA_TWELVE_DATA_MAX_MINUTE_BARS,
+    });
+    twelveDataFeedOwned = true;
+    return;
+  }
+  twelveDataFeed = null;
+  twelveDataFeedOwned = false;
+}
+
+function detachFeedListeners() {
+  removePriceListener?.();
+  removePriceListener = null;
+  removeConnectionListener?.();
+  removeConnectionListener = null;
+}
+
+function registerProcessSignalHandlers() {
+  if (processSignalsRegistered) {
+    return;
+  }
+  process.on('SIGINT', () => {
+    shutdown('SIGINT').catch(err => {
+      console.error('Shutdown error', err);
+      process.exit(1);
+    });
+  });
+
+  process.on('SIGTERM', () => {
+    shutdown('SIGTERM').catch(err => {
+      console.error('Shutdown error', err);
+      process.exit(1);
+    });
+  });
+  processSignalsRegistered = true;
+}
 
 function getSymbolState(symbol: string): SymbolState {
   let state = symbolState.get(symbol);
@@ -235,10 +328,111 @@ function ensureLogDir() {
 function logTradeEvent(event: Record<string, any>) {
   try {
     ensureLogDir();
-    appendFileSync(CONFIG.logFile, `${JSON.stringify({ timestamp: nowIso(), ...event })}\n`);
+    const payload = { timestamp: nowIso(), ...event };
+    appendFileSync(CONFIG.logFile, `${JSON.stringify(payload)}\n`);
+    strategyHooks?.onTradeEvent?.(SMA_STRATEGY_ID, payload);
   } catch (err) {
     console.error('[trade-log] failed to write entry', err);
   }
+}
+
+function makeSeriesAccessor<T>(series: T[], offset: number) {
+  return (index: number): T | null => {
+    const relative = index - offset;
+    if (relative < 0 || relative >= series.length) {
+      return null;
+    }
+    return series[relative];
+  };
+}
+
+interface SqueezeResult {
+  isOn: boolean;
+  momentum: number;
+  bbMidpoint: number; // Bollinger Band midpoint for direction detection
+}
+
+function calculateSqueezeSeries(bars: PriceBar[]): Array<SqueezeResult | null> {
+  const closes = bars.map(bar => bar.c);
+  const highs = bars.map(bar => (bar.h ?? bar.c));
+  const lows = bars.map(bar => (bar.l ?? bar.c));
+
+  // Debug: Check if we have enough bars and valid data
+  if (bars.length < 40) {
+    console.log(`[squeeze] Not enough bars: ${bars.length} (need 40+)`);
+  } else {
+    const sampleBar = bars[bars.length - 1];
+    console.log(`[squeeze] Have ${bars.length} bars. Latest bar h=${sampleBar.h}, l=${sampleBar.l}, c=${sampleBar.c}`);
+  }
+
+  const bollingerSeries = BollingerBands.calculate({
+    values: closes,
+    period: BOLLINGER_PERIOD,
+    stdDev: BOLLINGER_STD_DEV,
+  });
+  const bollingerAccessor = makeSeriesAccessor(
+    bollingerSeries,
+    closes.length - bollingerSeries.length,
+  );
+
+  const emaSeries = EMA.calculate({ period: KELTNER_PERIOD, values: closes });
+  const emaAccessor = makeSeriesAccessor(emaSeries, closes.length - emaSeries.length);
+
+  const atrSeries = ATR.calculate({
+    period: KELTNER_PERIOD,
+    high: highs,
+    low: lows,
+    close: closes,
+  });
+  const atrAccessor = makeSeriesAccessor(atrSeries, closes.length - atrSeries.length);
+
+  // Calculate squeeze momentum using linear regression
+  const momentumLength = 20;
+  const momentum: Array<number | null> = closes.map((close, idx) => {
+    if (idx < momentumLength) return null;
+
+    // Linear regression of close prices
+    const prices = closes.slice(idx - momentumLength + 1, idx + 1);
+    const n = prices.length;
+    let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+
+    for (let i = 0; i < n; i++) {
+      sumX += i;
+      sumY += prices[i];
+      sumXY += i * prices[i];
+      sumX2 += i * i;
+    }
+
+    const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+    const intercept = (sumY - slope * sumX) / n;
+    const linReg = slope * (n - 1) + intercept;
+
+    // Momentum is the difference from the midpoint of Bollinger Bands
+    const bb = bollingerAccessor(idx);
+    if (!bb) return null;
+    const bbMid = (bb.upper + bb.lower) / 2;
+
+    return linReg - bbMid;
+  });
+
+  return closes.map((_, idx) => {
+    const bb = bollingerAccessor(idx);
+    const ema = emaAccessor(idx);
+    const atr = atrAccessor(idx);
+    const mom = momentum[idx];
+
+    if (!bb || ema == null || atr == null || mom == null) {
+      return null;
+    }
+
+    const range = atr * KELTNER_MULTIPLIER;
+    const upper = ema + range;
+    const lower = ema - range;
+    const isOn = bb.upper <= upper && bb.lower >= lower;
+    const bbMidpoint = (bb.upper + bb.lower) / 2;
+
+    return { isOn, momentum: mom, bbMidpoint };
+  });
 }
 
 function calculateSmaSeries(values: number[], period: number): Array<number | null> {
@@ -271,6 +465,9 @@ function parseTimeframeMinutes(value: string): number | null {
 function minuteBarToPriceBar(bar: MinuteBar): PriceBar {
   return {
     t: bar.t,
+    o: bar.o,
+    h: bar.h,
+    l: bar.l,
     c: bar.c,
     partial: bar.partial ?? false,
   };
@@ -278,6 +475,9 @@ function minuteBarToPriceBar(bar: MinuteBar): PriceBar {
 
 interface AggregatedBucket {
   startMs: number;
+  open: number;
+  high: number;
+  low: number;
   close: number;
   minuteStarts: Set<number>;
   partial: boolean;
@@ -302,12 +502,18 @@ function aggregateMinuteBars(minuteBars: MinuteBar[], minutesPerBar: number): Pr
     if (!bucket) {
       bucket = {
         startMs: bucketStart,
+        open: bar.o,
+        high: bar.h,
+        low: bar.l,
         close: bar.c,
         minuteStarts: new Set<number>(),
         partial: false,
       };
       buckets.set(bucketStart, bucket);
     }
+    bucket.high = Math.max(bucket.high, bar.h);
+    bucket.low = Math.min(bucket.low, bar.l);
+    // Update close each time to latest bar close
     bucket.close = bar.c;
     bucket.minuteStarts.add(minuteStart);
     bucket.partial = bucket.partial || !!bar.partial;
@@ -319,15 +525,84 @@ function aggregateMinuteBars(minuteBars: MinuteBar[], minutesPerBar: number): Pr
 
   return aggregated.map(bucket => ({
     t: new Date(bucket.startMs).toISOString(),
+    o: bucket.open,
+    h: bucket.high,
+    l: bucket.low,
     c: bucket.close,
     partial: bucket.partial || bucket.minuteStarts.size < minutesPerBar,
   }));
 }
 
+function updateBarsWithSnapshot(
+  bars: PriceBar[],
+  snapshot: RealtimePriceSnapshot | undefined,
+  maxBars: number,
+): PriceBar[] {
+  if (!snapshot) {
+    return bars;
+  }
+  const snapshotMinuteStart = Math.floor(snapshot.timestamp / 60_000) * 60_000;
+  if (!Number.isFinite(snapshotMinuteStart)) {
+    return bars;
+  }
+
+  if (bars.length === 0) {
+    return [
+      {
+        t: new Date(snapshotMinuteStart).toISOString(),
+        o: snapshot.price,
+        h: snapshot.price,
+        l: snapshot.price,
+        c: snapshot.price,
+        partial: true,
+      },
+    ];
+  }
+
+  const lastIndex = bars.length - 1;
+  const lastBarTime = Date.parse(bars[lastIndex].t);
+  if (!Number.isFinite(lastBarTime)) {
+    return bars;
+  }
+
+  if (snapshotMinuteStart < lastBarTime) {
+    return bars;
+  }
+
+  if (snapshotMinuteStart === lastBarTime) {
+    const updated = [...bars];
+    const lastBar = { ...updated[lastIndex] };
+    const price = snapshot.price;
+    lastBar.partial = true;
+    lastBar.c = price;
+    const existingHigh = lastBar.h ?? price;
+    const existingLow = lastBar.l ?? price;
+    lastBar.h = Math.max(existingHigh, price);
+    lastBar.l = Math.min(existingLow, price);
+    updated[lastIndex] = lastBar;
+    return updated;
+  }
+
+  const previousClose = bars[lastIndex].c ?? snapshot.price;
+  const newBar: PriceBar = {
+    t: new Date(snapshotMinuteStart).toISOString(),
+    o: previousClose,
+    h: snapshot.price,
+    l: snapshot.price,
+    c: snapshot.price,
+    partial: true,
+  };
+  const extended = [...bars, newBar];
+  if (extended.length > maxBars) {
+    return extended.slice(-maxBars);
+  }
+  return extended;
+}
+
 async function loadRecentBars(symbol: string, minBars: number): Promise<PriceBar[]> {
   const required = Math.max(minBars, 1);
 
-  if (USE_TWELVE_DATA_FEED && twelveDataFeed) {
+  if (twelveDataFeed) {
     const minutesPerBar = TIMEFRAME_MINUTES ?? 1;
     const buffer = Math.max(5, minutesPerBar * 2);
     const minuteBarsNeeded = (required + buffer) * minutesPerBar;
@@ -347,6 +622,9 @@ async function loadRecentBars(symbol: string, minBars: number): Promise<PriceBar
   });
   return alpacaBars.map(bar => ({
     t: bar.t,
+    o: bar.o,
+    h: bar.h,
+    l: bar.l,
     c: bar.c,
   }));
 }
@@ -674,6 +952,10 @@ async function syncExistingPositions() {
             entryOrderId: 'existing-position',
             instrument: 'stock',
             multiplier: 1,
+            capitalUsed: STRATEGY.tradeBudget,
+            notionalExposure: qty * Number(position.avg_entry_price),
+            entrySma: Number(position.avg_entry_price),
+            squeezeOnEntry: false,
           };
           positions.set(symbol, existing);
           log(symbol, `Detected existing LONG position (${qty} @ ${existing.entryPrice.toFixed(2)})`);
@@ -697,19 +979,14 @@ async function syncExistingPositions() {
   }
 }
 
-async function openLongPosition(
-  symbol: string,
-  priceContext: number,
-  fastSma: number,
-  slowSma: number | null,
-) {
+async function openLongPosition(symbol: string, priceContext: number, fastSma: number, squeezeOn: boolean, optionType: 'call' | 'put' = 'call') {
   if (positions.has(symbol)) {
     return;
   }
   if (USE_STOCK_TRADING) {
-    await openLongStockPosition(symbol, priceContext, fastSma, slowSma);
+    await openLongStockPosition(symbol, priceContext, fastSma, squeezeOn);
   } else {
-    await openLongOptionPosition(symbol, priceContext, fastSma, slowSma);
+    await openOptionPosition(symbol, priceContext, fastSma, null, optionType);
   }
 }
 
@@ -717,9 +994,15 @@ async function openLongStockPosition(
   symbol: string,
   priceContext: number,
   fastSma: number,
-  slowSma: number | null,
+  squeezeOn: boolean,
 ) {
-  const qty = CONFIG.orderQty;
+  const targetPrice = priceContext * (1 + STRATEGY.slippagePercent);
+  const desiredExposure = STRATEGY.tradeBudget * STRATEGY.leverage;
+  const qty = Math.max(1, Math.floor(desiredExposure / targetPrice));
+  if (!Number.isFinite(qty) || qty <= 0) {
+    log(symbol, `Calculated quantity invalid (${qty}); skipping entry.`);
+    return;
+  }
   const order = await submitOrder({
     symbol,
     side: 'buy',
@@ -749,10 +1032,18 @@ async function openLongStockPosition(
     entryOrderId: order.id,
     instrument: 'stock',
     multiplier: 1,
+    capitalUsed: STRATEGY.tradeBudget,
+    notionalExposure: (fill.avgPrice || priceContext) * fill.filledQty,
+    entrySma: fastSma,
+    squeezeOnEntry: squeezeOn,
   };
   positions.set(symbol, position);
-  const slowText = slowSma != null ? ` > slow ${slowSma.toFixed(2)}` : '';
-  log(symbol, `Entered LONG ${fill.filledQty} @ ${position.entryPrice.toFixed(2)} (price above SMA${CONFIG.fastPeriod}${slowText})`);
+  log(
+    symbol,
+    `Entered LONG ${fill.filledQty} @ ${position.entryPrice.toFixed(
+      2,
+    )} (price above SMA${CONFIG.fastPeriod} | squeeze OFF)`,
+  );
   logTradeEvent({
     type: 'entry',
     instrument: 'stock',
@@ -760,18 +1051,22 @@ async function openLongStockPosition(
     side: 'long',
     qty: fill.filledQty,
     entryPrice: position.entryPrice,
+    capitalUsed: position.capitalUsed,
+    notionalExposure: position.notionalExposure,
+    entrySma: fastSma,
+    squeezeOn,
     entryOrderId: order.id,
     priceContext,
     fastSma,
-    slowSma,
   });
 }
 
-async function openLongOptionPosition(
+async function openOptionPosition(
   symbol: string,
   priceContext: number,
   fastSma: number,
   slowSma: number | null,
+  optionType: 'call' | 'put',
 ) {
   const contracts = CONFIG.optionContracts;
   if (contracts <= 0) {
@@ -780,7 +1075,7 @@ async function openLongOptionPosition(
   }
   const contract = await selectOptionContract(
     symbol,
-    'call',
+    optionType,
     priceContext,
     Math.max(1, CONFIG.optionMinDte),
   );
@@ -790,7 +1085,7 @@ async function openLongOptionPosition(
   }
   log(
     symbol,
-    `Attempting LONG option entry ${contract.symbol} (${contracts} contracts) with underlying ${priceContext.toFixed(
+    `Attempting option entry ${contract.symbol} (${contracts} contracts) with underlying ${priceContext.toFixed(
       2,
     )}`,
   );
@@ -821,13 +1116,13 @@ async function openLongOptionPosition(
     optionSymbol: contract.symbol,
     optionStrike: contract.strike_price,
     optionExpiration: contract.expiration_date,
-    optionType: 'call',
+    optionType,
   };
   positions.set(symbol, position);
-  const slowText = slowSma != null ? ` > slow ${slowSma.toFixed(2)}` : '';
+  const slowText = '';
   log(
     symbol,
-    `Entered LONG option ${contract.symbol} (${fill.filledQty} @ ${fill.avgPrice.toFixed(
+    `Entered option ${contract.symbol} (${fill.filledQty} @ ${fill.avgPrice.toFixed(
       2,
     )}) (price above SMA${CONFIG.fastPeriod}${slowText})`,
   );
@@ -844,16 +1139,14 @@ async function openLongOptionPosition(
     entryOrderId: position.entryOrderId,
     priceContext,
     fastSma,
-    slowSma,
   });
 }
 
 async function closeLongPosition(
   symbol: string,
-  reason: 'bearish_cross' | 'flatten' | 'shutdown',
+  reason: 'bearish_cross' | 'bullish_cross' | 'flatten' | 'shutdown' | 'stop_loss',
   priceContext: number,
   fastSma: number | null,
-  slowSma: number | null,
 ) {
   const position = positions.get(symbol);
   if (!position) {
@@ -887,6 +1180,7 @@ async function closeLongPosition(
     const exitPrice = fill.avgPrice || priceContext;
     const pnl = (exitPrice - position.entryPrice) * fill.filledQty;
     realizedPnL += pnl;
+    notifyPnLUpdate();
 
     log(
       symbol,
@@ -904,10 +1198,13 @@ async function closeLongPosition(
       entryTime: position.entryTime,
       exitTime: nowIso(),
       pnl,
-      pnlPct: position.entryPrice !== 0 ? pnl / (position.entryPrice * fill.filledQty) : 0,
+      pnlPct: position.capitalUsed ? pnl / position.capitalUsed : 0,
       fastSma,
-      slowSma,
       priceContext,
+      capitalUsed: position.capitalUsed,
+      notionalExposure: position.notionalExposure,
+      entrySma: position.entrySma,
+      squeezeOnEntry: position.squeezeOnEntry,
       realizedPnLTally: realizedPnL,
     });
 
@@ -943,6 +1240,7 @@ async function closeLongPosition(
   const entryPremium = position.entryPremium ?? 0;
   const pnl = (exitPremium - entryPremium) * fill.filledQty * position.multiplier;
   realizedPnL += pnl;
+  notifyPnLUpdate();
 
   log(
     symbol,
@@ -965,7 +1263,6 @@ async function closeLongPosition(
     entryTime: position.entryTime,
     pnl,
     fastSma,
-    slowSma,
     realizedPnLTally: realizedPnL,
   });
 
@@ -990,7 +1287,8 @@ async function evaluateSymbol(symbol: string, flattenNow: boolean) {
   }
 
   const requiredBars = Math.max(CONFIG.fastPeriod, CONFIG.slowPeriod ?? CONFIG.fastPeriod);
-  const fetchCount = requiredBars + 2;
+  // Squeeze needs 40+ bars (20 Bollinger/Keltner + 20 momentum), request more than minimum
+  const fetchCount = Math.max(requiredBars + 2, 50);
 
   let bars: PriceBar[];
   try {
@@ -1008,6 +1306,16 @@ async function evaluateSymbol(symbol: string, flattenNow: boolean) {
     return;
   }
 
+  let snapshot: RealtimePriceSnapshot | undefined;
+  const snapshotRecencyMs = Math.max(CONFIG.pollIntervalMs * 2, 30_000);
+  if (twelveDataFeed) {
+    const latestSnapshot = twelveDataFeed.getSnapshot(symbol);
+    if (latestSnapshot && Date.now() - latestSnapshot.timestamp <= snapshotRecencyMs) {
+      bars = updateBarsWithSnapshot(bars, latestSnapshot, fetchCount);
+      snapshot = latestSnapshot;
+    }
+  }
+
   const closes = bars.map(bar => bar.c);
   const lastIdx = closes.length - 1;
   const prevIdx = closes.length - 2;
@@ -1016,67 +1324,67 @@ async function evaluateSymbol(symbol: string, flattenNow: boolean) {
 
   let currentPrice = barClose;
   let priceSource: 'bar' | 'snapshot' = 'bar';
-  if (USE_TWELVE_DATA_FEED && twelveDataFeed) {
-    const snapshot = twelveDataFeed.getSnapshot(symbol);
-    if (snapshot && Date.now() - snapshot.timestamp <= Math.max(CONFIG.pollIntervalMs * 2, 30_000)) {
-      currentPrice = snapshot.price;
-      priceSource = 'snapshot';
-    }
+  if (snapshot) {
+    currentPrice = snapshot.price;
+    priceSource = 'snapshot';
   }
 
   closes[lastIdx] = currentPrice;
 
+  const updatedLastBar = { ...bars[lastIdx] };
+  const high = updatedLastBar.h ?? currentPrice;
+  const low = updatedLastBar.l ?? currentPrice;
+  updatedLastBar.c = currentPrice;
+  updatedLastBar.h = Math.max(high, currentPrice);
+  updatedLastBar.l = Math.min(low, currentPrice);
+  if (priceSource === 'snapshot') {
+    updatedLastBar.partial = true;
+  }
+  bars[lastIdx] = updatedLastBar;
+
   const fastSeries = calculateSmaSeries(closes, CONFIG.fastPeriod);
-  const slowSeries = CONFIG.slowPeriod ? calculateSmaSeries(closes, CONFIG.slowPeriod) : null;
-
   const fastCurr = fastSeries[lastIdx];
-  const slowCurr = slowSeries ? slowSeries[lastIdx] : null;
   const fastPrev = fastSeries[prevIdx];
-  const slowPrev = slowSeries ? slowSeries[prevIdx] : null;
 
-  if (
-    fastCurr == null ||
-    fastPrev == null ||
-    (!CONFIG.priceCross && (slowCurr == null || slowPrev == null))
-  ) {
-    log(
-      symbol,
-      `Waiting for enough bars to compute SMA(${CONFIG.fastPeriod})${
-        CONFIG.priceCross ? '' : ` and SMA(${CONFIG.slowPeriod})`
-      }`,
-    );
+  if (fastCurr == null || fastPrev == null) {
+    log(symbol, `Waiting for enough bars to compute SMA(${CONFIG.fastPeriod})`);
     return;
+  }
+
+  const squeezeSeries = calculateSqueezeSeries(bars);
+  const squeezeCurr = squeezeSeries[lastIdx];
+
+  // Debug: Check why squeeze is N/A
+  if (!squeezeCurr && bars.length >= 40) {
+    const testBar = bars[0];
+    log(symbol, `DEBUG: squeeze N/A with ${bars.length} bars. Sample bar has h=${testBar.h}, l=${testBar.l}`);
   }
 
   const priorPrice = closes[prevIdx];
 
-  let currentRelation: DirectionRelation;
-  let priorRelation: DirectionRelation;
-
-  if (CONFIG.priceCross) {
-    currentRelation = currentPrice > fastCurr ? 'above' : 'below';
-    priorRelation = state.lastRelation ?? (priorPrice > fastPrev ? 'above' : 'below');
-  } else {
-    currentRelation = fastCurr > (slowCurr as number) ? 'above' : 'below';
-    priorRelation = state.lastRelation ?? (fastPrev > (slowPrev as number) ? 'above' : 'below');
-  }
+  const currentRelation: DirectionRelation = currentPrice > fastCurr ? 'above' : 'below';
+  const priorRelation: DirectionRelation =
+    state.lastRelation ?? (priorPrice > fastPrev ? 'above' : 'below');
 
   const lastBarTime = bars[lastIdx].t;
   state.lastRelation = currentRelation;
   state.lastBarTime = lastBarTime;
 
-  const slowText = slowCurr != null ? ` | SMA(${CONFIG.slowPeriod}) ${slowCurr.toFixed(2)}` : '';
   const partialText = bars[lastIdx]?.partial ? ' (partial)' : '';
   const priceSourceText = priceSource === 'snapshot' ? 'snapshot' : 'bar';
+  const squeezeStatus = squeezeCurr
+    ? `${squeezeCurr.isOn ? 'ON' : 'OFF'} | direction ${currentPrice >= squeezeCurr.bbMidpoint ? 'bullish' : 'bearish'} (price ${currentPrice.toFixed(2)} vs BB mid ${squeezeCurr.bbMidpoint.toFixed(2)})`
+    : 'N/A';
+
   log(
     symbol,
     `Bar ${lastBarTime}${partialText} close ${barClose.toFixed(2)} | SMA(${CONFIG.fastPeriod}) ${fastCurr.toFixed(
       2,
-    )}${slowText} | latest ${currentPrice.toFixed(2)} (${priceSourceText})`,
+    )} | latest ${currentPrice.toFixed(2)} (${priceSourceText}) | squeeze ${squeezeStatus}`,
   );
 
   if (flattenNow && positions.has(symbol)) {
-    await closeLongPosition(symbol, 'flatten', currentPrice, fastCurr, slowCurr);
+    await closeLongPosition(symbol, 'flatten', currentPrice, fastCurr);
     return;
   }
 
@@ -1084,82 +1392,146 @@ async function evaluateSymbol(symbol: string, flattenNow: boolean) {
     return;
   }
 
-  if (priorRelation !== currentRelation) {
-    if (currentRelation === 'above') {
-      await openLongPosition(symbol, currentPrice, fastCurr, slowCurr);
-    } else if (positions.has(symbol)) {
-      await closeLongPosition(symbol, 'bearish_cross', currentPrice, fastCurr, slowCurr);
+  let activePosition = positions.get(symbol);
+  let exitedDueToStop = false;
+
+  if (activePosition) {
+    const drawdown = (currentPrice - activePosition.entryPrice) / activePosition.entryPrice;
+    if (drawdown <= -STRATEGY.stopLossPercent) {
+      await closeLongPosition(symbol, 'stop_loss', currentPrice, fastCurr);
+      exitedDueToStop = true;
     }
-  } else if (positions.has(symbol)) {
-    const entry = positions.get(symbol)!;
-    if (entry.instrument === 'stock') {
-      const unrealized = (currentPrice - entry.entryPrice) * entry.qty;
+    if (!exitedDueToStop) {
+      const crossedUp = priorRelation === 'below' && currentRelation === 'above';
+      const crossedDown = priorRelation === 'above' && currentRelation === 'below';
+      const isPutPosition = activePosition.optionType === 'put';
+      const isCallOrStock = !isPutPosition;
+      const shouldExitOnCross =
+        (isPutPosition && crossedUp) || (isCallOrStock && crossedDown);
+      if (shouldExitOnCross) {
+        const crossReason: 'bearish_cross' | 'bullish_cross' = isPutPosition ? 'bullish_cross' : 'bearish_cross';
+        await closeLongPosition(symbol, crossReason, currentPrice, fastCurr);
+      }
+    }
+
+    activePosition = positions.get(symbol);
+    if (activePosition) {
+      if (exitedDueToStop) {
+        return;
+      }
+      const unrealized = (currentPrice - activePosition.entryPrice) * activePosition.qty;
       log(
         symbol,
-        `Holding ${entry.qty} @ ${entry.entryPrice.toFixed(2)} | Last ${currentPrice.toFixed(
+        `Holding ${activePosition.qty} @ ${activePosition.entryPrice.toFixed(
           2,
-        )} | Unrealized ${unrealized.toFixed(2)}`,
+        )} | Last ${currentPrice.toFixed(2)} | Unrealized ${unrealized.toFixed(2)}`,
       );
-    } else {
-      log(
-        symbol,
-        `Holding option ${entry.optionSymbol} (${entry.qty} contracts) | Underlying ${currentPrice.toFixed(
-          2,
-        )} | Entry premium ${entry.entryPremium?.toFixed(2) ?? 'n/a'}`,
-      );
+      return;
     }
+    if (exitedDueToStop) {
+      return;
+    }
+  }
+
+  // Bullish cross - enter CALL position
+  if (priorRelation === 'below' && currentRelation === 'above') {
+    if (CONFIG.useSqueezeFilter) {
+      if (!squeezeCurr || squeezeCurr.isOn) {
+        log(symbol, 'Bullish cross detected but squeeze not expanded (OFF); skipping entry.');
+        return;
+      }
+      const squeezeDirection = currentPrice >= squeezeCurr.bbMidpoint ? 'bullish' : 'bearish';
+      if (squeezeDirection !== 'bullish') {
+        log(symbol, `Bullish cross detected but squeeze direction is ${squeezeDirection} (price ${currentPrice.toFixed(2)} vs BB mid ${squeezeCurr.bbMidpoint.toFixed(2)}); skipping entry.`);
+        return;
+      }
+    }
+    await openLongPosition(symbol, fastCurr, fastCurr, squeezeCurr?.isOn ?? false, 'call');
+  }
+
+  // Bearish cross - enter PUT position
+  if (priorRelation === 'above' && currentRelation === 'below') {
+    if (CONFIG.useSqueezeFilter) {
+      if (!squeezeCurr || squeezeCurr.isOn) {
+        log(symbol, 'Bearish cross detected but squeeze not expanded (OFF); skipping entry.');
+        return;
+      }
+      const squeezeDirection = currentPrice >= squeezeCurr.bbMidpoint ? 'bullish' : 'bearish';
+      if (squeezeDirection !== 'bearish') {
+        log(symbol, `Bearish cross detected but squeeze direction is ${squeezeDirection} (price ${currentPrice.toFixed(2)} vs BB mid ${squeezeCurr.bbMidpoint.toFixed(2)}); skipping entry.`);
+        return;
+      }
+    }
+    await openLongPosition(symbol, fastCurr, fastCurr, squeezeCurr?.isOn ?? false, 'put');
   }
 }
 
-async function shutdown(reason: 'SIGINT' | 'SIGTERM') {
+async function shutdown(reason: 'SIGINT' | 'SIGTERM' | 'external', exitProcess = true) {
   if (shuttingDown) return;
   shuttingDown = true;
   log('system', `Shutting down (${reason}); attempting to flatten open positions...`);
-  if (twelveDataFeed) {
+  detachFeedListeners();
+  if (twelveDataFeed && twelveDataFeedOwned) {
     twelveDataFeed.stop();
   }
   for (const symbol of CONFIG.symbols) {
     if (positions.has(symbol)) {
       try {
-        await closeLongPosition(symbol, 'shutdown', positions.get(symbol)!.entryPrice, null, null);
+        await closeLongPosition(symbol, 'shutdown', positions.get(symbol)!.entryPrice, null);
       } catch (err) {
         log(symbol, `Failed to flatten during shutdown: ${(err as Error).message}`);
       }
     }
   }
   log('system', `Shutdown complete. Realized PnL: ${realizedPnL.toFixed(2)}`);
-  process.exit(0);
+  if (exitProcess && shouldExitProcessOnShutdown) {
+    process.exit(0);
+  }
 }
 
-process.on('SIGINT', () => {
-  shutdown('SIGINT').catch(err => {
-    console.error('Shutdown error', err);
-    process.exit(1);
-  });
-});
-
-process.on('SIGTERM', () => {
-  shutdown('SIGTERM').catch(err => {
-    console.error('Shutdown error', err);
-    process.exit(1);
-  });
-});
+export function startSmaCrossoverStrategy(options: SmaStrategyOptions = {}): RunningStrategy {
+  strategyHooks = options.hooks;
+  shouldExitProcessOnShutdown = options.manageProcessSignals !== false;
+  realizedPnL = 0;
+  shuttingDown = false;
+  notifyPnLUpdate();
+  positions.clear();
+  symbolState.clear();
+  lastClock = null;
+  initializeTwelveDataFeed(options.feed ?? null);
+  if (options.manageProcessSignals !== false) {
+    registerProcessSignalHandlers();
+  }
+  const task = main();
+  return {
+    task,
+    shutdown: (reason: 'SIGINT' | 'SIGTERM' | 'external' = 'external') =>
+      shutdown(reason, false),
+  };
+}
 
 async function main() {
   console.log('Starting SMA crossover live trader with config:', CONFIG);
   if (twelveDataFeed) {
-    try {
-      log('system', 'Bootstrapping Twelve Data price feed...');
-      await twelveDataFeed.bootstrap();
-    } catch (err) {
-      log('system', `Twelve Data bootstrap failed: ${(err as Error).message}`);
+    if (twelveDataFeedOwned) {
+      try {
+        log('system', 'Bootstrapping Twelve Data price feed...');
+        await twelveDataFeed.bootstrap();
+      } catch (err) {
+        log('system', `Twelve Data bootstrap failed: ${(err as Error).message}`);
+      }
+      twelveDataFeed.start();
+      log('system', 'Streaming prices via Twelve Data WebSocket feed');
+    } else {
+      log('system', 'Using shared Twelve Data price feed instance');
     }
-    twelveDataFeed.start();
-    log('system', 'Streaming prices via Twelve Data WebSocket feed');
-    twelveDataFeed.onPrice(symbol => {
+    removePriceListener = twelveDataFeed.onPrice(symbol => {
+      if (!CONFIG.symbols.includes(symbol)) {
+        return;
+      }
       scheduleSymbolEvaluation(symbol);
     });
-    twelveDataFeed.onConnection((status, info) => {
+    removeConnectionListener = twelveDataFeed.onConnection((status, info) => {
       if (status === 'open') {
         log('system', '[twelve-data] connection open');
       } else if (status === 'close') {
@@ -1176,7 +1548,7 @@ async function main() {
     scheduleSymbolEvaluation(symbol);
   }
 
-  while (true) {
+  while (!shuttingDown) {
     let clock;
     try {
       clock = await getClock();
@@ -1207,7 +1579,19 @@ async function main() {
   }
 }
 
-main().catch(err => {
-  console.error('Fatal error in SMA crossover runner:', err);
-  process.exit(1);
-});
+let invokedAsScript = false;
+if (typeof process !== 'undefined' && Array.isArray(process.argv) && process.argv[1]) {
+  try {
+    invokedAsScript = import.meta.url === pathToFileURL(process.argv[1]).href;
+  } catch {
+    invokedAsScript = false;
+  }
+}
+
+if (invokedAsScript) {
+  const runner = startSmaCrossoverStrategy();
+  runner.task.catch(err => {
+    console.error('Fatal error in SMA crossover runner:', err);
+    process.exit(1);
+  });
+}

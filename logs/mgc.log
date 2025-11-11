@@ -1,0 +1,70 @@
+
+================================================================================
+TOPSTEPX LIVE MGC WINNER STRATEGY - ENHANCED VERSION
+================================================================================
+Symbol: MGCZ5
+BB Period: 20 bars | Std Dev: 3
+RSI Period: 24 | Oversold: 30 | Overbought: 70
+Stop Loss: 0.010% | Take Profit: 0.050%
+Contracts: 3
+Daily Loss Limit: $2000
+Dashboard: http://localhost:3335
+================================================================================
+[2025-11-11T22:36:07.256Z][MGCZ5] Main function started.
+[2025-11-11T22:36:07.258Z][MGCZ5] Resolving contract metadata...
+[2025-11-11T22:36:07.281Z][MGCZ5] Dashboard server running on http://localhost:3335
+[2025-11-11T22:36:07.281Z][MGCZ5] ⚠️ Trading is DISABLED by default. Use dashboard to start trading.
+[2025-11-11T22:36:07.589Z][MGCZ5] Resolved contract: MGCZ5 (CON.F.US.MGC.Z25)
+[2025-11-11T22:36:07.589Z][MGCZ5] Point multiplier: 10
+[2025-11-11T22:36:07.589Z][MGCZ5] Tick size: 0.1
+[2025-11-11T22:36:07.589Z][MGCZ5] Commission/side: 1.62 USD
+[2025-11-11T22:36:07.589Z][MGCZ5] Resolving account ID...
+[2025-11-11T22:36:07.589Z][MGCZ5] Creating ProjectX REST client...
+[2025-11-11T22:36:07.590Z][MGCZ5] Using TopstepX account 13056702
+[2025-11-11T22:36:07.590Z][MGCZ5] Fetching initial 250 1-minute bars for bootstrap...
+[2025-11-11T22:36:07.659Z][MGCZ5] Loaded 213 initial bars
+[2025-11-11T22:36:07.677Z][MGCZ5] Bootstrap complete. Indicators calculated for 189 bars
+[2025-11-11T22:36:07.741Z][MGCZ5] Account balance: $46654.52
+[2025-11-11T22:36:07.741Z][MGCZ5] Starting live streaming...
+[2025-11-11T22:36:07.741Z][MGCZ5] Registering shutdown handlers...
+[2025-11-11T22:36:07.741Z][MGCZ5] Starting user stream...
+[2025-11-11T22:36:07.972Z] Information: WebSocket connected to wss://rtc.topstepx.com/hubs/user?access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjM3NzM5MCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL3NpZCI6ImY2MGQzMTA0LWU5NmYtNDVlYi1iZWY5LWU0NjcyODAxNTExZiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJjb3N0YWJlYXRzQGdtYWlsLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6InVzZXIiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2F1dGhlbnRpY2F0aW9ubWV0aG9kIjoiYXBpLWtleSIsIm1zZCI6IkNNRUdST1VQX1RPQiIsIm1mYSI6InZlcmlmaWVkIiwiZXhwIjoxNzYyOTg2OTY3fQ.1lK_vRMQI3Ql2voAQ5cZA3oCwnOk-NLqCpl1AkNslag.
+[2025-11-11T22:36:07.973Z] Information: Using HubProtocol 'json'.
+[2025-11-11T22:36:08.024Z][MGCZ5] TopstepX user hub connected
+[2025-11-11T22:36:08.025Z][MGCZ5] Starting market stream...
+[2025-11-11T22:36:08.249Z] Information: WebSocket connected to wss://rtc.topstepx.com/hubs/market?access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjM3NzM5MCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL3NpZCI6ImY2MGQzMTA0LWU5NmYtNDVlYi1iZWY5LWU0NjcyODAxNTExZiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJjb3N0YWJlYXRzQGdtYWlsLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6InVzZXIiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2F1dGhlbnRpY2F0aW9ubWV0aG9kIjoiYXBpLWtleSIsIm1zZCI6IkNNRUdST1VQX1RPQiIsIm1mYSI6InZlcmlmaWVkIiwiZXhwIjoxNzYyOTg2OTY3fQ.1lK_vRMQI3Ql2voAQ5cZA3oCwnOk-NLqCpl1AkNslag.
+[2025-11-11T22:36:08.249Z] Information: Using HubProtocol 'json'.
+[2025-11-11T22:36:08.303Z][MGCZ5] TopstepX market hub connected
+[2025-11-11T22:36:08.303Z][MGCZ5] Live streaming started. Strategy is running...
+[2025-11-11T22:36:08.303Z][MGCZ5] Dashboard available at: http://localhost:3335
+[2025-11-11T22:36:08.664Z][MGCZ5] Dashboard client connected: p1O8iqhaAM6petClAAAB
+[2025-11-11T22:36:08.665Z][MGCZ5] [SOCKET] Sending 189 bars to dashboard client p1O8iqhaAM6petClAAAB (189 total, 0 filtered)
+[2025-11-11T22:36:10.944Z] Warning: No client method with the name 'gatewaylogout' found.
+[2025-11-11T22:36:10.945Z] Warning: No client method with the name 'gatewaylogout' found.
+[2025-11-11T22:36:12.073Z][MGCZ5] Dashboard client connected: W1q6MB02Rt4_rv59AAAD
+[2025-11-11T22:36:12.078Z][MGCZ5] [SOCKET] Sending 189 bars to dashboard client W1q6MB02Rt4_rv59AAAD (189 total, 0 filtered)
+[2025-11-11T22:36:30.990Z][MGCZ5] Dashboard client disconnected: p1O8iqhaAM6petClAAAB
+[2025-11-11T22:36:31.008Z][MGCZ5] Dashboard client disconnected: W1q6MB02Rt4_rv59AAAD
+[2025-11-11T22:36:32.925Z][MGCZ5] Dashboard client connected: UtQUBo4dKrouxVzRAAAG
+[2025-11-11T22:36:32.925Z][MGCZ5] [SOCKET] Sending 189 bars to dashboard client UtQUBo4dKrouxVzRAAAG (189 total, 0 filtered)
+[2025-11-11T22:36:32.932Z][MGCZ5] Dashboard client connected: -zPNfSmAk4rjaM21AAAH
+[2025-11-11T22:36:32.932Z][MGCZ5] [SOCKET] Sending 189 bars to dashboard client -zPNfSmAk4rjaM21AAAH (189 total, 0 filtered)
+[2025-11-11T22:36:40.728Z][MGCZ5] [CONTROL] Trading STARTED via dashboard | Account: 13056702
+[2025-11-11T22:37:05.088Z][MGCZ5] [CONTROL] Trading STOPPED via dashboard | Account: 13056702
+[2025-11-11T22:37:16.529Z][MGCZ5] [ACCOUNT] Switching account: 13056702 -> 13230351
+[2025-11-11T22:37:16.532Z][MGCZ5] [ACCOUNT] Order manager recreated for account 13230351
+[2025-11-11T22:37:16.580Z][MGCZ5] [ACCOUNT] Account status updated: Balance 99668.23, Daily P&L 0
+[2025-11-11T22:37:16.581Z][MGCZ5] [ACCOUNT] Successfully switched to account 13230351
+[2025-11-11T22:37:22.358Z][MGCZ5] [CONTROL] Trading STARTED via dashboard | Account: 13230351
+[2025-11-11T22:38:12.582Z][MGCZ5] [CONTROL] Trading STOPPED via dashboard | Account: 13230351
+[2025-11-11T22:38:24.442Z][MGCZ5] [ACCOUNT] Switching account: 13230351 -> 14010588
+[2025-11-11T22:38:24.443Z][MGCZ5] [ACCOUNT] Order manager recreated for account 14010588
+[2025-11-11T22:38:24.492Z][MGCZ5] [ACCOUNT] Account status updated: Balance 50000, Daily P&L 0
+[2025-11-11T22:38:24.493Z][MGCZ5] [ACCOUNT] Successfully switched to account 14010588
+[2025-11-11T22:38:35.234Z][MGCZ5] [CONTROL] Trading STARTED via dashboard | Account: 14010588
+[2025-11-11T22:38:39.624Z][MGCZ5] [CONTROL] Trading STOPPED via dashboard | Account: 14010588
+[2025-11-11T22:38:44.698Z][MGCZ5] [ACCOUNT] Switching account: 14010588 -> 13056702
+[2025-11-11T22:38:44.698Z][MGCZ5] [ACCOUNT] Order manager recreated for account 13056702
+[2025-11-11T22:38:44.753Z][MGCZ5] [ACCOUNT] Account status updated: Balance 46654.52, Daily P&L 0
+[2025-11-11T22:38:44.753Z][MGCZ5] [ACCOUNT] Successfully switched to account 13056702
+[2025-11-11T22:38:50.709Z][MGCZ5] [CONTROL] Trading STARTED via dashboard | Account: 13056702

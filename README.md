@@ -29,6 +29,18 @@ An intelligent trading analysis web application powered by OpenAI that integrate
   - Intraday: Day trading opportunities
   - Swing: Multi-day positions
 
+## Live TopstepX SMA Strategy
+
+`live-topstepx-sma-bracket.ts` streams TopstepX futures data over WebSocket, bootstraps the SMA/RSI indicators with historical minute bars, and manages three resting exits (take-profit limit, stop-limit, and a SMA-trailing stop-limit) with automatic market fallbacks if price trades through without a fill. Configure the usual TopstepX credentials plus optional tuning variables:
+
+- `TOPSTEPX_BOOTSTRAP_MINUTES` (`600` default) – historical minutes pulled before the feed starts.
+- `TOPSTEPX_HIST_REFRESH_MINUTES` (`15`) – cadence for re-syncing candles via REST.
+- `TOPSTEPX_SMA_FOLLOWER_OFFSET_TICKS` (`1`) – tick offset for the SMA follower stop-limit.
+- `TOPSTEPX_LIMIT_BREACH_GRACE_MS` (`5000`) – grace window before forcing a market exit when a limit should have filled.
+- `TOPSTEPX_TICK_SIZE` when contract metadata is unavailable.
+
+Run it with `npx ts-node live-topstepx-sma-bracket.ts` (or the compiled JS) once `TOPSTEPX_API_KEY`, `PROJECTX_JWT`, `TOPSTEPX_CONTRACT_ID`, `TOPSTEPX_ACCOUNT_ID`, and related risk parameters are set.
+
 ## Regime Backtesting
 
 - API: `GET /api/regime/backtest`

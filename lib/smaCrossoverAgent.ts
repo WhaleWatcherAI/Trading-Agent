@@ -4,6 +4,7 @@ import { getOptionsChain } from './tradier';
 import { getHistoricalData } from './technicals';
 import { TradeSignal, OptionsTrade } from '@/types';
 import { getCached, setCache } from './dataCache';
+import { calculateTtmSqueeze } from './ttmSqueeze';
 
 interface SmaCrossoverStrategyOptions {
   symbol: string;
@@ -56,8 +57,27 @@ export async function runSmaCrossoverStrategy(options: SmaCrossoverStrategyOptio
     return null;
   }
 
+  const ttmSqueeze = calculateTtmSqueeze(history);
+
+  if (!ttmSqueeze) {
+    console.warn(`Insufficient data to calculate TTM Squeeze for ${symbol}`);
+    return null;
+  }
+
+  if (!ttmSqueeze.squeezeOff) {
+    return null; // Require squeeze to be off before taking trades
+  }
+
   const direction = crossesUp ? 'bullish' : 'bearish';
   const optionType = crossesUp ? 'call' : 'put';
+
+  if (crossesUp && ttmSqueeze.sentiment !== 'bullish') {
+    return null;
+  }
+
+  if (crossesDown && ttmSqueeze.sentiment !== 'bearish') {
+    return null;
+  }
 
   const optionsChainCacheKey = `sma_crossover_options_${symbol}_${date || 'live'}`;
   let optionsChain: OptionsTrade[] | null = getCached<OptionsTrade[]>(optionsChainCacheKey)?.data || null;
@@ -111,11 +131,13 @@ export async function runSmaCrossoverStrategy(options: SmaCrossoverStrategyOptio
     currentPrice: bestOption.premium,
     rating: 7, // Static rating for now
     confidence: 0.7, // Static confidence
-    reasoning: `Price crossed ${direction === 'bullish' ? 'above' : 'below'} the ${smaPeriod}-period SMA.`,
+    reasoning: `Price crossed ${direction === 'bullish' ? 'above' : 'below'} the ${smaPeriod}-period SMA with TTM Squeeze ${ttmSqueeze.sentiment} momentum.`,
     factors: [
         `Price: ${currentPrice.toFixed(2)}`,
         `SMA(${smaPeriod}): ${currentSma.toFixed(2)}`,
-        `Direction: ${direction}`
+        `Direction: ${direction}`,
+        `TTM Squeeze: off`,
+        `TTM Momentum: ${ttmSqueeze.momentum.toFixed(5)}`
     ],
     timestamp: new Date(),
   };

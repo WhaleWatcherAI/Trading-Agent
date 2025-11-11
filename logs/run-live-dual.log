@@ -1,0 +1,40 @@
+node:net:1917
+      const error = new UVExceptionWithHostPort(rval, 'listen', address, port);
+                    ^
+
+Error: listen EPERM: operation not permitted /var/folders/hy/h4vnlg8n2fx1zzwxcp2w8zpw0000gn/T/tsx-501/6220.pipe
+    at Server.setupListenHandle [as _listen2] (node:net:1917:21)
+    at listenInCluster (node:net:1996:12)
+    at Server.listen (node:net:2118:5)
+    at file:///Users/coreycosta/trading-agent/node_modules/tsx/dist/cli.mjs:53:31537
+    at new Promise (<anonymous>)
+    at createIpcServer (file:///Users/coreycosta/trading-agent/node_modules/tsx/dist/cli.mjs:53:31515)
+    at async file:///Users/coreycosta/trading-agent/node_modules/tsx/dist/cli.mjs:55:459 {
+  code: 'EPERM',
+  errno: -1,
+  syscall: 'listen',
+  address: '/var/folders/hy/h4vnlg8n2fx1zzwxcp2w8zpw0000gn/T/tsx-501/6220.pipe',
+  port: -1
+}
+
+Node.js v22.15.0
+node:net:1917
+      const error = new UVExceptionWithHostPort(rval, 'listen', address, port);
+                    ^
+
+Error: listen EPERM: operation not permitted /var/folders/hy/h4vnlg8n2fx1zzwxcp2w8zpw0000gn/T/tsx-501/6398.pipe
+    at Server.setupListenHandle [as _listen2] (node:net:1917:21)
+    at listenInCluster (node:net:1996:12)
+    at Server.listen (node:net:2118:5)
+    at file:///Users/coreycosta/trading-agent/node_modules/tsx/dist/cli.mjs:53:31537
+    at new Promise (<anonymous>)
+    at createIpcServer (file:///Users/coreycosta/trading-agent/node_modules/tsx/dist/cli.mjs:53:31515)
+    at async file:///Users/coreycosta/trading-agent/node_modules/tsx/dist/cli.mjs:55:459 {
+  code: 'EPERM',
+  errno: -1,
+  syscall: 'listen',
+  address: '/var/folders/hy/h4vnlg8n2fx1zzwxcp2w8zpw0000gn/T/tsx-501/6398.pipe',
+  port: -1
+}
+
+Node.js v22.15.0
