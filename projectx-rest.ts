@@ -70,5 +70,12 @@ export function createProjectXRest(baseUrl?: string) {
       console.log(`[cancelOrder] Attempting to parse JSON...`);
       return JSON.parse(text);
     },
+    getPositions: async (accountId: number) => {
+      const res = await doFetch(`/api/Account/${accountId}/positions`, { method: 'GET' });
+      console.log(`[getPositions] Response status: ${res.status}`);
+      const text = await res.text();
+      if (!res.ok) throw new Error(`getPositions ${res.status}: ${text}`);
+      return JSON.parse(text);
+    },
   };
 }

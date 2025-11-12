@@ -275,10 +275,15 @@ let topstepRest: ReturnType<typeof createProjectXRest> | null = null;
 let orderManager: TopstepOrderManager | null = null;
 let marketHub: HubConnection | null = null;
 let userHub: HubConnection | null = null;
+let marketReconnectTimer: NodeJS.Timeout | null = null;
+let userReconnectTimer: NodeJS.Timeout | null = null;
+let isReconnectingMarket = false;
+let isReconnectingUser = false;
 let lastQuotePrice = 0;
 let tradeSequence = 0;
 let currentBar: TopstepXFuturesBar | null = null;
 let barStartTime: Date | null = null;
+let lastMarketDataTime: Date | null = null;
 let accountStatus: AccountStatus = {
   balance: 0,
   buyingPower: 0,
@@ -704,6 +709,15 @@ async function enterPosition(
       : price * (1 - CONFIG.takeProfitPercent)
   );
 
+  // CRITICAL: Log order attempt to append-only file
+  const criticalLogMsg = `[CRITICAL ORDER ATTEMPT] ${nowIso()} | ${side.toUpperCase()} MARKET | Qty: ${CONFIG.numberOfContracts} | Stop: ${stopPrice.toFixed(2)} | Target: ${targetPrice.toFixed(2)} | Account: ${accountId}`;
+  log(criticalLogMsg);
+  try {
+    require('fs').appendFileSync('logs/critical-orders.log', criticalLogMsg + '\n');
+  } catch (e) {
+    console.error('[CRITICAL LOG FAILED]', e);
+  }
+
   log(`[ENTRY] Attempting ${side.toUpperCase()} MARKET, Stop @ ${stopPrice.toFixed(2)}, Target @ ${targetPrice.toFixed(2)}`);
 
   let bracketResult;
@@ -715,8 +729,35 @@ async function enterPosition(
       CONFIG.numberOfContracts,
     );
   } catch (err: any) {
+    const errorMsg = `[CRITICAL ORDER FAILED] ${nowIso()} | ${side.toUpperCase()} FAILED | Error: ${err.message} | Account: ${accountId}`;
     log(`[ERROR] Failed to place bracket order: ${err.message}`);
+    try {
+      require('fs').appendFileSync('logs/critical-orders.log', errorMsg + '\n');
+    } catch (e) {
+      console.error('[CRITICAL LOG FAILED]', e);
+    }
     return;
+  }
+
+  // Validate order IDs were returned
+  if (!bracketResult || !bracketResult.entryOrderId || !bracketResult.stopOrderId || !bracketResult.targetOrderId) {
+    const errorMsg = `[CRITICAL ORDER INVALID] ${nowIso()} | ${side.toUpperCase()} | Invalid order IDs returned! Entry: ${bracketResult?.entryOrderId}, Stop: ${bracketResult?.stopOrderId}, Target: ${bracketResult?.targetOrderId}`;
+    log(errorMsg);
+    try {
+      require('fs').appendFileSync('logs/critical-orders.log', errorMsg + '\n');
+    } catch (e) {
+      console.error('[CRITICAL LOG FAILED]', e);
+    }
+    return;
+  }
+
+  // Log successful order placement
+  const successMsg = `[CRITICAL ORDER SUCCESS] ${nowIso()} | ${side.toUpperCase()} | Entry ID: ${bracketResult.entryOrderId} | Stop ID: ${bracketResult.stopOrderId} | Target ID: ${bracketResult.targetOrderId}`;
+  log(successMsg);
+  try {
+    require('fs').appendFileSync('logs/critical-orders.log', successMsg + '\n');
+  } catch (e) {
+    console.error('[CRITICAL LOG FAILED]', e);
   }
 
   const estimatedEntryPrice = price;
@@ -864,6 +905,7 @@ function updateCurrentBar(quote: any) {
   if (!price) return;
 
   lastQuotePrice = price;
+  lastMarketDataTime = new Date();  // Track when we last received data
   broadcastDashboardUpdate();
 
   const timestamp = new Date(quote.timestamp || quote.lastTradeTimestamp || Date.now());
@@ -959,10 +1001,109 @@ async function startMarketStream(contractId: string) {
     log(`⚠️ TopstepX market hub connection lost, attempting to reconnect... ${error?.message || ''}`);
   });
 
-  marketHub.onclose((error) => {
+  marketHub.onclose(async (error) => {
     log(`❌ TopstepX market hub connection CLOSED: ${error?.message || 'Unknown reason'}`);
-    log('⚠️ Live market data streaming has stopped. Restart server to reconnect.');
+    log('🔄 Will automatically reconnect every 5 seconds until connection is restored...');
+
+    // Start aggressive reconnection attempts
+    if (!isReconnectingMarket) {
+      isReconnectingMarket = true;
+      attemptMarketReconnect();
+    }
   });
+
+  async function attemptMarketReconnect() {
+    if (!contractId) {
+      log('[RECONNECT] Cannot reconnect market hub: contractId is null');
+      isReconnectingMarket = false;
+      return;
+    }
+
+    try {
+      log('[RECONNECT] Attempting to reconnect market hub...');
+
+      // Clear existing connection
+      if (marketHub) {
+        try {
+          await marketHub.stop();
+        } catch (e) {
+          // Ignore stop errors
+        }
+      }
+
+      // Recreate connection
+      const tokenProvider = async () => authenticate();
+      const initialToken = await tokenProvider();
+
+      marketHub = new HubConnectionBuilder()
+        .withUrl(`${MARKET_HUB_URL}?access_token=${encodeURIComponent(initialToken)}`, {
+          skipNegotiation: true,
+          transport: HttpTransportType.WebSockets,
+          accessTokenFactory: tokenProvider,
+        })
+        .withAutomaticReconnect()
+        .configureLogging(LogLevel.Information)
+        .build();
+
+      const handleQuote = (_contractId: string, quote: any) => {
+        if (quote) {
+          updateCurrentBar(quote);
+        }
+      };
+
+      marketHub.on('GatewayQuote', handleQuote);
+      marketHub.on('GatewayTrade', handleQuote);
+      marketHub.on('gatewaytrade', handleQuote);
+
+      const subscribeMarket = () => {
+        if (!marketHub) return;
+        marketHub.invoke('SubscribeContractQuotes', contractId).catch(err =>
+          console.error('[market] Subscribe quotes failed', err),
+        );
+        marketHub.invoke('SubscribeContractTrades', contractId).catch(err =>
+          console.error('[market] Subscribe trades failed', err),
+        );
+      };
+
+      marketHub.onreconnected(() => {
+        log('⚠️ TopstepX market hub RECONNECTED - resubscribing to market data');
+        subscribeMarket();
+      });
+
+      marketHub.onreconnecting((error) => {
+        log(`⚠️ TopstepX market hub connection lost, attempting to reconnect... ${error?.message || ''}`);
+      });
+
+      marketHub.onclose(async (error) => {
+        log(`❌ TopstepX market hub connection CLOSED: ${error?.message || 'Unknown reason'}`);
+        log('🔄 Will automatically reconnect every 5 seconds until connection is restored...');
+
+        if (!isReconnectingMarket) {
+          isReconnectingMarket = true;
+          attemptMarketReconnect();
+        }
+      });
+
+      await marketHub.start();
+      log('✅ TopstepX market hub RECONNECTED successfully!');
+      subscribeMarket();
+
+      // Success - stop reconnection attempts
+      if (marketReconnectTimer) {
+        clearTimeout(marketReconnectTimer);
+        marketReconnectTimer = null;
+      }
+      isReconnectingMarket = false;
+
+    } catch (error: any) {
+      log(`[RECONNECT] Market hub reconnection failed: ${error?.message || 'Unknown error'}`);
+
+      // Schedule next attempt in 5 seconds
+      marketReconnectTimer = setTimeout(() => {
+        attemptMarketReconnect();
+      }, 5000);
+    }
+  }
 
   await marketHub.start();
   log('✅ TopstepX market hub connected');
@@ -1095,10 +1236,57 @@ async function startUserStream(accountId: number) {
     log(`⚠️ TopstepX user hub connection lost, attempting to reconnect... ${error?.message || ''}`);
   });
 
-  userHub.onclose((error) => {
+  userHub.onclose(async (error) => {
     log(`❌ TopstepX user hub connection CLOSED: ${error?.message || 'Unknown reason'}`);
-    log('⚠️ Live account/order/position updates have stopped. Restart server to reconnect.');
+    log('🔄 Will automatically reconnect every 5 seconds until connection is restored...');
+
+    // Start aggressive reconnection attempts
+    if (!isReconnectingUser) {
+      isReconnectingUser = true;
+      attemptUserReconnect();
+    }
   });
+
+  async function attemptUserReconnect() {
+    if (!accountId) {
+      log('[RECONNECT] Cannot reconnect user hub: accountId is null');
+      isReconnectingUser = false;
+      return;
+    }
+
+    try {
+      log('[RECONNECT] Attempting to reconnect user hub...');
+
+      // Clear existing connection
+      if (userHub) {
+        try {
+          await userHub.stop();
+        } catch (e) {
+          // Ignore stop errors
+        }
+      }
+
+      // Recreate connection (duplicate all event handlers from startUserStream)
+      await startUserStream(accountId);
+
+      log('✅ TopstepX user hub RECONNECTED successfully!');
+
+      // Success - stop reconnection attempts
+      if (userReconnectTimer) {
+        clearTimeout(userReconnectTimer);
+        userReconnectTimer = null;
+      }
+      isReconnectingUser = false;
+
+    } catch (error: any) {
+      log(`[RECONNECT] User hub reconnection failed: ${error?.message || 'Unknown error'}`);
+
+      // Schedule next attempt in 5 seconds
+      userReconnectTimer = setTimeout(() => {
+        attemptUserReconnect();
+      }, 5000);
+    }
+  }
 
   await userHub.start();
   log('✅ TopstepX user hub connected');
@@ -1131,6 +1319,15 @@ async function processBar(bar: TopstepXFuturesBar) {
   const ttmBars = bars.slice(Math.max(0, bars.length - 21));
   const ttmSqueeze = ttmBars.length >= 21 ?
     calculateTtmSqueeze(ttmBars, { lookback: 20, bbStdDev: 2, atrMultiplier: 1.5 }) : null;
+
+  // Log TTM Squeeze state when waiting for trigger (only on new bars)
+  if (ttmSqueeze && pendingSetup && lastProcessedBarTime !== bar.timestamp) {
+    const currentSqueezeState = ttmSqueeze.squeezeOn ? 'ON' : 'OFF';
+    log(
+      `[TTM] Squeeze ${currentSqueezeState} | BB: ${ttmSqueeze.bbUpper.toFixed(2)}-${ttmSqueeze.bbLower.toFixed(2)} | ` +
+      `KC: ${ttmSqueeze.kcUpper.toFixed(2)}-${ttmSqueeze.kcLower.toFixed(2)} | Waiting for ${pendingSetup.side.toUpperCase()} trigger`
+    );
+  }
 
   // Create chart data point
   const chartPoint: ChartData = {
@@ -1230,7 +1427,8 @@ async function processBar(bar: TopstepXFuturesBar) {
       bb: { upper: bb.upper, middle: bb.middle, lower: bb.lower },
     };
     log(
-      `LONG setup detected @ ${bar.close.toFixed(2)} (RSI ${currentRSI.toFixed(1)}, awaiting TTM Squeeze trigger)`
+      `LONG setup detected @ ${bar.close.toFixed(2)} (RSI ${currentRSI.toFixed(1)}) | ` +
+      `TTM Squeeze currently ${ttmSqueeze.squeezeOn ? 'ON' : 'OFF'} - awaiting trigger`
     );
     broadcastDashboardUpdate();
   } else if (!pendingSetup && shortSetupDetected) {
@@ -1242,7 +1440,8 @@ async function processBar(bar: TopstepXFuturesBar) {
       bb: { upper: bb.upper, middle: bb.middle, lower: bb.lower },
     };
     log(
-      `SHORT setup detected @ ${bar.close.toFixed(2)} (RSI ${currentRSI.toFixed(1)}, awaiting TTM Squeeze trigger)`
+      `SHORT setup detected @ ${bar.close.toFixed(2)} (RSI ${currentRSI.toFixed(1)}) | ` +
+      `TTM Squeeze currently ${ttmSqueeze.squeezeOn ? 'ON' : 'OFF'} - awaiting trigger`
     );
     broadcastDashboardUpdate();
   }
@@ -1689,8 +1888,20 @@ async function main() {
     await updateAccountStatus();
     broadcastDashboardUpdate();
 
-    // Heartbeat log
-    const statusText = tradingEnabled ? '✅ RUNNING' : '⏸ PAUSED';
+    // Heartbeat log - check if we're actually receiving market data
+    const now = new Date();
+    const dataStale = lastMarketDataTime && (now.getTime() - lastMarketDataTime.getTime()) > 120000; // 2 minutes
+    const noDataYet = !lastMarketDataTime;
+
+    let statusText: string;
+    if (noDataYet || dataStale) {
+      statusText = '⚠️ NO MARKET DATA - STRATEGY CANNOT RUN';
+    } else if (tradingEnabled) {
+      statusText = '✅ RUNNING';
+    } else {
+      statusText = '⏸ PAUSED';
+    }
+
     const posText = position ? `| Position: ${position.side.toUpperCase()} ${position.totalQty}` : '| No position';
     log(`🚀 Strategy ${statusText} | Symbol: ${CONFIG.symbol} | Account: ${accountId} ${posText}`);
   }, 30000);

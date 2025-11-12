@@ -15,28 +15,28 @@ sleep 2
 # Start each instance in background
 echo ""
 echo "Starting MNQ instance on port 3333..."
-npx tsx live-topstepx-nq-winner-enhanced.ts > logs/mnq.log 2>&1 &
+npx tsx live-topstepx-nq-winner-enhanced.ts >> logs/mnq.log 2>&1 &
 MNQ_PID=$!
 echo "  ✓ MNQ started (PID: $MNQ_PID)"
 
 sleep 3
 
 echo "Starting MES instance on port 3334..."
-npx tsx live-topstepx-mes-winner.ts > logs/mes.log 2>&1 &
+npx tsx live-topstepx-mes-winner.ts >> logs/mes.log 2>&1 &
 MES_PID=$!
 echo "  ✓ MES started (PID: $MES_PID)"
 
 sleep 3
 
 echo "Starting MGC instance on port 3335..."
-npx tsx live-topstepx-mgc-winner.ts > logs/mgc.log 2>&1 &
+npx tsx live-topstepx-mgc-winner.ts >> logs/mgc.log 2>&1 &
 MGC_PID=$!
 echo "  ✓ MGC started (PID: $MGC_PID)"
 
 sleep 3
 
 echo "Starting M6E instance on port 3336..."
-npx tsx live-topstepx-m6e-winner.ts > logs/m6e.log 2>&1 &
+npx tsx live-topstepx-m6e-winner.ts >> logs/m6e.log 2>&1 &
 M6E_PID=$!
 echo "  ✓ M6E started (PID: $M6E_PID)"
 
