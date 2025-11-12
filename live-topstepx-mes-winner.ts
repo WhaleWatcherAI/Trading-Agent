@@ -20,7 +20,7 @@ import {
   TopstepXFuturesBar,
   authenticate,
 } from './lib/topstepx';
-import { appendFileSync, existsSync, mkdirSync } from 'fs';
+import { appendFileSync, existsSync, mkdirSync, writeFileSync, readFileSync } from 'fs';
 import * as path from 'path';
 import { inferFuturesCommissionPerSide } from './lib/futuresFees';
 import { createProjectXRest } from './projectx-rest';
@@ -239,6 +239,7 @@ const USER_HUB_URL = process.env.TOPSTEPX_USER_HUB_URL || 'https://rtc.topstepx.
 
 const TRADE_LOG_FILE = process.env.TOPSTEPX_NQ_TRADE_LOG || './logs/topstepx-mes-winner.jsonl';
 const TRADE_LOG_DIR = path.dirname(TRADE_LOG_FILE);
+const STATE_FILE = './logs/.mes-state.json';
 
 const CT_OFFSET_MINUTES = 6 * 60;
 const CUT_OFF_MINUTES = (15 * 60) + 10;  // 3:10 PM CT
@@ -298,6 +299,142 @@ async function updateAccountStatus() {
     }
   } catch (err: any) {
     log(`Failed to fetch account status: ${err.message}`);
+  }
+}
+
+function saveState() {
+  try {
+    ensureTradeLogDir();
+    const state = {
+      tradingEnabled,
+      position: position ? {
+        side: position.side,
+        entryPrice: position.entryPrice,
+        totalQty: position.totalQty,
+        stopOrderId: position.stopOrderId,
+        targetOrderId: position.targetOrderId,
+        entryOrderId: position.entryOrderId,
+        stopLoss: position.stopLoss,
+        target: position.target,
+        entryTime: position.entryTime,
+        tradeId: position.tradeId,
+      } : null,
+      timestamp: nowIso()
+    };
+    writeFileSync(STATE_FILE, JSON.stringify(state, null, 2));
+  } catch (err: any) {
+    log(`[STATE] Failed to save state: ${err.message}`);
+  }
+}
+
+function loadState(): { tradingEnabled: boolean; position: any } {
+  try {
+    if (!existsSync(STATE_FILE)) {
+      log('[STATE] No previous state found - starting with trading DISABLED');
+      return { tradingEnabled: false, position: null };
+    }
+    const data = readFileSync(STATE_FILE, 'utf-8');
+    const state = JSON.parse(data);
+    const wasEnabled = state.tradingEnabled || false;
+    const savedPosition = state.position || null;
+
+    if (wasEnabled) {
+      log(`[STATE] Restored previous state: Trading was ENABLED - auto-resuming`);
+    } else {
+      log(`[STATE] Restored previous state: Trading was DISABLED`);
+    }
+
+    if (savedPosition) {
+      log(`[STATE] Found saved position: ${savedPosition.side.toUpperCase()} ${savedPosition.totalQty} @ ${savedPosition.entryPrice}`);
+    }
+
+    return { tradingEnabled: wasEnabled, position: savedPosition };
+  } catch (err: any) {
+    log(`[STATE] Failed to load state: ${err.message} - defaulting to DISABLED`);
+    return { tradingEnabled: false, position: null };
+  }
+}
+
+async function reconcilePosition(savedPosition: any) {
+  try {
+    log('🔄 Checking TopstepX for existing positions...');
+    const positions = await topstepRest.getPositions(accountId);
+
+    if (!positions || positions.length === 0) {
+      log('✅ No existing positions found - starting fresh');
+      position = null;
+      return;
+    }
+
+    const existingPos = positions.find((p: any) => p.contractId === contractId);
+    if (!existingPos) {
+      log(`✅ No position found for ${CONFIG.symbol} - starting fresh`);
+      position = null;
+      return;
+    }
+
+    const qty = Math.abs(existingPos.quantity || existingPos.size || 0);
+    if (qty === 0) {
+      log(`✅ Position quantity is 0 for ${CONFIG.symbol} - starting fresh`);
+      position = null;
+      return;
+    }
+
+    const side = (existingPos.quantity || existingPos.size) > 0 ? 'long' : 'short';
+    const avgPrice = existingPos.averagePrice || existingPos.avgPrice || 0;
+
+    log(`⚠️ FOUND EXISTING POSITION: ${side.toUpperCase()} ${qty} @ ${avgPrice.toFixed(2)}`);
+
+    // If we have saved position data and it matches, restore full position with order IDs
+    if (savedPosition && savedPosition.side === side && savedPosition.totalQty === qty) {
+      log(`✅ Saved position matches broker position - restoring with order IDs`);
+      position = {
+        tradeId: savedPosition.tradeId,
+        symbol: CONFIG.symbol,
+        contractId: resolvedContractId ?? '',
+        side: savedPosition.side,
+        entryPrice: savedPosition.entryPrice,
+        entryTime: savedPosition.entryTime,
+        stopLoss: savedPosition.stopLoss,
+        target: savedPosition.target,
+        totalQty: savedPosition.totalQty,
+        entryRSI: 50,
+        entryOrderId: savedPosition.entryOrderId,
+        stopOrderId: savedPosition.stopOrderId,
+        targetOrderId: savedPosition.targetOrderId,
+        stopFilled: false,
+        targetFilled: false,
+        stopLimitPending: savedPosition.stopOrderId ? true : false,
+        monitoringStop: false,
+      };
+      log(`   Stop Order ID: ${position.stopOrderId} | Target Order ID: ${position.targetOrderId}`);
+      log(`   Resume monitoring position with full order management`);
+      broadcastDashboardUpdate();
+      return;
+    }
+
+    // No saved position or mismatch - flatten for safety
+    log(`🔄 No saved position data or mismatch - FLATTENING for safety`);
+    if (!orderManager) {
+      log(`❌ Cannot flatten - order manager not initialized yet`);
+      position = null;
+      return;
+    }
+
+    const exitSide: OrderSide = side === 'long' ? 'Sell' : 'Buy';
+    try {
+      await orderManager.placeMarketIOC(exitSide, qty);
+      log(`✅ Position flattened successfully @ market`);
+    } catch (flattenErr: any) {
+      log(`❌ Failed to flatten position: ${flattenErr.message}`);
+      log(`⚠️ MANUAL INTERVENTION REQUIRED - position may still be open`);
+    }
+
+    position = null;
+  } catch (err: any) {
+    log(`❌ Failed to reconcile position: ${err.message}`);
+    log(`⚠️ Assuming no position and starting fresh`);
+    position = null;
   }
 }
 
@@ -811,10 +948,22 @@ async function startMarketStream(contractId: string) {
     );
   };
 
-  marketHub.onreconnected(subscribeMarket);
+  marketHub.onreconnected(() => {
+    log('⚠️ TopstepX market hub RECONNECTED - resubscribing to market data');
+    subscribeMarket();
+  });
+
+  marketHub.onreconnecting((error) => {
+    log(`⚠️ TopstepX market hub connection lost, attempting to reconnect... ${error?.message || ''}`);
+  });
+
+  marketHub.onclose((error) => {
+    log(`❌ TopstepX market hub connection CLOSED: ${error?.message || 'Unknown reason'}`);
+    log('⚠️ Live market data streaming has stopped. Restart server to reconnect.');
+  });
 
   await marketHub.start();
-  log('TopstepX market hub connected');
+  log('✅ TopstepX market hub connected');
   subscribeMarket();
 }
 
@@ -935,10 +1084,22 @@ async function startUserStream(accountId: number) {
     userHub.invoke('SubscribeTrades', accountId).catch(err => console.error('[user] Subscribe trades failed', err));
   };
 
-  userHub.onreconnected(subscribeUser);
+  userHub.onreconnected(() => {
+    log('⚠️ TopstepX user hub RECONNECTED - resubscribing to account data');
+    subscribeUser();
+  });
+
+  userHub.onreconnecting((error) => {
+    log(`⚠️ TopstepX user hub connection lost, attempting to reconnect... ${error?.message || ''}`);
+  });
+
+  userHub.onclose((error) => {
+    log(`❌ TopstepX user hub connection CLOSED: ${error?.message || 'Unknown reason'}`);
+    log('⚠️ Live account/order/position updates have stopped. Restart server to reconnect.');
+  });
 
   await userHub.start();
-  log('TopstepX user hub connected');
+  log('✅ TopstepX user hub connected');
   subscribeUser();
 }
 
@@ -1343,6 +1504,7 @@ app.post('/api/account/:id', async (req, res) => {
 // Control endpoints - using correct paths
 app.post('/api/trading/start', (req, res) => {
   tradingEnabled = true;
+  saveState();
   log(`[CONTROL] Trading STARTED via dashboard | Account: ${accountId}`);
   broadcastDashboardUpdate();
   res.json({ success: true, message: 'Trading started' });
@@ -1351,6 +1513,7 @@ app.post('/api/trading/start', (req, res) => {
 app.post('/api/trading/stop', (req, res) => {
   tradingEnabled = false;
   pendingSetup = null; // Clear any pending setups
+  saveState();
   log(`[CONTROL] Trading STOPPED via dashboard | Account: ${accountId}`);
   broadcastDashboardUpdate();
   res.json({ success: true, message: 'Trading stopped' });
@@ -1458,10 +1621,17 @@ async function main() {
 
   log('Main function started.');
 
+  // Load previous trading state
+  const savedState = loadState();
+  tradingEnabled = savedState.tradingEnabled;
+  const savedPosition = savedState.position;
+
   // Start dashboard server
   server.listen(DASHBOARD_PORT, () => {
     log(`Dashboard server running on http://localhost:${DASHBOARD_PORT}`);
-    log(`⚠️ Trading is DISABLED by default. Use dashboard to start trading.`);
+    if (!tradingEnabled) {
+      log(`⚠️ Trading is DISABLED. Use dashboard to start trading.`);
+    }
   });
 
   // Resolve contract metadata
@@ -1509,10 +1679,18 @@ async function main() {
   await updateAccountStatus();
   log(`Account balance: $${accountStatus.balance.toFixed(2)}`);
 
-  // Update account status every 30 seconds
+  // Reconcile any existing positions
+  await reconcilePosition(savedPosition);
+
+  // Update account status and heartbeat every 30 seconds
   setInterval(async () => {
     await updateAccountStatus();
     broadcastDashboardUpdate();
+
+    // Heartbeat log
+    const statusText = tradingEnabled ? '✅ RUNNING' : '⏸ PAUSED';
+    const posText = position ? `| Position: ${position.side.toUpperCase()} ${position.totalQty}` : '| No position';
+    log(`🚀 Strategy ${statusText} | Symbol: ${CONFIG.symbol} | Account: ${accountId} ${posText}`);
   }, 30000);
 
   log('Starting live streaming...');
@@ -1536,8 +1714,16 @@ async function main() {
   await startUserStream(accountId);
   log('Starting market stream...');
   await startMarketStream(contractId);
-  log('Live streaming started. Strategy is running...');
-  log(`Dashboard available at: http://localhost:${DASHBOARD_PORT}`);
+
+  log('='.repeat(80));
+  log('🚀 STRATEGY FULLY INITIALIZED AND RUNNING');
+  log(`   Symbol: ${CONFIG.symbol} | Account: ${accountId}`);
+  log(`   Trading: ${tradingEnabled ? 'ENABLED ✅' : 'DISABLED ⏸ (use dashboard to start)'}`);
+  log(`   Dashboard: http://localhost:${DASHBOARD_PORT}`);
+  if (position) {
+    log(`   Active Position: ${position.side.toUpperCase()} ${position.totalQty} @ ${position.entryPrice.toFixed(2)}`);
+  }
+  log('='.repeat(80));
   await new Promise(() => {});
 }
 
