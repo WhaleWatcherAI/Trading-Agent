@@ -215,6 +215,77 @@ class TopstepOrderManager {
   }
 }
 
+// =============================================================================
+// PERMANENT CONDITION LOGGING SYSTEM
+// =============================================================================
+// All condition logs are saved permanently to help diagnose issues and improve the strategy
+
+function logCondition(message: string, logFile = 'logs/conditions.log') {
+  const timestamp = nowIso();
+  const logMsg = `[${timestamp}] ${message}`;
+  console.log(logMsg);
+  try {
+    require('fs').appendFileSync(logFile, logMsg + '\n');
+  } catch (e) {
+    console.error('[CONDITION LOG FAILED]', e);
+  }
+}
+
+function logIndividualConditions(
+  symbol: string,
+  price: number,
+  rsi: number | undefined,
+  bb: { upper: number; middle: number; lower: number } | undefined,
+  ttmSqueeze: { squeezeOn: boolean; momentum: number } | null
+) {
+  const timestamp = nowIso();
+  const checks: string[] = [];
+
+  // RSI condition checks
+  if (rsi !== undefined) {
+    if (rsi < 30) {
+      checks.push(`RSI OVERSOLD: ${rsi.toFixed(2)} < 30`);
+    } else if (rsi > 70) {
+      checks.push(`RSI OVERBOUGHT: ${rsi.toFixed(2)} > 70`);
+    }
+  }
+
+  // Bollinger Band condition checks
+  if (bb) {
+    const distanceToLower = ((price - bb.lower) / bb.lower * 100).toFixed(4);
+    const distanceToUpper = ((price - bb.upper) / bb.upper * 100).toFixed(4);
+
+    if (price <= bb.lower) {
+      checks.push(`BB LOWER TOUCHED/BROKE: Price ${price.toFixed(2)} <= ${bb.lower.toFixed(2)} (${distanceToLower}%)`);
+    } else if (price >= bb.upper) {
+      checks.push(`BB UPPER TOUCHED/BROKE: Price ${price.toFixed(2)} >= ${bb.upper.toFixed(2)} (${distanceToUpper}%)`);
+    }
+  }
+
+  // TTM Squeeze state
+  if (ttmSqueeze) {
+    if (ttmSqueeze.squeezeOn) {
+      checks.push(`TTM SQUEEZE FIRING: Momentum ${ttmSqueeze.momentum.toFixed(2)}`);
+    }
+  }
+
+  // Only log if any conditions are met
+  if (checks.length > 0) {
+    const msg = `[${symbol}] ${checks.join(' | ')}`;
+    logCondition(msg, 'logs/individual-conditions.log');
+  }
+}
+
+function logSetupProgress(
+  symbol: string,
+  setupType: 'LONG' | 'SHORT',
+  step: 'STEP1_RSI_BB' | 'STEP2_WAITING_TTM' | 'STEP3_TTM_FIRED' | 'ENTRY',
+  details: string
+) {
+  const msg = `[${symbol}] ${setupType} ${step}: ${details}`;
+  logCondition(msg, 'logs/setup-progression.log');
+}
+
 const CONFIG: StrategyConfig = {
   symbol: process.env.TOPSTEPX_NQ_LIVE_SYMBOL || 'NQZ5',
   contractId: process.env.TOPSTEPX_NQ_LIVE_CONTRACT_ID,
@@ -1413,6 +1484,9 @@ async function processBar(bar: TopstepXFuturesBar) {
     return;
   }
 
+  // Log individual condition checks (every bar when conditions are met)
+  logIndividualConditions(CONFIG.symbol, bar.close, currentRSI, bb, ttmSqueeze);
+
   // Entry logic - two-stage system
   const price = bar.close;
   const longSetupDetected = price <= bb.lower && currentRSI < CONFIG.rsiOversold;
@@ -1430,6 +1504,23 @@ async function processBar(bar: TopstepXFuturesBar) {
       `LONG setup detected @ ${bar.close.toFixed(2)} (RSI ${currentRSI.toFixed(1)}) | ` +
       `TTM Squeeze currently ${ttmSqueeze.squeezeOn ? 'ON' : 'OFF'} - awaiting trigger`
     );
+
+    // Log setup progression - Step 1
+    logSetupProgress(
+      CONFIG.symbol,
+      'LONG',
+      'STEP1_RSI_BB',
+      `Price ${bar.close.toFixed(2)} <= BB Lower ${bb.lower.toFixed(2)} | RSI ${currentRSI.toFixed(2)} < ${CONFIG.rsiOversold}`
+    );
+
+    // Log waiting for TTM - Step 2
+    logSetupProgress(
+      CONFIG.symbol,
+      'LONG',
+      'STEP2_WAITING_TTM',
+      `TTM Squeeze currently ${ttmSqueeze.squeezeOn ? 'FIRING (ready for entry!)' : 'OFF (waiting...)'}`
+    );
+
     broadcastDashboardUpdate();
   } else if (!pendingSetup && shortSetupDetected) {
     pendingSetup = {
@@ -1443,7 +1534,39 @@ async function processBar(bar: TopstepXFuturesBar) {
       `SHORT setup detected @ ${bar.close.toFixed(2)} (RSI ${currentRSI.toFixed(1)}) | ` +
       `TTM Squeeze currently ${ttmSqueeze.squeezeOn ? 'ON' : 'OFF'} - awaiting trigger`
     );
+
+    // Log setup progression - Step 1
+    logSetupProgress(
+      CONFIG.symbol,
+      'SHORT',
+      'STEP1_RSI_BB',
+      `Price ${bar.close.toFixed(2)} >= BB Upper ${bb.upper.toFixed(2)} | RSI ${currentRSI.toFixed(2)} > ${CONFIG.rsiOverbought}`
+    );
+
+    // Log waiting for TTM - Step 2
+    logSetupProgress(
+      CONFIG.symbol,
+      'SHORT',
+      'STEP2_WAITING_TTM',
+      `TTM Squeeze currently ${ttmSqueeze.squeezeOn ? 'FIRING (ready for entry!)' : 'OFF (waiting...)'}`
+    );
+
     broadcastDashboardUpdate();
+  }
+
+  // If we have a pending setup, log TTM status updates
+  if (pendingSetup && !ttmSqueeze.squeezeOn) {
+    // Update waiting status periodically
+    const setupAge = Date.now() - new Date(pendingSetup.setupTime).getTime();
+    const setupAgeMinutes = Math.floor(setupAge / 60000);
+    if (setupAgeMinutes > 0 && setupAge % 60000 < 60000) { // Log once per minute
+      logSetupProgress(
+        CONFIG.symbol,
+        pendingSetup.side.toUpperCase() as 'LONG' | 'SHORT',
+        'STEP2_WAITING_TTM',
+        `Still waiting... Setup age: ${setupAgeMinutes}m | TTM Squeeze: OFF`
+      );
+    }
   }
 
   if (pendingSetup && ttmSqueeze.squeezeOn) {
@@ -1452,7 +1575,25 @@ async function processBar(bar: TopstepXFuturesBar) {
       `TTM Squeeze trigger fired - entering ${setup.side.toUpperCase()} @ ${bar.close.toFixed(2)} ` +
       `(setup was @ ${setup.setupPrice.toFixed(2)})`
     );
+
+    // Log TTM fired - Step 3
+    logSetupProgress(
+      CONFIG.symbol,
+      setup.side.toUpperCase() as 'LONG' | 'SHORT',
+      'STEP3_TTM_FIRED',
+      `TTM Squeeze FIRING! Momentum: ${ttmSqueeze.momentum.toFixed(2)} | Entry price: ${bar.close.toFixed(2)}`
+    );
+
     await enterPosition(setup.side, bar.close, bar.timestamp, setup.rsi, setup.bb);
+
+    // Log final entry - Step 4
+    logSetupProgress(
+      CONFIG.symbol,
+      setup.side.toUpperCase() as 'LONG' | 'SHORT',
+      'ENTRY',
+      `Position entered @ ${bar.close.toFixed(2)} | Setup was @ ${setup.setupPrice.toFixed(2)}`
+    );
+
     pendingSetup = null;
   }
 }
