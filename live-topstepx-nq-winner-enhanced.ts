@@ -1164,7 +1164,13 @@ async function startMarketStream(contractId: string) {
         clearTimeout(marketReconnectTimer);
         marketReconnectTimer = null;
       }
-      isReconnectingMarket = false;
+
+      // Wait 3 seconds before clearing reconnection flag to ensure connection is stable
+      // This prevents immediate re-triggering if connection drops right after connecting
+      setTimeout(() => {
+        isReconnectingMarket = false;
+        log('[RECONNECT] Market hub connection stable, reconnection guard cleared');
+      }, 3000);
 
     } catch (error: any) {
       log(`[RECONNECT] Market hub reconnection failed: ${error?.message || 'Unknown error'}`);
@@ -1337,17 +1343,143 @@ async function startUserStream(accountId: number) {
         }
       }
 
-      // Recreate connection (duplicate all event handlers from startUserStream)
-      await startUserStream(accountId);
+      // Manually recreate connection WITHOUT re-registering onclose handler
+      // (onclose handler is already registered from initial setup)
+      const tokenProvider = async () => authenticate();
+      const initialToken = await tokenProvider();
 
+      userHub = new HubConnectionBuilder()
+        .withUrl(`${USER_HUB_URL}?access_token=${encodeURIComponent(initialToken)}`, {
+          skipNegotiation: true,
+          transport: HttpTransportType.WebSockets,
+          accessTokenFactory: tokenProvider,
+        })
+        .withAutomaticReconnect()
+        .configureLogging(LogLevel.Information)
+        .build();
+
+      // Re-register event handlers (but NOT onclose - that's already registered)
+      userHub.on('GatewayUserTrade', (contractId: string, data: any) => {
+        if (data && data.orderId) {
+          const price = Number(data.averagePrice ?? data.price ?? 0);
+          const commission = data.commission !== undefined ? Number(data.commission) : null;
+          const orderId = String(data.orderId);
+
+          log(`[fill] OrderID ${orderId}, Price ${price}, Commission ${commission ?? 'unknown'}`);
+
+          if (position) {
+            if (orderId === position.entryOrderId) {
+              position.entryPrice = price;
+              if (commission !== null) {
+                position.entryCommission = commission;
+              }
+              broadcastDashboardUpdate();
+            } else if (orderId === position.stopOrderId) {
+              position.stopFilled = true;
+              if (commission !== null) {
+                position.exitCommission = commission;
+              }
+              handlePositionExit(price, nowIso(), 'stop', false);
+            } else if (orderId === position.targetOrderId) {
+              position.targetFilled = true;
+              if (commission !== null) {
+                position.exitCommission = commission;
+              }
+              handlePositionExit(price, nowIso(), 'target', false);
+            }
+          }
+        }
+      });
+
+      userHub.on('GatewayUserOrder', data => {
+        log(`User order event: ${JSON.stringify(data)}`);
+      });
+
+      userHub.on('GatewayUserAccount', (_cid: string, data: any) => {
+        if (data) {
+          accountStatus = {
+            balance: data.cashBalance || data.balance || 0,
+            buyingPower: data.buyingPower || data.availableBalance || 0,
+            dailyPnL: data.dailyNetPnL || data.dailyPnl || 0,
+            openPositions: data.openPositions || 0,
+            dailyLossLimit: CONFIG.dailyLossLimit,
+            isAtRisk: false,
+          };
+
+          if (accountStatus.dailyPnL <= -CONFIG.dailyLossLimit * 0.8) {
+            accountStatus.isAtRisk = true;
+            log(`[WARNING] Approaching daily loss limit: ${formatCurrency(accountStatus.dailyPnL)}`);
+          }
+
+          if (accountStatus.dailyPnL <= -CONFIG.dailyLossLimit) {
+            log(`[SAFETY] Daily loss limit exceeded: ${formatCurrency(accountStatus.dailyPnL)}`);
+            if (position && orderManager) {
+              const exitSide: OrderSide = position.side === 'long' ? 'Sell' : 'Buy';
+              orderManager.placeMarketIOC(exitSide, position.totalQty).catch(err =>
+                log(`[ERROR] Failed to flatten position: ${err.message}`)
+              );
+            }
+            handlePositionExit(lastQuotePrice, nowIso(), 'daily_loss_limit');
+            shutdown('daily_loss_limit');
+          }
+
+          broadcastDashboardUpdate();
+        }
+      });
+
+      userHub.on('GatewayUserPosition', (_cid: string, data: any) => {
+        if (data) {
+          log(`[position] ${JSON.stringify(data)}`);
+
+          const brokerQty = Math.abs(data.quantity || 0);
+          if (position && brokerQty === 0) {
+            log('[SYNC] Position closed externally - syncing local state');
+            position = null;
+            broadcastDashboardUpdate();
+          }
+        }
+      });
+
+      userHub.onreconnected(() => {
+        log('⚠️ TopstepX user hub RECONNECTED - resubscribing to account data');
+        subscribeUser();
+      });
+
+      userHub.onreconnecting((error) => {
+        log(`⚠️ TopstepX user hub connection lost, attempting to reconnect... ${error?.message || ''}`);
+      });
+
+      // Re-register onclose handler for this new hub
+      userHub.onclose(async (error) => {
+        log(`❌ TopstepX user hub connection CLOSED: ${error?.message || 'Unknown reason'}`);
+
+        // Only start reconnection if not already reconnecting
+        if (!isReconnectingUser) {
+          log('🔄 Will automatically reconnect every 5 seconds until connection is restored...');
+          isReconnectingUser = true;
+          attemptUserReconnect();
+        }
+      });
+
+      // Start the connection
+      await userHub.start();
       log('✅ TopstepX user hub RECONNECTED successfully!');
+
+      // Resubscribe
+      subscribeUser();
 
       // Success - stop reconnection attempts
       if (userReconnectTimer) {
         clearTimeout(userReconnectTimer);
         userReconnectTimer = null;
       }
-      isReconnectingUser = false;
+
+      // Wait 3 seconds before clearing reconnection flag to ensure connection is stable
+      // This prevents immediate re-triggering if connection drops right after connecting
+      setTimeout(() => {
+        isReconnectingUser = false;
+        log('[RECONNECT] User hub connection stable, reconnection guard cleared');
+      }, 3000);
 
     } catch (error: any) {
       log(`[RECONNECT] User hub reconnection failed: ${error?.message || 'Unknown error'}`);
