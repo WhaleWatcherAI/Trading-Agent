@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx --max-warnings=0",
-    "test": "vitest run"
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:integration": "chmod +x tests/run-integration-tests.sh && tests/run-integration-tests.sh"
   },
   "keywords": [],
   "author": "",

@@ -28,15 +28,20 @@ import {
   logTradeStats,
   analyzeConfidenceCalibration,
   ExecutionManager,
+  HigherTimeframeSnapshot,
+  SessionVolumeProfileSummary,
 } from './lib/fabioOpenAIIntegration';
 import { analyzeFuturesMarket } from './lib/openaiTradingAgent';
 import { createExecutionManager } from './lib/executionManager';
+import { analyzePositionRisk } from './lib/riskManagementAgent';
 
 // Configuration
 const SYMBOL = process.env.TOPSTEPX_SYMBOL || 'NQZ5';
 const ACCOUNT_ID = parseInt(process.env.TOPSTEPX_ACCOUNT_ID || '0');
-const DASHBOARD_PORT = 3337;
+const DASHBOARD_PORT = parseInt(process.env.DASHBOARD_PORT || (SYMBOL === 'NQZ5' ? '3337' : SYMBOL === 'GCZ5' ? '3338' : '3339'));
 const CONTRACTS = 1;
+const ANALYSIS_INTERVAL_MS = 60_000;
+const RISK_MGMT_INTERVAL_MS = 10_000; // Risk management checks every 10 seconds for active drawdown prevention
 
 // Volume Profile Types
 interface VolumeNode {
@@ -65,9 +70,9 @@ interface OrderFlowData {
   bigPrints: Array<{ price: number; size: number; side: 'buy' | 'sell'; timestamp: number }>;
   cvd: number; // Cumulative Volume Delta
   footprintImbalance: { [price: number]: number }; // Delta at each price
-  absorption: { buy: number; sell: number }; // Actual absorption strength 0-1
-  exhaustion: { buy: number; sell: number }; // Actual exhaustion strength 0-1
-  cvdHistory: Array<{ timestamp: number; cvd: number; delta: number }>; // Track CVD momentum
+  absorption: { buy: number; sell: number };
+  exhaustion: { buy: number; sell: number };
+  cvdHistory: Array<{ timestamp: number; cvd: number; delta: number }>;
   volumeAtPrice: { [price: number]: { buy: number; sell: number; timestamp: number } }; // Volume concentration
 }
 
@@ -151,14 +156,24 @@ let marketStructure: MarketStructure = {
   failedBreakouts: [],
 };
 let currentDecision: AgentDecision | null = null;
+let higherTimeframeSnapshots: HigherTimeframeSnapshot[] = [];
+let recentSessionProfiles: SessionVolumeProfileSummary[] = [];
+let lastHigherTimeframeRefresh = 0;
+let lastVolumeProfileRefresh = 0;
+let cvdMinuteBars: CurrentCvdBar[] = [];
 
 // Position Management
 let currentPosition: any = null;
+let lastRiskMgmtTime = Date.now(); // Initialize to now to prevent immediate spam
+let lastRiskMgmtDecision: any = null; // Store last Risk Management decision for dashboard
 let accountBalance = 50000;
 
 // OpenAI + Execution Integration
 let executionManager: ExecutionManager | null = null;
 let realizedPnL = 0; // Track realized P&L from closed positions
+
+// OpenAI Rate Limiting - Only call once per completed 5-minute candle
+let lastOpenAIAnalysisTime = 0;
 
 // Utility Functions
 function log(message: string, type: 'info' | 'success' | 'warning' | 'error' = 'info') {
@@ -227,19 +242,13 @@ function calculateAbsorption(): { buy: number; sell: number } {
   // If price is moving a lot, it's trending not absorbing
   const priceStability = priceRange > 0 ? 1 - Math.min(1, Math.abs(priceChange) / priceRange) : 0;
 
-  // Buy absorption: High buy volume + price holding (not falling despite sells)
-  let buyAbsorptionStrength = 0;
-  if (buyRatio > 0.4) { // Need at least 40% buy volume
-    const buyDominance = (buyRatio - 0.5) * 2; // Scale 0.5-1.0 to 0-1
-    buyAbsorptionStrength = Math.max(0, buyDominance) * priceStability;
-  }
+  // Buy absorption: Buy volume proportion + price stability
+  // Shows on both sides simultaneously - balanced markets show ~50% on each side
+  const buyAbsorptionStrength = buyRatio * priceStability;
 
-  // Sell absorption: High sell volume + price holding (not rising despite buys)
-  let sellAbsorptionStrength = 0;
-  if (sellRatio > 0.4) { // Need at least 40% sell volume
-    const sellDominance = (sellRatio - 0.5) * 2; // Scale 0.5-1.0 to 0-1
-    sellAbsorptionStrength = Math.max(0, sellDominance) * priceStability;
-  }
+  // Sell absorption: Sell volume proportion + price stability
+  // Shows on both sides simultaneously - balanced markets show ~50% on each side
+  const sellAbsorptionStrength = sellRatio * priceStability;
 
   return {
     buy: buyAbsorptionStrength,
@@ -249,61 +258,79 @@ function calculateAbsorption(): { buy: number; sell: number } {
 
 // Calculate Exhaustion: Detects when momentum is dying out
 function calculateExhaustion(): { buy: number; sell: number } {
-  const minHistoryWindow = 10; // Minimum data points needed
+  const HISTORY_WINDOW = 80;
+  const MIN_EVENTS = 12;
+  const SHORT_PERIOD = 5;
+  const LONG_PERIOD = 18;
+  const SMOOTHING = 0.35; // Dampens visual flicker
 
-  if (orderFlowData.cvdHistory.length < minHistoryWindow) {
-    return { buy: 0, sell: 0 };
+  // Safety check: ensure cvdHistory exists before accessing
+  if (!orderFlowData.cvdHistory || orderFlowData.cvdHistory.length === 0) {
+    return orderFlowData.exhaustion || { buy: 0, sell: 0 };
   }
 
-  const recent = orderFlowData.cvdHistory.slice(-Math.min(30, orderFlowData.cvdHistory.length));
-
-  // Calculate delta momentum (rate of change in delta)
-  const recentDeltas = recent.map(h => h.delta);
-  const buyDeltas = recentDeltas.filter(d => d > 0);
-  const sellDeltas = recentDeltas.filter(d => d < 0);
-
-  // Calculate momentum decline
-  let buyExhaustion = 0;
-  let sellExhaustion = 0;
-
-  if (buyDeltas.length >= 5) {
-    // Check if buy deltas are decreasing (buy momentum dying)
-    const firstHalf = buyDeltas.slice(0, Math.floor(buyDeltas.length / 2));
-    const secondHalf = buyDeltas.slice(Math.floor(buyDeltas.length / 2));
-
-    const firstHalfAvg = firstHalf.reduce((a, b) => a + b, 0) / firstHalf.length;
-    const secondHalfAvg = secondHalf.reduce((a, b) => a + b, 0) / secondHalf.length;
-
-    if (firstHalfAvg > 0 && secondHalfAvg < firstHalfAvg) {
-      // Buy momentum is declining - calculate exhaustion as percentage decline
-      const declineRatio = (firstHalfAvg - secondHalfAvg) / firstHalfAvg;
-      buyExhaustion = Math.min(1, declineRatio * 1.5); // Amplify for better visibility
-    }
+  const history = orderFlowData.cvdHistory.slice(-HISTORY_WINDOW);
+  if (history.length < MIN_EVENTS) {
+    return orderFlowData.exhaustion || { buy: 0, sell: 0 };
   }
 
-  if (sellDeltas.length >= 5) {
-    // Check if sell deltas are decreasing in magnitude (sell momentum dying)
-    const firstHalf = sellDeltas.slice(0, Math.floor(sellDeltas.length / 2));
-    const secondHalf = sellDeltas.slice(Math.floor(sellDeltas.length / 2));
+  const buySeries = history
+    .filter(h => h.delta > 0)
+    .map(h => h.delta);
+  const sellSeries = history
+    .filter(h => h.delta < 0)
+    .map(h => Math.abs(h.delta));
 
-    const firstHalfAvg = Math.abs(firstHalf.reduce((a, b) => a + b, 0) / firstHalf.length);
-    const secondHalfAvg = Math.abs(secondHalf.reduce((a, b) => a + b, 0) / secondHalf.length);
+  const buyTarget = computeMomentumFadeScore(buySeries, SHORT_PERIOD, LONG_PERIOD);
+  const sellTarget = computeMomentumFadeScore(sellSeries, SHORT_PERIOD, LONG_PERIOD);
 
-    if (firstHalfAvg > 0 && secondHalfAvg < firstHalfAvg) {
-      // Sell momentum is declining - calculate exhaustion as percentage decline
-      const declineRatio = (firstHalfAvg - secondHalfAvg) / firstHalfAvg;
-      sellExhaustion = Math.min(1, declineRatio * 1.5); // Amplify for better visibility
-    }
-  }
+  const previous = orderFlowData.exhaustion || { buy: 0, sell: 0 };
 
   return {
-    buy: buyExhaustion,
-    sell: sellExhaustion,
+    buy: previous.buy + (buyTarget - previous.buy) * SMOOTHING,
+    sell: previous.sell + (sellTarget - previous.sell) * SMOOTHING,
   };
+}
+
+function computeMomentumFadeScore(
+  series: number[],
+  shortPeriod: number,
+  longPeriod: number
+): number {
+  if (series.length < 4) {
+    return 0;
+  }
+
+  const short = computeEMA(series, shortPeriod);
+  const long = computeEMA(series, longPeriod);
+
+  if (long <= 0) {
+    return 0;
+  }
+
+  // Positive score when the fast momentum falls below the slower average
+  const declineRatio = Math.max(0, (long - short) / long);
+  return Math.min(1, declineRatio * 1.3);
+}
+
+function computeEMA(values: number[], period: number): number {
+  if (values.length === 0) return 0;
+  const smoothing = 2 / (period + 1);
+  let ema = values[0];
+
+  for (let i = 1; i < values.length; i += 1) {
+    ema = values[i] * smoothing + ema * (1 - smoothing);
+  }
+
+  return ema;
 }
 
 // Emit LLM Decision
 function emitLLMDecision(analysis: any) {
+  const normalizedConfidence = typeof analysis.confidence === 'number'
+    ? Math.max(0, Math.min(1, analysis.confidence > 1 ? analysis.confidence / 100 : analysis.confidence))
+    : 0;
+
   const decision = {
     timestamp: new Date().toISOString(),
     marketState: analysis.marketState,
@@ -312,7 +339,7 @@ function emitLLMDecision(analysis: any) {
     orderFlow: analysis.orderFlow,
     decision: analysis.decision,
     reasoning: analysis.reasoning,
-    confidence: analysis.confidence,
+    confidence: normalizedConfidence,
   };
 
   log(`🤖 LLM Analysis: ${analysis.reasoning}`, 'info');
@@ -406,6 +433,131 @@ function calculateVolumeProfile(bars: TopstepXFuturesBar[]): VolumeProfile {
     .slice(0, 5); // Top 5 LVNs
 
   return { nodes, poc, vah, val, lvns };
+}
+
+async function refreshHigherTimeframes(force: boolean = false) {
+  const refreshIntervalMs = 15 * 60 * 1000;
+  if (!force && Date.now() - lastHigherTimeframeRefresh < refreshIntervalMs) {
+    return;
+  }
+  if (!contractId) return;
+
+  try {
+    const now = new Date();
+    const fourHourStart = new Date(now.getTime() - 4 * 60 * 60 * 1000 * 30);
+    const dailyStart = new Date(now.getTime() - 24 * 60 * 60 * 1000 * 35);
+
+    const [fourHourBars, dailyBars] = await Promise.all([
+      fetchTopstepXFuturesBars({
+        contractId,
+        startTime: fourHourStart.toISOString(),
+        endTime: now.toISOString(),
+        unit: 3,
+        unitNumber: 4,
+        limit: 80,
+      }),
+      fetchTopstepXFuturesBars({
+        contractId,
+        startTime: dailyStart.toISOString(),
+        endTime: now.toISOString(),
+        unit: 4,
+        unitNumber: 1,
+        limit: 60,
+      }),
+    ]);
+
+    const filteredFourHour = fourHourBars ? fourHourBars.slice(-20) : [];
+    const filteredDaily = dailyBars ? dailyBars.slice(-20) : [];
+
+    higherTimeframeSnapshots = [];
+    if (filteredFourHour.length > 0) {
+      higherTimeframeSnapshots.push({
+        timeframe: '240m',
+        candles: filteredFourHour,
+      });
+    }
+    if (filteredDaily.length > 0) {
+      higherTimeframeSnapshots.push({
+        timeframe: '1d',
+        candles: filteredDaily,
+      });
+    }
+
+    lastHigherTimeframeRefresh = Date.now();
+    log(`📈 Refreshed higher timeframe candles (4h/1d)`, 'info');
+  } catch (error: any) {
+    log(`⚠️ Failed to refresh higher timeframe candles: ${error.message}`, 'warning');
+  }
+}
+
+async function refreshRecentVolumeProfiles(force: boolean = false) {
+  const refreshIntervalMs = 30 * 60 * 1000;
+  if (!force && Date.now() - lastVolumeProfileRefresh < refreshIntervalMs) {
+    return;
+  }
+  if (!contractId) return;
+
+  try {
+    const now = new Date();
+    const lookback = new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000);
+
+    const sessionBars = await fetchTopstepXFuturesBars({
+      contractId,
+      startTime: lookback.toISOString(),
+      endTime: now.toISOString(),
+      unit: 2,
+      unitNumber: 5,
+      limit: 6000,
+    });
+
+    const sessions = new Map<string, TopstepXFuturesBar[]>();
+
+    (sessionBars || []).forEach(bar => {
+      const ts = new Date(bar.timestamp);
+      const sessionStart = getTradingDayStart(ts);
+      const key = sessionStart.toISOString();
+      const bucket = sessions.get(key);
+      if (bucket) {
+        bucket.push(bar);
+      } else {
+        sessions.set(key, [bar]);
+      }
+    });
+
+    const sortedSessions = Array.from(sessions.entries())
+      .sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime());
+
+    const summaries: SessionVolumeProfileSummary[] = [];
+
+    sortedSessions.slice(-5).forEach(([sessionStartIso, dayBars]) => {
+      if (!dayBars || dayBars.length === 0) {
+        return;
+      }
+
+      const profile = calculateVolumeProfile(dayBars);
+      const sessionHigh = dayBars.reduce((max, bar) => Math.max(max, bar.high), Number.NEGATIVE_INFINITY);
+      const sessionLow = dayBars.reduce((min, bar) => Math.min(min, bar.low), Number.POSITIVE_INFINITY);
+      const sessionStart = new Date(sessionStartIso);
+      const sessionEnd = new Date(sessionStart.getTime() + 24 * 60 * 60 * 1000);
+
+      summaries.push({
+        sessionStart: sessionStart.toISOString(),
+        sessionEnd: sessionEnd.toISOString(),
+        poc: profile.poc,
+        vah: profile.vah,
+        val: profile.val,
+        lvns: profile.lvns,
+        sessionHigh: Number.isFinite(sessionHigh) ? sessionHigh : profile.vah,
+        sessionLow: Number.isFinite(sessionLow) ? sessionLow : profile.val,
+      });
+    });
+
+    recentSessionProfiles = summaries;
+    lastVolumeProfileRefresh = Date.now();
+    log(`📊 Refreshed recent session volume profiles (${recentSessionProfiles.length})`, 'info');
+  } catch (error: any) {
+    log(`⚠️ Failed to refresh recent session profiles: ${error.message}`, 'warning');
+  }
 }
 
 // Detect Market State
@@ -560,13 +712,50 @@ function makeDecision(): AgentDecision {
 
 // Process Market Data Update (with OpenAI Integration)
 async function processMarketUpdate() {
-  if (bars.length < 20) return;
+  if (bars.length < 3) return;
 
-  // Update volume profile (existing)
-  volumeProfile = calculateVolumeProfile(bars.slice(-50));
+  log(`[DEBUG processMarketUpdate] Entered function with ${bars.length} bars`, 'info');
+
+  if (executionManager) {
+    await executionManager.syncWithBrokerState();
+    currentPosition = executionManager.getActivePosition();
+  }
+
+  // Update volume profile using the full trading day (DAS-style session VP)
+  const tradingDayStart = getTradingDayStart();
+  const dayBars = bars.filter(bar => {
+    const ts = new Date(bar.timestamp).getTime();
+    return !Number.isNaN(ts) && ts >= tradingDayStart.getTime();
+  });
+  const profileSource = dayBars.length > 0 ? dayBars : bars.slice(-50);
+  volumeProfile = calculateVolumeProfile(profileSource);
 
   // Update market structure (existing)
   marketStructure.state = detectMarketState();
+
+  log(`[DEBUG processMarketUpdate] About to call refreshHigherTimeframes()`, 'info');
+  await refreshHigherTimeframes();
+  log(`[DEBUG processMarketUpdate] refreshHigherTimeframes() completed`, 'info');
+
+  log(`[DEBUG processMarketUpdate] About to call refreshRecentVolumeProfiles()`, 'info');
+  await refreshRecentVolumeProfiles();
+  log(`[DEBUG processMarketUpdate] refreshRecentVolumeProfiles() completed`, 'info');
+
+  // ========== CRITICAL: Sync position from ExecutionManager FIRST ==========
+  // This MUST happen before any trading decisions to prevent duplicate entries
+  if (executionManager) {
+    const previousPosition = currentPosition;
+    currentPosition = executionManager.getActivePosition();
+
+    if (currentPosition && !previousPosition) {
+      log(`🔄 [PositionSync] Position detected from broker: ${currentPosition.side.toUpperCase()} @ ${currentPosition.entryPrice.toFixed(2)}`, 'info');
+      // Initialize risk management timer to prevent immediate spam
+      lastRiskMgmtTime = Date.now();
+    } else if (!currentPosition && previousPosition) {
+      log(`🔄 [PositionSync] Position closed`, 'info');
+      lastRiskMgmtDecision = null; // Clear Risk Management data
+    }
+  }
 
   // ========== NEW: Build market data for OpenAI ==========
   const marketData = buildFuturesMarketData(
@@ -578,23 +767,64 @@ async function processMarketUpdate() {
     currentCvdBar,
     accountBalance,
     currentPosition,
-    realizedPnL
+    realizedPnL,
+    higherTimeframeSnapshots,
+    recentSessionProfiles,
+    cvdMinuteBars
   );
 
-  // ========== NEW: Get OpenAI decision ==========
+  // ========== NEW: Get OpenAI decision on a fixed interval (every minute) ==========
   let openaiDecision = null;
-  try {
-    openaiDecision = await analyzeFuturesMarket(marketData);
-    if (openaiDecision) {
-      log(`🤖 OpenAI Decision: ${openaiDecision.decision} @ ${openaiDecision.entryPrice} (Confidence: ${openaiDecision.confidence}%)`, 'info');
+
+  log(`[DEBUG processMarketUpdate] About to check if should analyze`, 'info');
+  const nowMs = Date.now();
+  const currentCandleTimestamp = bars[bars.length - 1]?.timestamp;
+  const timeSinceLastAnalysis = nowMs - lastOpenAIAnalysisTime;
+
+  // Check if we can enter new trades (respects grace period after position close)
+  const canEnterNewTrade = executionManager ? executionManager.canEnterNewTrade() : true;
+  const shouldAnalyze = timeSinceLastAnalysis >= ANALYSIS_INTERVAL_MS && !currentPosition && canEnterNewTrade;
+
+  log(`[DEBUG processMarketUpdate] Time since last analysis: ${timeSinceLastAnalysis}ms, threshold: ${ANALYSIS_INTERVAL_MS}ms, hasPosition: ${!!currentPosition}, canEnterNewTrade: ${canEnterNewTrade}, shouldAnalyze: ${shouldAnalyze}`, 'info');
+
+  // ONLY analyze for new trades when we have NO position
+  // When we have a position, the Risk Management Agent handles everything
+  if (shouldAnalyze) {
+    lastOpenAIAnalysisTime = nowMs;
+
+    try {
+      log(`🧠 [OpenAI] Analyzing market for NEW TRADE opportunities (no active position)`, 'info');
+      openaiDecision = await analyzeFuturesMarket(marketData);
+
+      if (openaiDecision) {
+        const clampedConfidence = Math.max(0, Math.min(100, openaiDecision.confidence || 0));
+        const normalizedConfidence = clampedConfidence / 100;
+        log(`🤖 [OpenAI] ${openaiDecision.decision} @ ${openaiDecision.entryPrice?.toFixed(2) || 'null'} | Confidence: ${clampedConfidence}% | Regime: ${openaiDecision.inferredRegime || 'unknown'}`, 'success');
+
+        // Emit OpenAI decision to dashboard
+        if (io) {
+          io.emit('llm_decision', {
+            timestamp: new Date().toISOString(),
+            decision: openaiDecision.decision,
+            reasoning: openaiDecision.reasoning,
+            confidence: normalizedConfidence,
+            entryPrice: openaiDecision.entryPrice,
+            stopLoss: openaiDecision.stopLoss,
+            target: openaiDecision.target,
+            riskManagementReasoning: openaiDecision.riskManagementReasoning || null, // SL/TP placement explanation
+            inferredRegime: openaiDecision.inferredRegime,
+            trade_decisions: openaiDecision.decision !== 'HOLD' ? [openaiDecision.decision] : [],
+          });
+        }
+      }
+    } catch (error: any) {
+      log(`❌ [OpenAI] Analysis failed: ${error.message}`, 'error');
+      // Continue with rule-based only if OpenAI fails
     }
-  } catch (error) {
-    console.error('[OpenAI] Analysis failed:', error);
-    // Continue with rule-based only if OpenAI fails
   }
 
-  // Get rule-based decision (existing)
-  const ruleBasedDecision = makeDecision();
+  // OLD RULE-BASED SYSTEM - DISABLED (DeepSeek Reasoner only)
+  // const ruleBasedDecision = makeDecision();
 
   // ========== NEW: Execute if high confidence ==========
   if (executionManager && openaiDecision) {
@@ -610,15 +840,106 @@ async function processMarketUpdate() {
 
     if (executionResult.executed) {
       currentPosition = executionManager.getActivePosition();
+
+      // ========== IMMEDIATE RISK MANAGEMENT AFTER ENTRY ==========
+      // Call risk manager immediately after entering position (don't wait for interval)
+      if (currentPosition && bars && bars.length > 0) {
+        log('🛡️ [RiskMgmt] 🚀 NEW POSITION - Running IMMEDIATE Risk Management Analysis...', 'success');
+
+        // CRITICAL: Set timer IMMEDIATELY to prevent regular 30s check from also firing
+        lastRiskMgmtTime = nowMs;
+
+        try {
+          const riskDecision = await analyzePositionRisk(currentPosition, {
+            currentPrice: bars[bars.length - 1].close,
+            recentBars: bars.slice(-10),
+            cvd: currentCvdBar?.cvd || 0,
+            cvdTrend: currentCvdBar && currentCvdBar.cvd > 0 ? 'up' : currentCvdBar && currentCvdBar.cvd < 0 ? 'down' : 'neutral',
+            orderFlowPressure: orderFlowData.aggression > 0.6 ? 'bullish' : orderFlowData.aggression < 0.4 ? 'bearish' : 'neutral',
+            volumeProfile: {
+              poc: volumeProfile.poc,
+              vah: volumeProfile.vah,
+              val: volumeProfile.val,
+            },
+            whaleActivity: (orderFlowData.largeOrders || []).slice(-3).map(o =>
+              `${o.side === 'buy' ? 'BUY' : 'SELL'} ${o.volume} @ ${o.price.toFixed(2)}`
+            ).join(', '),
+            marketStructure: marketStructure.trend,
+          });
+
+          log(`🛡️ [RiskMgmt] Initial Decision: ${riskDecision.action} (${riskDecision.urgency} urgency)`, 'info');
+          log(`🛡️ [RiskMgmt] ${riskDecision.reasoning.substring(0, 200)}...`, 'info');
+
+          // Store for dashboard
+          lastRiskMgmtDecision = {
+            timestamp: new Date().toISOString(),
+            action: riskDecision.action,
+            urgency: riskDecision.urgency,
+            reasoning: riskDecision.reasoning,
+            newStopLoss: riskDecision.newStopLoss,
+            newTarget: riskDecision.newTarget,
+          };
+
+          // Emit to dashboard
+          if (io) {
+            io.emit('llm_decision', {
+              timestamp: new Date().toISOString(),
+              decision: riskDecision.action === 'CLOSE_POSITION' ? (currentPosition.side === 'long' ? 'SELL' : 'BUY') : 'HOLD',
+              reasoning: `🛡️ INITIAL RISK ASSESSMENT: ${riskDecision.reasoning}`,
+              confidence: riskDecision.urgency === 'high' ? 0.9 : riskDecision.urgency === 'medium' ? 0.7 : 0.5,
+              entryPrice: null,
+              stopLoss: riskDecision.newStopLoss,
+              target: riskDecision.newTarget,
+              riskManagementReasoning: `Action: ${riskDecision.action} | Risk Level: ${riskDecision.riskLevel} | Urgency: ${riskDecision.urgency}`,
+              inferredRegime: 'INITIAL_POSITION_SETUP',
+              trade_decisions: [],
+            });
+          }
+
+          // Apply risk management decision
+          if (riskDecision.action === 'CLOSE_POSITION') {
+            log('🛡️ [RiskMgmt] ⚠️ IMMEDIATE CLOSE recommended!', 'warning');
+            const closePrice = bars[bars.length - 1].close;
+            const closedDecisionId = await executionManager.closePosition(
+              currentPosition.decisionId,
+              closePrice,
+              'immediate_risk_management_close'
+            );
+            if (closedDecisionId) {
+              log(`🛡️ [RiskMgmt] ✅ Position closed immediately`, 'success');
+              currentPosition = null;
+              lastRiskMgmtTime = 0;
+              lastRiskMgmtDecision = null;
+            }
+          } else if (riskDecision.action !== 'HOLD_BRACKETS') {
+            // Adjust brackets immediately
+            const adjusted = await executionManager.adjustActiveProtection(
+              riskDecision.newStopLoss,
+              riskDecision.newTarget
+            );
+            if (adjusted) {
+              log(`🛡️ [RiskMgmt] ✅ Initial brackets set - Stop: ${riskDecision.newStopLoss?.toFixed(2) || 'unchanged'}, Target: ${riskDecision.newTarget?.toFixed(2) || 'unchanged'}`, 'success');
+              currentPosition = executionManager.getActivePosition();
+            }
+          }
+
+          // Timer already set at the start to prevent double-calling
+
+        } catch (error: any) {
+          log(`🛡️ [RiskMgmt] ❌ Error in immediate risk assessment: ${error.message}`, 'error');
+          // Timer already set at the start
+        }
+      }
     }
-  } else if (ruleBasedDecision.entry.side && ruleBasedDecision.entry.confidence >= 70 && !currentPosition) {
-    // Fallback to rule-based if no OpenAI decision
-    log(`📊 Rule-based Decision: ${ruleBasedDecision.entry.side.toUpperCase()} (Confidence: ${ruleBasedDecision.entry.confidence}%)`, 'info');
-    executeEntry(ruleBasedDecision);
   }
+  // OLD RULE-BASED FALLBACK - DISABLED (DeepSeek Reasoner only)
+  // else if (ruleBasedDecision.entry.side && ruleBasedDecision.entry.confidence >= 70 && !currentPosition) {
+  //   log(`📊 Rule-based Decision: ${ruleBasedDecision.entry.side.toUpperCase()} (Confidence: ${ruleBasedDecision.entry.confidence}%)`, 'info');
+  //   executeEntry(ruleBasedDecision);
+  // }
 
   // ========== NEW: Update position and check exits ==========
-  if (executionManager && executionManager.getActivePosition()) {
+  if (executionManager && currentPosition) {
     const exitResult = await updatePositionAndCheckExits(
       executionManager,
       bars[bars.length - 1].close,
@@ -633,14 +954,124 @@ async function processMarketUpdate() {
         realizedPnL += outcome.profitLoss;
       }
       currentPosition = null;
+      lastRiskMgmtTime = 0; // Reset risk management timer
+      lastRiskMgmtDecision = null; // Clear old Risk Management decision from dashboard
     } else {
-      // Update position reference
-      currentPosition = executionManager.getActivePosition();
+      // ========== RISK MANAGEMENT AGENT ==========
+      // Run risk management analysis every 30 seconds for active drawdown prevention
+      // This REPLACES the main trading agent when we have a position
+      const timeSinceLastRiskMgmt = nowMs - lastRiskMgmtTime;
+      if (timeSinceLastRiskMgmt >= RISK_MGMT_INTERVAL_MS) {
+        try {
+          log(`🛡️ [RiskMgmt] 🎯 ACTIVE POSITION - Running Risk Management Agent... (${Math.floor(timeSinceLastRiskMgmt / 1000)}s since last check)`, 'info');
+
+          // CRITICAL: Update timer IMMEDIATELY to prevent duplicate calls during async operation
+          lastRiskMgmtTime = Date.now();
+
+          // Safety check: ensure we have bars before analyzing
+          if (bars && bars.length > 0) {
+            const riskDecision = await analyzePositionRisk(currentPosition, {
+            currentPrice: bars[bars.length - 1].close,
+            recentBars: bars.slice(-10),
+            cvd: currentCvdBar?.cvd || 0,
+            cvdTrend: currentCvdBar && currentCvdBar.cvd > 0 ? 'up' : currentCvdBar && currentCvdBar.cvd < 0 ? 'down' : 'neutral',
+            orderFlowPressure: orderFlowData.aggression > 0.6 ? 'bullish' : orderFlowData.aggression < 0.4 ? 'bearish' : 'neutral',
+            volumeProfile: {
+              poc: volumeProfile.poc,
+              vah: volumeProfile.vah,
+              val: volumeProfile.val,
+            },
+            whaleActivity: (orderFlowData.largeOrders || []).slice(-3).map(o =>
+              `${o.side === 'buy' ? 'BUY' : 'SELL'} ${o.volume} @ ${o.price.toFixed(2)}`
+            ).join(', '),
+            marketStructure: marketStructure.trend,
+          });
+
+          log(`🛡️ [RiskMgmt] Decision: ${riskDecision.action} (${riskDecision.urgency} urgency)`, 'info');
+          log(`🛡️ [RiskMgmt] ${riskDecision.reasoning.substring(0, 200)}...`, 'info');
+
+          // Store for dashboard broadcast
+          lastRiskMgmtDecision = {
+            timestamp: new Date().toISOString(),
+            action: riskDecision.action,
+            urgency: riskDecision.urgency,
+            reasoning: riskDecision.reasoning,
+            newStopLoss: riskDecision.newStopLoss,
+            newTarget: riskDecision.newTarget,
+          };
+
+          // Emit Risk Management decision to dashboard
+          if (io) {
+            io.emit('llm_decision', {
+              timestamp: new Date().toISOString(),
+              decision: riskDecision.action === 'CLOSE_POSITION' ? (currentPosition.side === 'long' ? 'SELL' : 'BUY') : 'HOLD',
+              reasoning: `🛡️ RISK MANAGEMENT: ${riskDecision.reasoning}`,
+              confidence: riskDecision.urgency === 'high' ? 0.9 : riskDecision.urgency === 'medium' ? 0.7 : 0.5,
+              entryPrice: null,
+              stopLoss: riskDecision.newStopLoss,
+              target: riskDecision.newTarget,
+              riskManagementReasoning: `Action: ${riskDecision.action} | Risk Level: ${riskDecision.riskLevel} | Urgency: ${riskDecision.urgency}`,
+              inferredRegime: 'POSITION_MANAGEMENT',
+              trade_decisions: [],
+            });
+          }
+
+          // Apply risk management decision
+          if (riskDecision.action === 'CLOSE_POSITION') {
+            log('🛡️ [RiskMgmt] ⚠️ CLOSING POSITION based on risk analysis!', 'warning');
+            // Close position immediately by calling ExecutionManager directly
+            const closePrice = bars[bars.length - 1].close;
+            const closedDecisionId = await executionManager.closePosition(
+              currentPosition.decisionId,
+              closePrice,
+              'risk_management_close'
+            );
+
+            if (closedDecisionId) {
+              log(`🛡️ [RiskMgmt] ✅ Position closed successfully (Decision ID: ${closedDecisionId})`, 'success');
+              currentPosition = null;
+              lastRiskMgmtTime = 0;
+              lastRiskMgmtDecision = null; // Clear old Risk Management decision
+            } else {
+              log('🛡️ [RiskMgmt] ❌ Failed to close position', 'error');
+            }
+          } else if (riskDecision.action !== 'HOLD_BRACKETS') {
+            // Adjust brackets
+            const adjusted = await executionManager.adjustActiveProtection(
+              riskDecision.newStopLoss,
+              riskDecision.newTarget
+            );
+
+            if (adjusted) {
+              log(`🛡️ [RiskMgmt] ✅ Brackets adjusted - Stop: ${riskDecision.newStopLoss?.toFixed(2) || 'unchanged'}, Target: ${riskDecision.newTarget?.toFixed(2) || 'unchanged'}`, 'success');
+              currentPosition = executionManager.getActivePosition(); // Refresh position
+            } else {
+              log('🛡️ [RiskMgmt] ⚠️ Failed to adjust brackets', 'warning');
+            }
+          } else {
+            log('🛡️ [RiskMgmt] ✓ Holding current brackets - no adjustments needed', 'info');
+          }
+          } else {
+            log('🛡️ [RiskMgmt] ⚠️ No bars available yet, skipping risk analysis', 'warn');
+          }
+
+        } catch (error: any) {
+          log(`🛡️ [RiskMgmt] ❌ Error in risk management: ${error.message}`, 'error');
+          // Timer already set at start of try block, don't reset
+        }
+      } else {
+        // Log why we're not running (for debugging silent periods)
+        if (currentPosition && timeSinceLastRiskMgmt < RISK_MGMT_INTERVAL_MS && timeSinceLastRiskMgmt > 0) {
+          const secondsRemaining = Math.ceil((RISK_MGMT_INTERVAL_MS - timeSinceLastRiskMgmt) / 1000);
+          log(`🛡️ [RiskMgmt] ⏳ Next check in ${secondsRemaining}s (${Math.floor(timeSinceLastRiskMgmt / 1000)}s/${RISK_MGMT_INTERVAL_MS / 1000}s elapsed)`, 'debug');
+        }
+      }
     }
   }
 
   // Emit decision (existing, can be enhanced)
-  if (openaiDecision && openaiDecision.confidence >= 70) {
+  if (openaiDecision) {
+    const clampedConfidence = Math.max(0, Math.min(100, openaiDecision.confidence || 0));
     emitLLMDecision({
       marketState: openaiDecision.marketState,
       model: openaiDecision.setupModel,
@@ -652,23 +1083,25 @@ async function processMarketUpdate() {
       },
       decision: openaiDecision.decision.toLowerCase(),
       reasoning: openaiDecision.reasoning,
-      confidence: openaiDecision.confidence,
-    });
-  } else if (ruleBasedDecision.entry.confidence > 60) {
-    emitLLMDecision({
-      marketState: ruleBasedDecision.marketState,
-      model: ruleBasedDecision.model,
-      location: ruleBasedDecision.location,
-      orderFlow: {
-        cvd: orderFlowData.cvd,
-        bigPrints: orderFlowData.bigPrints.length,
-        confirmed: ruleBasedDecision.orderFlowConfirmation,
-      },
-      decision: ruleBasedDecision.entry.side || 'hold',
-      reasoning: ruleBasedDecision.entry.reason,
-      confidence: ruleBasedDecision.entry.confidence,
+      confidence: clampedConfidence,
     });
   }
+  // OLD RULE-BASED SIGNAL EMISSION - DISABLED (DeepSeek Reasoner only)
+  // else if (ruleBasedDecision.entry.confidence > 60) {
+  //   emitLLMDecision({
+  //     marketState: ruleBasedDecision.marketState,
+  //     model: ruleBasedDecision.model,
+  //     location: ruleBasedDecision.location,
+  //     orderFlow: {
+  //       cvd: orderFlowData.cvd,
+  //       bigPrints: orderFlowData.bigPrints.length,
+  //       confirmed: ruleBasedDecision.orderFlowConfirmation,
+  //     },
+  //     decision: ruleBasedDecision.entry.side || 'hold',
+  //     reasoning: ruleBasedDecision.entry.reason,
+  //     confidence: ruleBasedDecision.entry.confidence,
+  //   });
+  // }
 
   // Update dashboard (existing)
   broadcastDashboardUpdate();
@@ -727,7 +1160,10 @@ function broadcastDashboardUpdate() {
       pnl: currentPosition.side === 'long'
         ? ((currentBar?.close || 0) - currentPosition.entryPrice) * 20 * currentPosition.contracts
         : (currentPosition.entryPrice - (currentBar?.close || 0)) * 20 * currentPosition.contracts,
+      stop_loss: currentPosition.stopLoss,
+      target: currentPosition.target,
     } : null,
+    risk_management: lastRiskMgmtDecision,
     trades_today: 0, // TODO: track this
     daily_pnl: 0, // TODO: track this
   });
@@ -760,9 +1196,10 @@ function broadcastDashboardUpdate() {
     sell_absorption: orderFlowData.absorption.sell,
     buy_exhaustion: orderFlowData.exhaustion.buy,
     sell_exhaustion: orderFlowData.exhaustion.sell,
-    big_prints: orderFlowData.bigPrints.slice(-10),
+    cvd_candles: [...cvdMinuteBars, ...(currentCvdBar ? [currentCvdBar] : [])],
+    big_prints: (orderFlowData.bigPrints || []).slice(-10),
   };
-  log(`📡 Broadcasting CVD: ${orderFlowData.cvd.toFixed(2)}, trend=${cvdData.cvd_trend}, OHLC=[O:${currentCvdBar?.open.toFixed(1)}, H:${currentCvdBar?.high.toFixed(1)}, L:${currentCvdBar?.low.toFixed(1)}, C:${currentCvdBar?.close.toFixed(1)}], buy_abs=${(cvdData.buy_absorption * 100).toFixed(1)}%, sell_abs=${(cvdData.sell_absorption * 100).toFixed(1)}%`, 'info');
+  log(`📡 Broadcasting CVD: ${orderFlowData.cvd.toFixed(2)}, trend=${cvdData.cvd_trend}, OHLC=[O:${currentCvdBar?.open.toFixed(1)}, H:${currentCvdBar?.high.toFixed(1)}, L:${currentCvdBar?.low.toFixed(1)}, C:${currentCvdBar?.close.toFixed(1)}], total candles=${cvdMinuteBars.length}`, 'info');
   io.emit('cvd', cvdData);
 
   // Emit L2 data event
@@ -813,7 +1250,7 @@ async function initDashboard() {
     broadcastDashboardUpdate();
 
     socket.on('request_chart_history', () => {
-      socket.emit('chart_history', bars.slice(-100));
+      socket.emit('chart_history', getSessionBars());
     });
 
     socket.on('start_trading', () => {
@@ -866,7 +1303,7 @@ async function connectMarketData() {
       const price = parseFloat(trade.price);
       const size = parseFloat(trade.volume); // TopStepX uses "volume" not "size"
       const type = trade.type; // 0 or 1
-      const side = type === 1 ? 'Buy' : 'Sell'; // type: 1=Buy, 0=Sell
+      const side = type === 0 ? 'Buy' : 'Sell'; // type: 0=Buy, 1=Sell (TopStepX inverted)
 
       // Debug first trade to see format
       if (idx === 0) {
@@ -883,14 +1320,14 @@ async function connectMarketData() {
       const timestamp = now.toISOString();
 
       // Build 5-minute bars from trades
-      const currentFiveMinute = Math.floor(now.getTime() / (5 * 60 * 1000)) * (5 * 60 * 1000);
-      const currentFiveMinuteISO = new Date(currentFiveMinute).toISOString();
+      const currentMinute = Math.floor(now.getTime() / (60 * 1000)) * (60 * 1000);
+      const currentMinuteISO = new Date(currentMinute).toISOString();
       let currentBar = bars[bars.length - 1];
 
-      if (!currentBar || new Date(currentBar.timestamp).getTime() < currentFiveMinute) {
-        // New bar - use 5-minute boundary timestamp
+      if (!currentBar || new Date(currentBar.timestamp).getTime() < currentMinute) {
+        // New bar - use 1-minute boundary timestamp
         const newBar: TopstepXFuturesBar = {
-          timestamp: currentFiveMinuteISO,
+          timestamp: currentMinuteISO,
           open: price,
           high: price,
           low: price,
@@ -898,9 +1335,9 @@ async function connectMarketData() {
           volume: size,
         };
         bars.push(newBar);
-        log(`📊 NEW 5-MIN CANDLE: ${currentFiveMinuteISO}, O=${price}, bars=${bars.length}`, 'info');
-        // Keep last 1000 bars
-        if (bars.length > 1000) bars.shift();
+        log(`📊 NEW 1-MIN CANDLE: ${currentMinuteISO}, O=${price}, bars=${bars.length}`, 'info');
+        // Keep last 1500 bars (~1 session)
+        if (bars.length > 1500) bars.shift();
       } else {
         // Update existing bar
         currentBar.high = Math.max(currentBar.high, price);
@@ -910,21 +1347,27 @@ async function connectMarketData() {
       }
 
       // Update CVD
-      const delta = trade.side === 'Buy' ? size : -size;
+      const delta = side === 'Buy' ? size : -size;
       const previousCvd = orderFlowData.cvd;
       orderFlowData.cvd += delta;
 
-      // Track CVD OHLC for current 5-minute bar
-      if (!currentCvdBar || currentCvdBar.timestamp !== currentFiveMinuteISO) {
-        // New CVD bar - initialize with current CVD value
+      // Track CVD OHLC for current 1-minute bar
+      if (!currentCvdBar || currentCvdBar.timestamp !== currentMinuteISO) {
+        if (currentCvdBar) {
+          cvdMinuteBars.push(currentCvdBar);
+          if (cvdMinuteBars.length > 1500) {
+            cvdMinuteBars.shift();
+          }
+        }
+
         currentCvdBar = {
-          timestamp: currentFiveMinuteISO,
+          timestamp: currentMinuteISO,
           open: orderFlowData.cvd,
           high: orderFlowData.cvd,
           low: orderFlowData.cvd,
           close: orderFlowData.cvd,
         };
-        log(`📊 NEW CVD BAR: ${currentFiveMinuteISO}, CVD=${orderFlowData.cvd.toFixed(2)}`, 'info');
+        log(`📊 NEW CVD BAR: ${currentMinuteISO}, CVD=${orderFlowData.cvd.toFixed(2)}`, 'info');
       } else {
         // Update existing CVD bar
         currentCvdBar.high = Math.max(currentCvdBar.high, orderFlowData.cvd);
@@ -952,19 +1395,25 @@ async function connectMarketData() {
           timestamp: Date.now(),
         };
       }
-      if (trade.side === 'Buy') {
+      if (side === 'Buy') {
         orderFlowData.volumeAtPrice[priceLevel].buy += size;
       } else {
         orderFlowData.volumeAtPrice[priceLevel].sell += size;
       }
       orderFlowData.volumeAtPrice[priceLevel].timestamp = Date.now();
+      const retentionWindow = 10 * 60 * 1000;
+      Object.keys(orderFlowData.volumeAtPrice).forEach(level => {
+        if (Date.now() - orderFlowData.volumeAtPrice[Number(level)].timestamp > retentionWindow) {
+          delete orderFlowData.volumeAtPrice[Number(level)];
+        }
+      });
 
       // Check for big prints
       if (size >= 10) { // 10+ contracts is big
         orderFlowData.bigPrints.push({
           price,
           size,
-          side: trade.side === 'Buy' ? 'buy' : 'sell',
+          side: side === 'Buy' ? 'buy' : 'sell',
           timestamp: Date.now(),
         });
 
@@ -991,10 +1440,6 @@ async function connectMarketData() {
   await marketHub.start();
   log('Connected to market data hub', 'success');
 
-  // Initialize execution manager for OpenAI integration
-  executionManager = createExecutionManager(SYMBOL, CONTRACTS);
-  log(`⚙️ Execution manager initialized for ${SYMBOL}`, 'success');
-
   // Subscribe to contract
   const metadata = await fetchTopstepXFuturesMetadata(SYMBOL);
   if (!metadata) {
@@ -1003,6 +1448,54 @@ async function connectMarketData() {
   }
 
   contractId = metadata.id;
+
+  // Initialize execution manager with live trading capability
+  const LIVE_TRADING = process.env.LIVE_TRADING === 'true';  // Set to 'true' to enable real order submission
+
+  // CRITICAL: Override tick sizes for known contracts (TopStepX API sometimes returns wrong values)
+  const KNOWN_TICK_SIZES: Record<string, number> = {
+    'NQZ5': 0.25,    // E-mini Nasdaq
+    'NQH6': 0.25,    // E-mini Nasdaq
+    'ESZ5': 0.25,    // E-mini S&P 500
+    'ESH6': 0.25,    // E-mini S&P 500
+    'GCZ5': 0.10,    // Gold futures
+    'GCG6': 0.10,    // Gold futures
+    'MGC': 0.10,     // Micro Gold
+    'MGCZ5': 0.10,   // Micro Gold
+    'M6E': 0.00001,  // Micro Euro
+    'MES': 0.25,     // Micro E-mini S&P 500
+    'MNQ': 0.25,     // Micro E-mini Nasdaq
+  };
+
+  const correctTickSize = KNOWN_TICK_SIZES[SYMBOL] || metadata.tickSize || 0.25;
+
+  if (KNOWN_TICK_SIZES[SYMBOL] && metadata.tickSize !== correctTickSize) {
+    log(`⚠️ TopStepX API returned wrong tick size for ${SYMBOL}: ${metadata.tickSize} (corrected to ${correctTickSize})`, 'warning');
+  }
+
+  executionManager = createExecutionManager(SYMBOL, contractId, CONTRACTS, LIVE_TRADING, {
+    tickSize: correctTickSize,
+    preferredAccountId: ACCOUNT_ID > 0 ? ACCOUNT_ID : undefined,
+    enableNativeBrackets: process.env.TOPSTEPX_ENABLE_NATIVE_BRACKETS === 'true',
+  });
+  log(`⚙️ Execution manager initialized for ${SYMBOL} with tickSize=${correctTickSize} (${LIVE_TRADING ? 'LIVE TRADING' : 'SIM MODE'})`, LIVE_TRADING ? 'warning' : 'success');
+
+  // Initialize trading account (selects account with balance < $40k)
+  const accountInitialized = await executionManager.initializeTradingAccount();
+  if (!accountInitialized) {
+    log('⚠️ Failed to initialize trading account. Orders will not be submitted.', 'error');
+  }
+
+  if (accountInitialized) {
+    const rehydrated = await executionManager.rehydrateActivePosition();
+    if (rehydrated) {
+      currentPosition = rehydrated;
+      log(
+        `♻️ Rehydrated existing ${rehydrated.side.toUpperCase()} position (${rehydrated.contracts} contracts) @ ${rehydrated.entryPrice.toFixed(2)} | SL ${rehydrated.stopLoss.toFixed(2)} | TP ${rehydrated.target.toFixed(2)}`,
+        'warning'
+      );
+    }
+  }
 
   // Subscribe to market data
   marketHub.invoke('SubscribeContractQuotes', contractId).catch(err =>
@@ -1019,8 +1512,8 @@ async function connectMarketData() {
 }
 
 // Get futures trading day start time (6pm ET yesterday)
-function getTradingDayStart(): Date {
-  const now = new Date();
+function getTradingDayStart(referenceDate: Date = new Date()): Date {
+  const now = new Date(referenceDate);
 
   // Convert to ET (UTC-5 or UTC-4 during DST)
   const etOffset = -5; // Standard time, adjust for DST if needed
@@ -1045,6 +1538,16 @@ function getTradingDayStart(): Date {
 
   // Convert back to UTC
   return new Date(tradingDayStart.getTime() - (etOffset * 60 * 60 * 1000));
+}
+
+function getSessionBars(): TopstepXFuturesBar[] {
+  const startTime = getTradingDayStart().getTime();
+  return bars
+    .filter(bar => {
+      const ts = new Date(bar.timestamp).getTime();
+      return !Number.isNaN(ts) && ts >= startTime;
+    })
+    .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
 }
 
 // Load Historical Data
@@ -1072,7 +1575,7 @@ async function loadHistoricalData() {
       startTime: startTime.toISOString(),
       endTime: endTime.toISOString(),
       unit: 2,        // Minutes
-      unitNumber: 5,  // 5-minute bars
+      unitNumber: 1,  // 1-minute bars
       limit: 500,     // ~23 hours * 12 bars/hour = 276 bars max
     });
 
@@ -1080,10 +1583,18 @@ async function loadHistoricalData() {
       bars = historicalBars;
       volumeProfile = calculateVolumeProfile(bars);
       marketStructure.state = detectMarketState();
-      log(`✅ Loaded ${bars.length} historical 5-min bars from TopstepX`, 'success');
+      cvdMinuteBars = [];
+      currentCvdBar = null;
+      orderFlowData.cvd = 0;
+      orderFlowData.cvdHistory = [];
+      orderFlowData.bigPrints = [];
+      orderFlowData.footprintImbalance = {};
+      log(`✅ Loaded ${bars.length} historical 1-min bars from TopstepX`, 'success');
     } else {
       log('No historical bars returned from TopstepX', 'warning');
     }
+    await refreshHigherTimeframes(true);
+    await refreshRecentVolumeProfiles(true);
   } catch (error: any) {
     log(`Failed to load historical data: ${error.message}`, 'error');
   }
@@ -1104,6 +1615,20 @@ async function main() {
     // Initialize components
     await initDashboard();
 
+    // Fetch real account balance from TopStepX
+    try {
+      const accounts = await fetchTopstepXAccounts(true);
+      const myAccount = accounts.find(acc => acc.id === ACCOUNT_ID);
+      if (myAccount && myAccount.balance) {
+        accountBalance = myAccount.balance;
+        log(`✅ Fetched real account balance: $${accountBalance.toFixed(2)}`, 'success');
+      } else {
+        log(`⚠️  Could not find account ${ACCOUNT_ID}, using default balance: $${accountBalance}`, 'warning');
+      }
+    } catch (error: any) {
+      log(`⚠️  Failed to fetch account balance: ${error.message}, using default: $${accountBalance}`, 'warning');
+    }
+
     // Resolve contract ID FIRST before loading historical data
     const metadata = await fetchTopstepXFuturesMetadata(SYMBOL);
     if (!metadata) {
@@ -1112,28 +1637,7 @@ async function main() {
     contractId = metadata.id;
     log(`Resolved ${SYMBOL} to contractId=${contractId}`, 'info');
 
-    // Load historical data for chart and volume profile initialization
-    try {
-      log('Loading historical data from TopStepX...', 'info');
-      const historicalBars = await fetchTopstepXFuturesBars({
-        contractId,
-        startTime: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-        endTime: new Date().toISOString(),
-        unit: 2, // Minutes
-        unitNumber: 5, // 5-minute bars
-        limit: 100,
-        live: false,
-      });
-
-      if (historicalBars.length > 0) {
-        bars.push(...historicalBars);
-        log(`✅ Loaded ${historicalBars.length} historical bars from TopStepX`, 'success');
-      } else {
-        log('⚠️  No historical data returned - will build from live market data', 'warning');
-      }
-    } catch (error: any) {
-      log(`⚠️  Failed to load historical data: ${error.message} - will build from live market data`, 'warning');
-    }
+    await loadHistoricalData();
 
     await connectMarketData();
 

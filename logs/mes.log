@@ -1,70 +1,22 @@
-
-================================================================================
-TOPSTEPX LIVE MES WINNER STRATEGY - ENHANCED VERSION
-================================================================================
-Symbol: MESZ5
-BB Period: 20 bars | Std Dev: 3
-RSI Period: 24 | Oversold: 30 | Overbought: 70
-Stop Loss: 0.010% | Take Profit: 0.050%
-Contracts: 3
-Daily Loss Limit: $2000
-Dashboard: http://localhost:3334
-================================================================================
-[2025-11-11T22:36:04.193Z][MESZ5] Main function started.
-[2025-11-11T22:36:04.195Z][MESZ5] Resolving contract metadata...
-[2025-11-11T22:36:04.217Z][MESZ5] Dashboard server running on http://localhost:3334
-[2025-11-11T22:36:04.217Z][MESZ5] ⚠️ Trading is DISABLED by default. Use dashboard to start trading.
-[2025-11-11T22:36:04.569Z][MESZ5] Resolved contract: MESZ5 (CON.F.US.MES.Z25)
-[2025-11-11T22:36:04.569Z][MESZ5] Point multiplier: 5
-[2025-11-11T22:36:04.570Z][MESZ5] Tick size: 0.25
-[2025-11-11T22:36:04.570Z][MESZ5] Commission/side: 0.37 USD
-[2025-11-11T22:36:04.570Z][MESZ5] Resolving account ID...
-[2025-11-11T22:36:04.570Z][MESZ5] Creating ProjectX REST client...
-[2025-11-11T22:36:04.570Z][MESZ5] Using TopstepX account 13056702
-[2025-11-11T22:36:04.570Z][MESZ5] Fetching initial 250 1-minute bars for bootstrap...
-[2025-11-11T22:36:04.632Z][MESZ5] Loaded 213 initial bars
-[2025-11-11T22:36:04.648Z][MESZ5] Bootstrap complete. Indicators calculated for 189 bars
-[2025-11-11T22:36:04.696Z][MESZ5] Account balance: $46654.52
-[2025-11-11T22:36:04.697Z][MESZ5] Starting live streaming...
-[2025-11-11T22:36:04.697Z][MESZ5] Registering shutdown handlers...
-[2025-11-11T22:36:04.697Z][MESZ5] Starting user stream...
-[2025-11-11T22:36:04.912Z] Information: WebSocket connected to wss://rtc.topstepx.com/hubs/user?access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjM3NzM5MCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL3NpZCI6IjZmZDk1MTIyLWU0MzUtNDhjMC1iNGVjLTJiZjk3NGZmMTNhNyIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJjb3N0YWJlYXRzQGdtYWlsLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6InVzZXIiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2F1dGhlbnRpY2F0aW9ubWV0aG9kIjoiYXBpLWtleSIsIm1zZCI6IkNNRUdST1VQX1RPQiIsIm1mYSI6InZlcmlmaWVkIiwiZXhwIjoxNzYyOTg2OTY0fQ.dvpDlKXHq1kZLlgfqIy9cvLP_z6oGEoW1v8PM1AqUC0.
-[2025-11-11T22:36:04.913Z] Information: Using HubProtocol 'json'.
-[2025-11-11T22:36:04.927Z][MESZ5] Dashboard client connected: B4vfvs-zeZ0Fxco9AAAB
-[2025-11-11T22:36:04.928Z][MESZ5] [SOCKET] Sending 189 bars to dashboard client B4vfvs-zeZ0Fxco9AAAB (189 total, 0 filtered)
-[2025-11-11T22:36:04.959Z][MESZ5] TopstepX user hub connected
-[2025-11-11T22:36:04.960Z][MESZ5] Starting market stream...
-[2025-11-11T22:36:05.140Z] Information: WebSocket connected to wss://rtc.topstepx.com/hubs/market?access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjM3NzM5MCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL3NpZCI6IjZmZDk1MTIyLWU0MzUtNDhjMC1iNGVjLTJiZjk3NGZmMTNhNyIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJjb3N0YWJlYXRzQGdtYWlsLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6InVzZXIiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2F1dGhlbnRpY2F0aW9ubWV0aG9kIjoiYXBpLWtleSIsIm1zZCI6IkNNRUdST1VQX1RPQiIsIm1mYSI6InZlcmlmaWVkIiwiZXhwIjoxNzYyOTg2OTY0fQ.dvpDlKXHq1kZLlgfqIy9cvLP_z6oGEoW1v8PM1AqUC0.
-[2025-11-11T22:36:05.140Z] Information: Using HubProtocol 'json'.
-[2025-11-11T22:36:05.188Z][MESZ5] TopstepX market hub connected
-[2025-11-11T22:36:05.189Z][MESZ5] Live streaming started. Strategy is running...
-[2025-11-11T22:36:05.189Z][MESZ5] Dashboard available at: http://localhost:3334
-[2025-11-11T22:36:06.029Z][MESZ5] Dashboard client connected: Tu6z-7QCjk91rnvWAAAD
-[2025-11-11T22:36:06.030Z][MESZ5] [SOCKET] Sending 189 bars to dashboard client Tu6z-7QCjk91rnvWAAAD (189 total, 0 filtered)
-[2025-11-11T22:36:08.027Z] Warning: No client method with the name 'gatewaylogout' found.
-[2025-11-11T22:36:08.028Z] Warning: No client method with the name 'gatewaylogout' found.
-[2025-11-11T22:36:30.990Z][MESZ5] Dashboard client disconnected: B4vfvs-zeZ0Fxco9AAAB
-[2025-11-11T22:36:31.010Z][MESZ5] Dashboard client disconnected: Tu6z-7QCjk91rnvWAAAD
-[2025-11-11T22:36:32.672Z][MESZ5] Dashboard client connected: jiqmG7AWRWpkxhPSAAAG
-[2025-11-11T22:36:32.673Z][MESZ5] [SOCKET] Sending 189 bars to dashboard client jiqmG7AWRWpkxhPSAAAG (189 total, 0 filtered)
-[2025-11-11T22:36:32.847Z][MESZ5] Dashboard client connected: tdElLOD1DVXMT_amAAAH
-[2025-11-11T22:36:32.847Z][MESZ5] [SOCKET] Sending 189 bars to dashboard client tdElLOD1DVXMT_amAAAH (189 total, 0 filtered)
-[2025-11-11T22:36:40.728Z][MESZ5] [CONTROL] Trading STARTED via dashboard | Account: 13056702
-[2025-11-11T22:37:05.088Z][MESZ5] [CONTROL] Trading STOPPED via dashboard | Account: 13056702
-[2025-11-11T22:37:16.477Z][MESZ5] [ACCOUNT] Switching account: 13056702 -> 13230351
-[2025-11-11T22:37:16.478Z][MESZ5] [ACCOUNT] Order manager recreated for account 13230351
-[2025-11-11T22:37:16.530Z][MESZ5] [ACCOUNT] Account status updated: Balance 99668.23, Daily P&L 0
-[2025-11-11T22:37:16.531Z][MESZ5] [ACCOUNT] Successfully switched to account 13230351
-[2025-11-11T22:37:22.358Z][MESZ5] [CONTROL] Trading STARTED via dashboard | Account: 13230351
-[2025-11-11T22:38:12.582Z][MESZ5] [CONTROL] Trading STOPPED via dashboard | Account: 13230351
-[2025-11-11T22:38:24.493Z][MESZ5] [ACCOUNT] Switching account: 13230351 -> 14010588
-[2025-11-11T22:38:24.495Z][MESZ5] [ACCOUNT] Order manager recreated for account 14010588
-[2025-11-11T22:38:24.544Z][MESZ5] [ACCOUNT] Account status updated: Balance 50000, Daily P&L 0
-[2025-11-11T22:38:24.544Z][MESZ5] [ACCOUNT] Successfully switched to account 14010588
-[2025-11-11T22:38:35.234Z][MESZ5] [CONTROL] Trading STARTED via dashboard | Account: 14010588
-[2025-11-11T22:38:39.624Z][MESZ5] [CONTROL] Trading STOPPED via dashboard | Account: 14010588
-[2025-11-11T22:38:44.690Z][MESZ5] [ACCOUNT] Switching account: 14010588 -> 13056702
-[2025-11-11T22:38:44.692Z][MESZ5] [ACCOUNT] Order manager recreated for account 13056702
-[2025-11-11T22:38:44.749Z][MESZ5] [ACCOUNT] Account status updated: Balance 46654.52, Daily P&L 0
-[2025-11-11T22:38:44.750Z][MESZ5] [ACCOUNT] Successfully switched to account 13056702
-[2025-11-11T22:38:50.709Z][MESZ5] [CONTROL] Trading STARTED via dashboard | Account: 13056702
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[2025-11-21T14:00:06.415Z][SWING-MES] ================================================================================
+[2025-11-21T14:00:06.419Z][SWING-MES] 🧠 FABIO INTRADAY POSITION TRADING - MES (MULTI-POSITION STRATEGIC)
+[2025-11-21T14:00:06.419Z][SWING-MES] ================================================================================
+[2025-11-21T14:00:06.419Z][SWING-MES] Symbol: MES
+[2025-11-21T14:00:06.419Z][SWING-MES] Timeframes: 1H (primary), 15min/5min (secondary), 1min (entry)
+[2025-11-21T14:00:06.419Z][SWING-MES] Analysis Interval: Every 2 minutes
+[2025-11-21T14:00:06.419Z][SWING-MES] Lookback Period: 2 sessions (current + previous)
+[2025-11-21T14:00:06.419Z][SWING-MES] Hold Time: 4 hours typical (max 3 days)
+[2025-11-21T14:00:06.419Z][SWING-MES] Target: 50-150 points | Stop: 30-60 points (flexible)
+[2025-11-21T14:00:06.419Z][SWING-MES] 
+[2025-11-21T14:00:06.419Z][SWING-MES] 🎯 STRATEGIC MULTI-POSITION CAPABILITIES:
+[2025-11-21T14:00:06.419Z][SWING-MES]    - Max Concurrent Positions: 5
+[2025-11-21T14:00:06.419Z][SWING-MES]    - Strategic Stop/Target Placement: ENABLED
+[2025-11-21T14:00:06.419Z][SWING-MES]    - Position Correlation Awareness: ENABLED
+[2025-11-21T14:00:06.419Z][SWING-MES]    - OCO Brackets: All positions managed independently
+[2025-11-21T14:00:06.419Z][SWING-MES]    - Risk Management: Strategic per-position analysis
+[2025-11-21T14:00:06.419Z][SWING-MES] 
+[2025-11-21T14:00:06.419Z][SWING-MES] Dashboard: http://localhost:3350
+[2025-11-21T14:00:06.419Z][SWING-MES] Self-Learning: BYPASSED (pure AI analysis, no historical database)
+[2025-11-21T14:00:06.419Z][SWING-MES] ================================================================================
+[2025-11-21T14:00:06.420Z][SWING-MES] Fatal error: import_topstepx.TopstepXClient is not a constructor

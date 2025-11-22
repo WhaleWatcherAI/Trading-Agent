@@ -1,0 +1,17 @@
+/Users/coreycosta/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+================================================================================
+🧠 FABIO AGENT - MINIMAL SOCKET.IO SERVER
+================================================================================
+Mode: Synthetic market data (paper trading)
+Dashboard: http://localhost:3337
+================================================================================
+======== Running on http://0.0.0.0:3337 ========
+(Press CTRL+C to quit)
+[SocketIO] Client connected: uioq_evcn8-6GusYAAAB
+[SocketIO] Client uioq_evcn8-6GusYAAAB requesting chart history
+[SocketIO] Client disconnected: uioq_evcn8-6GusYAAAB
+[SocketIO] Client connected: APeJ2bu7Xr5ld_isAAAD
+[SocketIO] Client APeJ2bu7Xr5ld_isAAAD requesting chart history
+[SocketIO] Client APeJ2bu7Xr5ld_isAAAD requested to start trading
+[SocketIO] Client disconnected: APeJ2bu7Xr5ld_isAAAD

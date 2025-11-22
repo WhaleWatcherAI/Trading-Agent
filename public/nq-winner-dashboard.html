@@ -620,77 +620,39 @@
         }
 
         // Load account status and update display
+        // For Fabio agent integration we rely on Socket.IO `status` events,
+        // so this becomes a lightweight no-op to avoid REST dependencies.
         async function loadAccountStatus() {
-            try {
-                const response = await fetch('/api/status');
-                if (!response.ok) throw new Error('Failed to fetch status');
-                const data = await response.json();
-
-                console.log('Loaded account status:', data);
-
-                // Update account balance from accountStatus
-                if (data.accountStatus) {
-                    if (data.accountStatus.balance != null) {
-                        document.getElementById('accountBalance').textContent = `$${data.accountStatus.balance.toFixed(2)}`;
-                    }
-
-                    // Update daily P&L
-                    if (data.accountStatus.dailyPnL != null) {
-                        const pnlElement = document.getElementById('dailyPnl');
-                        pnlElement.textContent = `$${data.accountStatus.dailyPnL.toFixed(2)}`;
-                        pnlElement.className = data.accountStatus.dailyPnL >= 0 ? 'status-value positive' : 'status-value negative';
-
-                        // Warning if approaching daily limit
-                        if (data.accountStatus.dailyPnL <= -1500) {
-                            document.getElementById('dailyLimit').style.color = '#ef4444';
-                        }
-                    }
-                }
-
-                // Update performance stats
-                if (data.performance) {
-                    document.getElementById('tradeCount').textContent = data.performance.tradesCount || 0;
-                }
-
-                // Update trading status
-                if (data.tradingEnabled != null) {
-                    tradingEnabled = data.tradingEnabled;
-                    const statusEl = document.getElementById('tradingStatus');
-                    statusEl.textContent = tradingEnabled ? 'Active' : 'Inactive';
-                    statusEl.className = tradingEnabled ? 'trading-status status-active' : 'trading-status status-inactive';
-
-                    document.getElementById('btnStart').style.display = tradingEnabled ? 'none' : 'inline-block';
-                    document.getElementById('btnStop').style.display = tradingEnabled ? 'inline-block' : 'none';
-                }
-            } catch (error) {
-                console.error('Failed to load account status:', error);
-            }
+            console.log('loadAccountStatus(): waiting for socket status updates');
         }
 
         // Update UI elements
         function updateStatus(data) {
             if (!data) return;
 
-            // Update account balance from accountStatus object
-            if (data.accountStatus?.balance != null) {
-                document.getElementById('accountBalance').textContent = `$${data.accountStatus.balance.toFixed(2)}`;
+            // Normalize account stats (Fabio agent uses accountStats)
+            const account = data.accountStatus || data.accountStats || {};
+
+            // Update account balance
+            if (account.balance != null) {
+                document.getElementById('accountBalance').textContent = `$${account.balance.toFixed(2)}`;
             }
 
-            // Update daily P&L from accountStatus object
-            if (data.accountStatus?.dailyPnL != null) {
+            // Update daily P&L
+            if (account.dailyPnL != null) {
                 const pnlElement = document.getElementById('dailyPnl');
-                pnlElement.textContent = `$${data.accountStatus.dailyPnL.toFixed(2)}`;
-                pnlElement.className = data.accountStatus.dailyPnL >= 0 ? 'status-value positive' : 'status-value negative';
+                pnlElement.textContent = `$${account.dailyPnL.toFixed(2)}`;
+                pnlElement.className = account.dailyPnL >= 0 ? 'status-value positive' : 'status-value negative';
 
                 // Warning if approaching daily limit
-                if (data.accountStatus.dailyPnL <= -1500) {
+                if (account.dailyPnL <= -1500) {
                     document.getElementById('dailyLimit').style.color = '#ef4444';
                 }
             }
 
-            // Update trading status
-            if (data.tradingEnabled != null) {
-                tradingEnabled = data.tradingEnabled;
+            // Update trading status (Fabio uses isTrading)
+            if (data.tradingEnabled != null || data.isTrading != null) {
+                tradingEnabled = data.tradingEnabled != null ? data.tradingEnabled : !!data.isTrading;
                 const statusEl = document.getElementById('tradingStatus');
                 statusEl.textContent = tradingEnabled ? 'Active' : 'Inactive';
                 statusEl.className = tradingEnabled ? 'trading-status status-active' : 'trading-status status-inactive';
@@ -720,12 +682,8 @@
                 document.getElementById('openPnl').textContent = '$0.00';
             }
 
-            // Update trade stats
-            if (data.trades) {
-                trades = data.trades;
-                updateTradeHistory();
-
-                // Calculate win rate
+            // Update trade stats based on accumulated trades array
+            if (Array.isArray(trades)) {
                 const wins = trades.filter(t => t.pnl > 0).length;
                 const total = trades.length;
                 const winRate = total > 0 ? (wins / total * 100).toFixed(0) : 0;
@@ -990,39 +948,27 @@
             });
         }
 
-        // Event handlers
-        document.getElementById('btnStart').addEventListener('click', async () => {
-            try {
-                const response = await fetch('/api/trading/start', { method: 'POST' });
-                if (response.ok) {
-                    showAlert('Trading enabled', 'success');
-                }
-            } catch (error) {
-                showAlert('Failed to start trading', 'error');
-            }
+        // Event handlers (Fabio agent uses Socket.IO control events)
+        document.getElementById('btnStart').addEventListener('click', () => {
+            if (!socket) return;
+            console.log('Start trading button clicked');
+            socket.emit('start_trading');
+            addActivityLog('Starting trading...', 'info');
         });
 
-        document.getElementById('btnStop').addEventListener('click', async () => {
-            try {
-                const response = await fetch('/api/trading/stop', { method: 'POST' });
-                if (response.ok) {
-                    showAlert('Trading disabled', 'warning');
-                }
-            } catch (error) {
-                showAlert('Failed to stop trading', 'error');
-            }
+        document.getElementById('btnStop').addEventListener('click', () => {
+            if (!socket) return;
+            console.log('Stop trading button clicked');
+            socket.emit('stop_trading');
+            addActivityLog('Stopping trading...', 'warning');
         });
 
-        document.getElementById('btnFlatten').addEventListener('click', async () => {
+        document.getElementById('btnFlatten').addEventListener('click', () => {
+            if (!socket) return;
             if (confirm('Are you sure you want to close the current position?')) {
-                try {
-                    const response = await fetch('/api/position/flatten', { method: 'POST' });
-                    if (response.ok) {
-                        showAlert('Position flattened', 'info');
-                    }
-                } catch (error) {
-                    showAlert('Failed to flatten position', 'error');
-                }
+                console.log('Flatten position requested');
+                socket.emit('flatten_positions');
+                addActivityLog('Flatten position requested', 'warning');
             }
         });
 
@@ -1057,27 +1003,6 @@
             // loadAccounts(); // Disabled - account switching controlled by multi-symbol dashboard
             loadAccountStatus();
             connect();
-
-            // Fetch initial chart data via REST as fallback
-            setTimeout(() => {
-                if (chartDataLoaded) {
-                    console.log('Chart data already loaded via socket, skipping REST fallback');
-                    return;
-                }
-                fetch('/api/chart')
-                    .then(response => response.json())
-                    .then(data => {
-                        if (chartDataLoaded) {
-                            console.log('Chart data loaded while REST was fetching, ignoring');
-                            return;
-                        }
-                        if (data && data.length > 0) {
-                            console.log('Loaded initial chart data via REST:', data.length, 'bars');
-                            updateCharts(data);
-                        }
-                    })
-                    .catch(error => console.error('Error fetching initial chart data:', error));
-            }, 1000); // Increased delay to ensure charts are initialized
         });
     </script>
 </body>

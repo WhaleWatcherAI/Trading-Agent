@@ -65,6 +65,8 @@ interface BacktestConfig {
   svpBiasFilterEnabled: boolean;
   trailingStopPercent: number;
   useTrailingStop: boolean;
+  stopLossTicks: number;
+  takeProfitTicks: number;
 }
 
 interface TradeRecord {
@@ -94,7 +96,7 @@ const REOPEN_MINUTES = 18 * 60;
 const WEEKEND_REOPEN_MINUTES = 19 * 60;
 const DEFAULT_DAYS = 365;
 
-const DEFAULT_MR_SYMBOL = process.env.TOPSTEPX_MR_SYMBOL || 'MNQZ5';
+const DEFAULT_MR_SYMBOL = process.env.TOPSTEPX_MR_SYMBOL || 'NQZ5';
 const DEFAULT_MR_CONTRACT_ID = process.env.TOPSTEPX_MR_CONTRACT_ID;
 
 // Load slippage configuration
@@ -198,6 +200,8 @@ const CONFIG: BacktestConfig = {
   svpBiasFilterEnabled: process.env.TOPSTEPX_MR_SVP_BIAS_FILTER === 'true',
   trailingStopPercent: Number(process.env.TOPSTEPX_MR_TRAILING_STOP_PERCENT || '0.0004'),
   useTrailingStop: process.env.TOPSTEPX_MR_USE_TRAILING_STOP === 'true',
+  stopLossTicks: Number(process.env.TOPSTEPX_MR_STOP_LOSS_TICKS || '8'),
+  takeProfitTicks: Number(process.env.TOPSTEPX_MR_TAKE_PROFIT_TICKS || '40'),
 };
 
 function toCentralTime(date: Date): Date {
@@ -439,7 +443,7 @@ async function runBacktest() {
   console.log(`Period: ${CONFIG.start} -> ${CONFIG.end}`);
   console.log(`BB Period: ${CONFIG.bbPeriod} bars (${CONFIG.bbPeriod}min) | Std Dev: ${CONFIG.bbStdDev}`);
   console.log(`RSI Period: ${CONFIG.rsiPeriod} | Oversold: ${CONFIG.rsiOversold} | Overbought: ${CONFIG.rsiOverbought}`);
-  console.log(`Stop Loss: ${(CONFIG.stopLossPercent * 100).toFixed(3)}% | Contracts: ${CONFIG.numberOfContracts}`);
+  console.log(`Stop Loss: ${CONFIG.stopLossTicks} ticks | Take Profit: ${CONFIG.takeProfitTicks} ticks | Contracts: ${CONFIG.numberOfContracts}`);
   console.log(`Fast SMA Period: ${CONFIG.fastSmaPeriod}`);
   const adxEffectiveThreshold = CONFIG.adxThreshold - CONFIG.adxBuffer;
   const effectiveAdxThreshold = Math.max(0, CONFIG.adxThreshold - CONFIG.adxBuffer);
@@ -590,6 +594,7 @@ async function runBacktest() {
     rsi: number;
     adx: number | null;
     bb: { upper: number; middle: number; lower: number };
+    setupBarIndex: number;  // Track which bar the setup was on
   } | null = null;
 
   let position: {
@@ -731,8 +736,9 @@ async function runBacktest() {
 
     const fastSma = calculateSimpleMovingAverage(closes, CONFIG.fastSmaPeriod);
 
-    const ttmBars = bars.slice(Math.max(0, i - 20), i + 1);
-    const ttmSqueeze = calculateTtmSqueeze(ttmBars, { lookback: 20, bbStdDev: 2, atrMultiplier: 1.5 });
+    const ttmLookback = Number(process.env.TOPSTEPX_MR_TTM_LOOKBACK || '20');
+    const ttmBars = bars.slice(Math.max(0, i - ttmLookback), i + 1);
+    const ttmSqueeze = calculateTtmSqueeze(ttmBars, { lookback: ttmLookback, bbStdDev: 2, atrMultiplier: 1.5 });
     if (!ttmSqueeze) continue;
 
     if (position) {
@@ -792,6 +798,12 @@ async function runBacktest() {
           const closeSide = position.side === 'long' ? 'sell' : 'buy';
           const stopExitPrice = roundToTick(fillStop(baseSymbol, closeSide, position.stopLoss));
           const stopSlippagePoints = SLIP_CONFIG.slipAvg.stop[baseSymbol] * tickSize;
+
+          console.log(
+            `[${bar.timestamp}] STOP hit ${CONFIG.symbol} ${position.side.toUpperCase()}: ` +
+            `Exit all ${CONFIG.numberOfContracts} @ ${stopExitPrice.toFixed(2)}`
+          );
+
           exitPosition(stopExitPrice, bar.timestamp, 'stop', stopSlippagePoints);
           continue;
         }
@@ -887,6 +899,7 @@ async function runBacktest() {
         rsi: currentRSI,
         adx: currentADX,
         bb: { upper: bb.upper, middle: bb.middle, lower: bb.lower },
+        setupBarIndex: i,
       };
       const patternNames = [
         patterns.isPinBar ? 'PinBar' : '',
@@ -912,6 +925,7 @@ async function runBacktest() {
         rsi: currentRSI,
         adx: currentADX,
         bb: { upper: bb.upper, middle: bb.middle, lower: bb.lower },
+        setupBarIndex: i,
       };
       console.log(
         `[${bar.timestamp}] SHORT setup detected ${CONFIG.symbol} @ ${bar.close.toFixed(2)} ` +
@@ -921,8 +935,14 @@ async function runBacktest() {
 
     // RSI divergence tracking DISABLED - not used for entry filter
 
-    // Check for TTM Squeeze trigger
-    if (pendingSetup && ttmSqueeze.squeezeOn) {
+    // Check for entry trigger - after N bars from setup
+    const barCounterTrigger = Number(process.env.TOPSTEPX_MR_BAR_COUNTER || '0');
+    const barsPassedSinceSetup = (barCounterTrigger > 0 && pendingSetup) ? i - pendingSetup.setupBarIndex : Infinity;
+    const entryTriggered = barCounterTrigger > 0
+      ? (pendingSetup && barsPassedSinceSetup >= barCounterTrigger && !position)
+      : (pendingSetup && ttmSqueeze.squeezeOn && !position);
+
+    if (entryTriggered) {
 
       // SVP Bias Filter: Check if setup aligns with daily bias
       if (CONFIG.svpBiasFilterEnabled) {
@@ -963,11 +983,11 @@ async function runBacktest() {
         entryRSI: pendingSetup.rsi,
         entryADX: entryAdx,
         stopLoss: roundToTick(pendingSetup.side === 'long'
-          ? pendingSetup.bb.lower * (1 - CONFIG.stopLossPercent)
-          : pendingSetup.bb.upper * (1 + CONFIG.stopLossPercent)),
+          ? entryPrice - (CONFIG.stopLossTicks * tickSize)  // LONG: stop below entry
+          : entryPrice + (CONFIG.stopLossTicks * tickSize)), // SHORT: stop above entry
         target: roundToTick(pendingSetup.side === 'long'
-          ? entryPrice * (1 + CONFIG.takeProfitPercent)
-          : entryPrice * (1 - CONFIG.takeProfitPercent)),
+          ? entryPrice + (CONFIG.takeProfitTicks * tickSize)  // LONG: target above entry
+          : entryPrice - (CONFIG.takeProfitTicks * tickSize)), // SHORT: target below entry
         scaled: false,
         remainingQty: CONFIG.numberOfContracts,
         scalePnL: 0,
@@ -982,10 +1002,16 @@ async function runBacktest() {
       const entryAdxText = entryAdx !== null ? entryAdx.toFixed(1) : 'N/A';
       const fastSmaText = fastSmaForEntry !== null ? fastSmaForEntry.toFixed(2) : 'N/A';
 
+      const stopDistance = Math.abs(entryPrice - position.stopLoss);
+      const stopTicks = Math.round(stopDistance / tickSize);
+      const targetDistance = Math.abs(position.target - entryPrice);
+      const targetTicks = Math.round(targetDistance / tickSize);
+
       console.log(
         `[${bar.timestamp}] ${pendingSetup.side.toUpperCase()} entry ${CONFIG.symbol} @ ${entryPrice.toFixed(2)} ` +
         `(TTM Squeeze trigger, setup @ ${pendingSetup.setupPrice.toFixed(2)}, ` +
-        `RSI ${pendingSetup.rsi.toFixed(1)}, ADX ${entryAdxText}, Fast SMA ${fastSmaText})`
+        `RSI ${pendingSetup.rsi.toFixed(1)}, ADX ${entryAdxText}, Fast SMA ${fastSmaText}) ` +
+        `| Stop: ${position.stopLoss.toFixed(2)} (${stopTicks} ticks), Target: ${position.target.toFixed(2)} (${targetTicks} ticks)`
       );
 
       pendingSetup = null;

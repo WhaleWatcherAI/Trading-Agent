@@ -81,7 +81,7 @@ describe('formatNewsDigest', () => {
     expect(digest).toContain('1. Headline: Apple announces record earnings');
     expect(digest).toContain('Summary: Apple reports best quarter ever.');
     expect(digest).toContain('Tickers Mentioned: AAPL');
-    expect(digest).toContain('UW Sentiment: BULLISH');
+    expect(digest).toContain('News Sentiment: BULLISH');
   });
 });
 

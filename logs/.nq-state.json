@@ -1,4 +1,14 @@
 {
   "tradingEnabled": true,
-  "timestamp": "2025-11-11T23:46:01.571Z"
+  "position": {
+    "side": "long",
+    "entryPrice": 24572.5,
+    "totalQty": 1,
+    "entryOrderId": 1939786183,
+    "stopLoss": 0,
+    "target": 0,
+    "entryTime": "2025-11-19T03:40:00.000Z",
+    "tradeId": "NQ-WINNER-1763523660307-22"
+  },
+  "timestamp": "2025-11-19T03:41:05.415Z"
 }

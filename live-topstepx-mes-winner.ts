@@ -148,7 +148,7 @@ class TopstepOrderManager {
       limitPrice: this.roundToTick(price),
     };
     log(`[ORDER] Placing ${side} limit IOC @ ${payload.limitPrice?.toFixed(2)} qty=${qty}`);
-    return this.rest.placeOrder({ request: payload });
+    return this.rest.placeOrder(payload);
   }
 
   async placeMarketIOC(side: OrderSide, qty: number) {
@@ -161,7 +161,7 @@ class TopstepOrderManager {
       timeInForce: 0,
     };
     log(`[ORDER] Placing ${side} market IOC qty=${qty}`);
-    return this.rest.placeOrder({ request: payload });
+    return this.rest.placeOrder(payload);
   }
 
   async cancelOrder(orderId: string | number) {
@@ -169,44 +169,44 @@ class TopstepOrderManager {
     return this.rest.cancelOrder({ accountId: this.accountId, orderId: String(orderId) });
   }
 
-  async placeBracketEntry(
-    side: OrderSide,
-    stopPrice: number,
-    targetPrice: number,
-    qty: number,
-  ) {
-    log(`[BRACKET] Entry ${side} MARKET, Stop @ ${stopPrice.toFixed(2)}, Target @ ${targetPrice.toFixed(2)}`);
-
-    const entryResponse = await this.placeMarketIOC(side, qty);
-    const entryOrderId = this.resolveOrderId(entryResponse);
-
-    log(`[BRACKET] Entry market order placed: ${entryOrderId}`);
-
-    const stopSide: OrderSide = side === 'Buy' ? 'Sell' : 'Buy';
-    const targetSide: OrderSide = side === 'Buy' ? 'Sell' : 'Buy';
-
-    const [stopResponse, targetResponse] = await Promise.all([
-      this.placeLimitIOC(stopSide, qty, stopPrice),
-      this.placeLimitIOC(targetSide, qty, targetPrice),
-    ]);
-
-    const stopOrderId = this.resolveOrderId(stopResponse);
-    const targetOrderId = this.resolveOrderId(targetResponse);
-
-    log(`[BRACKET] Stop order placed: ${stopOrderId}, Target order placed: ${targetOrderId}`);
-
-    return {
-      entryOrderId,
-      stopOrderId,
-      targetOrderId,
-      entryFilled: this.isFilledResponse(entryResponse, qty),
-      stopFilled: this.isFilledResponse(stopResponse, qty),
-      targetFilled: this.isFilledResponse(targetResponse, qty),
-    };
+  async placeMarketEntry(side: OrderSide, qty: number) {
+    log(`[ENTRY] Placing ${side} MARKET order, qty=${qty}`);
+    return this.placeMarketIOC(side, qty);
   }
 
-  private resolveOrderId(response: any): string | number {
-    return response?.orderId ?? response?.id ?? `topstep-${Date.now()}`;
+  async placeMarketWithBrackets(side: OrderSide, qty: number, stopTicks: number, targetTicks: number) {
+    const payload: any = {
+      accountId: this.accountId,
+      contractId: this.contractId,
+      side: side === 'Buy' ? 0 : 1,
+      size: qty,
+      type: 2,  // Market
+      timeInForce: 0,
+      limitPrice: null,
+      stopPrice: null,
+      trailPrice: null,
+      customTag: null,
+      stopLossBracket: {
+        ticks: stopTicks,
+        type: 4  // Stop Market
+      },
+      takeProfitBracket: {
+        ticks: targetTicks,
+        type: 1  // Limit
+      }
+    };
+    log(`[ORDER] Placing ${side} market with brackets: stop=${stopTicks} ticks, target=${targetTicks} ticks, qty=${qty}`);
+    return this.rest.placeOrder(payload);
+  }
+
+  resolveOrderId(response: any): number {
+    const id = response?.orderId ?? response?.id;
+    if (typeof id === 'number') return id;
+    if (typeof id === 'string') {
+      const parsed = parseInt(id, 10);
+      if (!isNaN(parsed)) return parsed;
+    }
+    throw new Error(`Invalid order ID received: ${JSON.stringify(id)}`);
   }
 
   private isFilledResponse(response: any, qty: number): boolean {
@@ -239,40 +239,60 @@ function logIndividualConditions(
   ttmSqueeze: { squeezeOn: boolean; momentum: number } | null
 ) {
   const timestamp = nowIso();
-  const checks: string[] = [];
 
-  // RSI condition checks
-  if (rsi !== undefined) {
-    if (rsi < 30) {
-      checks.push(`RSI OVERSOLD: ${rsi.toFixed(2)} < 30`);
-    } else if (rsi > 70) {
-      checks.push(`RSI OVERBOUGHT: ${rsi.toFixed(2)} > 70`);
+  if (!bb || rsi === undefined || !ttmSqueeze) return;
+
+  // Check all conditions using CONFIG thresholds
+  const bbLowerBroke = price <= bb.lower;
+  const bbUpperBroke = price >= bb.upper;
+  const rsiOversold = rsi < CONFIG.rsiOversold;
+  const rsiOverbought = rsi > CONFIG.rsiOverbought;
+  const ttmFiring = ttmSqueeze.squeezeOn;
+
+  // LONG SETUP ANALYSIS
+  if (bbLowerBroke || rsiOversold) {
+    if (bbLowerBroke && rsiOversold) {
+      // BOTH conditions met - Step 1 complete!
+      const status = ttmFiring
+        ? '✅ STEP 1 COMPLETE + TTM FIRING! Ready to enter!'
+        : '⚠️ STEP 1 COMPLETE, awaiting TTM Squeeze';
+      const msg = `[${symbol}] LONG SETUP: BB LOWER broke (${price.toFixed(2)} <= ${bb.lower.toFixed(2)}) AND RSI oversold (${rsi.toFixed(1)} < ${CONFIG.rsiOversold}) | TTM: ${ttmFiring ? `FIRING (${ttmSqueeze.momentum.toFixed(2)})` : 'OFF'} | ${status}`;
+      logCondition(msg, 'logs/strategy-monitoring.log');
+    } else if (bbLowerBroke && !rsiOversold) {
+      // Only BB broke
+      const msg = `[${symbol}] BB LOWER broke (${price.toFixed(2)} <= ${bb.lower.toFixed(2)}) but RSI NOT oversold (${rsi.toFixed(1)} >= ${CONFIG.rsiOversold}) | Step 1 incomplete`;
+      logCondition(msg, 'logs/strategy-monitoring.log');
+    } else if (!bbLowerBroke && rsiOversold) {
+      // Only RSI oversold
+      const msg = `[${symbol}] RSI oversold (${rsi.toFixed(1)} < ${CONFIG.rsiOversold}) but BB LOWER not broke (${price.toFixed(2)} > ${bb.lower.toFixed(2)}) | Step 1 incomplete`;
+      logCondition(msg, 'logs/strategy-monitoring.log');
     }
   }
 
-  // Bollinger Band condition checks
-  if (bb) {
-    const distanceToLower = ((price - bb.lower) / bb.lower * 100).toFixed(4);
-    const distanceToUpper = ((price - bb.upper) / bb.upper * 100).toFixed(4);
-
-    if (price <= bb.lower) {
-      checks.push(`BB LOWER TOUCHED/BROKE: Price ${price.toFixed(2)} <= ${bb.lower.toFixed(2)} (${distanceToLower}%)`);
-    } else if (price >= bb.upper) {
-      checks.push(`BB UPPER TOUCHED/BROKE: Price ${price.toFixed(2)} >= ${bb.upper.toFixed(2)} (${distanceToUpper}%)`);
+  // SHORT SETUP ANALYSIS
+  if (bbUpperBroke || rsiOverbought) {
+    if (bbUpperBroke && rsiOverbought) {
+      // BOTH conditions met - Step 1 complete!
+      const status = ttmFiring
+        ? '✅ STEP 1 COMPLETE + TTM FIRING! Ready to enter!'
+        : '⚠️ STEP 1 COMPLETE, awaiting TTM Squeeze';
+      const msg = `[${symbol}] SHORT SETUP: BB UPPER broke (${price.toFixed(2)} >= ${bb.upper.toFixed(2)}) AND RSI overbought (${rsi.toFixed(1)} > ${CONFIG.rsiOverbought}) | TTM: ${ttmFiring ? `FIRING (${ttmSqueeze.momentum.toFixed(2)})` : 'OFF'} | ${status}`;
+      logCondition(msg, 'logs/strategy-monitoring.log');
+    } else if (bbUpperBroke && !rsiOverbought) {
+      // Only BB broke
+      const msg = `[${symbol}] BB UPPER broke (${price.toFixed(2)} >= ${bb.upper.toFixed(2)}) but RSI NOT overbought (${rsi.toFixed(1)} <= ${CONFIG.rsiOverbought}) | Step 1 incomplete`;
+      logCondition(msg, 'logs/strategy-monitoring.log');
+    } else if (!bbUpperBroke && rsiOverbought) {
+      // Only RSI overbought
+      const msg = `[${symbol}] RSI overbought (${rsi.toFixed(1)} > ${CONFIG.rsiOverbought}) but BB UPPER not broke (${price.toFixed(2)} < ${bb.upper.toFixed(2)}) | Step 1 incomplete`;
+      logCondition(msg, 'logs/strategy-monitoring.log');
     }
   }
 
-  // TTM Squeeze state
-  if (ttmSqueeze) {
-    if (ttmSqueeze.squeezeOn) {
-      checks.push(`TTM SQUEEZE FIRING: Momentum ${ttmSqueeze.momentum.toFixed(2)}`);
-    }
-  }
-
-  // Only log if any conditions are met
-  if (checks.length > 0) {
-    const msg = `[${symbol}] ${checks.join(' | ')}`;
-    logCondition(msg, 'logs/individual-conditions.log');
+  // TTM SQUEEZE firing without Step 1
+  if (ttmFiring && !bbLowerBroke && !bbUpperBroke && !rsiOversold && !rsiOverbought) {
+    const msg = `[${symbol}] TTM SQUEEZE FIRING (momentum ${ttmSqueeze.momentum.toFixed(2)}) but Step 1 NOT met | BB: ${price.toFixed(2)} between ${bb.lower.toFixed(2)}-${bb.upper.toFixed(2)} | RSI: ${rsi.toFixed(1)} (need <${CONFIG.rsiOversold} or >${CONFIG.rsiOverbought})`;
+    logCondition(msg, 'logs/strategy-monitoring.log');
   }
 }
 
@@ -287,16 +307,16 @@ function logSetupProgress(
 }
 
 const CONFIG: StrategyConfig = {
-  symbol: process.env.TOPSTEPX_NQ_LIVE_SYMBOL || 'MESZ5',
+  symbol: process.env.TOPSTEPX_NQ_LIVE_SYMBOL || 'ESZ5',
   contractId: process.env.TOPSTEPX_NQ_LIVE_CONTRACT_ID,
   bbPeriod: Number(process.env.TOPSTEPX_NQ_BB_PERIOD || '20'),
-  bbStdDev: Number(process.env.TOPSTEPX_NQ_BB_STDDEV || '3'),
+  bbStdDev: Number(process.env.TOPSTEPX_NQ_BB_STDDEV || '1'),  // Changed to 1 for testing
   rsiPeriod: Number(process.env.TOPSTEPX_NQ_RSI_PERIOD || '24'),
-  rsiOversold: Number(process.env.TOPSTEPX_NQ_RSI_OVERSOLD || '30'),
-  rsiOverbought: Number(process.env.TOPSTEPX_NQ_RSI_OVERBOUGHT || '70'),
+  rsiOversold: Number(process.env.TOPSTEPX_NQ_RSI_OVERSOLD || '45'),  // Changed to 45 for testing
+  rsiOverbought: Number(process.env.TOPSTEPX_NQ_RSI_OVERBOUGHT || '55'),  // Changed to 55 for testing
   stopLossPercent: Number(process.env.TOPSTEPX_NQ_STOP_PERCENT || '0.0001'),
   takeProfitPercent: Number(process.env.TOPSTEPX_NQ_TP_PERCENT || '0.0005'),
-  numberOfContracts: Number(process.env.TOPSTEPX_NQ_CONTRACTS || '3'),
+  numberOfContracts: Number(process.env.TOPSTEPX_NQ_CONTRACTS || '1'),
   pollIntervalMs: Number(process.env.TOPSTEPX_NQ_POLL_MS || '60000'),
   initialBackfillBars: Number(process.env.TOPSTEPX_NQ_BACKFILL || '250'), // Fetch extra for indicator warm-up
   dailyLossLimit: Number(process.env.TOPSTEPX_NQ_DAILY_LOSS_LIMIT || '2000'), // $2000 daily loss limit
@@ -329,6 +349,7 @@ const io = new Server(server, {
 
 let pendingSetup: PendingSetup | null = null;
 let position: ActivePosition | null = null;
+let pendingBracketConfirmations: Map<string, { stopConfirmed: boolean; targetConfirmed: boolean }> = new Map();
 let closes: number[] = [];
 let bars: TopstepXFuturesBar[] = [];
 let chartHistory: ChartData[] = [];
@@ -355,6 +376,10 @@ let tradeSequence = 0;
 let currentBar: TopstepXFuturesBar | null = null;
 let barStartTime: Date | null = null;
 let lastMarketDataTime: Date | null = null;
+let latestRSI: number | undefined = undefined;
+let latestBB: { upper: number; middle: number; lower: number } | undefined = undefined;
+let latestTTM: { squeezeOn: boolean; momentum: number } | null = null;
+let latestPrice = 0;
 let accountStatus: AccountStatus = {
   balance: 0,
   buyingPower: 0,
@@ -437,6 +462,14 @@ async function reconcilePosition(savedPosition: any) {
     const positions = await topstepRest.getPositions(accountId);
 
     if (!positions || positions.length === 0) {
+      // If we have a saved position with pending stop/target orders, keep it in memory
+      // to process incoming fills (race condition during shutdown/restart)
+      if (savedPosition && (savedPosition.stopOrderId || savedPosition.targetOrderId)) {
+        log(`⚠️ No position at broker, but saved position has pending orders - keeping in memory to process fills`);
+        log(`   Saved: ${savedPosition.side} ${savedPosition.totalQty} @ ${savedPosition.entryPrice}, stopOrderId=${savedPosition.stopOrderId}, targetOrderId=${savedPosition.targetOrderId}`);
+        position = savedPosition;
+        return;
+      }
       log('✅ No existing positions found - starting fresh');
       position = null;
       return;
@@ -633,8 +666,12 @@ function shouldFlattenForClose(date: Date): boolean {
   const day = ctDate.getUTCDay();
   const minutes = ctDate.getUTCHours() * 60 + ctDate.getUTCMinutes();
 
-  if (day === 5 && minutes >= CUT_OFF_MINUTES - 5) return true;
-  if (day !== 5 && minutes >= CUT_OFF_MINUTES - 5) return true;
+  // Only flatten if near 3:10 PM close AND before 5:00 PM reopen
+  // This prevents flattening after market reopens in evening session
+  if (minutes >= CUT_OFF_MINUTES - 5 && minutes < REOPEN_MINUTES) {
+    if (day === 5) return true; // Friday close
+    return true; // Weekday close
+  }
 
   return false;
 }
@@ -697,44 +734,6 @@ function broadcastDashboardUpdate() {
   }
 }
 
-async function monitorStopLimit(stopOrderId: string | number, exitSide: OrderSide, qty: number) {
-  if (!position || !orderManager || position.stopFilled || position.monitoringStop) {
-    return;
-  }
-
-  position.monitoringStop = true;
-  log(`[MONITOR] Monitoring stop limit ${stopOrderId} for ${STOP_MONITOR_DELAY_MS}ms`);
-
-  await sleep(STOP_MONITOR_DELAY_MS);
-
-  if (!position || position.stopFilled) {
-    log(`[MONITOR] Stop already filled or position closed`);
-    return;
-  }
-
-  log(`[MONITOR] Stop limit ${stopOrderId} NOT filled - converting to MARKET STOP`);
-
-  try {
-    await orderManager.cancelOrder(stopOrderId);
-    log(`[MONITOR] Cancelled stop limit ${stopOrderId}`);
-
-    const marketResponse = await orderManager.placeMarketIOC(exitSide, qty);
-    log(`[MONITOR] Market stop placed, order ID: ${marketResponse?.orderId ?? 'unknown'}`);
-
-    if (position) {
-      position.stopFilled = true;
-      const exitPrice = lastQuotePrice || position.stopLoss;
-      await handlePositionExit(exitPrice, nowIso(), 'stop', true);
-    }
-  } catch (err: any) {
-    log(`[ERROR] Failed to convert stop limit to market: ${err.message}`);
-  } finally {
-    if (position) {
-      position.monitoringStop = false;
-    }
-  }
-}
-
 async function enterPosition(
   side: 'long' | 'short',
   price: number,
@@ -778,10 +777,14 @@ async function enterPosition(
       : price * (1 - CONFIG.takeProfitPercent)
   );
 
-  log(`[ENTRY] Attempting ${side.toUpperCase()} MARKET, Stop @ ${stopPrice.toFixed(2)}, Target @ ${targetPrice.toFixed(2)}`);
+  // Calculate bracket ticks
+  const stopTicks = side === 'long' ? -4 : 4;   // Negative for LONG, positive for SHORT
+  const targetTicks = side === 'long' ? 6 : -6; // Positive for LONG, negative for SHORT
+
+  log(`[ENTRY] Attempting ${side.toUpperCase()} MARKET with BRACKETS, Stop ${Math.abs(stopTicks)} ticks, Target ${Math.abs(targetTicks)} ticks`);
 
   // CRITICAL: Log order attempt to append-only file
-  const criticalLogMsg = `[CRITICAL ORDER ATTEMPT] ${timestamp} | ${side.toUpperCase()} MARKET | Qty: ${CONFIG.numberOfContracts} | Stop: ${stopPrice.toFixed(2)} | Target: ${targetPrice.toFixed(2)} | Account: ${accountId}`;
+  const criticalLogMsg = `[CRITICAL ORDER ATTEMPT] ${timestamp} | ${side.toUpperCase()} BRACKET | Qty: ${CONFIG.numberOfContracts} | Stop: ${Math.abs(stopTicks)} ticks | Target: ${Math.abs(targetTicks)} ticks | Account: ${accountId}`;
   log(criticalLogMsg);
   try {
     require('fs').appendFileSync('logs/critical-orders.log', criticalLogMsg + '\n');
@@ -789,13 +792,13 @@ async function enterPosition(
     console.error('[CRITICAL LOG FAILED]', e);
   }
 
-  let bracketResult;
+  let entryResponse;
   try {
-    bracketResult = await orderManager.placeBracketEntry(
+    entryResponse = await orderManager.placeMarketWithBrackets(
       entrySide,
-      stopPrice,
-      targetPrice,
       CONFIG.numberOfContracts,
+      stopTicks,
+      targetTicks
     );
   } catch (err: any) {
     const errorMsg = `[CRITICAL ORDER FAILED] ${timestamp} | ${side.toUpperCase()} | Error: ${err.message}`;
@@ -808,9 +811,11 @@ async function enterPosition(
     return;
   }
 
-  // Validate order IDs were returned
-  if (!bracketResult || !bracketResult.entryOrderId || !bracketResult.stopOrderId || !bracketResult.targetOrderId) {
-    const errorMsg = `[CRITICAL ORDER INVALID] ${timestamp} | ${side.toUpperCase()} | Invalid order IDs returned! Entry: ${bracketResult?.entryOrderId}, Stop: ${bracketResult?.stopOrderId}, Target: ${bracketResult?.targetOrderId}`;
+  const entryOrderId = orderManager.resolveOrderId(entryResponse);
+
+  // Validate order ID was returned
+  if (!entryOrderId) {
+    const errorMsg = `[CRITICAL ORDER INVALID] ${timestamp} | ${side.toUpperCase()} | Invalid entry order ID returned!`;
     log(errorMsg);
     try {
       require('fs').appendFileSync('logs/critical-orders.log', errorMsg + '\n');
@@ -821,7 +826,7 @@ async function enterPosition(
   }
 
   // Log successful order placement
-  const successMsg = `[CRITICAL ORDER SUCCESS] ${timestamp} | ${side.toUpperCase()} | Entry ID: ${bracketResult.entryOrderId} | Stop ID: ${bracketResult.stopOrderId} | Target ID: ${bracketResult.targetOrderId}`;
+  const successMsg = `[CRITICAL ORDER SUCCESS] ${timestamp} | ${side.toUpperCase()} | Bracket Entry ID: ${entryOrderId} (stop/target managed by broker)`;
   log(successMsg);
   try {
     require('fs').appendFileSync('logs/critical-orders.log', successMsg + '\n');
@@ -831,6 +836,18 @@ async function enterPosition(
 
   const estimatedEntryPrice = price;
 
+  // Check if brackets were already confirmed (by any UUID in pending confirmations)
+  let stopAlreadyConfirmed = false;
+  let targetAlreadyConfirmed = false;
+  for (const [uuid, confirmation] of pendingBracketConfirmations.entries()) {
+    if (confirmation.stopConfirmed || confirmation.targetConfirmed) {
+      stopAlreadyConfirmed = confirmation.stopConfirmed;
+      targetAlreadyConfirmed = confirmation.targetConfirmed;
+      log(`[BRACKET] Found pending confirmations (UUID: ${uuid}) - Stop: ${stopAlreadyConfirmed ? '✅' : '❌'}, Target: ${targetAlreadyConfirmed ? '✅' : '❌'}`);
+      break; // Only one position at a time, so take first match
+    }
+  }
+
   position = {
     tradeId,
     symbol: CONFIG.symbol,
@@ -838,22 +855,26 @@ async function enterPosition(
     side,
     entryPrice: estimatedEntryPrice,
     entryTime: timestamp,
-    stopLoss: stopPrice,
-    target: targetPrice,
+    stopLoss: 0,  // Managed by broker via bracket
+    target: 0,    // Managed by broker via bracket
     totalQty: CONFIG.numberOfContracts,
     entryRSI: rsi,
-    entryOrderId: bracketResult.entryOrderId,
-    stopOrderId: bracketResult.stopOrderId,
-    targetOrderId: bracketResult.targetOrderId,
-    stopFilled: bracketResult.stopFilled,
-    targetFilled: bracketResult.targetFilled,
-    stopLimitPending: !bracketResult.stopFilled,
+    entryOrderId: entryOrderId,
+    stopOrderId: undefined,  // Will be filled when broker reports it
+    targetOrderId: undefined,
+    stopFilled: false,
+    targetFilled: false,
+    stopLimitPending: false,
     monitoringStop: false,
+    bracketStopConfirmed: stopAlreadyConfirmed,  // Apply pending confirmation if exists
+    bracketTargetConfirmed: targetAlreadyConfirmed,  // Apply pending confirmation if exists
   };
 
   log(
     `ENTERED ${side.toUpperCase()} MARKET @ ~${estimatedEntryPrice.toFixed(2)} ` +
-    `(RSI ${rsi.toFixed(1)}, Entry: ${bracketResult.entryOrderId}, Stop: ${bracketResult.stopOrderId}, Target: ${bracketResult.targetOrderId})`
+    `(RSI ${rsi.toFixed(1)}, Entry: ${entryOrderId}) - ` +
+    `BRACKET: Stop ${Math.abs(stopTicks)} ticks (${side === 'long' ? 'below' : 'above'}), ` +
+    `Target ${Math.abs(targetTicks)} ticks (${side === 'long' ? 'above' : 'below'})`
   );
 
   logTradeEvent({
@@ -862,17 +883,17 @@ async function enterPosition(
     tradeId,
     side: side.toUpperCase(),
     price: estimatedEntryPrice,
-    orderType: 'MARKET',
+    orderType: 'BRACKET',
     qty: CONFIG.numberOfContracts,
     rsi,
     bbUpper: bb.upper,
     bbMiddle: bb.middle,
     bbLower: bb.lower,
-    stopLoss: stopPrice,
-    target: targetPrice,
-    entryOrderId: bracketResult.entryOrderId,
-    stopOrderId: bracketResult.stopOrderId,
-    targetOrderId: bracketResult.targetOrderId,
+    stopLoss: 0,  // Managed by broker
+    target: 0,    // Managed by broker
+    entryOrderId: entryOrderId,
+    stopOrderId: undefined,
+    targetOrderId: undefined,
   });
 
   // Add entry marker to chart
@@ -881,14 +902,84 @@ async function enterPosition(
   }
 
   broadcastDashboardUpdate();
+  saveState();
 
-  if (position.stopLimitPending && !position.stopFilled) {
-    setImmediate(() => {
-      if (position && !position.stopFilled) {
-        monitorStopLimit(bracketResult.stopOrderId, exitSide, CONFIG.numberOfContracts);
+  // Start bracket confirmation timeout (5 seconds)
+  setTimeout(() => {
+    if (!position || position.tradeId !== tradeId) {
+      // Position already closed, nothing to check
+      return;
+    }
+
+    if (!position.bracketStopConfirmed || !position.bracketTargetConfirmed) {
+      log(`🚨 [BRACKET FAILURE] Stop: ${position.bracketStopConfirmed ? 'OK' : 'MISSING'}, Target: ${position.bracketTargetConfirmed ? 'OK' : 'MISSING'}`);
+      log(`🚨 [BRACKET FAILURE] Brackets not confirmed within 5 seconds - FLATTENING POSITION IMMEDIATELY!`);
+
+      // Log to critical file
+      const errorMsg = `[BRACKET FAILURE] ${nowIso()} | ${side.toUpperCase()} | Trade ${tradeId} | Stop: ${position.stopOrderId || 'NONE'}, Target: ${position.targetOrderId || 'NONE'} | EMERGENCY FLATTEN`;
+      try {
+        require('fs').appendFileSync('logs/critical-orders.log', errorMsg + '\n');
+      } catch (e) {
+        console.error('[CRITICAL LOG FAILED]', e);
       }
-    });
-  }
+
+      // Immediately flatten with market order
+      if (orderManager) {
+        const exitSide: OrderSide = position.side === 'long' ? 'Sell' : 'Buy';
+        const originalSide = position.side;
+        const originalQty = position.totalQty;
+
+        orderManager.placeMarketIOC(exitSide, position.totalQty).catch(err =>
+          log(`[ERROR] Failed to flatten position: ${err.message}`)
+        );
+        handlePositionExit(lastQuotePrice, nowIso(), 'manual');
+
+        // Wait 3 seconds then cleanup brackets AND check for accidental reverse position
+        setTimeout(async () => {
+          const savedStopOrderId = position?.stopOrderId;
+          const savedTargetOrderId = position?.targetOrderId;
+
+          // Cancel any remaining bracket orders
+          if (savedStopOrderId || savedTargetOrderId) {
+            log(`[BRACKET CLEANUP] Verifying bracket orders are cancelled...`);
+
+            if (savedStopOrderId) {
+              try {
+                await rest.cancelOrder({ accountId, orderId: String(savedStopOrderId) });
+                log(`[BRACKET CLEANUP] ✅ Cancelled stop order: ${savedStopOrderId}`);
+              } catch (err: any) {
+                log(`[BRACKET CLEANUP] Stop order ${savedStopOrderId}: ${err.message}`);
+              }
+            }
+
+            if (savedTargetOrderId) {
+              try {
+                await rest.cancelOrder({ accountId, orderId: String(savedTargetOrderId) });
+                log(`[BRACKET CLEANUP] ✅ Cancelled target order: ${savedTargetOrderId}`);
+              } catch (err: any) {
+                log(`[BRACKET CLEANUP] Target order ${savedTargetOrderId}: ${err.message}`);
+              }
+            }
+          }
+
+          // Check if flatten order accidentally created reverse position
+          if (position && position.side !== originalSide) {
+            log(`🚨 [REVERSE POSITION DETECTED] Flatten order created ${position.side.toUpperCase()} position - closing immediately!`);
+            const reverseFlattenSide: OrderSide = position.side === 'long' ? 'Sell' : 'Buy';
+            try {
+              await orderManager.placeMarketIOC(reverseFlattenSide, position.totalQty);
+              log(`[BRACKET CLEANUP] ✅ Closed reverse position`);
+              handlePositionExit(lastQuotePrice, nowIso(), 'manual');
+            } catch (err: any) {
+              log(`[BRACKET CLEANUP] ❌ Failed to close reverse position: ${err.message}`);
+            }
+          }
+        }, 3000);
+      }
+    } else {
+      log(`✅ [BRACKET CONFIRMED] Both stop and target brackets confirmed as Working`);
+    }
+  }, 5000);
 }
 
 async function handlePositionExit(
@@ -900,6 +991,9 @@ async function handlePositionExit(
   if (!position) {
     return;
   }
+
+  // Market-only strategy - no brackets to cancel
+  log(`[EXIT] Position exited via ${reason} using market order`);
 
   // Use actual commission data if available from TopstepX, otherwise use estimated
   const actualEntryFee = position.entryCommission ?? (commissionPerSide * position.totalQty);
@@ -1053,12 +1147,13 @@ async function startMarketStream(contractId: string) {
 
   const subscribeMarket = () => {
     if (!marketHub) return;
-    marketHub.invoke('SubscribeContractQuotes', contractId).catch(err =>
-      console.error('[market] Subscribe quotes failed', err),
-    );
-    marketHub.invoke('SubscribeContractTrades', contractId).catch(err =>
-      console.error('[market] Subscribe trades failed', err),
-    );
+    log(`[SUBSCRIBE] Subscribing to contract ${contractId} (Quotes + Trades)...`);
+    marketHub.invoke('SubscribeContractQuotes', contractId)
+      .then(() => log(`[SUBSCRIBE] ✅ Successfully subscribed to quotes for ${contractId}`))
+      .catch(err => log(`[SUBSCRIBE] ❌ Subscribe quotes failed: ${err?.message || err}`));
+    marketHub.invoke('SubscribeContractTrades', contractId)
+      .then(() => log(`[SUBSCRIBE] ✅ Successfully subscribed to trades for ${contractId}`))
+      .catch(err => log(`[SUBSCRIBE] ❌ Subscribe trades failed: ${err?.message || err}`));
   };
 
   marketHub.onreconnected(() => {
@@ -1158,7 +1253,13 @@ async function startMarketStream(contractId: string) {
         clearTimeout(marketReconnectTimer);
         marketReconnectTimer = null;
       }
-      isReconnectingMarket = false;
+
+      // Wait 3 seconds before clearing reconnection flag to ensure connection is stable
+      // This prevents immediate re-triggering if connection drops right after connecting
+      setTimeout(() => {
+        isReconnectingMarket = false;
+        log('[RECONNECT] Market hub connection stable, reconnection guard cleared');
+      }, 3000);
 
     } catch (error: any) {
       log(`[RECONNECT] Market hub reconnection failed: ${error?.message || 'Unknown error'}`);
@@ -1231,6 +1332,81 @@ async function startUserStream(accountId: number) {
 
   userHub.on('GatewayUserOrder', data => {
     log(`User order event: ${JSON.stringify(data)}`);
+
+    if (data && data.data) {
+      const ev = data.data;
+
+      // CRITICAL: Only process orders for THIS strategy's contract
+      if (ev.contractId !== resolvedContractId) {
+        return; // Ignore orders for other contracts
+      }
+
+      const status = ev.status;
+      const fillPrice = Number(ev.filledPrice ?? 0);
+      const orderId = ev.id;
+      const customTag = ev.customTag || '';
+
+      // Capture bracket order IDs when they're created (status: 8 = pending/placed)
+      if (status === 8 && position && orderId && ev.contractId === position.contractId && customTag.includes('AutoBracket')) {
+        if (customTag.includes('-SL')) {
+          position.stopOrderId = orderId;
+          log(`[BRACKET] Stop order created: ${orderId}`);
+          saveState();
+        } else if (customTag.includes('-TP')) {
+          position.targetOrderId = orderId;
+          log(`[BRACKET] Target order created: ${orderId}`);
+          saveState();
+        }
+      }
+
+      // Confirm bracket orders when they reach "Working" status (status: 1 = working)
+      if (status === 1 && orderId && customTag.includes('AutoBracket')) {
+        // Extract trade UUID from customTag (format: "AutoBracket<UUID>-SL" or "AutoBracket<UUID>-TP")
+        const uuidMatch = customTag.match(/AutoBracket([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/);
+        const tradeUuid = uuidMatch ? uuidMatch[1] : null;
+
+        if (tradeUuid) {
+          // Store confirmation in pending tracker (may arrive before position is set)
+          if (!pendingBracketConfirmations.has(tradeUuid)) {
+            pendingBracketConfirmations.set(tradeUuid, { stopConfirmed: false, targetConfirmed: false });
+          }
+          const pending = pendingBracketConfirmations.get(tradeUuid)!;
+
+          if (customTag.includes('-SL')) {
+            pending.stopConfirmed = true;
+            log(`[BRACKET] ✅ Stop order CONFIRMED as Working: ${orderId} @ ${ev.stopPrice} (UUID: ${tradeUuid})`);
+          } else if (customTag.includes('-TP')) {
+            pending.targetConfirmed = true;
+            log(`[BRACKET] ✅ Target order CONFIRMED as Working: ${orderId} @ ${ev.limitPrice} (UUID: ${tradeUuid})`);
+          }
+
+          // If position exists, update it immediately (only one position per strategy)
+          if (position) {
+            position.bracketStopConfirmed = pending.stopConfirmed;
+            position.bracketTargetConfirmed = pending.targetConfirmed;
+            saveState();
+          }
+        }
+      }
+
+      // Process fills (status: 2 = filled)
+      if (status === 2 && fillPrice > 0 && position && orderId && ev.contractId === position.contractId) {
+        if (orderId === position.entryOrderId) {
+          position.entryPrice = fillPrice;
+          log(`[FILL] Entry filled @ ${fillPrice.toFixed(2)} (Order ID: ${orderId})`);
+          saveState();
+          broadcastDashboardUpdate();
+        } else if (orderId === position.stopOrderId || customTag.includes('AutoBracket') && customTag.includes('-SL')) {
+          position.stopFilled = true;
+          log(`[FILL] Stop bracket filled @ ${fillPrice.toFixed(2)} (Order ID: ${orderId})`);
+          handlePositionExit(fillPrice, nowIso(), 'stop', false);
+        } else if (orderId === position.targetOrderId || customTag.includes('AutoBracket') && customTag.includes('-TP')) {
+          position.targetFilled = true;
+          log(`[FILL] Target bracket filled @ ${fillPrice.toFixed(2)} (Order ID: ${orderId})`);
+          handlePositionExit(fillPrice, nowIso(), 'target', false);
+        }
+      }
+    }
   });
 
   userHub.on('GatewayUserAccount', (_cid: string, data: any) => {
@@ -1328,7 +1504,134 @@ async function startUserStream(accountId: number) {
         }
       }
 
-      await startUserStream(accountId);
+      // Create new hub connection without re-registering onclose handler
+      const tokenProvider = async () => authenticate();
+      const initialToken = await tokenProvider();
+
+      userHub = new HubConnectionBuilder()
+        .withUrl(`${USER_HUB_URL}?access_token=${encodeURIComponent(initialToken)}`, {
+          skipNegotiation: true,
+          transport: HttpTransportType.WebSockets,
+          accessTokenFactory: tokenProvider,
+        })
+        .withAutomaticReconnect()
+        .configureLogging(LogLevel.Information)
+        .build();
+
+      // Re-register only data handlers, NOT onclose (already registered in parent)
+      userHub.on('GatewayUserTrade', (_cid: string, ev: any) => {
+        if (!ev) return;
+        log(`[FILL EVENT] ${JSON.stringify(ev)}`);
+        const side = ev.side === 0 ? 'Buy' : 'Sell';
+        const qty = Math.abs(Number(ev.size ?? ev.quantity ?? ev.qty ?? 0));
+        const price = Number(ev.price ?? ev.avgPrice ?? 0);
+        const commission = ev.commission ?? ev.fee ?? null;
+        if (qty && price) {
+          log(`User trade ${side} ${qty}@${price.toFixed(2)}${commission !== null ? ` | Fee: ${commission}` : ''}`);
+          if (position) {
+            const orderId = ev.orderId ?? ev.id;
+            if (orderId === position.entryOrderId) {
+              position.entryPrice = price;
+              if (commission !== null) position.entryCommission = commission;
+              log(`Entry filled @ ${price.toFixed(2)}${position.entryCommission ? ` | Entry fee: ${position.entryCommission}` : ' (market order)'}`);
+              broadcastDashboardUpdate();
+            } else if (orderId === position.stopOrderId) {
+              position.stopFilled = true;
+              if (commission !== null) position.exitCommission = commission;
+              handlePositionExit(price, nowIso(), 'stop', false);
+            } else if (orderId === position.targetOrderId) {
+              position.targetFilled = true;
+              if (commission !== null) position.exitCommission = commission;
+              handlePositionExit(price, nowIso(), 'target', false);
+            }
+          }
+        }
+      });
+
+      userHub.on('GatewayUserOrder', data => {
+        log(`User order event: ${JSON.stringify(data)}`);
+
+        // Process fills (status: 2 = filled)
+        if (data && data.data) {
+          const ev = data.data;
+          const status = ev.status;
+          const fillPrice = Number(ev.filledPrice ?? 0);
+          const orderId = ev.id;
+
+          // Only process fills for our contract
+          if (status === 2 && fillPrice > 0 && position && orderId && ev.contractId === position.contractId) {
+            if (orderId === position.entryOrderId) {
+              position.entryPrice = fillPrice;
+              log(`[FILL] Entry filled @ ${fillPrice.toFixed(2)} (Order ID: ${orderId})`);
+              saveState();
+              broadcastDashboardUpdate();
+            } else if (orderId === position.stopOrderId) {
+              position.stopFilled = true;
+              log(`[FILL] Stop filled @ ${fillPrice.toFixed(2)} (Order ID: ${orderId})`);
+              handlePositionExit(fillPrice, nowIso(), 'stop', false);
+            } else if (orderId === position.targetOrderId) {
+              position.targetFilled = true;
+              log(`[FILL] Target filled @ ${fillPrice.toFixed(2)} (Order ID: ${orderId})`);
+              handlePositionExit(fillPrice, nowIso(), 'target', false);
+            }
+          }
+        }
+      });
+
+      userHub.on('GatewayUserAccount', (_cid: string, data: any) => {
+        if (data) {
+          accountStatus = {
+            balance: data.cashBalance || data.balance || 0,
+            buyingPower: data.buyingPower || data.availableBalance || 0,
+            dailyPnL: data.dailyNetPnL || data.dailyPnl || 0,
+            openPositions: data.openPositions || 0,
+            dailyLossLimit: CONFIG.dailyLossLimit,
+            isAtRisk: false,
+          };
+          if (accountStatus.dailyPnL <= -CONFIG.dailyLossLimit * 0.8) {
+            accountStatus.isAtRisk = true;
+            log(`[WARNING] Approaching daily loss limit: ${formatCurrency(accountStatus.dailyPnL)}`);
+          }
+          if (accountStatus.dailyPnL <= -CONFIG.dailyLossLimit) {
+            log(`[SAFETY] Daily loss limit exceeded: ${formatCurrency(accountStatus.dailyPnL)}`);
+            if (position && orderManager) {
+              const exitSide: OrderSide = position.side === 'long' ? 'Sell' : 'Buy';
+              orderManager.placeMarketIOC(exitSide, position.totalQty).catch(err =>
+                log(`[ERROR] Failed to flatten position: ${err.message}`)
+              );
+            }
+            handlePositionExit(lastQuotePrice, nowIso(), 'daily_loss_limit');
+            shutdown('daily_loss_limit');
+          }
+          broadcastDashboardUpdate();
+        }
+      });
+
+      userHub.on('GatewayUserPosition', (_cid: string, data: any) => {
+        if (data) {
+          log(`[position] ${JSON.stringify(data)}`);
+          const brokerQty = Math.abs(data.quantity || 0);
+          const brokerSide = data.quantity > 0 ? 'long' : 'short';
+          if (position && brokerQty === 0) {
+            log('[SYNC] Position closed externally - syncing local state');
+            position = null;
+            broadcastDashboardUpdate();
+          }
+        }
+      });
+
+      userHub.onreconnected(() => {
+        log('⚠️ TopstepX user hub RECONNECTED - resubscribing to account data');
+        subscribeUser();
+      });
+
+      userHub.onreconnecting((error) => {
+        log(`⚠️ TopstepX user hub connection lost, attempting to reconnect... ${error?.message || ''}`);
+      });
+
+      // Start the hub and subscribe
+      await userHub.start();
+      subscribeUser();
 
       log('✅ TopstepX user hub RECONNECTED successfully!');
 
@@ -1336,7 +1639,13 @@ async function startUserStream(accountId: number) {
         clearTimeout(userReconnectTimer);
         userReconnectTimer = null;
       }
-      isReconnectingUser = false;
+
+      // Wait 3 seconds before clearing reconnection flag to ensure connection is stable
+      // This prevents immediate re-triggering if connection drops right after connecting
+      setTimeout(() => {
+        isReconnectingUser = false;
+        log('[RECONNECT] User hub connection stable, reconnection guard cleared');
+      }, 3000);
 
     } catch (error: any) {
       log(`[RECONNECT] User hub reconnection failed: ${error?.message || 'Unknown error'}`);
@@ -1379,6 +1688,12 @@ async function processBar(bar: TopstepXFuturesBar) {
   const ttmSqueeze = ttmBars.length >= 21 ?
     calculateTtmSqueeze(ttmBars, { lookback: 20, bbStdDev: 2, atrMultiplier: 1.5 }) : null;
 
+  // Update global current values for heartbeat monitoring
+  latestPrice = bar.close;
+  latestRSI = currentRSI;
+  latestBB = bb;
+  latestTTM = ttmSqueeze;
+
   // Create chart data point
   const chartPoint: ChartData = {
     timestamp: bar.timestamp,
@@ -1418,6 +1733,9 @@ async function processBar(bar: TopstepXFuturesBar) {
 
   // Broadcast bar update to dashboard
   io.emit('bar', chartPoint);
+
+  // Stop/target monitoring now done in REAL-TIME via updateCurrentBar()
+  // Only entry signals are based on bar close
 
   // Check if we should flatten for end of session
   if (position && shouldFlattenForClose(new Date(bar.timestamp))) {
@@ -1883,6 +2201,27 @@ async function shutdown(reason: string) {
   if (position && orderManager) {
     const exitSide: OrderSide = position.side === 'long' ? 'Sell' : 'Buy';
     try {
+      // Cancel active bracket orders before placing manual exit
+      if (position.stopOrderId || position.targetOrderId) {
+        log(`[SHUTDOWN] Cancelling active bracket orders...`);
+        if (position.stopOrderId) {
+          try {
+            await rest.cancelOrder({ accountId, orderId: String(position.stopOrderId) });
+            log(`[SHUTDOWN] Cancelled stop order: ${position.stopOrderId}`);
+          } catch (err: any) {
+            log(`[WARN] Failed to cancel stop order: ${err.message}`);
+          }
+        }
+        if (position.targetOrderId) {
+          try {
+            await rest.cancelOrder({ accountId, orderId: String(position.targetOrderId) });
+            log(`[SHUTDOWN] Cancelled target order: ${position.targetOrderId}`);
+          } catch (err: any) {
+            log(`[WARN] Failed to cancel target order: ${err.message}`);
+          }
+        }
+      }
+
       await orderManager.placeMarketIOC(exitSide, position.totalQty);
       const lastClose = closes[closes.length - 1] || position.entryPrice;
       await handlePositionExit(lastClose, nowIso(), 'manual');
@@ -1986,6 +2325,7 @@ async function main() {
     // Heartbeat log - check if we're actually receiving market data
     const now = new Date();
     const dataStale = lastMarketDataTime && (now.getTime() - lastMarketDataTime.getTime()) > 120000; // 2 minutes
+    const criticalStale = lastMarketDataTime && (now.getTime() - lastMarketDataTime.getTime()) > 300000; // 5 minutes
     const noDataYet = !lastMarketDataTime;
 
     let statusText: string;
@@ -1997,8 +2337,17 @@ async function main() {
       statusText = '⏸ PAUSED';
     }
 
+    // Auto-restart if no data for 5 minutes - PM2 will restart us
+    if (criticalStale) {
+      log(`🔴 CRITICAL: No market data for 5+ minutes. Restarting to reconnect...`);
+      process.exit(1);
+    }
+
     const posText = position ? `| Position: ${position.side.toUpperCase()} ${position.totalQty}` : '| No position';
-    log(`🚀 Strategy ${statusText} | Symbol: ${CONFIG.symbol} | Account: ${accountId} ${posText}`);
+    const rsiText = latestRSI !== undefined ? `RSI: ${latestRSI.toFixed(1)}` : 'RSI: --';
+    const bbText = latestBB ? `BB: ${latestPrice.toFixed(2)} (${latestBB.lower.toFixed(2)}-${latestBB.upper.toFixed(2)})` : 'BB: --';
+    const ttmText = latestTTM ? `TTM: ${latestTTM.squeezeOn ? `ON(${latestTTM.momentum.toFixed(2)})` : 'OFF'}` : 'TTM: --';
+    log(`🚀 Strategy ${statusText} | Symbol: ${CONFIG.symbol} | Account: ${accountId} ${posText} | ${rsiText} | ${bbText} | ${ttmText}`);
   }, 30000);
 
   log('Starting live streaming...');

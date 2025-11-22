@@ -1,0 +1,1258 @@
+#!/usr/bin/env tsx
+/**
+ * TopstepX Live NQ ICT/SMC Strategy - 1-Minute Bars
+ *
+ * Strategy:
+ * - Market Structure detection (Break of Structure - BOS)
+ * - Wicked Candle patterns (institutional rejection)
+ * - Fair Value Gap (FVG) identification
+ * - Scaled exits: 50% at TP1, 50% at TP2
+ *
+ * Configuration:
+ * - Symbol: NQZ5 (Nasdaq 100 E-mini Futures)
+ * - Stop Loss: 4 ticks
+ * - TP1: 16 ticks (exit 50%)
+ * - TP2: 32 ticks (exit 50%)
+ * - Mode: Normal Wicked Candles (HIGH_ACCURACY)
+ * - Contracts: 3 per entry
+ */
+
+import 'dotenv/config';
+import {
+  fetchTopstepXFuturesBars,
+  fetchTopstepXFuturesMetadata,
+  fetchTopstepXAccounts,
+  TopstepXFuturesBar,
+  authenticate,
+} from './lib/topstepx';
+import { appendFileSync, existsSync, mkdirSync } from 'fs';
+import * as path from 'path';
+import { inferFuturesCommissionPerSide } from './lib/futuresFees';
+import { createProjectXRest } from './projectx-rest';
+import { HubConnection, HubConnectionBuilder, HttpTransportType, LogLevel } from '@microsoft/signalr';
+import * as http from 'http';
+import * as express from 'express';
+import { Server as SocketIOServer } from 'socket.io';
+
+// WebSocket Hub URLs
+const MARKET_HUB_URL = process.env.TOPSTEPX_MARKET_HUB_URL || 'https://rtc.topstepx.com/hubs/market';
+const USER_HUB_URL = process.env.TOPSTEPX_USER_HUB_URL || 'https://rtc.topstepx.com/hubs/user';
+
+// Configuration
+const SYMBOL = 'NQZ5';
+const STOP_LOSS_TICKS = 4;
+const TAKE_PROFIT_1_TICKS = 16;
+const TAKE_PROFIT_2_TICKS = 32;
+const NUM_CONTRACTS = 3;
+const POLL_INTERVAL_MS = 5000; // Check every 5 seconds for new bars
+const DASHBOARD_PORT = parseInt(process.env.TOPSTEPX_NQ_ICT_DASHBOARD_PORT || '3337');
+
+interface ChartBar {
+  timestamp: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  bosHigh?: number;
+  bosLow?: number;
+  fvgHigh?: number;
+  fvgLow?: number;
+  wickedBullish?: boolean;
+  wickedBearish?: boolean;
+}
+
+interface ActivePosition {
+  tradeId: string;
+  symbol: string;
+  side: 'long' | 'short';
+  entryPrice: number;
+  entryTime: string;
+  stopLoss: number;
+  targetTP1: number;
+  targetTP2: number;
+  totalQty: number;
+  remaining: number; // Remaining contracts after TP1 exit
+  entryPattern: string; // Description of entry pattern
+  tp1Filled: boolean;
+  stopFilled: boolean;
+  entryOrderId?: string | number;
+  stopOrderId?: string | number;
+  tp1OrderId?: string | number;
+  tp2OrderId?: string | number;
+}
+
+interface TradeResult {
+  tradeId: string;
+  side: 'long' | 'short';
+  entryPrice: number;
+  exitPrice: number;
+  entryTime: string;
+  exitTime: string;
+  quantity: number;
+  pnl: number;
+  exitReason: 'tp1' | 'tp2' | 'stop';
+  entryPattern: string;
+}
+
+// State
+let isTrading = false;
+let lastBarTimestamp = '';
+let chartHistory: ChartBar[] = [];
+const MAX_CHART_HISTORY = 500;
+let position: ActivePosition | null = null;
+const closedTrades: TradeResult[] = [];
+let accountId: number | null = null;
+let accountBalance = 0;
+let dailyPnL = 0;
+let lastMarketDataTime: Date | null = null;
+let latestBOS: { type: 'bullish' | 'bearish'; level: number } | null = null;
+let latestWicked: { type: 'bullish' | 'bearish'; strength: number } | null = null;
+let latestFVG: { type: 'bullish' | 'bearish'; high: number; low: number } | null = null;
+let latestPrice = 0;
+
+// WebSocket state
+let marketHub: HubConnection | null = null;
+let userHub: HubConnection | null = null;
+let barStartTime: Date | null = null;
+let currentBar: TopstepXFuturesBar | null = null;
+let resolvedContractId: string = '';
+let tickSize = 0.25;
+let multiplier = 20;
+let lastQuotePrice = 0;
+let isReconnectingMarket = false;
+let isReconnectingUser = false;
+let marketReconnectTimer: NodeJS.Timeout | null = null;
+let userReconnectTimer: NodeJS.Timeout | null = null;
+let barsForPatternDetection: TopstepXFuturesBar[] = [];
+
+// Express + Socket.IO Setup
+const app = express.default();
+const server = http.createServer(app);
+const io = new SocketIOServer(server, {
+  cors: { origin: '*', methods: ['GET', 'POST'] },
+});
+
+// Utility Functions
+function getBaseSymbol(symbol: string): string {
+  return symbol.replace(/[A-Z]\d+$/, '');
+}
+
+function roundToTick(price: number, tickSize: number): number {
+  return Math.round(price / tickSize) * tickSize;
+}
+
+// ICT/SMC Pattern Detection
+const BOS_SWING_LOOKBACK = 3;
+
+function findLastSwingHigh(
+  bars: TopstepXFuturesBar[],
+  index: number,
+  lookback: number,
+): { level: number; pivotIndex: number } | null {
+  if (index < lookback * 2 + 1) {
+    return null;
+  }
+
+  for (let i = index - lookback; i >= lookback; i -= 1) {
+    const candidate = bars[i];
+    let isSwingHigh = true;
+
+    for (let j = i - lookback; j <= i + lookback; j += 1) {
+      if (bars[j].high > candidate.high) {
+        isSwingHigh = false;
+        break;
+      }
+    }
+
+    if (isSwingHigh) {
+      return { level: candidate.high, pivotIndex: i };
+    }
+  }
+
+  return null;
+}
+
+function findLastSwingLow(
+  bars: TopstepXFuturesBar[],
+  index: number,
+  lookback: number,
+): { level: number; pivotIndex: number } | null {
+  if (index < lookback * 2 + 1) {
+    return null;
+  }
+
+  for (let i = index - lookback; i >= lookback; i -= 1) {
+    const candidate = bars[i];
+    let isSwingLow = true;
+
+    for (let j = i - lookback; j <= i + lookback; j += 1) {
+      if (bars[j].low < candidate.low) {
+        isSwingLow = false;
+        break;
+      }
+    }
+
+    if (isSwingLow) {
+      return { level: candidate.low, pivotIndex: i };
+    }
+  }
+
+  return null;
+}
+
+function detectBOS(bars: TopstepXFuturesBar[], index: number): { type: 'bullish' | 'bearish'; level: number } | null {
+  if (index < BOS_SWING_LOOKBACK * 2 + 1) {
+    return null;
+  }
+
+  const swingHigh = findLastSwingHigh(bars, index, BOS_SWING_LOOKBACK);
+  const swingLow = findLastSwingLow(bars, index, BOS_SWING_LOOKBACK);
+  const currentBar = bars[index];
+
+  // Bullish BOS: close breaks above last confirmed swing high, with bullish candle body
+  if (swingHigh && currentBar.close > swingHigh.level && currentBar.close > currentBar.open) {
+    return { type: 'bullish', level: swingHigh.level };
+  }
+
+  // Bearish BOS: close breaks below last confirmed swing low, with bearish candle body
+  if (swingLow && currentBar.close < swingLow.level && currentBar.close < currentBar.open) {
+    return { type: 'bearish', level: swingLow.level };
+  }
+
+  return null;
+}
+
+function detectWickedCandle(
+  bar: TopstepXFuturesBar,
+  strictMode: boolean = false
+): { type: 'bullish' | 'bearish'; strength: number } | null {
+  const range = bar.high - bar.low;
+  if (range < 0.01) return null;
+
+  const closePercent = (bar.close - bar.low) / range;
+  const topWickPercent = (bar.high - Math.max(bar.open, bar.close)) / range;
+  const bottomWickPercent = (Math.min(bar.open, bar.close) - bar.low) / range;
+
+  if (strictMode) {
+    // Strict mode: >70% wick, tighter close
+    if (topWickPercent < 0.2 && bottomWickPercent > 0.7 && closePercent > 0.65) {
+      return { type: 'bullish', strength: bottomWickPercent };
+    }
+    if (bottomWickPercent < 0.2 && topWickPercent > 0.7 && closePercent < 0.35) {
+      return { type: 'bearish', strength: topWickPercent };
+    }
+  } else {
+    // Normal mode: >60% wick, looser close
+    if (topWickPercent < 0.2 && bottomWickPercent > 0.6 && closePercent > 0.6) {
+      return { type: 'bullish', strength: bottomWickPercent };
+    }
+    if (bottomWickPercent < 0.2 && topWickPercent > 0.6 && closePercent < 0.4) {
+      return { type: 'bearish', strength: topWickPercent };
+    }
+  }
+
+  return null;
+}
+
+function detectFVG(bars: TopstepXFuturesBar[], index: number): { type: 'bullish' | 'bearish'; high: number; low: number } | null {
+  if (index < 1) return null;
+
+  const prev = bars[index - 1];
+  const curr = bars[index];
+
+  // Bullish FVG: gap up
+  if (prev.low > curr.high) {
+    return { type: 'bullish', low: curr.high, high: prev.low };
+  }
+
+  // Bearish FVG: gap down
+  if (curr.low > prev.high) {
+    return { type: 'bearish', low: prev.high, high: curr.low };
+  }
+
+  return null;
+}
+
+// Broadcast to all connected clients
+function broadcastChartBar(bar: ChartBar) {
+  io.emit('bar', bar);
+}
+
+function broadcastStatus() {
+  const status = {
+    symbol: SYMBOL,
+    isTrading,
+    position: position ? {
+      ...position,
+      unrealizedPnL: position.side === 'long'
+        ? (chartHistory[chartHistory.length - 1]?.close - position.entryPrice) * NUM_CONTRACTS * 20
+        : (position.entryPrice - chartHistory[chartHistory.length - 1]?.close) * NUM_CONTRACTS * 20,
+    } : null,
+    closedTrades: closedTrades.slice(-20), // Last 20 trades
+    accountStats: {
+      totalTrades: closedTrades.length,
+      winners: closedTrades.filter(t => t.pnl > 0).length,
+      losers: closedTrades.filter(t => t.pnl < 0).length,
+      winRate: closedTrades.length > 0
+        ? ((closedTrades.filter(t => t.pnl > 0).length / closedTrades.length) * 100).toFixed(1)
+        : '0',
+      totalPnL: closedTrades.reduce((sum, t) => sum + t.pnl, 0),
+    },
+    timestamp: new Date().toISOString(),
+  };
+  io.emit('status', status);
+}
+
+function nowIso(): string {
+  return new Date().toISOString();
+}
+
+function log(message: string) {
+  const logMessage = `[${nowIso()}][${SYMBOL}] ${message}`;
+  console.log(logMessage);
+
+  // Determine log type based on message content
+  let type = 'info';
+  const msgLower = message.toLowerCase();
+
+  if (msgLower.includes('error') || msgLower.includes('failed') || msgLower.includes('rejected')) {
+    type = 'error';
+  } else if (msgLower.includes('warning') || msgLower.includes('⚠️') || msgLower.includes('limit')) {
+    type = 'warning';
+  } else if (msgLower.includes('filled') || msgLower.includes('entered') || msgLower.includes('closed') ||
+             msgLower.includes('win') || msgLower.includes('profit') || msgLower.includes('✅')) {
+    type = 'success';
+  }
+
+  // Broadcast log to dashboard
+  io.emit('log', { timestamp: nowIso(), message, type });
+}
+
+function broadcastLog(message: string, type: 'info' | 'success' | 'warning' | 'error' = 'info') {
+  log(message);
+}
+
+// WebSocket Helper Functions
+function resolveQuotePrice(quote: any): number {
+  if (!quote) return 0;
+  const last = Number(quote.lastPrice ?? quote.lastTradePrice ?? quote.price ?? 0);
+  if (Number.isFinite(last) && last > 0) {
+    return last;
+  }
+  const bid = Number(quote.bidPrice ?? quote.bestBid ?? 0);
+  const ask = Number(quote.askPrice ?? quote.bestAsk ?? 0);
+  if (Number.isFinite(bid) && Number.isFinite(ask) && bid > 0 && ask > 0) {
+    return (bid + ask) / 2;
+  }
+  return Number(quote.close ?? quote.last ?? 0) || 0;
+}
+
+function updateCurrentBar(quote: any) {
+  const price = resolveQuotePrice(quote);
+  if (!price) return;
+
+  lastQuotePrice = price;
+  lastMarketDataTime = new Date();
+
+  const timestamp = new Date(quote.timestamp || quote.lastTradeTimestamp || Date.now());
+
+  const barMinute = new Date(timestamp);
+  barMinute.setSeconds(0, 0);
+
+  if (!barStartTime || barStartTime.getTime() !== barMinute.getTime()) {
+    if (currentBar) {
+      processBar(currentBar);
+    }
+
+    barStartTime = barMinute;
+    currentBar = {
+      timestamp: barMinute.toISOString(),
+      open: price,
+      high: price,
+      low: price,
+      close: price,
+    };
+  } else if (currentBar) {
+    currentBar.high = Math.max(currentBar.high, price);
+    currentBar.low = Math.min(currentBar.low, price);
+    currentBar.close = price;
+  }
+
+  // Emit live bar update (in-progress bar without indicators)
+  if (currentBar) {
+    io.emit('tick', {
+      timestamp: currentBar.timestamp,
+      open: currentBar.open,
+      high: currentBar.high,
+      low: currentBar.low,
+      close: currentBar.close,
+    });
+  }
+}
+
+function processBar(bar: TopstepXFuturesBar) {
+  // Get the last bar timestamp from chart history
+  const lastBarTimestamp = chartHistory.length > 0 ? chartHistory[chartHistory.length - 1].timestamp : null;
+
+  // Skip bars that are older than or equal to the last bar in history
+  if (lastBarTimestamp && bar.timestamp <= lastBarTimestamp) {
+    log(`[BAR] ⏭️  Skipping old/duplicate bar: ${bar.timestamp} (last bar: ${lastBarTimestamp})`);
+    return;
+  }
+
+  // Add to bars array for pattern detection
+  barsForPatternDetection.push(bar);
+
+  // Keep last 500 bars for pattern detection
+  if (barsForPatternDetection.length > 500) {
+    barsForPatternDetection.shift();
+  }
+
+  const barIndex = barsForPatternDetection.length - 1;
+
+  log(`[BAR] 🕐 New Bar: ${bar.timestamp} | O:${bar.open.toFixed(2)} H:${bar.high.toFixed(2)} L:${bar.low.toFixed(2)} C:${bar.close.toFixed(2)}`);
+
+  // Update latest price and market data time
+  latestPrice = bar.close;
+  lastMarketDataTime = new Date();
+
+  // Detect patterns
+  const bos = detectBOS(barsForPatternDetection, barIndex);
+  const wicked = detectWickedCandle(bar, false);
+  const fvg = detectFVG(barsForPatternDetection, barIndex);
+
+  // Store latest pattern values for heartbeat
+  latestBOS = bos;
+  latestWicked = wicked;
+  latestFVG = fvg;
+
+  // Debug pattern detection with exact values
+  if (bos) {
+    log(`[PATTERN] 🔍 BOS Detected: ${bos.type.toUpperCase()} at ${bos.level.toFixed(2)}`);
+  } else {
+    log(`[PATTERN] 🔍 BOS: None detected`);
+  }
+
+  if (wicked) {
+    const wickPct = ((wicked.type === 'bullish' ? bar.high - bar.close : bar.open - bar.low) / (bar.high - bar.low) * 100).toFixed(1);
+    log(`[PATTERN] 🔍 Wicked Candle: ${wicked.type.toUpperCase()} (wick ${wickPct}% of range, strength ${(wicked.strength * 100).toFixed(1)}%)`);
+  } else {
+    log(`[PATTERN] 🔍 Wicked: None detected`);
+  }
+
+  if (fvg) {
+    log(`[PATTERN] 🔍 FVG Detected: ${fvg.type.toUpperCase()} | High=${fvg.high.toFixed(2)}, Low=${fvg.low.toFixed(2)}, Gap=${(fvg.high - fvg.low).toFixed(2)}`);
+  } else {
+    log(`[PATTERN] 🔍 FVG: None detected`);
+  }
+
+  // Build chart bar with patterns
+  const chartBar: ChartBar = {
+    timestamp: bar.timestamp,
+    open: bar.open,
+    high: bar.high,
+    low: bar.low,
+    close: bar.close,
+  };
+
+  if (bos) {
+    chartBar.bosHigh = bos.type === 'bullish' ? bos.level : undefined;
+    chartBar.bosLow = bos.type === 'bearish' ? bos.level : undefined;
+  }
+
+  if (fvg) {
+    chartBar.fvgHigh = fvg.high;
+    chartBar.fvgLow = fvg.low;
+  }
+
+  if (wicked) {
+    if (wicked.type === 'bullish') chartBar.wickedBullish = true;
+    else chartBar.wickedBearish = true;
+  }
+
+  // Add to history
+  chartHistory.push(chartBar);
+  if (chartHistory.length > MAX_CHART_HISTORY) {
+    chartHistory.shift();
+  }
+
+  broadcastChartBar(chartBar);
+
+  // Entry Logic (only if trading is enabled)
+  if (!isTrading) {
+    return;
+  }
+
+  log(`[ENTRY CHECK] ⚡ Position=${position ? 'ACTIVE' : 'NONE'} | Wicked=${wicked ? wicked.type : 'NO'} | BOS=${bos ? bos.type : 'NO'}`);
+
+  if (!position) {
+    if (wicked && bos) {
+      if (wicked.type === bos.type) {
+        log(`[SIGNAL] ✅ ENTRY SIGNAL CONFIRMED: ${wicked.type.toUpperCase()} Wicked + ${bos.type.toUpperCase()} BOS MATCH!`);
+        const side = wicked.type === 'bullish' ? 'long' : 'short';
+        const entryPrice = bar.close;
+
+        position = {
+          tradeId: `NQ-${Date.now()}`,
+          symbol: SYMBOL,
+          side,
+          entryPrice,
+          entryTime: bar.timestamp,
+          stopLoss: side === 'long'
+            ? entryPrice - (STOP_LOSS_TICKS * tickSize)
+            : entryPrice + (STOP_LOSS_TICKS * tickSize),
+          targetTP1: side === 'long'
+            ? entryPrice + (TAKE_PROFIT_1_TICKS * tickSize)
+            : entryPrice - (TAKE_PROFIT_1_TICKS * tickSize),
+          targetTP2: side === 'long'
+            ? entryPrice + (TAKE_PROFIT_2_TICKS * tickSize)
+            : entryPrice - (TAKE_PROFIT_2_TICKS * tickSize),
+          totalQty: NUM_CONTRACTS,
+          remaining: NUM_CONTRACTS,
+          entryPattern: `${wicked.type} wicked + ${bos.type} BOS`,
+          tp1Filled: false,
+          stopFilled: false,
+        };
+
+        log(
+          `[ENTRY] 📈 ${side.toUpperCase()} ENTERED @ ${entryPrice.toFixed(2)} | SL: ${position.stopLoss.toFixed(2)} | TP1: ${position.targetTP1.toFixed(2)} | TP2: ${position.targetTP2.toFixed(2)} | Qty: ${NUM_CONTRACTS}`
+        );
+        broadcastStatus();
+      } else {
+        log(`[SIGNAL] ❌ Signal mismatch: Wicked=${wicked.type} vs BOS=${bos.type}`);
+      }
+    } else {
+      if (!wicked) log(`[ENTRY CHECK] ⏸ No entry: Missing wicked candle`);
+      if (!bos) log(`[ENTRY CHECK] ⏸ No entry: Missing BOS`);
+    }
+  } else {
+    log(`[POSITION] 📍 Position already active: ${position.side.toUpperCase()} @ ${position.entryPrice.toFixed(2)}`);
+  }
+
+  // Exit Logic
+  if (position) {
+    log(`[EXIT CHECK] 💰 Price=${bar.close.toFixed(2)} | SL=${position.stopLoss.toFixed(2)} | TP1=${position.targetTP1.toFixed(2)} | TP2=${position.targetTP2.toFixed(2)}`);
+    const side = position.side;
+
+    // Stop Loss Hit
+    if ((side === 'long' && bar.low <= position.stopLoss) ||
+        (side === 'short' && bar.high >= position.stopLoss)) {
+      const exitPrice = position.stopLoss;
+      const pnl = side === 'long'
+        ? (exitPrice - position.entryPrice) * NUM_CONTRACTS * multiplier
+        : (position.entryPrice - exitPrice) * NUM_CONTRACTS * multiplier;
+
+      closedTrades.push({
+        tradeId: position.tradeId,
+        side,
+        entryPrice: position.entryPrice,
+        exitPrice,
+        entryTime: position.entryTime,
+        exitTime: bar.timestamp,
+        quantity: NUM_CONTRACTS,
+        pnl,
+        exitReason: 'stop',
+        entryPattern: position.entryPattern,
+      });
+
+      log(`[EXIT] 🛑 STOP LOSS HIT: ${side.toUpperCase()} @ ${exitPrice.toFixed(2)} | PnL: $${pnl.toFixed(2)} | Qty: ${NUM_CONTRACTS}`);
+      position = null;
+      broadcastStatus();
+    }
+    // TP1 Hit (50% exit)
+    else if (!position.tp1Filled &&
+             ((side === 'long' && bar.high >= position.targetTP1) ||
+              (side === 'short' && bar.low <= position.targetTP1))) {
+      const exitPrice = position.targetTP1;
+      const tp1Qty = Math.floor(NUM_CONTRACTS / 2);
+      const pnl = side === 'long'
+        ? (exitPrice - position.entryPrice) * tp1Qty * multiplier
+        : (position.entryPrice - exitPrice) * tp1Qty * multiplier;
+
+      log(`[EXIT] 💰 TP1 HIT (50% EXIT): ${side.toUpperCase()} @ ${exitPrice.toFixed(2)} | PnL: $${pnl.toFixed(2)} | Qty: ${tp1Qty}`);
+
+      position.tp1Filled = true;
+      position.remaining = NUM_CONTRACTS - tp1Qty;
+
+      closedTrades.push({
+        tradeId: `${position.tradeId}-TP1`,
+        side,
+        entryPrice: position.entryPrice,
+        exitPrice,
+        entryTime: position.entryTime,
+        exitTime: bar.timestamp,
+        quantity: tp1Qty,
+        pnl,
+        exitReason: 'tp1',
+        entryPattern: position.entryPattern,
+      });
+
+      broadcastStatus();
+    }
+    // TP2 Hit (remaining 50% exit)
+    else if (position.tp1Filled &&
+             ((side === 'long' && bar.high >= position.targetTP2) ||
+              (side === 'short' && bar.low <= position.targetTP2))) {
+      const exitPrice = position.targetTP2;
+      const pnl = side === 'long'
+        ? (exitPrice - position.entryPrice) * position.remaining * multiplier
+        : (position.entryPrice - exitPrice) * position.remaining * multiplier;
+
+      log(`[EXIT] 💰 TP2 HIT (50% EXIT): ${side.toUpperCase()} @ ${exitPrice.toFixed(2)} | PnL: $${pnl.toFixed(2)} | Qty: ${position.remaining}`);
+
+      closedTrades.push({
+        tradeId: `${position.tradeId}-TP2`,
+        side,
+        entryPrice: position.entryPrice,
+        exitPrice,
+        entryTime: position.entryTime,
+        exitTime: bar.timestamp,
+        quantity: position.remaining,
+        pnl,
+        exitReason: 'tp2',
+        entryPattern: position.entryPattern,
+      });
+
+      position = null;
+      broadcastStatus();
+    } else {
+      // Log current distance to targets when position is active but no exit yet
+      const distanceToSL = side === 'long'
+        ? (bar.low - position.stopLoss).toFixed(2)
+        : (position.stopLoss - bar.high).toFixed(2);
+      const distanceToTP1 = side === 'long'
+        ? (position.targetTP1 - bar.high).toFixed(2)
+        : (bar.low - position.targetTP1).toFixed(2);
+      log(`[POSITION] ⏳ Position active | Distance to SL: ${distanceToSL} ticks | Distance to TP1: ${distanceToTP1} ticks`);
+    }
+  }
+}
+
+// Initialize chart history with bars before trading starts
+async function initializeChartHistory() {
+  try {
+    log('[BOOTSTRAP] Starting chart history initialization...');
+    await authenticate();
+
+    log('[BOOTSTRAP] Resolving contract metadata...');
+    const metadata = await fetchTopstepXFuturesMetadata(SYMBOL);
+    if (!metadata) {
+      throw new Error(`Unable to resolve metadata for ${SYMBOL}`);
+    }
+    log(`[BOOTSTRAP] Resolved contract: ${metadata.name} (${metadata.id})`);
+
+    const accounts = await fetchTopstepXAccounts();
+    if (!accounts.length) {
+      throw new Error('No trading accounts found');
+    }
+    accountId = accounts[0].id;
+    log(`[BOOTSTRAP] Using account ID: ${accountId}`);
+
+    // Fetch initial bars (last 24 hours up to current time)
+    const now = new Date();
+    const endTime = now.toISOString(); // Include current time, not just date
+    const startTime = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+
+    log(`[BOOTSTRAP] Fetching historical bars from ${startTime} to ${endTime}...`);
+    const bars = await fetchTopstepXFuturesBars({
+      contractId: metadata.id,
+      startTime,
+      endTime,
+      unit: 2,
+      unitNumber: 1,
+      limit: 5000,
+    });
+
+    const reversedBars = bars.reverse();
+    log(`[BOOTSTRAP] Loaded ${reversedBars.length} initial bars`);
+
+    // Populate barsForPatternDetection first for pattern detection
+    const tempBars: TopstepXFuturesBar[] = [];
+
+    // Populate chartHistory with initial bars - process progressively for accurate pattern detection
+    for (let i = 0; i < reversedBars.length; i++) {
+      const bar = reversedBars[i];
+
+      // Add to temp array for pattern detection (need context of previous bars)
+      tempBars.push(bar);
+
+      // Detect patterns using the progressively built array
+      const barIndex = tempBars.length - 1;
+      const bos = detectBOS(tempBars, barIndex);
+      const wicked = detectWickedCandle(bar, false);
+      const fvg = detectFVG(tempBars, barIndex);
+
+      const chartBar: ChartBar = {
+        timestamp: bar.timestamp,
+        open: bar.open,
+        high: bar.high,
+        low: bar.low,
+        close: bar.close,
+      };
+
+      if (bos) {
+        chartBar.bosHigh = bos.type === 'bullish' ? bos.level : undefined;
+        chartBar.bosLow = bos.type === 'bearish' ? bos.level : undefined;
+      }
+
+      if (fvg) {
+        chartBar.fvgHigh = fvg.high;
+        chartBar.fvgLow = fvg.low;
+      }
+
+      if (wicked) {
+        if (wicked.type === 'bullish') chartBar.wickedBullish = true;
+        else chartBar.wickedBearish = true;
+      }
+
+      chartHistory.push(chartBar);
+    }
+
+    // Keep only last 500 bars
+    if (chartHistory.length > MAX_CHART_HISTORY) {
+      chartHistory = chartHistory.slice(chartHistory.length - MAX_CHART_HISTORY);
+    }
+
+    log(`[BOOTSTRAP] ✅ Chart history initialized with ${chartHistory.length} bars`);
+    log(`[BOOTSTRAP] Chart history ready for dashboard display`);
+    lastMarketDataTime = new Date();
+
+    // Copy tempBars to barsForPatternDetection for real-time pattern detection
+    barsForPatternDetection = [...tempBars];
+    if (barsForPatternDetection.length > 500) {
+      barsForPatternDetection = barsForPatternDetection.slice(-500);
+    }
+
+  } catch (error) {
+    log(`[BOOTSTRAP] ❌ Error initializing chart history: ${error}`);
+    console.error('Error initializing chart history:', error);
+  }
+}
+
+// WebSocket Market Stream
+async function startMarketStream(contractId: string) {
+  const tokenProvider = async () => authenticate();
+  const initialToken = await tokenProvider();
+
+  marketHub = new HubConnectionBuilder()
+    .withUrl(`${MARKET_HUB_URL}?access_token=${encodeURIComponent(initialToken)}`, {
+      skipNegotiation: true,
+      transport: HttpTransportType.WebSockets,
+      accessTokenFactory: tokenProvider,
+    })
+    .withAutomaticReconnect()
+    .configureLogging(LogLevel.Information)
+    .build();
+
+  const handleQuote = (_contractId: string, quote: any) => {
+    if (quote) {
+      updateCurrentBar(quote);
+    }
+  };
+
+  marketHub.on('GatewayQuote', handleQuote);
+  marketHub.on('GatewayTrade', handleQuote);
+  marketHub.on('gatewaytrade', handleQuote);
+
+  // Trade data handler - forward to dashboard for CVD calculations
+  const handleTradeData = (contractIdFromEvent: string, trade: any) => {
+    if (contractIdFromEvent === contractId && trade) {
+      // Forward trade data with aggressor side for CVD calculation
+      // TopstepX trade format includes price, quantity, and side information
+      io.emit('trade_data', {
+        price: trade.price,
+        quantity: trade.quantity || trade.size,
+        aggressor: trade.aggressor || (trade.isAsk ? 'buy' : 'sell'),
+        timestamp: trade.timestamp || Date.now()
+      });
+    }
+  };
+
+  marketHub.on('GatewayTrade', handleTradeData);
+  marketHub.on('gatewaytrade', handleTradeData);
+
+  // Market depth handler - forward to all connected dashboards
+  const handleMarketDepth = (contractIdFromEvent: string, depth: any) => {
+    if (contractIdFromEvent === contractId && depth) {
+      io.emit('market_depth', depth);
+    }
+  };
+
+  marketHub.on('GatewayMarketDepth', handleMarketDepth);
+  marketHub.on('gatewaymarketdepth', handleMarketDepth);
+
+  const subscribeMarket = () => {
+    if (!marketHub) return;
+    log(`[SUBSCRIBE] Subscribing to contract ${contractId} (Quotes + Trades + Market Depth)...`);
+    marketHub.invoke('SubscribeContractQuotes', contractId)
+      .then(() => log(`[SUBSCRIBE] ✅ Successfully subscribed to quotes for ${contractId}`))
+      .catch(err => log(`[SUBSCRIBE] ❌ Subscribe quotes failed: ${err?.message || err}`));
+    marketHub.invoke('SubscribeContractTrades', contractId)
+      .then(() => log(`[SUBSCRIBE] ✅ Successfully subscribed to trades for ${contractId}`))
+      .catch(err => log(`[SUBSCRIBE] ❌ Subscribe trades failed: ${err?.message || err}`));
+    marketHub.invoke('SubscribeContractMarketDepth', contractId)
+      .then(() => log(`[SUBSCRIBE] ✅ Successfully subscribed to market depth for ${contractId}`))
+      .catch(err => log(`[SUBSCRIBE] ❌ Subscribe market depth failed: ${err?.message || err}`));
+  };
+
+  marketHub.onreconnected(() => {
+    log('[RECONNECT] ⚠️ TopstepX market hub RECONNECTED - resubscribing to market data');
+    subscribeMarket();
+  });
+
+  marketHub.onreconnecting((error) => {
+    log(`[RECONNECT] ⚠️ TopstepX market hub connection lost, attempting to reconnect... ${error?.message || ''}`);
+  });
+
+  marketHub.onclose(async (error) => {
+    log(`[WEBSOCKET] ❌ TopstepX market hub connection CLOSED: ${error?.message || 'Unknown reason'}`);
+    log('[WEBSOCKET] 🔄 Will automatically reconnect every 5 seconds until connection is restored...');
+
+    // Start aggressive reconnection attempts
+    if (!isReconnectingMarket) {
+      isReconnectingMarket = true;
+      attemptMarketReconnect();
+    }
+  });
+
+  async function attemptMarketReconnect() {
+    if (!contractId) {
+      log('[RECONNECT] Cannot reconnect market hub: contractId is null');
+      isReconnectingMarket = false;
+      return;
+    }
+
+    try {
+      log('[RECONNECT] Attempting to reconnect market hub...');
+
+      // Clear existing connection
+      if (marketHub) {
+        try {
+          await marketHub.stop();
+        } catch (e) {
+          // Ignore stop errors
+        }
+      }
+
+      // Recreate connection
+      const tokenProvider = async () => authenticate();
+      const initialToken = await tokenProvider();
+
+      marketHub = new HubConnectionBuilder()
+        .withUrl(`${MARKET_HUB_URL}?access_token=${encodeURIComponent(initialToken)}`, {
+          skipNegotiation: true,
+          transport: HttpTransportType.WebSockets,
+          accessTokenFactory: tokenProvider,
+        })
+        .withAutomaticReconnect()
+        .configureLogging(LogLevel.Information)
+        .build();
+
+      const handleQuote = (_contractId: string, quote: any) => {
+        if (quote) {
+          updateCurrentBar(quote);
+        }
+      };
+
+      marketHub.on('GatewayQuote', handleQuote);
+      marketHub.on('GatewayTrade', handleQuote);
+      marketHub.on('gatewaytrade', handleQuote);
+
+      const subscribeMarket = () => {
+        if (!marketHub) return;
+        log(`[SUBSCRIBE] Subscribing to contract ${contractId} (Quotes + Trades)...`);
+        marketHub.invoke('SubscribeContractQuotes', contractId)
+          .then(() => log(`[SUBSCRIBE] ✅ Successfully subscribed to quotes for ${contractId}`))
+          .catch(err => log(`[SUBSCRIBE] ❌ Subscribe quotes failed: ${err?.message || err}`));
+        marketHub.invoke('SubscribeContractTrades', contractId)
+          .then(() => log(`[SUBSCRIBE] ✅ Successfully subscribed to trades for ${contractId}`))
+          .catch(err => log(`[SUBSCRIBE] ❌ Subscribe trades failed: ${err?.message || err}`));
+      };
+
+      marketHub.onreconnected(() => {
+        log('[RECONNECT] ⚠️ TopstepX market hub RECONNECTED - resubscribing to market data');
+        subscribeMarket();
+      });
+
+      marketHub.onreconnecting((error) => {
+        log(`[RECONNECT] ⚠️ TopstepX market hub connection lost, attempting to reconnect... ${error?.message || ''}`);
+      });
+
+      marketHub.onclose(async (error) => {
+        log(`[WEBSOCKET] ❌ TopstepX market hub connection CLOSED: ${error?.message || 'Unknown reason'}`);
+        log('[WEBSOCKET] 🔄 Will automatically reconnect every 5 seconds until connection is restored...');
+
+        if (!isReconnectingMarket) {
+          isReconnectingMarket = true;
+          attemptMarketReconnect();
+        }
+      });
+
+      await marketHub.start();
+      log('[WEBSOCKET] ✅ TopstepX market hub RECONNECTED successfully!');
+      subscribeMarket();
+
+      // Success - stop reconnection attempts
+      if (marketReconnectTimer) {
+        clearTimeout(marketReconnectTimer);
+        marketReconnectTimer = null;
+      }
+
+      // Wait 3 seconds before clearing reconnection flag to ensure connection is stable
+      setTimeout(() => {
+        isReconnectingMarket = false;
+        log('[RECONNECT] Market hub connection stable, reconnection guard cleared');
+      }, 3000);
+
+    } catch (error: any) {
+      log(`[RECONNECT] Market hub reconnection failed: ${error?.message || 'Unknown error'}`);
+
+      // Schedule next attempt in 5 seconds
+      marketReconnectTimer = setTimeout(() => {
+        attemptMarketReconnect();
+      }, 5000);
+    }
+  }
+
+  await marketHub.start();
+  log('[WEBSOCKET] ✅ TopstepX market hub connected');
+  subscribeMarket();
+}
+
+// WebSocket User Stream (simplified - no actual order placement in this strategy)
+async function startUserStream(acctId: number) {
+  const tokenProvider = async () => authenticate();
+  const initialToken = await tokenProvider();
+
+  userHub = new HubConnectionBuilder()
+    .withUrl(`${USER_HUB_URL}?access_token=${encodeURIComponent(initialToken)}`, {
+      skipNegotiation: true,
+      transport: HttpTransportType.WebSockets,
+      accessTokenFactory: tokenProvider,
+    })
+    .withAutomaticReconnect()
+    .configureLogging(LogLevel.Information)
+    .build();
+
+  userHub.on('GatewayUserTrade', (_cid: string, ev: any) => {
+    if (!ev) return;
+    log(`[USER] Trade event: ${JSON.stringify(ev)}`);
+  });
+
+  userHub.on('GatewayUserOrder', data => {
+    log(`[USER] Order event: ${JSON.stringify(data)}`);
+  });
+
+  userHub.on('GatewayUserAccount', (_cid: string, data: any) => {
+    if (data) {
+      accountBalance = data.cashBalance || data.balance || 0;
+      dailyPnL = data.dailyNetPnL || data.dailyPnl || 0;
+      log(`[USER] Account update: Balance=${accountBalance.toFixed(2)}, Daily PnL=${dailyPnL.toFixed(2)}`);
+    }
+  });
+
+  userHub.on('GatewayUserPosition', (_cid: string, data: any) => {
+    if (data) {
+      log(`[USER] Position event: ${JSON.stringify(data)}`);
+    }
+  });
+
+  const subscribeUser = () => {
+    if (!userHub) return;
+    userHub.invoke('SubscribeAccounts').catch(err => log(`[SUBSCRIBE] ❌ Subscribe accounts failed: ${err}`));
+    userHub.invoke('SubscribeOrders', acctId).catch(err => log(`[SUBSCRIBE] ❌ Subscribe orders failed: ${err}`));
+    userHub.invoke('SubscribePositions', acctId).catch(err => log(`[SUBSCRIBE] ❌ Subscribe positions failed: ${err}`));
+    userHub.invoke('SubscribeTrades', acctId).catch(err => log(`[SUBSCRIBE] ❌ Subscribe trades failed: ${err}`));
+  };
+
+  userHub.onreconnected(() => {
+    log('[RECONNECT] ⚠️ TopstepX user hub RECONNECTED - resubscribing to account data');
+    subscribeUser();
+  });
+
+  userHub.onreconnecting((error) => {
+    log(`[RECONNECT] ⚠️ TopstepX user hub connection lost, attempting to reconnect... ${error?.message || ''}`);
+  });
+
+  userHub.onclose(async (error) => {
+    log(`[WEBSOCKET] ❌ TopstepX user hub connection CLOSED: ${error?.message || 'Unknown reason'}`);
+    log('[WEBSOCKET] 🔄 Will automatically reconnect every 5 seconds until connection is restored...');
+
+    if (!isReconnectingUser) {
+      isReconnectingUser = true;
+      attemptUserReconnect();
+    }
+  });
+
+  async function attemptUserReconnect() {
+    if (!acctId) {
+      log('[RECONNECT] Cannot reconnect user hub: accountId is null');
+      isReconnectingUser = false;
+      return;
+    }
+
+    try {
+      log('[RECONNECT] Attempting to reconnect user hub...');
+
+      if (userHub) {
+        try {
+          await userHub.stop();
+        } catch (e) {
+          // Ignore stop errors
+        }
+      }
+
+      const tokenProvider = async () => authenticate();
+      const initialToken = await tokenProvider();
+
+      userHub = new HubConnectionBuilder()
+        .withUrl(`${USER_HUB_URL}?access_token=${encodeURIComponent(initialToken)}`, {
+          skipNegotiation: true,
+          transport: HttpTransportType.WebSockets,
+          accessTokenFactory: tokenProvider,
+        })
+        .withAutomaticReconnect()
+        .configureLogging(LogLevel.Information)
+        .build();
+
+      userHub.on('GatewayUserTrade', (_cid: string, ev: any) => {
+        if (!ev) return;
+        log(`[USER] Trade event: ${JSON.stringify(ev)}`);
+      });
+
+      userHub.on('GatewayUserOrder', data => {
+        log(`[USER] Order event: ${JSON.stringify(data)}`);
+      });
+
+      userHub.on('GatewayUserAccount', (_cid: string, data: any) => {
+        if (data) {
+          accountBalance = data.cashBalance || data.balance || 0;
+          dailyPnL = data.dailyNetPnL || data.dailyPnl || 0;
+          log(`[USER] Account update: Balance=${accountBalance.toFixed(2)}, Daily PnL=${dailyPnL.toFixed(2)}`);
+        }
+      });
+
+      userHub.on('GatewayUserPosition', (_cid: string, data: any) => {
+        if (data) {
+          log(`[USER] Position event: ${JSON.stringify(data)}`);
+        }
+      });
+
+      userHub.onreconnected(() => {
+        log('[RECONNECT] ⚠️ TopstepX user hub RECONNECTED - resubscribing to account data');
+        subscribeUser();
+      });
+
+      userHub.onreconnecting((error) => {
+        log(`[RECONNECT] ⚠️ TopstepX user hub connection lost, attempting to reconnect... ${error?.message || ''}`);
+      });
+
+      await userHub.start();
+      log('[WEBSOCKET] ✅ TopstepX user hub RECONNECTED successfully!');
+      subscribeUser();
+
+      if (userReconnectTimer) {
+        clearTimeout(userReconnectTimer);
+        userReconnectTimer = null;
+      }
+
+      setTimeout(() => {
+        isReconnectingUser = false;
+        log('[RECONNECT] User hub connection stable, reconnection guard cleared');
+      }, 3000);
+
+    } catch (error: any) {
+      log(`[RECONNECT] User hub reconnection failed: ${error?.message || 'Unknown error'}`);
+
+      userReconnectTimer = setTimeout(() => {
+        attemptUserReconnect();
+      }, 5000);
+    }
+  }
+
+  await userHub.start();
+  log('[WEBSOCKET] ✅ TopstepX user hub connected');
+  subscribeUser();
+}
+
+// Initialize and start WebSocket streams
+async function startWebSocketStreams() {
+  try {
+    await authenticate();
+
+    const metadata = await fetchTopstepXFuturesMetadata(SYMBOL);
+    if (!metadata) {
+      throw new Error(`Unable to resolve metadata for ${SYMBOL}`);
+    }
+
+    resolvedContractId = metadata.id;
+    tickSize = metadata.tickSize || 0.25;
+    multiplier = metadata.tickValue && metadata.tickSize
+      ? metadata.tickValue / metadata.tickSize
+      : metadata.multiplier || 20;
+
+    log(`[CONTROL] Trading STARTED via dashboard`);
+    log(`[CONNECT] Connected: ${SYMBOL} (${metadata.name})`);
+    log(`[CONFIG] Tick size: ${tickSize}, Multiplier: ${multiplier}`);
+    log(`[CONFIG] Configuration: SL=${STOP_LOSS_TICKS}t, TP1=${TAKE_PROFIT_1_TICKS}t, TP2=${TAKE_PROFIT_2_TICKS}t`);
+
+    const accounts = await fetchTopstepXAccounts();
+    if (!accounts.length) {
+      throw new Error('No trading accounts found');
+    }
+    accountId = accounts[0].id;
+
+    log(`[WEBSOCKET] Starting WebSocket connections...`);
+
+    // Start market stream for real-time quotes and bars
+    await startMarketStream(resolvedContractId);
+
+    // Start user stream for account/position updates
+    await startUserStream(accountId);
+
+    log(`[WEBSOCKET] ✅ All WebSocket streams connected and subscribed`);
+
+    // Set up periodic heartbeat status logs (every 30 seconds)
+    setInterval(() => {
+      const statusText = isTrading ? '✅ RUNNING' : '⏸ PAUSED';
+      const posText = position ? `| Position: ${position.side.toUpperCase()} ${position.remaining}/${position.totalQty}` : '| No position';
+      const bosText = latestBOS ? `BOS: ${latestBOS.type.toUpperCase()}(${latestBOS.level.toFixed(2)})` : 'BOS: --';
+      const wickedText = latestWicked ? `Wicked: ${latestWicked.type.toUpperCase()}(${(latestWicked.strength * 100).toFixed(0)}%)` : 'Wicked: --';
+      const fvgText = latestFVG ? `FVG: ${latestFVG.type.toUpperCase()}(${(latestFVG.high - latestFVG.low).toFixed(2)})` : 'FVG: --';
+
+      log(`🚀 Strategy ${statusText} | Symbol: ${SYMBOL} | Account: ${accountId} ${posText} | Price: ${latestPrice.toFixed(2)} | ${bosText} | ${wickedText} | ${fvgText}`);
+    }, 30000);
+
+  } catch (error) {
+    log(`[FATAL] Fatal error starting WebSocket streams: ${error instanceof Error ? error.message : String(error)}`);
+    throw error;
+  }
+}
+
+// HTTP Routes
+app.use(express.static('public'));
+
+// Serve the dashboard HTML for the root path
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'fabio-agent-dashboard.html'));
+});
+
+app.get('/api/strategy/config', (req, res) => {
+  res.json({
+    symbol: SYMBOL,
+    stopLossTicks: STOP_LOSS_TICKS,
+    tp1Ticks: TAKE_PROFIT_1_TICKS,
+    tp2Ticks: TAKE_PROFIT_2_TICKS,
+    contracts: NUM_CONTRACTS,
+    dashboardPort: DASHBOARD_PORT,
+  });
+});
+
+app.get('/api/strategy/chart-history', (req, res) => {
+  res.json(chartHistory);
+});
+
+// TopstepX JWT token endpoint for orderbook WebSocket
+app.get('/api/topstepx/token', async (req, res) => {
+  try {
+    const token = await authenticate();
+    res.json({ token });
+  } catch (error: any) {
+    log(`[API] Failed to get TopstepX token: ${error.message}`);
+    res.status(500).json({ error: 'Failed to authenticate with TopstepX' });
+  }
+});
+
+// Socket.IO Events
+io.on('connection', (socket) => {
+  log(`[CONNECTION] Dashboard connected from ${socket.handshake.address}`);
+
+  socket.emit('config', {
+    symbol: SYMBOL,
+    stopLossTicks: STOP_LOSS_TICKS,
+    tp1Ticks: TAKE_PROFIT_1_TICKS,
+    tp2Ticks: TAKE_PROFIT_2_TICKS,
+    contracts: NUM_CONTRACTS,
+  });
+
+  socket.on('request_chart_history', () => {
+    log(`[CONNECTION] Chart history requested (${chartHistory.length} bars)`);
+    socket.emit('chartHistory', chartHistory);
+  });
+
+  socket.on('start_trading', () => {
+    if (!isTrading) {
+      isTrading = true;
+      log('[CONTROL] ✅ Trading started via dashboard');
+      broadcastStatus();
+
+      // Start WebSocket streams if not already started
+      if (!marketHub || !userHub) {
+        startWebSocketStreams().catch((error) => {
+          log(`[ERROR] Failed to start WebSocket streams: ${error}`);
+          isTrading = false;
+          broadcastStatus();
+        });
+      }
+    }
+  });
+
+  socket.on('stop_trading', () => {
+    isTrading = false;
+    log('[CONTROL] ⏸ Trading stopped via dashboard');
+    broadcastStatus();
+  });
+
+  socket.on('disconnect', () => {
+    log(`[CONNECTION] Dashboard disconnected from ${socket.handshake.address}`);
+  });
+});
+
+// Start Server
+server.listen(DASHBOARD_PORT, async () => {
+  console.log('\n' + '='.repeat(80));
+  console.log('TOPSTEPX LIVE NQ ICT/SMC STRATEGY - WEBSOCKET STREAMING');
+  console.log('='.repeat(80));
+  console.log(`Symbol: ${SYMBOL}`);
+  console.log(`Stop Loss: ${STOP_LOSS_TICKS} ticks | TP1: ${TAKE_PROFIT_1_TICKS} ticks | TP2: ${TAKE_PROFIT_2_TICKS} ticks`);
+  console.log(`Contracts: ${NUM_CONTRACTS}`);
+  console.log(`Dashboard: http://localhost:${DASHBOARD_PORT}`);
+  console.log(`Mode: Real-time WebSocket streaming (not polling)`);
+  console.log('='.repeat(80));
+
+  log(`Dashboard server running on http://localhost:${DASHBOARD_PORT}`);
+  log(`⚠️ Trading is DISABLED. Use dashboard to start trading.`);
+
+  try {
+    // Initialize chart history on startup
+    await initializeChartHistory();
+
+    // Auto-start WebSocket streams for real-time data (even when trading is paused)
+    log(`[BOOTSTRAP] Auto-starting WebSocket streams for real-time chart updates...`);
+    await authenticate();
+
+    const metadata = await fetchTopstepXFuturesMetadata(SYMBOL);
+    if (metadata) {
+      resolvedContractId = metadata.id;
+      tickSize = metadata.tickSize || 0.25;
+      multiplier = metadata.tickValue && metadata.tickSize
+        ? metadata.tickValue / metadata.tickSize
+        : metadata.multiplier || 20;
+
+      const accounts = await fetchTopstepXAccounts();
+      if (accounts.length > 0) {
+        accountId = accounts[0].id;
+
+        // Start WebSocket streams immediately for chart updates
+        await startMarketStream(resolvedContractId);
+        await startUserStream(accountId);
+
+        log(`[BOOTSTRAP] ✅ WebSocket streams active - chart will update in real-time`);
+        log(`[BOOTSTRAP] Use dashboard to enable trading when ready`);
+      }
+    }
+  } catch (error) {
+    console.error('Failed to initialize:', error);
+    log(`[BOOTSTRAP] Failed to initialize: ${error}`);
+  }
+});

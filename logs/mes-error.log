@@ -1,0 +1,1782 @@
+2025-11-13T12:01:58: [2025-11-13T17:01:58.309Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T12:01:58: [2025-11-13T17:01:58.310Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T12:51:34: [2025-11-13T17:51:34.339Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T12:51:34: [market] Subscribe quotes failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T12:51:34:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T12:51:34:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T12:51:34:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T12:51:34:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T12:51:34:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T12:51:34:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T12:51:34:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T12:51:34:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T12:51:34:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T12:51:34: [market] Subscribe trades failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T12:51:34:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T12:51:34:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T12:51:34:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T12:51:34:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T12:51:34:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T12:51:34:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T12:51:34:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T12:51:34:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T12:51:34:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T12:58:40: [2025-11-13T17:58:40.916Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T12:58:40: [2025-11-13T17:58:40.923Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T15:05:09: [2025-11-13T20:05:09.687Z] Error: Connection disconnected with error 'Error: Server timeout elapsed without receiving a message from the server.'.
+2025-11-13T15:05:09: [2025-11-13T20:05:09.693Z] Error: Connection disconnected with error 'Error: Server timeout elapsed without receiving a message from the server.'.
+2025-11-13T15:05:10: [2025-11-13T20:05:10.115Z] Error: Failed to start the connection: Error: WebSocket failed to connect. The connection could not be found on the server, either the endpoint may not be a SignalR endpoint, the connection ID is not present on the server, or there is a proxy blocking WebSockets. If you have multiple servers check that sticky sessions are enabled.
+2025-11-13T15:05:10: [topstepx] Failed to fetch accounts: getaddrinfo ENOTFOUND api.topstepx.com
+2025-11-13T15:05:10: [2025-11-13T20:05:10.147Z] Error: Failed to start the connection: Error: WebSocket failed to connect. The connection could not be found on the server, either the endpoint may not be a SignalR endpoint, the connection ID is not present on the server, or there is a proxy blocking WebSockets. If you have multiple servers check that sticky sessions are enabled.
+2025-11-13T15:05:12: [2025-11-13T20:05:12.126Z] Error: Failed to start the connection: Error: WebSocket failed to connect. The connection could not be found on the server, either the endpoint may not be a SignalR endpoint, the connection ID is not present on the server, or there is a proxy blocking WebSockets. If you have multiple servers check that sticky sessions are enabled.
+2025-11-13T15:05:12: [2025-11-13T20:05:12.154Z] Error: Failed to start the connection: Error: WebSocket failed to connect. The connection could not be found on the server, either the endpoint may not be a SignalR endpoint, the connection ID is not present on the server, or there is a proxy blocking WebSockets. If you have multiple servers check that sticky sessions are enabled.
+2025-11-13T15:12:17: [2025-11-13T20:12:17.438Z] Error: Failed to start the connection: Error: WebSocket failed to connect. The connection could not be found on the server, either the endpoint may not be a SignalR endpoint, the connection ID is not present on the server, or there is a proxy blocking WebSockets. If you have multiple servers check that sticky sessions are enabled.
+2025-11-13T15:12:17: [2025-11-13T20:12:17.438Z] Error: Failed to start the connection: Error: WebSocket failed to connect. The connection could not be found on the server, either the endpoint may not be a SignalR endpoint, the connection ID is not present on the server, or there is a proxy blocking WebSockets. If you have multiple servers check that sticky sessions are enabled.
+2025-11-13T15:12:17: [topstepx] Failed to fetch accounts: getaddrinfo ENOTFOUND api.topstepx.com
+2025-11-13T15:13:26: [user] Subscribe accounts failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T15:13:26:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T15:13:26:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T15:13:26:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T15:13:26:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T15:13:26:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T15:13:26:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T15:13:26:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T15:13:26:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T15:13:26:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T15:13:26: [user] Subscribe orders failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T15:13:26:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T15:13:26:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T15:13:26:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T15:13:26:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T15:13:26:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T15:13:26:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T15:13:26:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T15:13:26:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T15:13:26:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T15:13:26: [user] Subscribe positions failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T15:13:26:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T15:13:26:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T15:13:26:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T15:13:26:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T15:13:26:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T15:13:26:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T15:13:26:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T15:13:26:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T15:13:26:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T15:13:26: [user] Subscribe trades failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T15:13:26:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T15:13:26:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T15:13:26:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T15:13:26:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T15:13:26:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T15:13:26:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T15:13:26:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T15:13:26:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T15:13:26:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T15:13:26: [market] Subscribe quotes failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T15:13:26:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T15:13:26:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T15:13:26:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T15:13:26:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T15:13:26:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T15:13:26:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T15:13:26:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T15:13:26:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T15:13:26:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T15:13:26: [market] Subscribe trades failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T15:13:26:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T15:13:26:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T15:13:26:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T15:13:26:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T15:13:26:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T15:13:26:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T15:13:26:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T15:13:26:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T15:13:26:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T15:13:26: [user] Subscribe accounts failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T15:13:26:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T15:13:26:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T15:13:26:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T15:13:26:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T15:13:26:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T15:13:26:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T15:13:26:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T15:13:26:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T15:13:26:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T15:13:26: [user] Subscribe orders failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T15:13:26:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T15:13:26:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T15:13:26:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T15:13:26:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T15:13:26:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T15:13:26:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T15:13:26:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T15:13:26:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T15:13:26:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T15:13:26: [user] Subscribe positions failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T15:13:26:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T15:13:26:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T15:13:26:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T15:13:26:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T15:13:26:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T15:13:26:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T15:13:26:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T15:13:26:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T15:13:26:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T15:13:26: [user] Subscribe trades failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T15:13:26:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T15:13:26:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T15:13:26:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T15:13:26:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T15:13:26:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T15:13:26:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T15:13:26:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T15:13:26:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T15:13:26:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T15:25:16: [2025-11-13T20:25:16.438Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T15:25:16: [2025-11-13T20:25:16.439Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T15:57:20: [2025-11-13T20:57:20.394Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T15:57:20: [2025-11-13T20:57:20.395Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T17:01:30: [2025-11-13T22:01:30.362Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T17:01:30: [2025-11-13T22:01:30.364Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T17:07:06: [2025-11-13T22:07:06.646Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T17:07:06: [2025-11-13T22:07:06.647Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T17:12:42: [2025-11-13T22:12:42.873Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T17:12:42: [2025-11-13T22:12:42.874Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T17:18:19: [2025-11-13T22:18:19.309Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T17:18:19: [2025-11-13T22:18:19.309Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T17:19:09: [2025-11-13T22:19:09.764Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T17:19:09: [2025-11-13T22:19:09.764Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T17:24:46: [2025-11-13T22:24:46.066Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T17:24:46: [2025-11-13T22:24:46.066Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T17:30:22: [2025-11-13T22:30:22.453Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T17:30:22: [2025-11-13T22:30:22.453Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T17:35:58: [2025-11-13T22:35:58.803Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T17:35:58: [2025-11-13T22:35:58.804Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T17:41:35: [2025-11-13T22:41:35.103Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T17:41:35: [2025-11-13T22:41:35.103Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T17:50:11: [2025-11-13T22:50:11.379Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T17:50:11: [2025-11-13T22:50:11.379Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T17:52:39: [2025-11-13T22:52:39.677Z] Error: Connection disconnected with error 'Error: WebSocket closed with status code: 1006 (no reason given).'.
+2025-11-13T17:52:39: [2025-11-13T22:52:39.708Z] Error: Connection disconnected with error 'Error: WebSocket closed with status code: 1006 (no reason given).'.
+2025-11-13T17:52:39: [2025-11-13T22:52:39.877Z] Error: Failed to start the connection: Error: WebSocket failed to connect. The connection could not be found on the server, either the endpoint may not be a SignalR endpoint, the connection ID is not present on the server, or there is a proxy blocking WebSockets. If you have multiple servers check that sticky sessions are enabled.
+2025-11-13T17:52:39: [2025-11-13T22:52:39.903Z] Error: Failed to start the connection: Error: WebSocket failed to connect. The connection could not be found on the server, either the endpoint may not be a SignalR endpoint, the connection ID is not present on the server, or there is a proxy blocking WebSockets. If you have multiple servers check that sticky sessions are enabled.
+2025-11-13T17:52:48: [topstepx] Failed to fetch accounts: <html>
+2025-11-13T17:52:48: <head><title>504 Gateway Time-out</title></head>
+2025-11-13T17:52:48: <body>
+2025-11-13T17:52:48: <center><h1>504 Gateway Time-out</h1></center>
+2025-11-13T17:52:48: </body>
+2025-11-13T17:52:48: </html>
+2025-11-13T17:52:48: 
+2025-11-13T17:52:52: [2025-11-13T22:52:52.083Z] Error: Failed to start the connection: Error: WebSocket failed to connect. The connection could not be found on the server, either the endpoint may not be a SignalR endpoint, the connection ID is not present on the server, or there is a proxy blocking WebSockets. If you have multiple servers check that sticky sessions are enabled.
+2025-11-13T17:52:52: [2025-11-13T22:52:52.084Z] Error: Failed to start the connection: Error: WebSocket failed to connect. The connection could not be found on the server, either the endpoint may not be a SignalR endpoint, the connection ID is not present on the server, or there is a proxy blocking WebSockets. If you have multiple servers check that sticky sessions are enabled.
+2025-11-13T17:53:02: [user] Subscribe accounts failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T17:53:02:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T17:53:02:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T17:53:02:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T17:53:02:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T17:53:02:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T17:53:02:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T17:53:02:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T17:53:02:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T17:53:02:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T17:53:02: [user] Subscribe orders failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T17:53:02:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T17:53:02:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T17:53:02:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T17:53:02:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T17:53:02:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T17:53:02:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T17:53:02:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T17:53:02:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T17:53:02:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T17:53:02: [user] Subscribe positions failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T17:53:02:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T17:53:02:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T17:53:02:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T17:53:02:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T17:53:02:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T17:53:02:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T17:53:02:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T17:53:02:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T17:53:02:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T17:53:02: [user] Subscribe trades failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T17:53:02:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T17:53:02:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T17:53:02:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T17:53:02:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T17:53:02:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T17:53:02:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T17:53:02:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T17:53:02:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T17:53:02:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T17:53:02: [user] Subscribe accounts failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T17:53:02:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T17:53:02:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T17:53:02:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T17:53:02:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T17:53:02:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T17:53:02:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T17:53:02:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T17:53:02:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T17:53:02:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T17:53:02: [user] Subscribe orders failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T17:53:02:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T17:53:02:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T17:53:02:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T17:53:02:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T17:53:02:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T17:53:02:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T17:53:02:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T17:53:02:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T17:53:02:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T17:53:02: [user] Subscribe positions failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T17:53:02:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T17:53:02:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T17:53:02:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T17:53:02:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T17:53:02:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T17:53:02:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T17:53:02:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T17:53:02:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T17:53:02:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T17:53:02: [user] Subscribe trades failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T17:53:02:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T17:53:02:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T17:53:02:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T17:53:02:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T17:53:02:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T17:53:02:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T17:53:02:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T17:53:02:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T17:53:02:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T17:53:02: [market] Subscribe quotes failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T17:53:02:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T17:53:02:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T17:53:02:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T17:53:02:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T17:53:02:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T17:53:02:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T17:53:02:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T17:53:02:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T17:53:02:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T17:53:02: [market] Subscribe trades failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T17:53:02:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T17:53:02:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T17:53:02:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T17:53:02:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T17:53:02:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T17:53:02:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T17:53:02:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T17:53:02:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T17:53:02:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T18:27:56: [2025-11-13T23:27:56.723Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T18:27:56: [2025-11-13T23:27:56.724Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T19:07:15: [2025-11-14T00:07:15.762Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T19:07:15: [2025-11-14T00:07:15.762Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T19:10:16: [2025-11-14T00:10:16.888Z] Error: Connection disconnected with error 'Error: Server timeout elapsed without receiving a message from the server.'.
+2025-11-13T19:10:18: [user] Subscribe accounts failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T19:10:18:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T19:10:18:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T19:10:18:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T19:10:18:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T19:10:18:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T19:10:18:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T19:10:18:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T19:10:18:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T19:10:18:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T19:10:18: [user] Subscribe orders failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T19:10:18:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T19:10:18:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T19:10:18:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T19:10:18:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T19:10:18:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T19:10:18:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T19:10:18:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T19:10:18:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T19:10:18:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T19:10:18: [user] Subscribe positions failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T19:10:18:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T19:10:18:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T19:10:18:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T19:10:18:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T19:10:18:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T19:10:18:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T19:10:18:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T19:10:18:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T19:10:18:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T19:10:18: [user] Subscribe trades failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T19:10:18:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T19:10:18:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T19:10:18:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T19:10:18:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T19:10:18:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T19:10:18:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T19:10:18:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T19:10:18:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T19:10:18:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T19:10:18: [user] Subscribe accounts failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T19:10:18:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T19:10:18:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T19:10:18:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T19:10:18:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T19:10:18:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T19:10:18:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T19:10:18:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T19:10:18:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T19:10:18:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T19:10:18: [user] Subscribe orders failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T19:10:18:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T19:10:18:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T19:10:18:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T19:10:18:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T19:10:18:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T19:10:18:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T19:10:18:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T19:10:18:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T19:10:18:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T19:10:18: [user] Subscribe positions failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T19:10:18:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T19:10:18:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T19:10:18:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T19:10:18:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T19:10:18:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T19:10:18:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T19:10:18:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T19:10:18:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T19:10:18:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T19:10:18: [user] Subscribe trades failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T19:10:18:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T19:10:18:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T19:10:18:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T19:10:18:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T19:10:18:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T19:10:18:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T19:10:18:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T19:10:18:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T19:10:18:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T19:10:30: [2025-11-14T00:10:30.234Z] Error: Connection disconnected with error 'Error: Server timeout elapsed without receiving a message from the server.'.
+2025-11-13T19:10:31: [market] Subscribe quotes failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T19:10:31:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T19:10:31:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T19:10:31:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T19:10:31:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T19:10:31:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T19:10:31:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T19:10:31:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T19:10:31:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T19:10:31:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T19:10:31: [market] Subscribe trades failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T19:10:31:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T19:10:31:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T19:10:31:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T19:10:31:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T19:10:31:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T19:10:31:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T19:10:31:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T19:10:31:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T19:10:31:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T19:15:24: [2025-11-14T00:15:24.194Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T19:15:24: [2025-11-14T00:15:24.195Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T19:18:06: [2025-11-14T00:18:06.344Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T19:18:06: [2025-11-14T00:18:06.344Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T19:38:21: [2025-11-14T00:38:21.764Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T20:08:25: [2025-11-14T01:08:25.005Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T20:08:27: [market] Subscribe quotes failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T20:08:27:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T20:08:27:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T20:08:27:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T20:08:27:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T20:08:27:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T20:08:27:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T20:08:27:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T20:08:27:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T20:08:27:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T20:08:27: [market] Subscribe trades failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T20:08:27:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T20:08:27:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T20:08:27:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T20:08:27:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T20:08:27:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T20:08:27:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T20:08:27:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T20:08:27:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T20:08:27:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T20:13:27: node:events:496
+2025-11-13T20:13:27:       throw er; // Unhandled 'error' event
+2025-11-13T20:13:27:       ^
+2025-11-13T20:13:27: 
+2025-11-13T20:13:27: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:13:27:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:13:27:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:13:27:     at Server.listen (node:net:2101:7)
+2025-11-13T20:13:27:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:13:27:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:13:27:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:13:27:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:13:27:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:13:27:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:13:27:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:13:27: Emitted 'error' event on Server instance at:
+2025-11-13T20:13:27:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:13:27:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:13:27:   code: 'EADDRINUSE',
+2025-11-13T20:13:27:   errno: -48,
+2025-11-13T20:13:27:   syscall: 'listen',
+2025-11-13T20:13:27:   address: '::',
+2025-11-13T20:13:27:   port: 3334
+2025-11-13T20:13:27: }
+2025-11-13T20:13:27: 
+2025-11-13T20:13:27: Node.js v22.15.0
+2025-11-13T20:13:33: node:events:496
+2025-11-13T20:13:33:       throw er; // Unhandled 'error' event
+2025-11-13T20:13:33:       ^
+2025-11-13T20:13:33: 
+2025-11-13T20:13:33: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:13:33:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:13:33:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:13:33:     at Server.listen (node:net:2101:7)
+2025-11-13T20:13:33:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:13:33:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:13:33:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:13:33:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:13:33:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:13:33:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:13:33:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:13:33: Emitted 'error' event on Server instance at:
+2025-11-13T20:13:33:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:13:33:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:13:33:   code: 'EADDRINUSE',
+2025-11-13T20:13:33:   errno: -48,
+2025-11-13T20:13:33:   syscall: 'listen',
+2025-11-13T20:13:33:   address: '::',
+2025-11-13T20:13:33:   port: 3334
+2025-11-13T20:13:33: }
+2025-11-13T20:13:33: 
+2025-11-13T20:13:33: Node.js v22.15.0
+2025-11-13T20:13:38: node:events:496
+2025-11-13T20:13:38:       throw er; // Unhandled 'error' event
+2025-11-13T20:13:38:       ^
+2025-11-13T20:13:38: 
+2025-11-13T20:13:38: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:13:38:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:13:38:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:13:38:     at Server.listen (node:net:2101:7)
+2025-11-13T20:13:38:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:13:38:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:13:38:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:13:38:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:13:38:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:13:38:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:13:38:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:13:38: Emitted 'error' event on Server instance at:
+2025-11-13T20:13:38:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:13:38:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:13:38:   code: 'EADDRINUSE',
+2025-11-13T20:13:38:   errno: -48,
+2025-11-13T20:13:38:   syscall: 'listen',
+2025-11-13T20:13:38:   address: '::',
+2025-11-13T20:13:38:   port: 3334
+2025-11-13T20:13:38: }
+2025-11-13T20:13:38: 
+2025-11-13T20:13:38: Node.js v22.15.0
+2025-11-13T20:13:44: node:events:496
+2025-11-13T20:13:44:       throw er; // Unhandled 'error' event
+2025-11-13T20:13:44:       ^
+2025-11-13T20:13:44: 
+2025-11-13T20:13:44: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:13:44:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:13:44:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:13:44:     at Server.listen (node:net:2101:7)
+2025-11-13T20:13:44:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:13:44:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:13:44:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:13:44:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:13:44:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:13:44:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:13:44:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:13:44: Emitted 'error' event on Server instance at:
+2025-11-13T20:13:44:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:13:44:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:13:44:   code: 'EADDRINUSE',
+2025-11-13T20:13:44:   errno: -48,
+2025-11-13T20:13:44:   syscall: 'listen',
+2025-11-13T20:13:44:   address: '::',
+2025-11-13T20:13:44:   port: 3334
+2025-11-13T20:13:44: }
+2025-11-13T20:13:44: 
+2025-11-13T20:13:44: Node.js v22.15.0
+2025-11-13T20:13:50: node:events:496
+2025-11-13T20:13:50:       throw er; // Unhandled 'error' event
+2025-11-13T20:13:50:       ^
+2025-11-13T20:13:50: 
+2025-11-13T20:13:50: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:13:50:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:13:50:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:13:50:     at Server.listen (node:net:2101:7)
+2025-11-13T20:13:50:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:13:50:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:13:50:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:13:50:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:13:50:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:13:50:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:13:50:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:13:50: Emitted 'error' event on Server instance at:
+2025-11-13T20:13:50:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:13:50:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:13:50:   code: 'EADDRINUSE',
+2025-11-13T20:13:50:   errno: -48,
+2025-11-13T20:13:50:   syscall: 'listen',
+2025-11-13T20:13:50:   address: '::',
+2025-11-13T20:13:50:   port: 3334
+2025-11-13T20:13:50: }
+2025-11-13T20:13:50: 
+2025-11-13T20:13:50: Node.js v22.15.0
+2025-11-13T20:13:56: node:events:496
+2025-11-13T20:13:56:       throw er; // Unhandled 'error' event
+2025-11-13T20:13:56:       ^
+2025-11-13T20:13:56: 
+2025-11-13T20:13:56: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:13:56:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:13:56:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:13:56:     at Server.listen (node:net:2101:7)
+2025-11-13T20:13:56:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:13:56:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:13:56:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:13:56:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:13:56:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:13:56:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:13:56:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:13:56: Emitted 'error' event on Server instance at:
+2025-11-13T20:13:56:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:13:56:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:13:56:   code: 'EADDRINUSE',
+2025-11-13T20:13:56:   errno: -48,
+2025-11-13T20:13:56:   syscall: 'listen',
+2025-11-13T20:13:56:   address: '::',
+2025-11-13T20:13:56:   port: 3334
+2025-11-13T20:13:56: }
+2025-11-13T20:13:56: 
+2025-11-13T20:13:56: Node.js v22.15.0
+2025-11-13T20:14:01: node:events:496
+2025-11-13T20:14:01:       throw er; // Unhandled 'error' event
+2025-11-13T20:14:01:       ^
+2025-11-13T20:14:01: 
+2025-11-13T20:14:01: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:14:01:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:14:01:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:14:01:     at Server.listen (node:net:2101:7)
+2025-11-13T20:14:01:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:14:01:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:14:01:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:14:01:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:14:01:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:14:01:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:14:01:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:14:01: Emitted 'error' event on Server instance at:
+2025-11-13T20:14:01:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:14:01:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:14:01:   code: 'EADDRINUSE',
+2025-11-13T20:14:01:   errno: -48,
+2025-11-13T20:14:01:   syscall: 'listen',
+2025-11-13T20:14:01:   address: '::',
+2025-11-13T20:14:01:   port: 3334
+2025-11-13T20:14:01: }
+2025-11-13T20:14:01: 
+2025-11-13T20:14:01: Node.js v22.15.0
+2025-11-13T20:14:07: node:events:496
+2025-11-13T20:14:07:       throw er; // Unhandled 'error' event
+2025-11-13T20:14:07:       ^
+2025-11-13T20:14:07: 
+2025-11-13T20:14:07: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:14:07:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:14:07:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:14:07:     at Server.listen (node:net:2101:7)
+2025-11-13T20:14:07:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:14:07:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:14:07:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:14:07:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:14:07:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:14:07:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:14:07:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:14:07: Emitted 'error' event on Server instance at:
+2025-11-13T20:14:07:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:14:07:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:14:07:   code: 'EADDRINUSE',
+2025-11-13T20:14:07:   errno: -48,
+2025-11-13T20:14:07:   syscall: 'listen',
+2025-11-13T20:14:07:   address: '::',
+2025-11-13T20:14:07:   port: 3334
+2025-11-13T20:14:07: }
+2025-11-13T20:14:07: 
+2025-11-13T20:14:07: Node.js v22.15.0
+2025-11-13T20:14:13: node:events:496
+2025-11-13T20:14:13:       throw er; // Unhandled 'error' event
+2025-11-13T20:14:13:       ^
+2025-11-13T20:14:13: 
+2025-11-13T20:14:13: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:14:13:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:14:13:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:14:13:     at Server.listen (node:net:2101:7)
+2025-11-13T20:14:13:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:14:13:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:14:13:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:14:13:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:14:13:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:14:13:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:14:13:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:14:13: Emitted 'error' event on Server instance at:
+2025-11-13T20:14:13:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:14:13:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:14:13:   code: 'EADDRINUSE',
+2025-11-13T20:14:13:   errno: -48,
+2025-11-13T20:14:13:   syscall: 'listen',
+2025-11-13T20:14:13:   address: '::',
+2025-11-13T20:14:13:   port: 3334
+2025-11-13T20:14:13: }
+2025-11-13T20:14:13: 
+2025-11-13T20:14:13: Node.js v22.15.0
+2025-11-13T20:14:18: node:events:496
+2025-11-13T20:14:18:       throw er; // Unhandled 'error' event
+2025-11-13T20:14:18:       ^
+2025-11-13T20:14:18: 
+2025-11-13T20:14:18: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:14:18:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:14:18:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:14:18:     at Server.listen (node:net:2101:7)
+2025-11-13T20:14:18:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:14:18:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:14:18:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:14:18:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:14:18:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:14:18:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:14:18:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:14:18: Emitted 'error' event on Server instance at:
+2025-11-13T20:14:18:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:14:18:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:14:18:   code: 'EADDRINUSE',
+2025-11-13T20:14:18:   errno: -48,
+2025-11-13T20:14:18:   syscall: 'listen',
+2025-11-13T20:14:18:   address: '::',
+2025-11-13T20:14:18:   port: 3334
+2025-11-13T20:14:18: }
+2025-11-13T20:14:18: 
+2025-11-13T20:14:18: Node.js v22.15.0
+2025-11-13T20:14:24: node:events:496
+2025-11-13T20:14:24:       throw er; // Unhandled 'error' event
+2025-11-13T20:14:24:       ^
+2025-11-13T20:14:24: 
+2025-11-13T20:14:24: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:14:24:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:14:24:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:14:24:     at Server.listen (node:net:2101:7)
+2025-11-13T20:14:24:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:14:24:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:14:24:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:14:24:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:14:24:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:14:24:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:14:24:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:14:24: Emitted 'error' event on Server instance at:
+2025-11-13T20:14:24:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:14:24:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:14:24:   code: 'EADDRINUSE',
+2025-11-13T20:14:24:   errno: -48,
+2025-11-13T20:14:24:   syscall: 'listen',
+2025-11-13T20:14:24:   address: '::',
+2025-11-13T20:14:24:   port: 3334
+2025-11-13T20:14:24: }
+2025-11-13T20:14:24: 
+2025-11-13T20:14:24: Node.js v22.15.0
+2025-11-13T20:14:30: node:events:496
+2025-11-13T20:14:30:       throw er; // Unhandled 'error' event
+2025-11-13T20:14:30:       ^
+2025-11-13T20:14:30: 
+2025-11-13T20:14:30: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:14:30:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:14:30:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:14:30:     at Server.listen (node:net:2101:7)
+2025-11-13T20:14:30:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:14:30:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:14:30:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:14:30:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:14:30:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:14:30:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:14:30:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:14:30: Emitted 'error' event on Server instance at:
+2025-11-13T20:14:30:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:14:30:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:14:30:   code: 'EADDRINUSE',
+2025-11-13T20:14:30:   errno: -48,
+2025-11-13T20:14:30:   syscall: 'listen',
+2025-11-13T20:14:30:   address: '::',
+2025-11-13T20:14:30:   port: 3334
+2025-11-13T20:14:30: }
+2025-11-13T20:14:30: 
+2025-11-13T20:14:30: Node.js v22.15.0
+2025-11-13T20:14:35: node:events:496
+2025-11-13T20:14:35:       throw er; // Unhandled 'error' event
+2025-11-13T20:14:35:       ^
+2025-11-13T20:14:35: 
+2025-11-13T20:14:35: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:14:35:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:14:35:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:14:35:     at Server.listen (node:net:2101:7)
+2025-11-13T20:14:35:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:14:35:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:14:35:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:14:35:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:14:35:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:14:35:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:14:35:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:14:35: Emitted 'error' event on Server instance at:
+2025-11-13T20:14:35:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:14:35:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:14:35:   code: 'EADDRINUSE',
+2025-11-13T20:14:35:   errno: -48,
+2025-11-13T20:14:35:   syscall: 'listen',
+2025-11-13T20:14:35:   address: '::',
+2025-11-13T20:14:35:   port: 3334
+2025-11-13T20:14:35: }
+2025-11-13T20:14:35: 
+2025-11-13T20:14:35: Node.js v22.15.0
+2025-11-13T20:14:41: node:events:496
+2025-11-13T20:14:41:       throw er; // Unhandled 'error' event
+2025-11-13T20:14:41:       ^
+2025-11-13T20:14:41: 
+2025-11-13T20:14:41: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:14:41:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:14:41:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:14:41:     at Server.listen (node:net:2101:7)
+2025-11-13T20:14:41:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:14:41:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:14:41:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:14:41:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:14:41:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:14:41:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:14:41:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:14:41: Emitted 'error' event on Server instance at:
+2025-11-13T20:14:41:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:14:41:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:14:41:   code: 'EADDRINUSE',
+2025-11-13T20:14:41:   errno: -48,
+2025-11-13T20:14:41:   syscall: 'listen',
+2025-11-13T20:14:41:   address: '::',
+2025-11-13T20:14:41:   port: 3334
+2025-11-13T20:14:41: }
+2025-11-13T20:14:41: 
+2025-11-13T20:14:41: Node.js v22.15.0
+2025-11-13T20:14:47: node:events:496
+2025-11-13T20:14:47:       throw er; // Unhandled 'error' event
+2025-11-13T20:14:47:       ^
+2025-11-13T20:14:47: 
+2025-11-13T20:14:47: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:14:47:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:14:47:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:14:47:     at Server.listen (node:net:2101:7)
+2025-11-13T20:14:47:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:14:47:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:14:47:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:14:47:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:14:47:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:14:47:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:14:47:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:14:47: Emitted 'error' event on Server instance at:
+2025-11-13T20:14:47:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:14:47:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:14:47:   code: 'EADDRINUSE',
+2025-11-13T20:14:47:   errno: -48,
+2025-11-13T20:14:47:   syscall: 'listen',
+2025-11-13T20:14:47:   address: '::',
+2025-11-13T20:14:47:   port: 3334
+2025-11-13T20:14:47: }
+2025-11-13T20:14:47: 
+2025-11-13T20:14:47: Node.js v22.15.0
+2025-11-13T20:14:52: node:events:496
+2025-11-13T20:14:52:       throw er; // Unhandled 'error' event
+2025-11-13T20:14:52:       ^
+2025-11-13T20:14:52: 
+2025-11-13T20:14:52: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:14:52:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:14:52:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:14:52:     at Server.listen (node:net:2101:7)
+2025-11-13T20:14:52:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:14:52:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:14:52:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:14:52:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:14:52:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:14:52:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:14:52:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:14:52: Emitted 'error' event on Server instance at:
+2025-11-13T20:14:52:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:14:52:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:14:52:   code: 'EADDRINUSE',
+2025-11-13T20:14:52:   errno: -48,
+2025-11-13T20:14:52:   syscall: 'listen',
+2025-11-13T20:14:52:   address: '::',
+2025-11-13T20:14:52:   port: 3334
+2025-11-13T20:14:52: }
+2025-11-13T20:14:52: 
+2025-11-13T20:14:52: Node.js v22.15.0
+2025-11-13T20:14:58: node:events:496
+2025-11-13T20:14:58:       throw er; // Unhandled 'error' event
+2025-11-13T20:14:58:       ^
+2025-11-13T20:14:58: 
+2025-11-13T20:14:58: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:14:58:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:14:58:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:14:58:     at Server.listen (node:net:2101:7)
+2025-11-13T20:14:58:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:14:58:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:14:58:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:14:58:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:14:58:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:14:58:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:14:58:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:14:58: Emitted 'error' event on Server instance at:
+2025-11-13T20:14:58:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:14:58:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:14:58:   code: 'EADDRINUSE',
+2025-11-13T20:14:58:   errno: -48,
+2025-11-13T20:14:58:   syscall: 'listen',
+2025-11-13T20:14:58:   address: '::',
+2025-11-13T20:14:58:   port: 3334
+2025-11-13T20:14:58: }
+2025-11-13T20:14:58: 
+2025-11-13T20:14:58: Node.js v22.15.0
+2025-11-13T20:15:04: node:events:496
+2025-11-13T20:15:04:       throw er; // Unhandled 'error' event
+2025-11-13T20:15:04:       ^
+2025-11-13T20:15:04: 
+2025-11-13T20:15:04: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:15:04:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:15:04:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:15:04:     at Server.listen (node:net:2101:7)
+2025-11-13T20:15:04:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:15:04:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:15:04:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:15:04:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:15:04:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:15:04:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:15:04:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:15:04: Emitted 'error' event on Server instance at:
+2025-11-13T20:15:04:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:15:04:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:15:04:   code: 'EADDRINUSE',
+2025-11-13T20:15:04:   errno: -48,
+2025-11-13T20:15:04:   syscall: 'listen',
+2025-11-13T20:15:04:   address: '::',
+2025-11-13T20:15:04:   port: 3334
+2025-11-13T20:15:04: }
+2025-11-13T20:15:04: 
+2025-11-13T20:15:04: Node.js v22.15.0
+2025-11-13T20:15:10: node:events:496
+2025-11-13T20:15:10:       throw er; // Unhandled 'error' event
+2025-11-13T20:15:10:       ^
+2025-11-13T20:15:10: 
+2025-11-13T20:15:10: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:15:10:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:15:10:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:15:10:     at Server.listen (node:net:2101:7)
+2025-11-13T20:15:10:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:15:10:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:15:10:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:15:10:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:15:10:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:15:10:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:15:10:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:15:10: Emitted 'error' event on Server instance at:
+2025-11-13T20:15:10:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:15:10:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:15:10:   code: 'EADDRINUSE',
+2025-11-13T20:15:10:   errno: -48,
+2025-11-13T20:15:10:   syscall: 'listen',
+2025-11-13T20:15:10:   address: '::',
+2025-11-13T20:15:10:   port: 3334
+2025-11-13T20:15:10: }
+2025-11-13T20:15:10: 
+2025-11-13T20:15:10: Node.js v22.15.0
+2025-11-13T20:15:15: node:events:496
+2025-11-13T20:15:15:       throw er; // Unhandled 'error' event
+2025-11-13T20:15:15:       ^
+2025-11-13T20:15:15: 
+2025-11-13T20:15:15: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:15:15:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:15:15:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:15:15:     at Server.listen (node:net:2101:7)
+2025-11-13T20:15:15:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:15:15:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:15:15:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:15:15:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:15:15:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:15:15:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:15:15:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:15:15: Emitted 'error' event on Server instance at:
+2025-11-13T20:15:15:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:15:15:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:15:15:   code: 'EADDRINUSE',
+2025-11-13T20:15:15:   errno: -48,
+2025-11-13T20:15:15:   syscall: 'listen',
+2025-11-13T20:15:15:   address: '::',
+2025-11-13T20:15:15:   port: 3334
+2025-11-13T20:15:15: }
+2025-11-13T20:15:15: 
+2025-11-13T20:15:15: Node.js v22.15.0
+2025-11-13T20:15:21: node:events:496
+2025-11-13T20:15:21:       throw er; // Unhandled 'error' event
+2025-11-13T20:15:21:       ^
+2025-11-13T20:15:21: 
+2025-11-13T20:15:21: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:15:21:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:15:21:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:15:21:     at Server.listen (node:net:2101:7)
+2025-11-13T20:15:21:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:15:21:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:15:21:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:15:21:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:15:21:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:15:21:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:15:21:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:15:21: Emitted 'error' event on Server instance at:
+2025-11-13T20:15:21:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:15:21:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:15:21:   code: 'EADDRINUSE',
+2025-11-13T20:15:21:   errno: -48,
+2025-11-13T20:15:21:   syscall: 'listen',
+2025-11-13T20:15:21:   address: '::',
+2025-11-13T20:15:21:   port: 3334
+2025-11-13T20:15:21: }
+2025-11-13T20:15:21: 
+2025-11-13T20:15:21: Node.js v22.15.0
+2025-11-13T20:15:27: node:events:496
+2025-11-13T20:15:27:       throw er; // Unhandled 'error' event
+2025-11-13T20:15:27:       ^
+2025-11-13T20:15:27: 
+2025-11-13T20:15:27: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:15:27:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:15:27:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:15:27:     at Server.listen (node:net:2101:7)
+2025-11-13T20:15:27:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:15:27:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:15:27:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:15:27:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:15:27:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:15:27:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:15:27:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:15:27: Emitted 'error' event on Server instance at:
+2025-11-13T20:15:27:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:15:27:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:15:27:   code: 'EADDRINUSE',
+2025-11-13T20:15:27:   errno: -48,
+2025-11-13T20:15:27:   syscall: 'listen',
+2025-11-13T20:15:27:   address: '::',
+2025-11-13T20:15:27:   port: 3334
+2025-11-13T20:15:27: }
+2025-11-13T20:15:27: 
+2025-11-13T20:15:27: Node.js v22.15.0
+2025-11-13T20:15:32: node:events:496
+2025-11-13T20:15:32:       throw er; // Unhandled 'error' event
+2025-11-13T20:15:32:       ^
+2025-11-13T20:15:32: 
+2025-11-13T20:15:32: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:15:32:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:15:32:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:15:32:     at Server.listen (node:net:2101:7)
+2025-11-13T20:15:32:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:15:32:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:15:32:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:15:32:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:15:32:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:15:32:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:15:32:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:15:32: Emitted 'error' event on Server instance at:
+2025-11-13T20:15:32:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:15:32:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:15:32:   code: 'EADDRINUSE',
+2025-11-13T20:15:32:   errno: -48,
+2025-11-13T20:15:32:   syscall: 'listen',
+2025-11-13T20:15:32:   address: '::',
+2025-11-13T20:15:32:   port: 3334
+2025-11-13T20:15:32: }
+2025-11-13T20:15:32: 
+2025-11-13T20:15:32: Node.js v22.15.0
+2025-11-13T20:15:38: node:events:496
+2025-11-13T20:15:38:       throw er; // Unhandled 'error' event
+2025-11-13T20:15:38:       ^
+2025-11-13T20:15:38: 
+2025-11-13T20:15:38: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:15:38:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:15:38:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:15:38:     at Server.listen (node:net:2101:7)
+2025-11-13T20:15:38:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:15:38:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:15:38:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:15:38:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:15:38:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:15:38:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:15:38:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:15:38: Emitted 'error' event on Server instance at:
+2025-11-13T20:15:38:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:15:38:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:15:38:   code: 'EADDRINUSE',
+2025-11-13T20:15:38:   errno: -48,
+2025-11-13T20:15:38:   syscall: 'listen',
+2025-11-13T20:15:38:   address: '::',
+2025-11-13T20:15:38:   port: 3334
+2025-11-13T20:15:38: }
+2025-11-13T20:15:38: 
+2025-11-13T20:15:38: Node.js v22.15.0
+2025-11-13T20:15:44: node:events:496
+2025-11-13T20:15:44:       throw er; // Unhandled 'error' event
+2025-11-13T20:15:44:       ^
+2025-11-13T20:15:44: 
+2025-11-13T20:15:44: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:15:44:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:15:44:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:15:44:     at Server.listen (node:net:2101:7)
+2025-11-13T20:15:44:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:15:44:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:15:44:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:15:44:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:15:44:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:15:44:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:15:44:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:15:44: Emitted 'error' event on Server instance at:
+2025-11-13T20:15:44:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:15:44:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:15:44:   code: 'EADDRINUSE',
+2025-11-13T20:15:44:   errno: -48,
+2025-11-13T20:15:44:   syscall: 'listen',
+2025-11-13T20:15:44:   address: '::',
+2025-11-13T20:15:44:   port: 3334
+2025-11-13T20:15:44: }
+2025-11-13T20:15:44: 
+2025-11-13T20:15:44: Node.js v22.15.0
+2025-11-13T20:15:49: node:events:496
+2025-11-13T20:15:49:       throw er; // Unhandled 'error' event
+2025-11-13T20:15:49:       ^
+2025-11-13T20:15:49: 
+2025-11-13T20:15:49: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:15:49:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:15:49:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:15:49:     at Server.listen (node:net:2101:7)
+2025-11-13T20:15:49:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:15:49:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:15:49:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:15:49:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:15:49:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:15:49:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:15:49:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:15:49: Emitted 'error' event on Server instance at:
+2025-11-13T20:15:49:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:15:49:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:15:49:   code: 'EADDRINUSE',
+2025-11-13T20:15:49:   errno: -48,
+2025-11-13T20:15:49:   syscall: 'listen',
+2025-11-13T20:15:49:   address: '::',
+2025-11-13T20:15:49:   port: 3334
+2025-11-13T20:15:49: }
+2025-11-13T20:15:49: 
+2025-11-13T20:15:49: Node.js v22.15.0
+2025-11-13T20:15:55: node:events:496
+2025-11-13T20:15:55:       throw er; // Unhandled 'error' event
+2025-11-13T20:15:55:       ^
+2025-11-13T20:15:55: 
+2025-11-13T20:15:55: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:15:55:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:15:55:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:15:55:     at Server.listen (node:net:2101:7)
+2025-11-13T20:15:55:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:15:55:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:15:55:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:15:55:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:15:55:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:15:55:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:15:55:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:15:55: Emitted 'error' event on Server instance at:
+2025-11-13T20:15:55:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:15:55:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:15:55:   code: 'EADDRINUSE',
+2025-11-13T20:15:55:   errno: -48,
+2025-11-13T20:15:55:   syscall: 'listen',
+2025-11-13T20:15:55:   address: '::',
+2025-11-13T20:15:55:   port: 3334
+2025-11-13T20:15:55: }
+2025-11-13T20:15:55: 
+2025-11-13T20:15:55: Node.js v22.15.0
+2025-11-13T20:16:01: node:events:496
+2025-11-13T20:16:01:       throw er; // Unhandled 'error' event
+2025-11-13T20:16:01:       ^
+2025-11-13T20:16:01: 
+2025-11-13T20:16:01: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:16:01:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:16:01:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:16:01:     at Server.listen (node:net:2101:7)
+2025-11-13T20:16:01:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:16:01:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:16:01:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:16:01:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:16:01:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:16:01:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:16:01:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:16:01: Emitted 'error' event on Server instance at:
+2025-11-13T20:16:01:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:16:01:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:16:01:   code: 'EADDRINUSE',
+2025-11-13T20:16:01:   errno: -48,
+2025-11-13T20:16:01:   syscall: 'listen',
+2025-11-13T20:16:01:   address: '::',
+2025-11-13T20:16:01:   port: 3334
+2025-11-13T20:16:01: }
+2025-11-13T20:16:01: 
+2025-11-13T20:16:01: Node.js v22.15.0
+2025-11-13T20:16:06: node:events:496
+2025-11-13T20:16:06:       throw er; // Unhandled 'error' event
+2025-11-13T20:16:06:       ^
+2025-11-13T20:16:06: 
+2025-11-13T20:16:06: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:16:06:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:16:06:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:16:06:     at Server.listen (node:net:2101:7)
+2025-11-13T20:16:06:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:16:06:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:16:06:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:16:06:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:16:06:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:16:06:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:16:06:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:16:06: Emitted 'error' event on Server instance at:
+2025-11-13T20:16:06:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:16:06:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:16:06:   code: 'EADDRINUSE',
+2025-11-13T20:16:06:   errno: -48,
+2025-11-13T20:16:06:   syscall: 'listen',
+2025-11-13T20:16:06:   address: '::',
+2025-11-13T20:16:06:   port: 3334
+2025-11-13T20:16:06: }
+2025-11-13T20:16:06: 
+2025-11-13T20:16:06: Node.js v22.15.0
+2025-11-13T20:16:12: node:events:496
+2025-11-13T20:16:12:       throw er; // Unhandled 'error' event
+2025-11-13T20:16:12:       ^
+2025-11-13T20:16:12: 
+2025-11-13T20:16:12: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:16:12:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:16:12:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:16:12:     at Server.listen (node:net:2101:7)
+2025-11-13T20:16:12:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:16:12:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:16:12:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:16:12:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:16:12:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:16:12:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:16:12:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:16:12: Emitted 'error' event on Server instance at:
+2025-11-13T20:16:12:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:16:12:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:16:12:   code: 'EADDRINUSE',
+2025-11-13T20:16:12:   errno: -48,
+2025-11-13T20:16:12:   syscall: 'listen',
+2025-11-13T20:16:12:   address: '::',
+2025-11-13T20:16:12:   port: 3334
+2025-11-13T20:16:12: }
+2025-11-13T20:16:12: 
+2025-11-13T20:16:12: Node.js v22.15.0
+2025-11-13T20:16:18: node:events:496
+2025-11-13T20:16:18:       throw er; // Unhandled 'error' event
+2025-11-13T20:16:18:       ^
+2025-11-13T20:16:18: 
+2025-11-13T20:16:18: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:16:18:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:16:18:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:16:18:     at Server.listen (node:net:2101:7)
+2025-11-13T20:16:18:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:16:18:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:16:18:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:16:18:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:16:18:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:16:18:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:16:18:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:16:18: Emitted 'error' event on Server instance at:
+2025-11-13T20:16:18:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:16:18:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:16:18:   code: 'EADDRINUSE',
+2025-11-13T20:16:18:   errno: -48,
+2025-11-13T20:16:18:   syscall: 'listen',
+2025-11-13T20:16:18:   address: '::',
+2025-11-13T20:16:18:   port: 3334
+2025-11-13T20:16:18: }
+2025-11-13T20:16:18: 
+2025-11-13T20:16:18: Node.js v22.15.0
+2025-11-13T20:16:23: node:events:496
+2025-11-13T20:16:23:       throw er; // Unhandled 'error' event
+2025-11-13T20:16:23:       ^
+2025-11-13T20:16:23: 
+2025-11-13T20:16:23: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:16:23:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:16:23:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:16:23:     at Server.listen (node:net:2101:7)
+2025-11-13T20:16:23:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:16:23:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:16:23:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:16:23:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:16:23:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:16:23:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:16:23:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:16:23: Emitted 'error' event on Server instance at:
+2025-11-13T20:16:23:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:16:23:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:16:23:   code: 'EADDRINUSE',
+2025-11-13T20:16:23:   errno: -48,
+2025-11-13T20:16:23:   syscall: 'listen',
+2025-11-13T20:16:23:   address: '::',
+2025-11-13T20:16:23:   port: 3334
+2025-11-13T20:16:23: }
+2025-11-13T20:16:23: 
+2025-11-13T20:16:23: Node.js v22.15.0
+2025-11-13T20:16:35: node:events:496
+2025-11-13T20:16:35:       throw er; // Unhandled 'error' event
+2025-11-13T20:16:35:       ^
+2025-11-13T20:16:35: 
+2025-11-13T20:16:35: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:16:35:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:16:35:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:16:35:     at Server.listen (node:net:2101:7)
+2025-11-13T20:16:35:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:16:35:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:16:35:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:16:35:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:16:35:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:16:35:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:16:35:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:16:35: Emitted 'error' event on Server instance at:
+2025-11-13T20:16:35:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:16:35:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:16:35:   code: 'EADDRINUSE',
+2025-11-13T20:16:35:   errno: -48,
+2025-11-13T20:16:35:   syscall: 'listen',
+2025-11-13T20:16:35:   address: '::',
+2025-11-13T20:16:35:   port: 3334
+2025-11-13T20:16:35: }
+2025-11-13T20:16:35: 
+2025-11-13T20:16:35: Node.js v22.15.0
+2025-11-13T20:16:40: node:events:496
+2025-11-13T20:16:40:       throw er; // Unhandled 'error' event
+2025-11-13T20:16:40:       ^
+2025-11-13T20:16:40: 
+2025-11-13T20:16:40: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:16:40:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:16:40:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:16:40:     at Server.listen (node:net:2101:7)
+2025-11-13T20:16:40:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:16:40:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:16:40:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:16:40:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:16:40:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:16:40:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:16:40:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:16:40: Emitted 'error' event on Server instance at:
+2025-11-13T20:16:40:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:16:40:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:16:40:   code: 'EADDRINUSE',
+2025-11-13T20:16:40:   errno: -48,
+2025-11-13T20:16:40:   syscall: 'listen',
+2025-11-13T20:16:40:   address: '::',
+2025-11-13T20:16:40:   port: 3334
+2025-11-13T20:16:40: }
+2025-11-13T20:16:40: 
+2025-11-13T20:16:40: Node.js v22.15.0
+2025-11-13T20:16:46: node:events:496
+2025-11-13T20:16:46:       throw er; // Unhandled 'error' event
+2025-11-13T20:16:46:       ^
+2025-11-13T20:16:46: 
+2025-11-13T20:16:46: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:16:46:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:16:46:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:16:46:     at Server.listen (node:net:2101:7)
+2025-11-13T20:16:46:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:16:46:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:16:46:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:16:46:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:16:46:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:16:46:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:16:46:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:16:46: Emitted 'error' event on Server instance at:
+2025-11-13T20:16:46:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:16:46:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:16:46:   code: 'EADDRINUSE',
+2025-11-13T20:16:46:   errno: -48,
+2025-11-13T20:16:46:   syscall: 'listen',
+2025-11-13T20:16:46:   address: '::',
+2025-11-13T20:16:46:   port: 3334
+2025-11-13T20:16:46: }
+2025-11-13T20:16:46: 
+2025-11-13T20:16:46: Node.js v22.15.0
+2025-11-13T20:16:52: node:events:496
+2025-11-13T20:16:52:       throw er; // Unhandled 'error' event
+2025-11-13T20:16:52:       ^
+2025-11-13T20:16:52: 
+2025-11-13T20:16:52: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:16:52:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:16:52:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:16:52:     at Server.listen (node:net:2101:7)
+2025-11-13T20:16:52:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:16:52:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:16:52:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:16:52:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:16:52:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:16:52:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:16:52:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:16:52: Emitted 'error' event on Server instance at:
+2025-11-13T20:16:52:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:16:52:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:16:52:   code: 'EADDRINUSE',
+2025-11-13T20:16:52:   errno: -48,
+2025-11-13T20:16:52:   syscall: 'listen',
+2025-11-13T20:16:52:   address: '::',
+2025-11-13T20:16:52:   port: 3334
+2025-11-13T20:16:52: }
+2025-11-13T20:16:52: 
+2025-11-13T20:16:52: Node.js v22.15.0
+2025-11-13T20:16:58: node:events:496
+2025-11-13T20:16:58:       throw er; // Unhandled 'error' event
+2025-11-13T20:16:58:       ^
+2025-11-13T20:16:58: 
+2025-11-13T20:16:58: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:16:58:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:16:58:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:16:58:     at Server.listen (node:net:2101:7)
+2025-11-13T20:16:58:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:16:58:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:16:58:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:16:58:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:16:58:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:16:58:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:16:58:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:16:58: Emitted 'error' event on Server instance at:
+2025-11-13T20:16:58:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:16:58:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:16:58:   code: 'EADDRINUSE',
+2025-11-13T20:16:58:   errno: -48,
+2025-11-13T20:16:58:   syscall: 'listen',
+2025-11-13T20:16:58:   address: '::',
+2025-11-13T20:16:58:   port: 3334
+2025-11-13T20:16:58: }
+2025-11-13T20:16:58: 
+2025-11-13T20:16:58: Node.js v22.15.0
+2025-11-13T20:17:03: node:events:496
+2025-11-13T20:17:03:       throw er; // Unhandled 'error' event
+2025-11-13T20:17:03:       ^
+2025-11-13T20:17:03: 
+2025-11-13T20:17:03: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:17:03:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:17:03:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:17:03:     at Server.listen (node:net:2101:7)
+2025-11-13T20:17:03:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:17:03:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:17:03:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:17:03:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:17:03:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:17:03:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:17:03:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:17:03: Emitted 'error' event on Server instance at:
+2025-11-13T20:17:03:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:17:03:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:17:03:   code: 'EADDRINUSE',
+2025-11-13T20:17:03:   errno: -48,
+2025-11-13T20:17:03:   syscall: 'listen',
+2025-11-13T20:17:03:   address: '::',
+2025-11-13T20:17:03:   port: 3334
+2025-11-13T20:17:03: }
+2025-11-13T20:17:03: 
+2025-11-13T20:17:03: Node.js v22.15.0
+2025-11-13T20:17:09: node:events:496
+2025-11-13T20:17:09:       throw er; // Unhandled 'error' event
+2025-11-13T20:17:09:       ^
+2025-11-13T20:17:09: 
+2025-11-13T20:17:09: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:17:09:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:17:09:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:17:09:     at Server.listen (node:net:2101:7)
+2025-11-13T20:17:09:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:17:09:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:17:09:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:17:09:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:17:09:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:17:09:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:17:09:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:17:09: Emitted 'error' event on Server instance at:
+2025-11-13T20:17:09:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:17:09:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:17:09:   code: 'EADDRINUSE',
+2025-11-13T20:17:09:   errno: -48,
+2025-11-13T20:17:09:   syscall: 'listen',
+2025-11-13T20:17:09:   address: '::',
+2025-11-13T20:17:09:   port: 3334
+2025-11-13T20:17:09: }
+2025-11-13T20:17:09: 
+2025-11-13T20:17:09: Node.js v22.15.0
+2025-11-13T20:17:15: node:events:496
+2025-11-13T20:17:15:       throw er; // Unhandled 'error' event
+2025-11-13T20:17:15:       ^
+2025-11-13T20:17:15: 
+2025-11-13T20:17:15: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:17:15:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:17:15:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:17:15:     at Server.listen (node:net:2101:7)
+2025-11-13T20:17:15:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:17:15:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:17:15:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:17:15:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:17:15:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:17:15:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:17:15:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:17:15: Emitted 'error' event on Server instance at:
+2025-11-13T20:17:15:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:17:15:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:17:15:   code: 'EADDRINUSE',
+2025-11-13T20:17:15:   errno: -48,
+2025-11-13T20:17:15:   syscall: 'listen',
+2025-11-13T20:17:15:   address: '::',
+2025-11-13T20:17:15:   port: 3334
+2025-11-13T20:17:15: }
+2025-11-13T20:17:15: 
+2025-11-13T20:17:15: Node.js v22.15.0
+2025-11-13T20:17:20: node:events:496
+2025-11-13T20:17:20:       throw er; // Unhandled 'error' event
+2025-11-13T20:17:20:       ^
+2025-11-13T20:17:20: 
+2025-11-13T20:17:20: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:17:20:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:17:20:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:17:20:     at Server.listen (node:net:2101:7)
+2025-11-13T20:17:20:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:17:20:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:17:20:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:17:20:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:17:20:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:17:20:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:17:20:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:17:20: Emitted 'error' event on Server instance at:
+2025-11-13T20:17:20:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:17:20:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:17:20:   code: 'EADDRINUSE',
+2025-11-13T20:17:20:   errno: -48,
+2025-11-13T20:17:20:   syscall: 'listen',
+2025-11-13T20:17:20:   address: '::',
+2025-11-13T20:17:20:   port: 3334
+2025-11-13T20:17:20: }
+2025-11-13T20:17:20: 
+2025-11-13T20:17:20: Node.js v22.15.0
+2025-11-13T20:17:26: node:events:496
+2025-11-13T20:17:26:       throw er; // Unhandled 'error' event
+2025-11-13T20:17:26:       ^
+2025-11-13T20:17:26: 
+2025-11-13T20:17:26: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:17:26:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:17:26:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:17:26:     at Server.listen (node:net:2101:7)
+2025-11-13T20:17:26:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:17:26:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:17:26:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:17:26:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:17:26:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:17:26:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:17:26:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:17:26: Emitted 'error' event on Server instance at:
+2025-11-13T20:17:26:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:17:26:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:17:26:   code: 'EADDRINUSE',
+2025-11-13T20:17:26:   errno: -48,
+2025-11-13T20:17:26:   syscall: 'listen',
+2025-11-13T20:17:26:   address: '::',
+2025-11-13T20:17:26:   port: 3334
+2025-11-13T20:17:26: }
+2025-11-13T20:17:26: 
+2025-11-13T20:17:26: Node.js v22.15.0
+2025-11-13T20:17:32: node:events:496
+2025-11-13T20:17:32:       throw er; // Unhandled 'error' event
+2025-11-13T20:17:32:       ^
+2025-11-13T20:17:32: 
+2025-11-13T20:17:32: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:17:32:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:17:32:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:17:32:     at Server.listen (node:net:2101:7)
+2025-11-13T20:17:32:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:17:32:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:17:32:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:17:32:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:17:32:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:17:32:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:17:32:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:17:32: Emitted 'error' event on Server instance at:
+2025-11-13T20:17:32:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:17:32:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:17:32:   code: 'EADDRINUSE',
+2025-11-13T20:17:32:   errno: -48,
+2025-11-13T20:17:32:   syscall: 'listen',
+2025-11-13T20:17:32:   address: '::',
+2025-11-13T20:17:32:   port: 3334
+2025-11-13T20:17:32: }
+2025-11-13T20:17:32: 
+2025-11-13T20:17:32: Node.js v22.15.0
+2025-11-13T20:17:37: node:events:496
+2025-11-13T20:17:37:       throw er; // Unhandled 'error' event
+2025-11-13T20:17:37:       ^
+2025-11-13T20:17:37: 
+2025-11-13T20:17:37: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:17:37:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:17:37:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:17:37:     at Server.listen (node:net:2101:7)
+2025-11-13T20:17:37:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:17:37:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:17:37:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:17:37:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:17:37:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:17:37:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:17:37:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:17:37: Emitted 'error' event on Server instance at:
+2025-11-13T20:17:37:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:17:37:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:17:37:   code: 'EADDRINUSE',
+2025-11-13T20:17:37:   errno: -48,
+2025-11-13T20:17:37:   syscall: 'listen',
+2025-11-13T20:17:37:   address: '::',
+2025-11-13T20:17:37:   port: 3334
+2025-11-13T20:17:37: }
+2025-11-13T20:17:37: 
+2025-11-13T20:17:37: Node.js v22.15.0
+2025-11-13T20:17:43: node:events:496
+2025-11-13T20:17:43:       throw er; // Unhandled 'error' event
+2025-11-13T20:17:43:       ^
+2025-11-13T20:17:43: 
+2025-11-13T20:17:43: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:17:43:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:17:43:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:17:43:     at Server.listen (node:net:2101:7)
+2025-11-13T20:17:43:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:17:43:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:17:43:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:17:43:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:17:43:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:17:43:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:17:43:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:17:43: Emitted 'error' event on Server instance at:
+2025-11-13T20:17:43:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:17:43:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:17:43:   code: 'EADDRINUSE',
+2025-11-13T20:17:43:   errno: -48,
+2025-11-13T20:17:43:   syscall: 'listen',
+2025-11-13T20:17:43:   address: '::',
+2025-11-13T20:17:43:   port: 3334
+2025-11-13T20:17:43: }
+2025-11-13T20:17:43: 
+2025-11-13T20:17:43: Node.js v22.15.0
+2025-11-13T20:17:49: node:events:496
+2025-11-13T20:17:49:       throw er; // Unhandled 'error' event
+2025-11-13T20:17:49:       ^
+2025-11-13T20:17:49: 
+2025-11-13T20:17:49: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:17:49:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:17:49:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:17:49:     at Server.listen (node:net:2101:7)
+2025-11-13T20:17:49:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:17:49:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:17:49:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:17:49:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:17:49:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:17:49:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:17:49:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:17:49: Emitted 'error' event on Server instance at:
+2025-11-13T20:17:49:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:17:49:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:17:49:   code: 'EADDRINUSE',
+2025-11-13T20:17:49:   errno: -48,
+2025-11-13T20:17:49:   syscall: 'listen',
+2025-11-13T20:17:49:   address: '::',
+2025-11-13T20:17:49:   port: 3334
+2025-11-13T20:17:49: }
+2025-11-13T20:17:49: 
+2025-11-13T20:17:49: Node.js v22.15.0
+2025-11-13T20:17:55: node:events:496
+2025-11-13T20:17:55:       throw er; // Unhandled 'error' event
+2025-11-13T20:17:55:       ^
+2025-11-13T20:17:55: 
+2025-11-13T20:17:55: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:17:55:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:17:55:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:17:55:     at Server.listen (node:net:2101:7)
+2025-11-13T20:17:55:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:17:55:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:17:55:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:17:55:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:17:55:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:17:55:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:17:55:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:17:55: Emitted 'error' event on Server instance at:
+2025-11-13T20:17:55:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:17:55:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:17:55:   code: 'EADDRINUSE',
+2025-11-13T20:17:55:   errno: -48,
+2025-11-13T20:17:55:   syscall: 'listen',
+2025-11-13T20:17:55:   address: '::',
+2025-11-13T20:17:55:   port: 3334
+2025-11-13T20:17:55: }
+2025-11-13T20:17:55: 
+2025-11-13T20:17:55: Node.js v22.15.0
+2025-11-13T20:18:00: node:events:496
+2025-11-13T20:18:00:       throw er; // Unhandled 'error' event
+2025-11-13T20:18:00:       ^
+2025-11-13T20:18:00: 
+2025-11-13T20:18:00: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:18:00:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:18:00:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:18:00:     at Server.listen (node:net:2101:7)
+2025-11-13T20:18:00:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:18:00:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:18:00:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:18:00:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:18:00:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:18:00:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:18:00:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:18:00: Emitted 'error' event on Server instance at:
+2025-11-13T20:18:00:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:18:00:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:18:00:   code: 'EADDRINUSE',
+2025-11-13T20:18:00:   errno: -48,
+2025-11-13T20:18:00:   syscall: 'listen',
+2025-11-13T20:18:00:   address: '::',
+2025-11-13T20:18:00:   port: 3334
+2025-11-13T20:18:00: }
+2025-11-13T20:18:00: 
+2025-11-13T20:18:00: Node.js v22.15.0
+2025-11-13T20:18:06: node:events:496
+2025-11-13T20:18:06:       throw er; // Unhandled 'error' event
+2025-11-13T20:18:06:       ^
+2025-11-13T20:18:06: 
+2025-11-13T20:18:06: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:18:06:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:18:06:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:18:06:     at Server.listen (node:net:2101:7)
+2025-11-13T20:18:06:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:18:06:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:18:06:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:18:06:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:18:06:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:18:06:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:18:06:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:18:06: Emitted 'error' event on Server instance at:
+2025-11-13T20:18:06:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:18:06:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:18:06:   code: 'EADDRINUSE',
+2025-11-13T20:18:06:   errno: -48,
+2025-11-13T20:18:06:   syscall: 'listen',
+2025-11-13T20:18:06:   address: '::',
+2025-11-13T20:18:06:   port: 3334
+2025-11-13T20:18:06: }
+2025-11-13T20:18:06: 
+2025-11-13T20:18:06: Node.js v22.15.0
+2025-11-13T20:18:12: node:events:496
+2025-11-13T20:18:12:       throw er; // Unhandled 'error' event
+2025-11-13T20:18:12:       ^
+2025-11-13T20:18:12: 
+2025-11-13T20:18:12: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:18:12:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:18:12:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:18:12:     at Server.listen (node:net:2101:7)
+2025-11-13T20:18:12:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:18:12:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:18:12:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:18:12:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:18:12:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:18:12:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:18:12:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:18:12: Emitted 'error' event on Server instance at:
+2025-11-13T20:18:12:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:18:12:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:18:12:   code: 'EADDRINUSE',
+2025-11-13T20:18:12:   errno: -48,
+2025-11-13T20:18:12:   syscall: 'listen',
+2025-11-13T20:18:12:   address: '::',
+2025-11-13T20:18:12:   port: 3334
+2025-11-13T20:18:12: }
+2025-11-13T20:18:12: 
+2025-11-13T20:18:12: Node.js v22.15.0
+2025-11-13T20:18:17: node:events:496
+2025-11-13T20:18:17:       throw er; // Unhandled 'error' event
+2025-11-13T20:18:17:       ^
+2025-11-13T20:18:17: 
+2025-11-13T20:18:17: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:18:17:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:18:17:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:18:17:     at Server.listen (node:net:2101:7)
+2025-11-13T20:18:17:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:18:17:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:18:17:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:18:17:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:18:17:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:18:17:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:18:17:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:18:17: Emitted 'error' event on Server instance at:
+2025-11-13T20:18:17:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:18:17:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:18:17:   code: 'EADDRINUSE',
+2025-11-13T20:18:17:   errno: -48,
+2025-11-13T20:18:17:   syscall: 'listen',
+2025-11-13T20:18:17:   address: '::',
+2025-11-13T20:18:17:   port: 3334
+2025-11-13T20:18:17: }
+2025-11-13T20:18:17: 
+2025-11-13T20:18:17: Node.js v22.15.0
+2025-11-13T20:18:23: node:events:496
+2025-11-13T20:18:23:       throw er; // Unhandled 'error' event
+2025-11-13T20:18:23:       ^
+2025-11-13T20:18:23: 
+2025-11-13T20:18:23: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:18:23:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:18:23:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:18:23:     at Server.listen (node:net:2101:7)
+2025-11-13T20:18:23:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:18:23:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:18:23:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:18:23:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:18:23:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:18:23:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:18:23:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:18:23: Emitted 'error' event on Server instance at:
+2025-11-13T20:18:23:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:18:23:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:18:23:   code: 'EADDRINUSE',
+2025-11-13T20:18:23:   errno: -48,
+2025-11-13T20:18:23:   syscall: 'listen',
+2025-11-13T20:18:23:   address: '::',
+2025-11-13T20:18:23:   port: 3334
+2025-11-13T20:18:23: }
+2025-11-13T20:18:23: 
+2025-11-13T20:18:23: Node.js v22.15.0
+2025-11-13T20:18:29: node:events:496
+2025-11-13T20:18:29:       throw er; // Unhandled 'error' event
+2025-11-13T20:18:29:       ^
+2025-11-13T20:18:29: 
+2025-11-13T20:18:29: Error: listen EADDRINUSE: address already in use :::3334
+2025-11-13T20:18:29:     at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+2025-11-13T20:18:29:     at listenInCluster (node:net:1996:12)
+2025-11-13T20:18:29:     at Server.listen (node:net:2101:7)
+2025-11-13T20:18:29:     at main (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2265:10)
+2025-11-13T20:18:29:     at express (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2387:1)
+2025-11-13T20:18:29:     at Object.<anonymous> (/Users/coreycosta/trading-agent/live-topstepx-mes-winner.ts:2390:2)
+2025-11-13T20:18:29:     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+2025-11-13T20:18:29:     at Object.transformer (/Users/coreycosta/trading-agent/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+2025-11-13T20:18:29:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-11-13T20:18:29:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-11-13T20:18:29: Emitted 'error' event on Server instance at:
+2025-11-13T20:18:29:     at emitErrorNT (node:net:1975:8)
+2025-11-13T20:18:29:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2025-11-13T20:18:29:   code: 'EADDRINUSE',
+2025-11-13T20:18:29:   errno: -48,
+2025-11-13T20:18:29:   syscall: 'listen',
+2025-11-13T20:18:29:   address: '::',
+2025-11-13T20:18:29:   port: 3334
+2025-11-13T20:18:29: }
+2025-11-13T20:18:29: 
+2025-11-13T20:18:29: Node.js v22.15.0

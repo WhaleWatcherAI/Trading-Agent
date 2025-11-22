@@ -362,6 +362,7 @@
     <div class="tabs">
         <div class="tab active" data-tab="grid">Grid View</div>
         <div class="tab" data-tab="account">Account</div>
+        <div class="tab" data-tab="nq-ict">NQ ICT</div>
         <div class="tab" data-tab="mnq">MNQ Full</div>
         <div class="tab" data-tab="mes">MES Full</div>
         <div class="tab" data-tab="mgc">MGC Full</div>
@@ -467,6 +468,10 @@
                 </table>
             </div>
         </div>
+    </div>
+
+    <div class="tab-content" id="nq-ict">
+        <iframe src="http://localhost:3337" class="symbol-frame"></iframe>
     </div>
 
     <div class="tab-content" id="mnq">
@@ -804,23 +809,34 @@
                     tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #8892b0;">No trades yet</td></tr>';
                 } else {
                     tbody.innerHTML = allTrades.slice(0, 20).map(trade => {
-                        const exitTime = new Date(trade.exitTime).toLocaleString();
-                        const pnlColor = trade.pnl >= 0 ? '#00d4aa' : '#ff6b6b';
-                        const result = trade.pnl >= 0 ? 'WIN' : 'LOSS';
-                        const resultColor = trade.pnl >= 0 ? '#00d4aa' : '#ff6b6b';
+                        try {
+                            const exitTime = new Date(trade.exitTime).toLocaleString();
+                            const pnlColor = trade.pnl >= 0 ? '#00d4aa' : '#ff6b6b';
+                            const result = trade.pnl >= 0 ? 'WIN' : 'LOSS';
+                            const resultColor = trade.pnl >= 0 ? '#00d4aa' : '#ff6b6b';
 
-                        return `
-                            <tr>
-                                <td>${exitTime}</td>
-                                <td><strong>${trade.symbol}</strong></td>
-                                <td>${trade.side.toUpperCase()}</td>
-                                <td>${trade.entryPrice.toFixed(4)}</td>
-                                <td>${trade.exitPrice.toFixed(4)}</td>
-                                <td>${trade.quantity}</td>
-                                <td style="color: ${pnlColor}; font-weight: 600;">$${trade.pnl.toFixed(2)}</td>
-                                <td style="color: ${resultColor}; font-weight: 600;">${result}</td>
-                            </tr>
-                        `;
+                            // Safe numeric conversion with fallbacks
+                            const entryPrice = trade.entryPrice != null ? Number(trade.entryPrice).toFixed(4) : '—';
+                            const exitPrice = trade.exitPrice != null ? Number(trade.exitPrice).toFixed(4) : '—';
+                            const quantity = trade.quantity != null ? trade.quantity : '—';
+                            const pnl = trade.pnl != null ? Number(trade.pnl).toFixed(2) : '—';
+
+                            return `
+                                <tr>
+                                    <td>${exitTime}</td>
+                                    <td><strong>${trade.symbol || '—'}</strong></td>
+                                    <td>${(trade.side || '—').toUpperCase()}</td>
+                                    <td>${entryPrice}</td>
+                                    <td>${exitPrice}</td>
+                                    <td>${quantity}</td>
+                                    <td style="color: ${pnlColor}; font-weight: 600;">$${pnl}</td>
+                                    <td style="color: ${resultColor}; font-weight: 600;">${result}</td>
+                                </tr>
+                            `;
+                        } catch (e) {
+                            console.warn('Error rendering trade row:', trade, e);
+                            return '';
+                        }
                     }).join('');
                 }
             } catch (error) {

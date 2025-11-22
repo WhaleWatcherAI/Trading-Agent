@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
+import { createProjectXRest } from '../projectx-rest';
 
 function getTopstepEnv() {
   return {
@@ -10,6 +11,7 @@ function getTopstepEnv() {
 
 let sessionToken: string | null = null;
 let tokenExpiry: number = 0;
+let restClientSingleton: ReturnType<typeof createProjectXRest> | null = null;
 
 export interface TopstepXFuturesBar {
   timestamp: string;
@@ -135,18 +137,22 @@ export async function fetchTopstepXFuturesBars(
     live = false,
   } = params;
 
+  const requestBody = {
+    contractId,
+    live,
+    startTime,
+    endTime,
+    unit,
+    unitNumber,
+    limit,
+    includePartialBar: false,
+  };
+
+  console.log('[topstepx] DEBUG: Fetching historical bars with request:', JSON.stringify(requestBody, null, 2));
+
   try {
     const client = await getAuthenticatedClient();
-    const response = await client.post('/api/History/retrieveBars', {
-      contractId,
-      live,
-      startTime,
-      endTime,
-      unit,
-      unitNumber,
-      limit,
-      includePartialBar: false,
-    });
+    const response = await client.post('/api/History/retrieveBars', requestBody);
 
     if (!response.data.success || !Array.isArray(response.data.bars)) {
       console.warn('[topstepx] Unexpected response format for history:', response.data);
@@ -279,5 +285,160 @@ export async function fetchTopstepXFuturesMetadata(symbolOrContractId: string): 
   } catch (error: any) {
     console.error('[topstepx] Failed to fetch contract metadata list:', error.response?.data || error.message);
     return null;
+  }
+}
+
+/**
+ * Select trading account with balance less than 40k
+ * Automatically selects appropriate account for trading
+ */
+export async function selectTradingAccount(maxBalance: number = 40000): Promise<TopstepXAccount | null> {
+  assertTopstepXReady();
+
+  try {
+    const accounts = await fetchTopstepXAccounts(true);
+
+    // Find accounts with balance < maxBalance
+    const eligibleAccounts = accounts.filter(acc =>
+      acc.canTrade &&
+      acc.isVisible &&
+      acc.balance < maxBalance
+    );
+
+    if (eligibleAccounts.length === 0) {
+      console.warn(`[topstepx] No eligible trading accounts found with balance < $${maxBalance}`);
+      return null;
+    }
+
+    // Return the account with the highest balance under the limit
+    const selectedAccount = eligibleAccounts.sort((a, b) => b.balance - a.balance)[0];
+
+    console.log(`[topstepx] Selected account: ${selectedAccount.name} (ID: ${selectedAccount.id}) with balance $${selectedAccount.balance.toFixed(2)}`);
+
+    return selectedAccount;
+  } catch (error: any) {
+    console.error('[topstepx] Failed to select trading account:', error.response?.data || error.message);
+    return null;
+  }
+}
+
+/**
+ * Order type and side enums
+ */
+export type OrderSide = 'buy' | 'sell';
+export type OrderType = 'market' | 'limit';
+
+/**
+ * TopStepX Order Interface
+ */
+export interface TopstepXOrder {
+  contractId: string;
+  accountId: number;
+  side: OrderSide;
+  quantity: number;
+  orderType: OrderType;
+  limitPrice?: number;  // Required for limit orders
+  stopPrice?: number;   // For stop-limit orders
+  live?: boolean;       // false for sim/demo
+}
+
+/**
+ * TopStepX Order Response
+ */
+export interface TopstepXOrderResponse {
+  success: boolean;
+  orderId?: string;
+  errorCode?: number;
+  errorMessage?: string;
+  filledQuantity?: number;
+  averagePrice?: number;
+}
+
+/**
+ * Submit an order to TopStepX
+ * Supports market and limit orders
+ */
+export async function submitTopstepXOrder(order: TopstepXOrder): Promise<TopstepXOrderResponse> {
+  assertTopstepXReady();
+
+  const {
+    contractId,
+    accountId,
+    side,
+    quantity,
+    orderType,
+    limitPrice,
+    stopPrice,
+  } = order;
+
+  // Validate order
+  if (quantity <= 0) {
+    throw new Error('Order quantity must be greater than 0');
+  }
+
+  if (orderType === 'limit' && !limitPrice) {
+    throw new Error('Limit price is required for limit orders');
+  }
+
+  const restOrderType = stopPrice
+    ? 4 // Stop market
+    : orderType === 'limit'
+      ? 1 // Limit
+      : 2; // Market
+
+  const restPayload: any = {
+    accountId,
+    contractId,
+    side: side === 'buy' ? 0 : 1,
+    size: quantity,
+    type: restOrderType,
+    timeInForce: 1,
+  };
+
+  if (restOrderType === 1 && limitPrice) {
+    restPayload.limitPrice = limitPrice;
+  }
+  if (restOrderType === 4 && stopPrice) {
+    restPayload.stopPrice = stopPrice;
+  }
+
+  console.log(`[topstepx] Submitting ${orderType.toUpperCase()} ${side.toUpperCase()} order via REST:`, {
+    contractId,
+    accountId,
+    quantity,
+    limitPrice: limitPrice || 'N/A',
+    stopPrice: stopPrice || 'N/A',
+    restOrderType,
+  });
+
+  try {
+    if (!restClientSingleton) {
+      restClientSingleton = createProjectXRest();
+    }
+
+    const response = await restClientSingleton.placeOrder(restPayload);
+
+    if (!response || response.success === false) {
+      console.error('[topstepx] Order submission failed:', response);
+      return {
+        success: false,
+        errorCode: response?.errorCode,
+        errorMessage: response?.errorMessage || 'Order submission failed',
+      };
+    }
+
+    return {
+      success: true,
+      orderId: response.orderId ? String(response.orderId) : undefined,
+      filledQuantity: response.fillVolume,
+      averagePrice: response.averagePrice,
+    };
+  } catch (error: any) {
+    console.error('[topstepx] Failed to submit order:', error?.response?.data || error.message);
+    return {
+      success: false,
+      errorCode: error?.response?.status,
+      errorMessage: error?.response?.data?.errorMessage || error.message,
+    };
   }
 }

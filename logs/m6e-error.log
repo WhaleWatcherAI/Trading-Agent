@@ -1,0 +1,196 @@
+2025-11-13T12:01:58: [2025-11-13T17:01:58.065Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T12:35:58: [2025-11-13T17:35:58.035Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T12:35:58: [2025-11-13T17:35:58.035Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T15:05:09: [2025-11-13T20:05:09.687Z] Error: Connection disconnected with error 'Error: Server timeout elapsed without receiving a message from the server.'.
+2025-11-13T15:05:09: [2025-11-13T20:05:09.694Z] Error: Connection disconnected with error 'Error: Server timeout elapsed without receiving a message from the server.'.
+2025-11-13T15:05:10: [2025-11-13T20:05:10.115Z] Error: Failed to start the connection: Error: WebSocket failed to connect. The connection could not be found on the server, either the endpoint may not be a SignalR endpoint, the connection ID is not present on the server, or there is a proxy blocking WebSockets. If you have multiple servers check that sticky sessions are enabled.
+2025-11-13T15:05:10: [topstepx] Failed to fetch accounts: getaddrinfo ENOTFOUND api.topstepx.com
+2025-11-13T15:05:10: [2025-11-13T20:05:10.228Z] Error: Failed to start the connection: Error: WebSocket failed to connect. The connection could not be found on the server, either the endpoint may not be a SignalR endpoint, the connection ID is not present on the server, or there is a proxy blocking WebSockets. If you have multiple servers check that sticky sessions are enabled.
+2025-11-13T15:05:12: [2025-11-13T20:05:12.126Z] Error: Failed to start the connection: Error: WebSocket failed to connect. The connection could not be found on the server, either the endpoint may not be a SignalR endpoint, the connection ID is not present on the server, or there is a proxy blocking WebSockets. If you have multiple servers check that sticky sessions are enabled.
+2025-11-13T15:05:12: [2025-11-13T20:05:12.235Z] Error: Failed to start the connection: Error: WebSocket failed to connect. The connection could not be found on the server, either the endpoint may not be a SignalR endpoint, the connection ID is not present on the server, or there is a proxy blocking WebSockets. If you have multiple servers check that sticky sessions are enabled.
+2025-11-13T15:12:21: [2025-11-13T20:12:21.355Z] Error: Failed to start the connection: Error: WebSocket failed to connect. The connection could not be found on the server, either the endpoint may not be a SignalR endpoint, the connection ID is not present on the server, or there is a proxy blocking WebSockets. If you have multiple servers check that sticky sessions are enabled.
+2025-11-13T15:12:21: [2025-11-13T20:12:21.356Z] Error: Failed to start the connection: Error: WebSocket failed to connect. The connection could not be found on the server, either the endpoint may not be a SignalR endpoint, the connection ID is not present on the server, or there is a proxy blocking WebSockets. If you have multiple servers check that sticky sessions are enabled.
+2025-11-13T15:12:21: [topstepx] Failed to fetch accounts: getaddrinfo ENOTFOUND api.topstepx.com
+2025-11-13T15:13:34: [2025-11-13T20:13:34.575Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T15:13:34: [2025-11-13T20:13:34.575Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T17:19:03: [2025-11-13T22:19:03.502Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T17:19:03: [2025-11-13T22:19:03.503Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T17:52:39: [2025-11-13T22:52:39.702Z] Error: Connection disconnected with error 'Error: WebSocket closed with status code: 1006 (no reason given).'.
+2025-11-13T17:52:39: [2025-11-13T22:52:39.708Z] Error: Connection disconnected with error 'Error: WebSocket closed with status code: 1006 (no reason given).'.
+2025-11-13T17:52:39: [2025-11-13T22:52:39.897Z] Error: Failed to start the connection: Error: WebSocket failed to connect. The connection could not be found on the server, either the endpoint may not be a SignalR endpoint, the connection ID is not present on the server, or there is a proxy blocking WebSockets. If you have multiple servers check that sticky sessions are enabled.
+2025-11-13T17:52:39: [2025-11-13T22:52:39.903Z] Error: Failed to start the connection: Error: WebSocket failed to connect. The connection could not be found on the server, either the endpoint may not be a SignalR endpoint, the connection ID is not present on the server, or there is a proxy blocking WebSockets. If you have multiple servers check that sticky sessions are enabled.
+2025-11-13T17:52:53: [2025-11-13T22:52:53.354Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T17:52:53: [2025-11-13T22:52:53.354Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T18:10:59: [2025-11-13T23:10:59.793Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T18:10:59: [2025-11-13T23:10:59.796Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T19:08:04: [2025-11-14T00:08:04.696Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T19:08:04: [2025-11-14T00:08:04.697Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T19:10:21: [2025-11-14T00:10:21.887Z] Error: Connection disconnected with error 'Error: Server timeout elapsed without receiving a message from the server.'.
+2025-11-13T19:10:22: [user] Subscribe accounts failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T19:10:22:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T19:10:22:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T19:10:22:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T19:10:22:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T19:10:22:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T19:10:22:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T19:10:22:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T19:10:22:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T19:10:22:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T19:10:22: [user] Subscribe orders failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T19:10:22:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T19:10:22:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T19:10:22:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T19:10:22:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T19:10:22:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T19:10:22:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T19:10:22:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T19:10:22:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T19:10:22:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T19:10:22: [user] Subscribe positions failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T19:10:22:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T19:10:22:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T19:10:22:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T19:10:22:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T19:10:22:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T19:10:22:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T19:10:22:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T19:10:22:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T19:10:22:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T19:10:22: [user] Subscribe trades failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T19:10:22:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T19:10:22:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T19:10:22:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T19:10:22:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T19:10:22:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T19:10:22:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T19:10:22:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T19:10:22:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T19:10:22:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T19:10:23: [user] Subscribe accounts failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T19:10:23:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T19:10:23:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T19:10:23:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T19:10:23:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T19:10:23:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T19:10:23:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T19:10:23:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T19:10:23:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T19:10:23:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T19:10:23: [user] Subscribe orders failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T19:10:23:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T19:10:23:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T19:10:23:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T19:10:23:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T19:10:23:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T19:10:23:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T19:10:23:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T19:10:23:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T19:10:23:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T19:10:23: [user] Subscribe positions failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T19:10:23:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T19:10:23:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T19:10:23:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T19:10:23:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T19:10:23:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T19:10:23:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T19:10:23:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T19:10:23:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T19:10:23:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T19:10:23: [user] Subscribe trades failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T19:10:23:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T19:10:23:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T19:10:23:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T19:10:23:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T19:10:23:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T19:10:23:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T19:10:23:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T19:10:23:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T19:10:23:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T19:10:24: [2025-11-14T00:10:24.881Z] Error: Connection disconnected with error 'Error: Server timeout elapsed without receiving a message from the server.'.
+2025-11-13T19:38:21: [2025-11-14T00:38:21.772Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T19:38:21: [2025-11-14T00:38:21.773Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T20:08:24: [2025-11-14T01:08:24.669Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T20:13:29: [2025-11-14T01:13:29.898Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T20:14:14: [2025-11-14T01:14:14.887Z] Error: Connection disconnected with error 'Error: Server timeout elapsed without receiving a message from the server.'.
+2025-11-13T20:14:15: [user] Subscribe accounts failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T20:14:15:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T20:14:15:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T20:14:15:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T20:14:15:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T20:14:15:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T20:14:15:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T20:14:15:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T20:14:15:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T20:14:15:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T20:14:15: [user] Subscribe orders failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T20:14:15:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T20:14:15:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T20:14:15:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T20:14:15:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T20:14:15:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T20:14:15:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T20:14:15:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T20:14:15:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T20:14:15:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T20:14:15: [user] Subscribe positions failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T20:14:15:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T20:14:15:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T20:14:15:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T20:14:15:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T20:14:15:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T20:14:15:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T20:14:15:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T20:14:15:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T20:14:15:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T20:14:15: [user] Subscribe trades failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T20:14:15:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T20:14:15:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T20:14:15:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T20:14:15:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T20:14:15:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T20:14:15:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T20:14:15:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T20:14:15:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T20:14:15:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T20:14:15: [user] Subscribe accounts failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T20:14:15:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T20:14:15:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T20:14:15:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T20:14:15:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T20:14:15:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T20:14:15:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T20:14:15:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T20:14:15:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T20:14:15:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T20:14:15: [user] Subscribe orders failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T20:14:15:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T20:14:15:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T20:14:15:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T20:14:15:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T20:14:15:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T20:14:15:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T20:14:15:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T20:14:15:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T20:14:15:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T20:14:15: [user] Subscribe positions failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T20:14:15:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T20:14:15:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T20:14:15:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T20:14:15:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T20:14:15:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T20:14:15:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T20:14:15:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T20:14:15:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T20:14:15:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T20:14:15: [user] Subscribe trades failed Error: Invocation canceled due to the underlying connection being closed.
+2025-11-13T20:14:15:     at HubConnection._connectionClosed (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:827:49)
+2025-11-13T20:14:15:     at HttpConnection.HubConnection.connection.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HubConnection.ts:135:59)
+2025-11-13T20:14:15:     at HttpConnection._stopConnection (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:550:26)
+2025-11-13T20:14:15:     at WebSocketTransport.transport.onclose (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:462:51)
+2025-11-13T20:14:15:     at WebSocketTransport._close (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:181:22)
+2025-11-13T20:14:15:     at WebSocketTransport.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/WebSocketTransport.ts:156:18)
+2025-11-13T20:14:15:     at HttpConnection._stopInternal (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:213:38)
+2025-11-13T20:14:15:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-13T20:14:15:     at async HttpConnection.stop (/Users/coreycosta/trading-agent/node_modules/@microsoft/signalr/src/HttpConnection.ts:192:9)
+2025-11-13T20:16:32: [2025-11-14T01:16:32.681Z] Warning: No client method with the name 'gatewaylogout' found.
+2025-11-13T20:16:32: [2025-11-14T01:16:32.681Z] Warning: No client method with the name 'gatewaylogout' found.

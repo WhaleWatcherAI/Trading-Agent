@@ -1,7 +1,14 @@
 import axios from 'axios';
 import {
-  OptionsTrade, InstitutionalTrade, NewsItem, BullBearSignal,
-  GreekFlow, SectorFlow, SectorTide, SpotGEX, VolatilityStats
+  OptionsTrade,
+  InstitutionalTrade,
+  NewsItem,
+  BullBearSignal,
+  GreekFlow,
+  SectorFlow,
+  SectorTide,
+  SpotGEX,
+  VolatilityStats,
 } from '@/types';
 
 const UW_API_KEY = process.env.UNUSUAL_WHALES_API_KEY || '';
@@ -10,10 +17,123 @@ const UW_BASE_URL = 'https://api.unusualwhales.com/api';
 const uwClient = axios.create({
   baseURL: UW_BASE_URL,
   headers: {
-    'Authorization': `Bearer ${UW_API_KEY}`,
-    'Accept': 'application/json',
+    Authorization: `Bearer ${UW_API_KEY}`,
+    Accept: 'application/json',
   },
 });
+
+// Benzinga News (used for news headlines + sentiment instead of UW)
+const BENZINGA_API_KEY = process.env.BENZINGA_API_KEY || '';
+const BENZINGA_BASE_URL = process.env.BENZINGA_BASE_URL || 'https://api.benzinga.com/api/v2';
+
+const benzingaClient = axios.create({
+  baseURL: BENZINGA_BASE_URL,
+  timeout: 10000,
+});
+
+const BENZINGA_NEWS_LOOKBACK_DAYS = 3;
+const BENZINGA_NEWS_MAX_PAGES = 12;
+
+function mapBenzingaNewsItem(item: any): NewsItem | null {
+  if (!item || (!item.title && !item.headline && !item.name)) {
+    return null;
+  }
+
+  const title: string =
+    item.title ||
+    item.headline ||
+    item.name ||
+    'Untitled';
+
+  const summary: string =
+    item.teaser ||
+    item.summary ||
+    item.description ||
+    item.body ||
+    '';
+
+  const url: string =
+    item.url ||
+    item.article_url ||
+    item.news_url ||
+    '#';
+
+  const source: string =
+    item.source ||
+    item.author ||
+    'Benzinga';
+
+  const symbolSet = new Set<string>();
+  if (Array.isArray(item.tickers)) {
+    item.tickers.forEach((t: any) => {
+      if (t) {
+        symbolSet.add(String(t).toUpperCase());
+      }
+    });
+  }
+  if (Array.isArray(item.symbols)) {
+    item.symbols.forEach((s: any) => {
+      if (s) {
+        symbolSet.add(String(s).toUpperCase());
+      }
+    });
+  }
+  if (Array.isArray(item.stocks)) {
+    item.stocks.forEach((s: any) => {
+      const sym = s?.symbol || s?.ticker;
+      if (sym) {
+        symbolSet.add(String(sym).toUpperCase());
+      }
+    });
+  }
+
+  const rawSentiment =
+    (item.sentiment ||
+      item.sentiment_label ||
+      item.rating ||
+      '').toString().toLowerCase();
+
+  let sentiment: 'bullish' | 'bearish' | 'neutral' | undefined;
+  if (rawSentiment.includes('bull')) {
+    sentiment = 'bullish';
+  } else if (rawSentiment.includes('bear')) {
+    sentiment = 'bearish';
+  } else if (rawSentiment) {
+    sentiment = 'neutral';
+  }
+
+  let importance = 0.5;
+  if (typeof item.importance === 'number' && Number.isFinite(item.importance)) {
+    importance = Math.max(0, Math.min(1, item.importance / 5));
+  } else if (typeof item.rank === 'number' && Number.isFinite(item.rank)) {
+    const rank = item.rank;
+    importance = Math.max(0, Math.min(1, rank));
+  }
+
+  const timestampRaw =
+    item.created ||
+    item.published ||
+    item.pub_date ||
+    item.pubDate ||
+    item.updated ||
+    item.time ||
+    item.created_at ||
+    item.published_at ||
+    item.date;
+
+  const timestamp = timestampRaw ? new Date(timestampRaw) : new Date();
+
+  return {
+    title,
+    summary,
+    url,
+    source,
+    symbols: Array.from(symbolSet),
+    sentiment,
+    importance,
+    timestamp,
+  };
+}
 
 // Helper to add delay between requests
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -513,24 +633,89 @@ export async function getInstitutionalActivity(date?: string): Promise<Instituti
   }
 }
 
-// News Headlines - /news/headlines
+// News Headlines - Prefer Benzinga (free API) for news + sentiment, with UW as fallback
 export async function getNewsHeadlines(date?: string): Promise<NewsItem[]> {
+  // First try Benzinga News API if configured
+  if (BENZINGA_API_KEY) {
+    try {
+      const params: Record<string, any> = {
+        token: BENZINGA_API_KEY,
+        pageSize: 100,
+      };
+
+      const now = new Date();
+      const cutoffMs = now.getTime() - BENZINGA_NEWS_LOOKBACK_DAYS * 24 * 60 * 60 * 1000;
+
+      const allNews: NewsItem[] = [];
+
+      for (let page = 0; page < BENZINGA_NEWS_MAX_PAGES; page++) {
+        params.page = page;
+
+        const response = await benzingaClient.get('/news', { params });
+        const raw = Array.isArray(response.data)
+          ? response.data
+          : Array.isArray(response.data?.news)
+            ? response.data.news
+            : Array.isArray(response.data?.data)
+              ? response.data.data
+              : [];
+
+        if (!raw.length) {
+          break;
+        }
+
+        let pageHasRecent = false;
+        let oldestInPageMs = Number.POSITIVE_INFINITY;
+
+        raw.forEach((item: any) => {
+          const mapped = mapBenzingaNewsItem(item);
+          if (!mapped) {
+            return;
+          }
+
+          const ts = mapped.timestamp.getTime();
+          if (ts >= cutoffMs) {
+            allNews.push(mapped);
+            pageHasRecent = true;
+          }
+
+          if (ts < oldestInPageMs) {
+            oldestInPageMs = ts;
+          }
+        });
+
+        if (!pageHasRecent && oldestInPageMs < cutoffMs) {
+          break;
+        }
+      }
+
+      return allNews;
+    } catch (error) {
+      console.error('Error fetching Benzinga news headlines, falling back to Unusual Whales:', error);
+    }
+  } else {
+    console.warn('BENZINGA_API_KEY not set, using Unusual Whales for news headlines');
+  }
+
+  // Fallback: Unusual Whales news (existing behavior)
   try {
     const response = await uwClient.get('/news/headlines');
-    const news = response.data.data || [];
+    const news = response.data?.data || [];
 
-    return news.filter((item: any) => item.headline).map((item: any) => ({
-      title: item.headline || 'Untitled',
-      summary: item.description || item.summary || item.text || '',
-      url: item.url || '#',
-      source: item.source || 'Unknown',
-      symbols: Array.isArray(item.tickers) ? item.tickers : (item.symbols || []),
-      sentiment: (item.sentiment?.toLowerCase() || 'neutral') as 'bullish' | 'bearish' | 'neutral',
-      importance: item.is_major ? 0.8 : 0.5,
-      timestamp: new Date(item.created_at || item.published_at || item.date || Date.now()),
-    }));
+    return news
+      .filter((item: any) => item && item.headline)
+      .map((item: any): NewsItem => ({
+        title: item.headline || 'Untitled',
+        summary: item.description || item.summary || item.text || '',
+        url: item.url || '#',
+        source: item.source || 'Unknown',
+        symbols: Array.isArray(item.tickers) ? item.tickers : item.symbols || [],
+        sentiment: (item.sentiment?.toLowerCase() || 'neutral') as 'bullish' | 'bearish' | 'neutral',
+        importance: item.is_major ? 0.8 : 0.5,
+        timestamp: new Date(item.created_at || item.published_at || item.date || Date.now()),
+      }));
   } catch (error) {
-    console.error('Error fetching news headlines:', error);
+    console.error('Error fetching fallback Unusual Whales news headlines:', error);
     return [];
   }
 }

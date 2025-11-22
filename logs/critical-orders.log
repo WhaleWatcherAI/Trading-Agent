@@ -1,0 +1,462 @@
+[CRITICAL ORDER ATTEMPT] 2025-11-12T19:07:00.000Z | LONG MARKET | Qty: 3 | Stop: 6874.00 | Target: 6878.25 | Account: 13056702
+[CRITICAL ORDER FAILED] 2025-11-12T19:07:00.000Z | LONG | Error: place 400: {"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","title":"One or more validation errors occurred.","status":400,"errors":{"$":["JSON deserialization for type 'ProjectX.Infrastructure.GatewayApi.Models.Orders.PlaceOrderRequest' was missing required properties including: 'accountId', 'contractId', 'type', 'side', 'size'."],"request":["The request field is required."]},"traceId":"00-f2dd522c32b32ddd77ee385f4a98c8ec-4e02814b4cc9267c-00"}
+[CRITICAL ORDER ATTEMPT] 2025-11-12T19:08:00.000Z | LONG MARKET | Qty: 3 | Stop: 4210.50 | Target: 4213.00 | Account: 13056702
+[CRITICAL ORDER FAILED] 2025-11-12T19:08:00.000Z | LONG | Error: place 400: {"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","title":"One or more validation errors occurred.","status":400,"errors":{"$":["JSON deserialization for type 'ProjectX.Infrastructure.GatewayApi.Models.Orders.PlaceOrderRequest' was missing required properties including: 'accountId', 'contractId', 'type', 'side', 'size'."],"request":["The request field is required."]},"traceId":"00-ed8e86c97f3c8a596cdb3fc5e09c40d2-3e31ad165bc59c90-00"}
+[CRITICAL ORDER ATTEMPT] 2025-11-12T19:15:00.084Z | LONG MARKET | Qty: 3 | Stop: 25588.75 | Target: 25604.00 | Account: 13056702
+[CRITICAL ORDER FAILED] 2025-11-12T19:15:00.205Z | LONG FAILED | Error: place 400: {"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","title":"One or more validation errors occurred.","status":400,"errors":{"$":["JSON deserialization for type 'ProjectX.Infrastructure.GatewayApi.Models.Orders.PlaceOrderRequest' was missing required properties including: 'accountId', 'contractId', 'type', 'side', 'size'."],"request":["The request field is required."]},"traceId":"00-93e54da38c7c713fd6a1f93709ba30f3-dbfbc2482e201682-00"} | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-12T19:51:00.000Z | LONG MARKET | Qty: 3 | Stop: 1.16 | Target: 1.16 | Account: 13056702
+[CRITICAL ORDER FAILED] 2025-11-12T19:51:00.000Z | LONG | Error: place 400: {"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","title":"One or more validation errors occurred.","status":400,"errors":{"$":["JSON deserialization for type 'ProjectX.Infrastructure.GatewayApi.Models.Orders.PlaceOrderRequest' was missing required properties including: 'accountId', 'contractId', 'type', 'side', 'size'."],"request":["The request field is required."]},"traceId":"00-7dbc4423d6ea6e0002d583fac9b4d427-5604a1be5ed4d58a-00"}
+[CRITICAL ORDER ATTEMPT] 2025-11-12T20:16:00.085Z | LONG MARKET | Qty: 3 | Stop: 25555.75 | Target: 25571.00 | Account: 13056702
+[CRITICAL ORDER FAILED] 2025-11-12T20:16:00.222Z | LONG FAILED | Error: place 400: {"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","title":"One or more validation errors occurred.","status":400,"errors":{"$":["JSON deserialization for type 'ProjectX.Infrastructure.GatewayApi.Models.Orders.PlaceOrderRequest' was missing required properties including: 'accountId', 'contractId', 'type', 'side', 'size'."],"request":["The request field is required."]},"traceId":"00-a463ce3e8811d6572899a5ec364fdf06-2a38b5174a087047-00"} | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-12T20:36:00.000Z | LONG MARKET | Qty: 3 | Stop: 4198.90 | Target: 4201.40 | Account: 13056702
+[CRITICAL ORDER FAILED] 2025-11-12T20:36:00.000Z | LONG | Error: place 400: {"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","title":"One or more validation errors occurred.","status":400,"errors":{"$":["JSON deserialization for type 'ProjectX.Infrastructure.GatewayApi.Models.Orders.PlaceOrderRequest' was missing required properties including: 'accountId', 'contractId', 'type', 'side', 'size'."],"request":["The request field is required."]},"traceId":"00-9e1a6518657e5fe398cefdfeeb37574f-c56654c57af20dfa-00"}
+[CRITICAL ORDER ATTEMPT] 2025-11-12T20:37:00.000Z | LONG MARKET | Qty: 3 | Stop: 4198.00 | Target: 4200.50 | Account: 13056702
+[CRITICAL ORDER FAILED] 2025-11-12T20:37:00.000Z | LONG | Error: place 400: {"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","title":"One or more validation errors occurred.","status":400,"errors":{"$":["JSON deserialization for type 'ProjectX.Infrastructure.GatewayApi.Models.Orders.PlaceOrderRequest' was missing required properties including: 'accountId', 'contractId', 'type', 'side', 'size'."],"request":["The request field is required."]},"traceId":"00-758ab75d2a5092a8aa540e7bfabf7e43-723cb4343599aead-00"}
+[CRITICAL ORDER ATTEMPT] 2025-11-12T20:40:00.000Z | LONG MARKET | Qty: 3 | Stop: 4200.10 | Target: 4202.60 | Account: 13056702
+[CRITICAL ORDER FAILED] 2025-11-12T20:40:00.000Z | LONG | Error: place 400: {"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","title":"One or more validation errors occurred.","status":400,"errors":{"$":["JSON deserialization for type 'ProjectX.Infrastructure.GatewayApi.Models.Orders.PlaceOrderRequest' was missing required properties including: 'accountId', 'contractId', 'type', 'side', 'size'."],"request":["The request field is required."]},"traceId":"00-2c2315fb4426159de762aaa3fd6026eb-f4917ce8f5682dc6-00"}
+[CRITICAL ORDER ATTEMPT] 2025-11-12T20:50:00.109Z | SHORT MARKET | Qty: 3 | Stop: 25619.75 | Target: 25604.50 | Account: 13056702
+[CRITICAL ORDER FAILED] 2025-11-12T20:50:00.471Z | SHORT FAILED | Error: place 400: {"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","title":"One or more validation errors occurred.","status":400,"errors":{"$":["JSON deserialization for type 'ProjectX.Infrastructure.GatewayApi.Models.Orders.PlaceOrderRequest' was missing required properties including: 'accountId', 'contractId', 'type', 'side', 'size'."],"request":["The request field is required."]},"traceId":"00-bdc0e429bba78c0281b89b2f851e6917-e9d14ab63f4f8705-00"} | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-12T20:50:00.000Z | SHORT MARKET | Qty: 3 | Stop: 6881.25 | Target: 6877.25 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-12T20:51:00.113Z | SHORT MARKET | Qty: 3 | Stop: 25642.25 | Target: 25627.00 | Account: 13056702
+[CRITICAL ORDER FAILED] 2025-11-12T20:51:00.336Z | SHORT FAILED | Error: place 400: {"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","title":"One or more validation errors occurred.","status":400,"errors":{"$":["JSON deserialization for type 'ProjectX.Infrastructure.GatewayApi.Models.Orders.PlaceOrderRequest' was missing required properties including: 'accountId', 'contractId', 'type', 'side', 'size'."],"request":["The request field is required."]},"traceId":"00-bf31ffc489a0aca58b656b79e228f732-409a29c8c5e6e1d9-00"} | Account: 13056702
+[CRITICAL ORDER FAILED] 2025-11-12T20:50:00.000Z | SHORT | Error: place 400: {"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","title":"One or more validation errors occurred.","status":400,"errors":{"$":["JSON deserialization for type 'ProjectX.Infrastructure.GatewayApi.Models.Orders.PlaceOrderRequest' was missing required properties including: 'accountId', 'contractId', 'type', 'side', 'size'."],"request":["The request field is required."]},"traceId":"00-6e0b0f723cb1c3d68b60f568c6c1fba7-ede55d574a3305d1-00"}
+[CRITICAL ORDER ATTEMPT] 2025-11-12T23:24:00.088Z | LONG MARKET | Qty: 3 | Stop: 25542.50 | Target: 25557.75 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-12T23:24:00.730Z | LONG | Entry ID: 1902169183 | Stop ID: 1902169208 | Target ID: 1902169280
+[CRITICAL ORDER ATTEMPT] 2025-11-12T23:25:01.680Z | LONG MARKET | Qty: 3 | Stop: 25543.50 | Target: 25558.75 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-12T23:25:02.167Z | LONG | Entry ID: 1902176961 | Stop ID: 1902176976 | Target ID: 1902176996
+[CRITICAL ORDER ATTEMPT] 2025-11-12T23:32:00.000Z | LONG MARKET | Qty: 3 | Stop: 6858.50 | Target: 6862.75 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-12T23:33:00.282Z | LONG MARKET | Qty: 3 | Stop: 25540.50 | Target: 25555.75 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-12T23:32:00.000Z | LONG | Entry ID: 1902223355 | Stop ID: 1902223389 | Target ID: 1902223432
+[CRITICAL ORDER SUCCESS] 2025-11-12T23:33:00.806Z | LONG | Entry ID: 1902223394 | Stop ID: 1902223418 | Target ID: 1902223468
+[CRITICAL ORDER ATTEMPT] 2025-11-12T23:34:00.000Z | LONG MARKET | Qty: 3 | Stop: 6859.25 | Target: 6863.25 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-12T23:34:00.000Z | LONG | Entry ID: 1902237482 | Stop ID: 1902237493 | Target ID: 1902237507
+[CRITICAL ORDER ATTEMPT] 2025-11-12T23:35:00.978Z | LONG MARKET | Qty: 3 | Stop: 25541.50 | Target: 25556.75 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-12T23:35:01.484Z | LONG | Entry ID: 1902237561 | Stop ID: 1902237564 | Target ID: 1902237581
+[CRITICAL ORDER ATTEMPT] 2025-11-12T23:36:00.282Z | LONG MARKET | Qty: 3 | Stop: 25538.75 | Target: 25554.00 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-12T23:35:00.000Z | LONG MARKET | Qty: 3 | Stop: 6857.75 | Target: 6862.00 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-12T23:35:00.000Z | LONG MARKET | Qty: 3 | Stop: 4197.40 | Target: 4199.90 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-12T23:35:00.000Z | LONG | Entry ID: 1902243389 | Stop ID: 1902243404 | Target ID: 1902243423
+[CRITICAL ORDER SUCCESS] 2025-11-12T23:36:00.821Z | LONG | Entry ID: 1902243392 | Stop ID: 1902243406 | Target ID: 1902243424
+[CRITICAL ORDER SUCCESS] 2025-11-12T23:35:00.000Z | LONG | Entry ID: 1902243416 | Stop ID: topstep-1762990561030 | Target ID: topstep-1762990561030
+[CRITICAL ORDER ATTEMPT] 2025-11-12T23:51:00.000Z | LONG MARKET | Qty: 3 | Stop: 6853.75 | Target: 6858.00 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-12T23:51:00.000Z | LONG | Entry ID: 1902347171 | Stop ID: 1902347175 | Target ID: 1902347191
+[CRITICAL ORDER ATTEMPT] 2025-11-12T23:57:00.000Z | LONG MARKET | Qty: 3 | Stop: 4194.90 | Target: 4197.40 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-12T23:57:00.000Z | LONG | Entry ID: 1902386736 | Stop ID: topstep-1762991880775 | Target ID: topstep-1762991880776
+[CRITICAL ORDER ATTEMPT] 2025-11-12T23:58:00.000Z | SHORT MARKET | Qty: 3 | Stop: 1.16 | Target: 1.16 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-12T23:58:00.000Z | SHORT | Entry ID: 1902393293 | Stop ID: 1902393302 | Target ID: 1902393328
+[CRITICAL ORDER ATTEMPT] 2025-11-13T00:01:00.000Z | LONG MARKET | Qty: 3 | Stop: 4193.20 | Target: 4195.70 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T00:01:00.000Z | LONG | Entry ID: 1902412544 | Stop ID: 1902412569 | Target ID: 1902412594
+[CRITICAL ORDER ATTEMPT] 2025-11-13T00:02:00.000Z | LONG MARKET | Qty: 3 | Stop: 4191.90 | Target: 4194.40 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T00:02:00.000Z | LONG | Entry ID: 1902421414 | Stop ID: topstep-1762992180583 | Target ID: topstep-1762992180583
+[CRITICAL ORDER ATTEMPT] 2025-11-13T00:17:00.000Z | LONG MARKET | Qty: 3 | Stop: 4192.50 | Target: 4195.00 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T00:17:00.000Z | LONG | Entry ID: 1902528472 | Stop ID: 1902528477 | Target ID: 1902528486
+[CRITICAL ORDER ATTEMPT] 2025-11-13T00:27:00.171Z | SHORT MARKET | Qty: 3 | Stop: 25581.50 | Target: 25566.00 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-13T00:26:00.000Z | SHORT MARKET | Qty: 3 | Stop: 6866.50 | Target: 6862.50 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T00:27:00.673Z | SHORT | Entry ID: 1902573072 | Stop ID: 1902573086 | Target ID: 1902573100
+[CRITICAL ORDER SUCCESS] 2025-11-13T00:26:00.000Z | SHORT | Entry ID: 1902573083 | Stop ID: 1902573094 | Target ID: 1902573108
+[CRITICAL ORDER ATTEMPT] 2025-11-13T00:51:00.000Z | SHORT MARKET | Qty: 3 | Stop: 4207.60 | Target: 4205.10 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T00:51:00.000Z | SHORT | Market-only Entry ID: 1902730825 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T00:53:00.369Z | LONG MARKET | Qty: 3 | Stop: 25552.50 | Target: 25567.75 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-13T00:52:00.000Z | LONG MARKET | Qty: 3 | Stop: 6860.75 | Target: 6865.00 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T00:52:00.000Z | LONG | Market-only Entry ID: 1902738939 (will monitor price for stop/target)
+[CRITICAL ORDER SUCCESS] 2025-11-13T00:52:00.000Z | LONG | Market-only Entry ID: 1902738951 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T00:53:00.000Z | SHORT MARKET | Qty: 3 | Stop: 4209.30 | Target: 4206.80 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T00:53:00.000Z | SHORT | Market-only Entry ID: 1902746644 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T00:57:03.361Z | LONG MARKET | Qty: 3 | Stop: 25553.25 | Target: 25568.50 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T00:56:00.000Z | LONG | Market-only Entry ID: 1902769190 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T01:16:00.000Z | LONG MARKET | Qty: 3 | Stop: 1.16 | Target: 1.16 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T01:16:00.000Z | LONG | Market-only Entry ID: 1902985101 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T01:18:00.000Z | LONG MARKET | Qty: 3 | Stop: 1.16 | Target: 1.16 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T01:18:00.000Z | LONG | Market-only Entry ID: 1903007639 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T01:37:00.000Z | LONG MARKET | Qty: 3 | Stop: 4192.40 | Target: 4194.90 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T01:37:00.000Z | LONG | Market-only Entry ID: 1903148796 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T01:38:00.000Z | SHORT MARKET | Qty: 3 | Stop: 6886.00 | Target: 6882.00 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T01:38:00.000Z | SHORT | Market-only Entry ID: 1903156381 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T01:51:00.000Z | LONG MARKET | Qty: 3 | Stop: 4192.40 | Target: 4194.90 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T01:51:00.000Z | LONG | Market-only Entry ID: 1903240797 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T02:04:00.069Z | SHORT MARKET | Qty: 3 | Stop: 25693.00 | Target: 25677.75 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T02:03:00.000Z | SHORT | Market-only Entry ID: 1903316996 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T02:13:00.000Z | SHORT MARKET | Qty: 3 | Stop: 4200.00 | Target: 4197.50 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T02:13:00.000Z | SHORT | Market-only Entry ID: 1903376545 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T02:49:00.000Z | SHORT MARKET | Qty: 3 | Stop: 6881.25 | Target: 6877.25 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T02:49:00.000Z | SHORT | Market-only Entry ID: 1903542986 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T02:51:00.182Z | SHORT MARKET | Qty: 3 | Stop: 25669.50 | Target: 25654.25 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T02:50:00.000Z | SHORT | Market-only Entry ID: 1903546696 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T02:56:00.000Z | LONG MARKET | Qty: 3 | Stop: 4192.90 | Target: 4195.40 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T02:56:00.000Z | LONG | Market-only Entry ID: 1903573682 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T03:15:00.000Z | LONG MARKET | Qty: 3 | Stop: 6874.75 | Target: 6878.75 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T03:15:00.000Z | LONG | Market-only Entry ID: 1903668031 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T03:20:00.038Z | LONG MARKET | Qty: 3 | Stop: 25640.25 | Target: 25655.50 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T03:19:00.000Z | LONG | Market-only Entry ID: 1903682464 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T03:26:00.000Z | SHORT MARKET | Qty: 3 | Stop: 4204.60 | Target: 4202.10 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T03:26:00.000Z | SHORT | Market-only Entry ID: 1903717195 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T03:44:00.000Z | SHORT MARKET | Qty: 3 | Stop: 6883.25 | Target: 6879.25 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T03:44:00.000Z | SHORT | Market-only Entry ID: 1903802196 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T04:12:00.096Z | SHORT MARKET | Qty: 3 | Stop: 25673.00 | Target: 25657.50 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-13T04:11:00.000Z | SHORT MARKET | Qty: 3 | Stop: 6882.50 | Target: 6878.50 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T04:11:00.000Z | SHORT | Market-only Entry ID: 1903917078 (will monitor price for stop/target)
+[CRITICAL ORDER SUCCESS] 2025-11-13T04:11:00.000Z | SHORT | Market-only Entry ID: 1903917080 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T04:26:00.000Z | SHORT MARKET | Qty: 3 | Stop: 6884.50 | Target: 6880.50 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T04:26:00.000Z | SHORT | Market-only Entry ID: 1903964874 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T04:39:00.000Z | LONG MARKET | Qty: 3 | Stop: 4212.30 | Target: 4214.80 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T04:39:00.000Z | LONG | Market-only Entry ID: 1903999170 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T04:40:00.000Z | LONG MARKET | Qty: 3 | Stop: 4210.90 | Target: 4213.40 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T04:40:00.000Z | LONG | Market-only Entry ID: 1904001321 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T04:41:00.000Z | SHORT MARKET | Qty: 3 | Stop: 6885.00 | Target: 6881.00 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T04:41:00.000Z | SHORT | Market-only Entry ID: 1904003421 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T04:43:04.438Z | SHORT MARKET | Qty: 3 | Stop: 25682.25 | Target: 25666.75 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T04:42:00.000Z | SHORT | Market-only Entry ID: 1904005606 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T04:44:00.791Z | SHORT MARKET | Qty: 3 | Stop: 25684.00 | Target: 25668.75 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T04:43:00.000Z | SHORT | Market-only Entry ID: 1904008825 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T04:44:00.000Z | LONG MARKET | Qty: 3 | Stop: 4212.20 | Target: 4214.70 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T04:44:00.000Z | LONG | Market-only Entry ID: 1904012548 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T05:02:00.000Z | SHORT MARKET | Qty: 3 | Stop: 6887.75 | Target: 6883.50 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T05:02:00.000Z | SHORT | Market-only Entry ID: 1904059723 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T05:03:00.872Z | SHORT MARKET | Qty: 3 | Stop: 25694.00 | Target: 25678.75 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T05:02:00.000Z | SHORT | Market-only Entry ID: 1904059742 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T05:07:00.135Z | SHORT MARKET | Qty: 3 | Stop: 25696.25 | Target: 25681.00 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-13T05:06:00.000Z | SHORT MARKET | Qty: 3 | Stop: 6888.00 | Target: 6884.00 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T05:06:00.000Z | SHORT | Market-only Entry ID: 1904068171 (will monitor price for stop/target)
+[CRITICAL ORDER SUCCESS] 2025-11-13T05:06:00.000Z | SHORT | Market-only Entry ID: 1904068200 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T05:08:00.182Z | SHORT MARKET | Qty: 3 | Stop: 25697.50 | Target: 25682.25 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-13T05:07:00.000Z | SHORT MARKET | Qty: 3 | Stop: 6888.00 | Target: 6884.00 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T05:07:00.000Z | SHORT | Market-only Entry ID: 1904071414 (will monitor price for stop/target)
+[CRITICAL ORDER SUCCESS] 2025-11-13T05:07:00.000Z | SHORT | Market-only Entry ID: 1904071424 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T05:09:00.327Z | SHORT MARKET | Qty: 3 | Stop: 25700.00 | Target: 25684.75 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-13T05:08:00.000Z | SHORT MARKET | Qty: 3 | Stop: 6888.50 | Target: 6884.50 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T05:08:00.000Z | SHORT | Market-only Entry ID: 1904074692 (will monitor price for stop/target)
+[CRITICAL ORDER SUCCESS] 2025-11-13T05:08:00.000Z | SHORT | Market-only Entry ID: 1904074717 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T05:10:00.482Z | SHORT MARKET | Qty: 3 | Stop: 25701.75 | Target: 25686.25 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T05:09:00.000Z | SHORT | Market-only Entry ID: 1904078049 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T05:31:00.000Z | SHORT MARKET | Qty: 3 | Stop: 6888.50 | Target: 6884.25 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T05:31:00.000Z | SHORT | Market-only Entry ID: 1904134278 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T05:35:00.268Z | SHORT MARKET | Qty: 3 | Stop: 25703.75 | Target: 25688.25 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T05:34:00.000Z | SHORT | Market-only Entry ID: 1904141867 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T05:41:00.000Z | SHORT MARKET | Qty: 3 | Stop: 4219.90 | Target: 4217.40 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T05:41:00.000Z | SHORT | Market-only Entry ID: 1904156247 (will monitor price for stop/target)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T06:20:00.000Z | LONG BRACKET | Qty: 3 | Stop: 4 ticks | Target: 20 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T06:20:00.000Z | LONG | Bracket Entry ID: 1904255244 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T06:23:00.560Z | LONG MARKET | Qty: 3 | Stop: 25702.50 | Target: 25718.00 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T06:22:00.000Z | LONG | Bracket Entry ID: 1904259199 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T06:29:00.000Z | SHORT BRACKET | Qty: 3 | Stop: 8 ticks | Target: 40 ticks | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-13T06:30:00.027Z | SHORT MARKET | Qty: 3 | Stop: 25710.50 | Target: 25695.00 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T06:29:00.000Z | SHORT | Bracket Entry ID: 1904271152 (stop/target managed by broker)
+[CRITICAL ORDER SUCCESS] 2025-11-13T06:29:00.000Z | SHORT | Bracket Entry ID: 1904271155 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T06:38:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 40 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T06:38:00.000Z | LONG | Bracket Entry ID: 1904289372 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T06:51:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 40 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T06:51:00.000Z | LONG | Bracket Entry ID: 1904313210 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T16:37:00.052Z | LONG MARKET | Qty: 3 | Stop: 25198.50 | Target: 25213.50 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-13T16:36:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 40 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T16:36:00.000Z | LONG | Bracket Entry ID: 1908729371 (stop/target managed by broker)
+[CRITICAL ORDER SUCCESS] 2025-11-13T16:36:00.000Z | LONG | Bracket Entry ID: 1908729394 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T16:38:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 40 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T16:38:00.000Z | LONG | Bracket Entry ID: 1908753327 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T16:48:00.000Z | SHORT BRACKET | Qty: 3 | Stop: 8 ticks | Target: 40 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T16:48:00.000Z | SHORT | Bracket Entry ID: 1908873709 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T17:16:00.021Z | LONG MARKET | Qty: 3 | Stop: 25195.25 | Target: 25210.25 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T17:15:00.000Z | LONG | Bracket Entry ID: 1909161745 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T17:16:00.000Z | SHORT BRACKET | Qty: 3 | Stop: 8 ticks | Target: 40 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T17:16:00.000Z | SHORT | Bracket Entry ID: 1909171142 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T17:19:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 40 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T17:19:00.000Z | LONG | Bracket Entry ID: 1909198688 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T18:03:00.117Z | LONG MARKET | Qty: 3 | Stop: 25144.00 | Target: 25159.25 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-13T18:02:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T18:02:00.000Z | LONG | Bracket Entry ID: 1909564448 (stop/target managed by broker)
+[CRITICAL ORDER SUCCESS] 2025-11-13T18:02:00.000Z | LONG | Bracket Entry ID: 1909564457 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T18:04:00.072Z | LONG MARKET | Qty: 3 | Stop: 25134.50 | Target: 25149.75 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-13T18:03:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T18:03:00.000Z | LONG | Bracket Entry ID: 1909569751 (stop/target managed by broker)
+[CRITICAL ORDER SUCCESS] 2025-11-13T18:03:00.000Z | LONG | Bracket Entry ID: 1909569775 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T18:06:00.071Z | LONG MARKET | Qty: 3 | Stop: 25129.00 | Target: 25144.25 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-13T18:05:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T18:05:00.000Z | LONG | Bracket Entry ID: 1909581240 (stop/target managed by broker)
+[CRITICAL ORDER SUCCESS] 2025-11-13T18:05:00.000Z | LONG | Bracket Entry ID: 1909581259 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T18:09:00.120Z | LONG MARKET | Qty: 3 | Stop: 25129.50 | Target: 25144.50 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T18:08:00.000Z | LONG | Bracket Entry ID: 1909606512 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T18:10:00.071Z | LONG MARKET | Qty: 3 | Stop: 25127.50 | Target: 25142.50 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-13T18:09:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T18:09:00.000Z | LONG | Bracket Entry ID: 1909613665 (stop/target managed by broker)
+[CRITICAL ORDER SUCCESS] 2025-11-13T18:09:00.000Z | LONG | Bracket Entry ID: 1909613680 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T18:11:00.121Z | LONG MARKET | Qty: 3 | Stop: 25127.25 | Target: 25142.50 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-13T18:10:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T18:10:00.000Z | LONG | Bracket Entry ID: 1909624220 (stop/target managed by broker)
+[CRITICAL ORDER SUCCESS] 2025-11-13T18:10:00.000Z | LONG | Bracket Entry ID: 1909624224 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T18:12:00.087Z | LONG MARKET | Qty: 3 | Stop: 25125.50 | Target: 25140.50 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-13T18:11:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T18:11:00.000Z | LONG | Bracket Entry ID: 1909633089 (stop/target managed by broker)
+[CRITICAL ORDER SUCCESS] 2025-11-13T18:11:00.000Z | LONG | Bracket Entry ID: 1909633092 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T18:17:00.074Z | LONG MARKET | Qty: 3 | Stop: 25123.25 | Target: 25138.50 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-13T18:16:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T18:16:00.000Z | LONG | Bracket Entry ID: 1909672790 (stop/target managed by broker)
+[CRITICAL ORDER SUCCESS] 2025-11-13T18:16:00.000Z | LONG | Bracket Entry ID: 1909672795 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T18:17:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-13T18:18:00.084Z | LONG MARKET | Qty: 3 | Stop: 25106.50 | Target: 25121.50 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T18:17:00.000Z | LONG | Bracket Entry ID: 1909681798 (stop/target managed by broker)
+[CRITICAL ORDER SUCCESS] 2025-11-13T18:17:00.000Z | LONG | Bracket Entry ID: 1909681806 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T18:19:00.145Z | LONG MARKET | Qty: 3 | Stop: 25117.00 | Target: 25132.00 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-13T18:18:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T18:18:00.000Z | LONG | Bracket Entry ID: 1909690402 (stop/target managed by broker)
+[CRITICAL ORDER SUCCESS] 2025-11-13T18:18:00.000Z | LONG | Bracket Entry ID: 1909690408 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T18:19:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-13T18:20:00.098Z | LONG MARKET | Qty: 3 | Stop: 25109.00 | Target: 25124.25 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T18:19:00.000Z | LONG | Bracket Entry ID: 1909697705 (stop/target managed by broker)
+[CRITICAL ORDER SUCCESS] 2025-11-13T18:19:00.000Z | LONG | Bracket Entry ID: 1909697710 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T18:21:00.087Z | LONG MARKET | Qty: 3 | Stop: 25109.00 | Target: 25124.00 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T18:20:00.000Z | LONG | Bracket Entry ID: 1909704796 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T18:22:00.139Z | LONG MARKET | Qty: 3 | Stop: 25100.75 | Target: 25116.00 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T18:21:00.000Z | LONG | Bracket Entry ID: 1909714972 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T18:21:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T18:21:00.000Z | LONG | Bracket Entry ID: 1909715028 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T18:22:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T18:22:00.000Z | LONG | Bracket Entry ID: 1909723339 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T18:23:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T18:23:00.000Z | LONG | Bracket Entry ID: 1909731879 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T18:24:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T18:24:00.000Z | LONG | Bracket Entry ID: 1909737950 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T18:50:00.150Z | LONG MARKET | Qty: 3 | Stop: 25047.50 | Target: 25062.50 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T18:49:00.000Z | LONG | Bracket Entry ID: 1909998814 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T18:53:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T18:53:00.000Z | LONG | Bracket Entry ID: 1910027429 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T18:54:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T18:54:00.000Z | LONG | Bracket Entry ID: 1910033531 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T19:01:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T19:01:00.000Z | LONG | Bracket Entry ID: 1910083572 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T19:03:00.117Z | LONG MARKET | Qty: 3 | Stop: 25036.75 | Target: 25051.75 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-13T19:02:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T19:02:00.000Z | LONG | Bracket Entry ID: 1910095138 (stop/target managed by broker)
+[CRITICAL ORDER SUCCESS] 2025-11-13T19:02:00.000Z | LONG | Bracket Entry ID: 1910095142 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T19:04:00.111Z | LONG MARKET | Qty: 3 | Stop: 25033.50 | Target: 25048.50 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-13T19:03:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T19:03:00.000Z | LONG | Bracket Entry ID: 1910103250 (stop/target managed by broker)
+[CRITICAL ORDER SUCCESS] 2025-11-13T19:03:00.000Z | LONG | Bracket Entry ID: 1910103257 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T19:05:00.113Z | LONG MARKET | Qty: 3 | Stop: 25037.00 | Target: 25052.25 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-13T19:04:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T19:04:00.000Z | LONG | Bracket Entry ID: 1910110301 (stop/target managed by broker)
+[CRITICAL ORDER SUCCESS] 2025-11-13T19:04:00.000Z | LONG | Bracket Entry ID: 1910110305 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T19:05:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-13T19:06:00.114Z | LONG MARKET | Qty: 3 | Stop: 25039.25 | Target: 25054.50 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T19:05:00.000Z | LONG | Bracket Entry ID: 1910118522 (stop/target managed by broker)
+[CRITICAL ORDER SUCCESS] 2025-11-13T19:05:00.000Z | LONG | Bracket Entry ID: 1910118528 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T19:08:00.115Z | LONG MARKET | Qty: 3 | Stop: 25029.25 | Target: 25044.25 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-13T19:07:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T19:07:00.000Z | LONG | Bracket Entry ID: 1910132517 (stop/target managed by broker)
+[CRITICAL ORDER SUCCESS] 2025-11-13T19:07:00.000Z | LONG | Bracket Entry ID: 1910132522 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T19:09:00.052Z | LONG MARKET | Qty: 3 | Stop: 25024.00 | Target: 25039.00 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-13T19:08:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T19:08:00.000Z | LONG | Bracket Entry ID: 1910139886 (stop/target managed by broker)
+[CRITICAL ORDER SUCCESS] 2025-11-13T19:08:00.000Z | LONG | Bracket Entry ID: 1910139890 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T19:08:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T19:08:00.000Z | LONG | Bracket Entry ID: 1910140714 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T19:10:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T19:10:00.000Z | LONG | Bracket Entry ID: 1910155137 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T19:11:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T19:11:00.000Z | LONG | Bracket Entry ID: 1910160280 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T19:13:00.142Z | LONG MARKET | Qty: 3 | Stop: 25031.25 | Target: 25046.50 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T19:12:00.000Z | LONG | Bracket Entry ID: 1910164613 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T19:14:00.050Z | LONG MARKET | Qty: 3 | Stop: 25025.75 | Target: 25040.75 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-13T19:13:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T19:13:00.000Z | LONG | Bracket Entry ID: 1910170308 (stop/target managed by broker)
+[CRITICAL ORDER SUCCESS] 2025-11-13T19:13:00.000Z | LONG | Bracket Entry ID: 1910170313 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T19:13:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T19:13:00.000Z | LONG | Bracket Entry ID: 1910170337 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T19:15:00.033Z | LONG MARKET | Qty: 3 | Stop: 25025.25 | Target: 25040.25 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-13T19:14:00.000Z | LONG BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T19:14:00.000Z | LONG | Bracket Entry ID: 1910177273 (stop/target managed by broker)
+[CRITICAL ORDER SUCCESS] 2025-11-13T19:14:00.000Z | LONG | Bracket Entry ID: 1910177286 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T19:16:00.032Z | LONG MARKET | Qty: 3 | Stop: 25027.00 | Target: 25042.00 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T19:15:00.000Z | LONG | Bracket Entry ID: 1910183759 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T19:17:00.084Z | LONG MARKET | Qty: 3 | Stop: 25026.00 | Target: 25041.25 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T19:16:00.000Z | LONG | Bracket Entry ID: 1910188348 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T19:23:00.082Z | SHORT MARKET | Qty: 3 | Stop: 25079.00 | Target: 25063.75 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T19:22:00.000Z | SHORT | Bracket Entry ID: 1910228839 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T19:42:00.053Z | SHORT MARKET | Qty: 3 | Stop: 25082.00 | Target: 25066.75 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T19:41:00.000Z | SHORT | Bracket Entry ID: 1910389721 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T19:53:00.000Z | SHORT BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T19:53:00.000Z | SHORT | Bracket Entry ID: 1910478212 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T20:42:00.000Z | SHORT BRACKET | Qty: 3 | Stop: 8 ticks | Target: 8 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T20:42:00.000Z | SHORT | Bracket Entry ID: 1910794878 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T20:53:00.078Z | SHORT MARKET | Qty: 3 | Stop: 25095.50 | Target: 25080.50 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T20:52:00.000Z | SHORT | Bracket Entry ID: 1910853442 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T21:01:00.000Z | LONG BRACKET | Qty: 3 | Stop: 16 ticks | Target: 16 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T21:01:00.000Z | LONG | Bracket Entry ID: 1910914414 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T23:39:00.000Z | SHORT BRACKET | Qty: 3 | Stop: 16 ticks | Target: 32 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T23:39:00.000Z | SHORT | Bracket Entry ID: 1911183289 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T23:46:00.000Z | SHORT BRACKET | Qty: 3 | Stop: 16 ticks | Target: 32 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T23:46:00.000Z | SHORT | Bracket Entry ID: 1911217900 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T23:47:00.000Z | SHORT BRACKET | Qty: 3 | Stop: 16 ticks | Target: 32 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T23:47:00.000Z | SHORT | Bracket Entry ID: 1911223113 (stop/target managed by broker)
+[BRACKET FAILURE] 2025-11-13T23:48:05.948Z | SHORT | Trade NQ-WINNER-1763077680835-3 | Stop: NONE, Target: NONE | EMERGENCY FLATTEN
+[CRITICAL ORDER ATTEMPT] 2025-11-13T23:53:00.000Z | SHORT BRACKET | Qty: 3 | Stop: 16 ticks | Target: 32 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T23:53:00.000Z | SHORT | Bracket Entry ID: 1911252310 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-13T23:55:00.489Z | SHORT MARKET | Qty: 3 | Stop: 25121.00 | Target: 25105.75 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-13T23:54:00.000Z | SHORT | Bracket Entry ID: 1911256117 (stop/target managed by broker)
+[BRACKET FAILURE] 2025-11-13T23:55:05.792Z | SHORT | Trade NQ-WINNER-1763078100489-1 | Stop: NONE, Target: NONE | EMERGENCY FLATTEN
+[CRITICAL ORDER ATTEMPT] 2025-11-14T00:04:00.234Z | LONG MARKET | Qty: 3 | Stop: 25109.25 | Target: 25124.50 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T00:03:00.000Z | LONG | Bracket Entry ID: 1911301487 (stop/target managed by broker)
+[BRACKET FAILURE] 2025-11-14T00:04:05.483Z | LONG | Trade NQ-WINNER-1763078640234-2 | Stop: NONE, Target: NONE | EMERGENCY FLATTEN
+[CRITICAL ORDER ATTEMPT] 2025-11-14T00:04:00.000Z | SHORT BRACKET | Qty: 3 | Stop: 16 ticks | Target: 32 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T00:04:00.000Z | SHORT | Bracket Entry ID: 1911305209 (stop/target managed by broker)
+[BRACKET FAILURE] 2025-11-14T00:05:06.381Z | SHORT | Trade NQ-WINNER-1763078701284-4 | Stop: 1911305210, Target: 1911305211 | EMERGENCY FLATTEN
+[CRITICAL ORDER ATTEMPT] 2025-11-14T00:07:00.207Z | LONG MARKET | Qty: 3 | Stop: 25097.00 | Target: 25112.00 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T00:06:00.000Z | LONG | Bracket Entry ID: 1911317970 (stop/target managed by broker)
+[BRACKET FAILURE] 2025-11-14T00:07:05.500Z | LONG | Trade NQ-WINNER-1763078820207-1 | Stop: NONE, Target: NONE | EMERGENCY FLATTEN
+[CRITICAL ORDER ATTEMPT] 2025-11-14T00:08:00.192Z | LONG MARKET | Qty: 1 | Stop: 25103.00 | Target: 25118.25 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T00:07:00.000Z | LONG | Bracket Entry ID: 1911324249 (stop/target managed by broker)
+[BRACKET FAILURE] 2025-11-14T00:08:05.503Z | LONG | Trade NQ-WINNER-1763078880192-1 | Stop: NONE, Target: NONE | EMERGENCY FLATTEN
+[CRITICAL ORDER ATTEMPT] 2025-11-14T00:10:00.199Z | LONG MARKET | Qty: 1 | Stop: 25101.25 | Target: 25116.25 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-14T00:09:00.000Z | LONG BRACKET | Qty: 1 | Stop: 16 ticks | Target: 32 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T00:09:00.000Z | LONG | Bracket Entry ID: 1911335859 (stop/target managed by broker)
+[CRITICAL ORDER SUCCESS] 2025-11-14T00:09:00.000Z | LONG | Bracket Entry ID: 1911335913 (stop/target managed by broker)
+[BRACKET FAILURE] 2025-11-14T00:10:07.014Z | LONG | Trade NQ-WINNER-1763079000199-2 | Stop: NONE, Target: NONE | EMERGENCY FLATTEN
+[BRACKET FAILURE] 2025-11-14T00:10:07.038Z | LONG | Trade NQ-WINNER-1763079000205-1 | Stop: NONE, Target: NONE | EMERGENCY FLATTEN
+[CRITICAL ORDER ATTEMPT] 2025-11-14T00:31:00.200Z | SHORT MARKET | Qty: 1 | Stop: 25132.75 | Target: 25117.75 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-14T00:30:00.000Z | SHORT BRACKET | Qty: 1 | Stop: 16 ticks | Target: 32 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T00:30:00.000Z | SHORT | Bracket Entry ID: 1911443881 (stop/target managed by broker)
+[CRITICAL ORDER SUCCESS] 2025-11-14T00:30:00.000Z | SHORT | Bracket Entry ID: 1911443976 (stop/target managed by broker)
+[BRACKET FAILURE] 2025-11-14T00:31:05.624Z | SHORT | Trade NQ-WINNER-1763080260200-1 | Stop: NONE, Target: NONE | EMERGENCY FLATTEN
+[BRACKET FAILURE] 2025-11-14T00:31:06.288Z | SHORT | Trade NQ-WINNER-1763080260304-1 | Stop: NONE, Target: NONE | EMERGENCY FLATTEN
+[CRITICAL ORDER ATTEMPT] 2025-11-14T00:32:00.000Z | SHORT BRACKET | Qty: 1 | Stop: 16 ticks | Target: 32 ticks | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-14T00:33:00.393Z | SHORT MARKET | Qty: 1 | Stop: 25139.50 | Target: 25124.50 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T00:32:00.000Z | SHORT | Bracket Entry ID: 1911455392 (stop/target managed by broker)
+[CRITICAL ORDER SUCCESS] 2025-11-14T00:32:00.000Z | SHORT | Bracket Entry ID: 1911455438 (stop/target managed by broker)
+[BRACKET FAILURE] 2025-11-14T00:33:05.624Z | SHORT | Trade NQ-WINNER-1763080380393-2 | Stop: NONE, Target: NONE | EMERGENCY FLATTEN
+[BRACKET FAILURE] 2025-11-14T00:33:06.051Z | SHORT | Trade NQ-WINNER-1763080380353-2 | Stop: NONE, Target: NONE | EMERGENCY FLATTEN
+[CRITICAL ORDER ATTEMPT] 2025-11-14T00:34:00.200Z | SHORT MARKET | Qty: 1 | Stop: 25140.00 | Target: 25124.75 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-14T00:33:00.000Z | SHORT BRACKET | Qty: 1 | Stop: 16 ticks | Target: 32 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T00:33:00.000Z | SHORT | Bracket Entry ID: 1911459963 (stop/target managed by broker)
+[CRITICAL ORDER SUCCESS] 2025-11-14T00:33:00.000Z | SHORT | Bracket Entry ID: 1911460033 (stop/target managed by broker)
+[BRACKET FAILURE] 2025-11-14T00:34:05.430Z | SHORT | Trade NQ-WINNER-1763080440200-3 | Stop: NONE, Target: NONE | EMERGENCY FLATTEN
+[BRACKET FAILURE] 2025-11-14T00:34:06.047Z | SHORT | Trade NQ-WINNER-1763080440249-3 | Stop: NONE, Target: NONE | EMERGENCY FLATTEN
+[CRITICAL ORDER ATTEMPT] 2025-11-14T00:34:00.000Z | SHORT BRACKET | Qty: 1 | Stop: 16 ticks | Target: 32 ticks | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-14T00:34:00.000Z | SHORT BRACKET | Qty: 1 | Stop: 16 ticks | Target: 32 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T00:34:00.000Z | SHORT | Bracket Entry ID: 1911464979 (stop/target managed by broker)
+[CRITICAL ORDER SUCCESS] 2025-11-14T00:34:00.000Z | SHORT | Bracket Entry ID: 1911464991 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-14T00:34:00.000Z | SHORT BRACKET | Qty: 1 | Stop: 16 ticks | Target: 16 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T00:34:00.000Z | SHORT | Bracket Entry ID: 1911465061 (stop/target managed by broker)
+[BRACKET FAILURE] 2025-11-14T00:35:05.997Z | SHORT | Trade NQ-WINNER-1763080500204-4 | Stop: NONE, Target: NONE | EMERGENCY FLATTEN
+[BRACKET FAILURE] 2025-11-14T00:35:06.137Z | SHORT | Trade NQ-WINNER-1763080500358-1 | Stop: NONE, Target: NONE | EMERGENCY FLATTEN
+[BRACKET FAILURE] 2025-11-14T00:35:07.242Z | SHORT | Trade NQ-WINNER-1763080501278-1 | Stop: NONE, Target: NONE | EMERGENCY FLATTEN
+[CRITICAL ORDER ATTEMPT] 2025-11-14T01:00:00.000Z | LONG BRACKET | Qty: 1 | Stop: 16 ticks | Target: 32 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T01:00:00.000Z | LONG | Bracket Entry ID: 1911598116 (stop/target managed by broker)
+[BRACKET FAILURE] 2025-11-14T01:01:06.138Z | LONG | Trade NQ-WINNER-1763082060252-1 | Stop: NONE, Target: NONE | EMERGENCY FLATTEN
+[CRITICAL ORDER ATTEMPT] 2025-11-14T01:06:00.123Z | LONG MARKET | Qty: 1 | Stop: 25124.00 | Target: 25139.25 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T01:05:00.000Z | LONG | Bracket Entry ID: 1911634395 (stop/target managed by broker)
+[BRACKET FAILURE] 2025-11-14T01:06:06.029Z | LONG | Trade NQ-WINNER-1763082360123-1 | Stop: NONE, Target: NONE | EMERGENCY FLATTEN
+[CRITICAL ORDER ATTEMPT] 2025-11-14T01:07:00.191Z | SHORT MARKET | Qty: 1 | Stop: 25133.75 | Target: 25118.75 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T01:06:00.000Z | SHORT | Bracket Entry ID: 1911642567 (stop/target managed by broker)
+[BRACKET FAILURE] 2025-11-14T01:07:05.938Z | SHORT | Trade NQ-WINNER-1763082420191-2 | Stop: NONE, Target: NONE | EMERGENCY FLATTEN
+[CRITICAL ORDER ATTEMPT] 2025-11-14T01:20:00.063Z | SHORT MARKET | Qty: 1 | Stop: 25144.25 | Target: 25129.25 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-14T01:19:00.000Z | SHORT BRACKET | Qty: 1 | Stop: 16 ticks | Target: 32 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T01:19:00.000Z | SHORT | Bracket Entry ID: 1911720782 (stop/target managed by broker)
+[CRITICAL ORDER SUCCESS] 2025-11-14T01:19:00.000Z | SHORT | Bracket Entry ID: 1911720803 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-14T01:36:00.000Z | SHORT BRACKET | Qty: 1 | Stop: 16 ticks | Target: 16 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T01:36:00.000Z | SHORT | Bracket Entry ID: 1911829918 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-14T01:38:00.000Z | LONG BRACKET | Qty: 1 | Stop: 16 ticks | Target: 32 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T01:38:00.000Z | LONG | Bracket Entry ID: 1911843733 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-14T02:12:00.033Z | SHORT MARKET | Qty: 1 | Stop: 25136.50 | Target: 25121.50 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T02:11:00.000Z | SHORT | Bracket Entry ID: 1912010446 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-14T02:11:00.000Z | SHORT BRACKET | Qty: 1 | Stop: 8 ticks | Target: 16 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T02:11:00.000Z | SHORT | Bracket Entry ID: 1912010505 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-14T02:13:00.388Z | SHORT MARKET | Qty: 1 | Stop: 25141.25 | Target: 25126.00 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T02:12:00.000Z | SHORT | Bracket Entry ID: 1912015667 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-14T02:20:00.000Z | SHORT BRACKET | Qty: 1 | Stop: 16 ticks | Target: 32 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T02:20:00.000Z | SHORT | Bracket Entry ID: 1912045765 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-14T02:28:00.082Z | SHORT MARKET | Qty: 1 | Stop: 25139.25 | Target: 25124.25 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T02:27:00.000Z | SHORT | Bracket Entry ID: 1912072170 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-14T02:31:01.387Z | SHORT MARKET | Qty: 1 | Stop: 25142.50 | Target: 25127.25 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T02:30:00.000Z | SHORT | Bracket Entry ID: 1912084391 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-14T02:36:00.047Z | SHORT MARKET | Qty: 1 | Stop: 25141.75 | Target: 25126.75 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T02:35:00.000Z | SHORT | Bracket Entry ID: 1912103423 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-14T02:40:01.108Z | SHORT MARKET | Qty: 1 | Stop: 25142.75 | Target: 25127.75 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T02:39:00.000Z | SHORT | Bracket Entry ID: 1912117117 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-14T02:41:00.065Z | SHORT MARKET | Qty: 1 | Stop: 25145.25 | Target: 25130.00 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T02:40:00.000Z | SHORT | Bracket Entry ID: 1912121099 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-14T02:42:00.011Z | SHORT MARKET | Qty: 1 | Stop: 25152.00 | Target: 25136.75 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T02:41:00.000Z | SHORT | Bracket Entry ID: 1912125374 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-14T02:42:00.000Z | SHORT BRACKET | Qty: 1 | Stop: 16 ticks | Target: 32 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T02:42:00.000Z | SHORT | Bracket Entry ID: 1912129967 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-14T02:43:00.000Z | SHORT BRACKET | Qty: 1 | Stop: 16 ticks | Target: 32 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T02:43:00.000Z | SHORT | Bracket Entry ID: 1912134244 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-14T02:46:00.215Z | SHORT MARKET | Qty: 1 | Stop: 25146.75 | Target: 25131.50 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T02:45:00.000Z | SHORT | Bracket Entry ID: 1912142230 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-14T02:48:00.000Z | SHORT BRACKET | Qty: 1 | Stop: 16 ticks | Target: 32 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T02:48:00.000Z | SHORT | Bracket Entry ID: 1912151747 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-14T02:49:00.000Z | SHORT BRACKET | Qty: 1 | Stop: 16 ticks | Target: 32 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T02:49:00.000Z | SHORT | Bracket Entry ID: 1912155948 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-14T02:51:00.015Z | SHORT MARKET | Qty: 1 | Stop: 25147.50 | Target: 25132.25 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T02:50:00.000Z | SHORT | Bracket Entry ID: 1912161161 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-14T02:52:00.216Z | SHORT MARKET | Qty: 1 | Stop: 25148.25 | Target: 25133.00 | Account: 13056702
+[CRITICAL ORDER ATTEMPT] 2025-11-14T02:51:00.000Z | SHORT BRACKET | Qty: 1 | Stop: 8 ticks | Target: 16 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T02:51:00.000Z | SHORT | Bracket Entry ID: 1912167945 (stop/target managed by broker)
+[CRITICAL ORDER SUCCESS] 2025-11-14T02:51:00.000Z | SHORT | Bracket Entry ID: 1912167955 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-14T03:07:00.000Z | SHORT BRACKET | Qty: 1 | Stop: 16 ticks | Target: 23 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T03:07:00.000Z | SHORT | Bracket Entry ID: 1912241356 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-14T03:19:00.000Z | SHORT BRACKET | Qty: 1 | Stop: 16 ticks | Target: 23 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T03:19:00.000Z | SHORT | Bracket Entry ID: 1912277958 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-14T03:25:00.000Z | LONG BRACKET | Qty: 1 | Stop: 4 ticks | Target: 6 ticks | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T03:25:00.000Z | LONG | Bracket Entry ID: 1912296842 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-14T03:27:01.481Z | LONG MARKET | Qty: 1 | Stop: 25138.50 | Target: 25153.75 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T03:26:00.000Z | LONG | Bracket Entry ID: 1912299839 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-14T15:10:59.878Z | SHORT MARKET | Qty: 1 | Stop: 24957.00 | Target: 24942.00 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T15:10:00.000Z | SHORT | Bracket Entry ID: 1916300364 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-14T15:16:59.865Z | SHORT MARKET | Qty: 1 | Stop: 24973.00 | Target: 24958.25 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T15:16:00.000Z | SHORT | Bracket Entry ID: 1916453727 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-14T15:17:59.861Z | SHORT MARKET | Qty: 1 | Stop: 24965.75 | Target: 24951.00 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T15:17:00.000Z | SHORT | Bracket Entry ID: 1916474475 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-14T15:18:59.861Z | SHORT MARKET | Qty: 1 | Stop: 24964.75 | Target: 24950.00 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T15:18:00.000Z | SHORT | Bracket Entry ID: 1916494563 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-14T15:26:59.865Z | SHORT MARKET | Qty: 1 | Stop: 24963.25 | Target: 24948.25 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-14T15:26:00.000Z | SHORT | Bracket Entry ID: 1916647458 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-18T05:25:00.006Z | SHORT MARKET | Qty: 1 | Stop: 24749.50 | Target: 24734.75 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-18T05:24:00.000Z | SHORT | Bracket Entry ID: 1930837332 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-18T05:46:00.022Z | SHORT MARKET | Qty: 1 | Stop: 24750.25 | Target: 24735.50 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-18T05:45:00.000Z | SHORT | Bracket Entry ID: 1930901965 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-18T05:48:59.911Z | SHORT MARKET | Qty: 1 | Stop: 24753.50 | Target: 24738.75 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-18T05:48:00.000Z | SHORT | Bracket Entry ID: 1930911697 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-18T20:00:59.850Z | SHORT MARKET | Qty: 1 | Stop: 24793.50 | Target: 24778.50 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-18T20:00:00.000Z | SHORT | Bracket Entry ID: 1937607110 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-19T01:54:59.790Z | LONG MARKET | Qty: 1 | Stop: 24555.00 | Target: 24569.75 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-19T01:54:00.000Z | LONG | Bracket Entry ID: 1939184498 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-19T01:55:59.778Z | LONG MARKET | Qty: 1 | Stop: 24545.00 | Target: 24559.75 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-19T01:55:00.000Z | LONG | Bracket Entry ID: 1939192942 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-19T02:23:59.884Z | LONG MARKET | Qty: 1 | Stop: 24593.50 | Target: 24608.25 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-19T02:23:00.000Z | LONG | Bracket Entry ID: 1939383621 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-19T02:27:00.053Z | SHORT MARKET | Qty: 1 | Stop: 24623.75 | Target: 24609.00 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-19T02:26:00.000Z | SHORT | Bracket Entry ID: 1939399409 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-19T02:28:00.153Z | SHORT MARKET | Qty: 1 | Stop: 24629.25 | Target: 24614.50 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-19T02:27:00.000Z | SHORT | Bracket Entry ID: 1939405708 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-19T02:29:00.025Z | SHORT MARKET | Qty: 1 | Stop: 24622.75 | Target: 24608.00 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-19T02:28:00.000Z | SHORT | Bracket Entry ID: 1939414204 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-19T02:29:59.848Z | SHORT MARKET | Qty: 1 | Stop: 24628.00 | Target: 24613.25 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-19T02:29:00.000Z | SHORT | Bracket Entry ID: 1939419454 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-19T02:46:00.202Z | SHORT MARKET | Qty: 1 | Stop: 24642.50 | Target: 24627.75 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-19T02:45:00.000Z | SHORT | Bracket Entry ID: 1939512997 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-19T02:47:00.095Z | SHORT MARKET | Qty: 1 | Stop: 24646.00 | Target: 24631.25 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-19T02:46:00.000Z | SHORT | Bracket Entry ID: 1939518364 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-19T02:58:00.085Z | SHORT MARKET | Qty: 1 | Stop: 24646.25 | Target: 24631.50 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-19T02:57:00.000Z | SHORT | Bracket Entry ID: 1939568452 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-19T03:00:00.212Z | SHORT MARKET | Qty: 1 | Stop: 24649.00 | Target: 24634.25 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-19T02:59:00.000Z | SHORT | Bracket Entry ID: 1939574955 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-19T03:01:00.229Z | SHORT MARKET | Qty: 1 | Stop: 24646.50 | Target: 24631.75 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-19T03:00:00.000Z | SHORT | Bracket Entry ID: 1939581677 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-19T03:01:59.983Z | SHORT MARKET | Qty: 1 | Stop: 24650.00 | Target: 24635.25 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-19T03:01:00.000Z | SHORT | Bracket Entry ID: 1939587711 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-19T03:03:00.242Z | SHORT MARKET | Qty: 1 | Stop: 24646.75 | Target: 24632.00 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-19T03:02:00.000Z | SHORT | Bracket Entry ID: 1939592097 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-19T03:03:59.971Z | SHORT MARKET | Qty: 1 | Stop: 24655.75 | Target: 24641.00 | Account: 13056702
+[CRITICAL ORDER FAILED] 2025-11-19T03:03:00.000Z | SHORT | Error: request to https://api.topstepx.com/api/Order/place failed, reason: 
+[CRITICAL ORDER ATTEMPT] 2025-11-19T03:04:59.894Z | SHORT MARKET | Qty: 1 | Stop: 24651.50 | Target: 24636.75 | Account: 13056702
+[CRITICAL ORDER FAILED] 2025-11-19T03:04:00.000Z | SHORT | Error: request to https://api.topstepx.com/api/Order/place failed, reason: 
+[CRITICAL ORDER ATTEMPT] 2025-11-19T03:07:00.074Z | SHORT MARKET | Qty: 1 | Stop: 24643.00 | Target: 24628.25 | Account: 13056702
+[CRITICAL ORDER FAILED] 2025-11-19T03:06:00.000Z | SHORT | Error: request to https://api.topstepx.com/api/Order/place failed, reason: 
+[CRITICAL ORDER ATTEMPT] 2025-11-19T03:36:00.029Z | LONG MARKET | Qty: 1 | Stop: 24571.75 | Target: 24586.50 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-19T03:35:00.000Z | LONG | Bracket Entry ID: 1939762989 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-19T03:36:59.982Z | LONG MARKET | Qty: 1 | Stop: 24573.00 | Target: 24587.75 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-19T03:36:00.000Z | LONG | Bracket Entry ID: 1939770611 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-19T03:39:00.053Z | LONG MARKET | Qty: 1 | Stop: 24564.50 | Target: 24579.25 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-19T03:38:00.000Z | LONG | Bracket Entry ID: 1939776705 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-19T03:40:01.006Z | LONG MARKET | Qty: 1 | Stop: 24564.50 | Target: 24579.25 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-19T03:39:00.000Z | LONG | Bracket Entry ID: 1939780781 (stop/target managed by broker)
+[CRITICAL ORDER ATTEMPT] 2025-11-19T03:41:00.308Z | LONG MARKET | Qty: 1 | Stop: 24570.00 | Target: 24584.75 | Account: 13056702
+[CRITICAL ORDER SUCCESS] 2025-11-19T03:40:00.000Z | LONG | Bracket Entry ID: 1939786183 (stop/target managed by broker)

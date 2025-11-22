@@ -1,13 +1,14 @@
 # AI Trading Agent
 
-An intelligent trading analysis web application powered by OpenAI that integrates real-time data from Tradier, Coinbase, and Unusual Whales APIs to provide actionable trading recommendations.
+An intelligent trading analysis web application powered by OpenAI that integrates real-time data from Tradier, Coinbase, Unusual Whales, and Benzinga News APIs to provide actionable trading recommendations.
 
 ## Features
 
 - **Multi-Source Data Integration**
   - Tradier API for stock prices and options chains
   - Coinbase API for cryptocurrency pricing
-  - Unusual Whales API for options flow, institutional trades, and market news
+  - Unusual Whales API for options flow and institutional trades
+  - Benzinga News API (free tier) for market news headlines used in sentiment analysis
 
 - **Advanced Analysis**
   - Bull/Bear signal detection based on options flow (put at bid/call at ask logic)
@@ -100,8 +101,11 @@ TRADIER_BASE_URL=https://api.tradier.com/v1
 COINBASE_API_KEY=your_key_here
 COINBASE_API_SECRET=your_secret_here
 
-# Unusual Whales API
+# Unusual Whales API (options flow, institutional data)
 UNUSUAL_WHALES_API_KEY=your_key_here
+
+# Benzinga News API (free, for headlines + sentiment)
+BENZINGA_API_KEY=your_benzinga_api_key_here
 ```
 
 ### 3. Run Development Server
@@ -125,11 +129,13 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 3. **Unusual Whales** - [Get API Key](https://unusualwhales.com/api)
    - Premium service for options flow and institutional data
-   - Provides news, dark pool trades, and unusual activity
+
+4. **Benzinga News** - [Get API Key](https://www.benzinga.com/apis)
+   - Free news API used for market headlines and news sentiment
 
 ### Optional APIs
 
-4. **Coinbase** - [Get API Key](https://www.coinbase.com/settings/api)
+5. **Coinbase** - [Get API Key](https://www.coinbase.com/settings/api)
    - For cryptocurrency price data
 
 ## How It Works
@@ -139,7 +145,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 The system fetches data from multiple sources:
 - Options flow from Unusual Whales
 - Institutional trades (dark pool)
-- Market news with symbols
+- Market news with symbols from Benzinga News
 - Stock prices from Tradier
 - Market indicators (VIX, SPY, put/call ratio)
 

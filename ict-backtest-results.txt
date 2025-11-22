@@ -1,0 +1,155 @@
+================================================================================
+ICT STRATEGIES BACKTEST - ALL MICRO CONTRACTS
+================================================================================
+Date Range: 2025-08-01T00:00:00Z -> 2025-11-11T00:00:00Z
+Symbols: MNQZ5 MESZ5 MGCZ5 M6EZ5
+
+################################################################################
+STRATEGY #1: LIQUIDITY-SWEEP + FVG RETURN
+################################################################################
+
+------------------------------------------------------------
+Running on MNQZ5 (Micro Nasdaq)...
+------------------------------------------------------------
+BACKTEST SUMMARY
+Total Trades: 9 | Wins: 7 | Losses: 2
+Win Rate: 77.8%
+Net Realized PnL: +330.84 USD | Fees Paid: $6.66
+Profit Factor: 169.75
+Max Drawdown: +2.48 USD
+Exit Reasons: tp1=4, stop=2, tp2=2, session=1
+
+------------------------------------------------------------
+Running on MESZ5 (Micro S&P 500)...
+------------------------------------------------------------
+BACKTEST SUMMARY
+Total Trades: 12 | Wins: 8 | Losses: 4
+Win Rate: 66.7%
+Net Realized PnL: +129.87 USD | Fees Paid: $8.88
+Profit Factor: 2.85
+Max Drawdown: +53.98 USD
+Exit Reasons: tp1=5, stop=3, tp2=3, session=1
+
+------------------------------------------------------------
+Running on MGCZ5 (Micro Gold)...
+------------------------------------------------------------
+BACKTEST SUMMARY
+Total Trades: 2 | Wins: 2 | Losses: 0
+Win Rate: 100.0%
+Net Realized PnL: +125.28 USD | Fees Paid: $1.72
+Profit Factor: ∞
+Max Drawdown: +0.00 USD
+Exit Reasons: tp1=1, tp2=1
+
+------------------------------------------------------------
+Running on M6EZ5 (Micro Euro)...
+------------------------------------------------------------
+BACKTEST SUMMARY
+Total Trades: 8 | Wins: 5 | Losses: 3
+Win Rate: 62.5%
+Net Realized PnL: -4.50 USD | Fees Paid: $7.00
+Profit Factor: 1.07
+Max Drawdown: +23.90 USD
+Exit Reasons: stop=2, tp1=3, tp2=1, session=2
+
+
+################################################################################
+STRATEGY #2: BOS/CHOCH + FVG (TREND-FOLLOWING)
+################################################################################
+
+------------------------------------------------------------
+Running on MNQZ5 (Micro Nasdaq)...
+------------------------------------------------------------
+BACKTEST SUMMARY
+Total Trades: 399 | Wins: 153 | Losses: 246
+Win Rate: 38.3%
+Net Realized PnL: -1756.52 USD | Fees Paid: $202.02
+Profit Factor: 0.78
+Max Drawdown: +3017.20 USD
+Exit Reasons: tp1=189, tp2=161, stop=44, session=5
+
+------------------------------------------------------------
+Running on MESZ5 (Micro S&P 500)...
+------------------------------------------------------------
+BACKTEST SUMMARY
+Total Trades: 370 | Wins: 163 | Losses: 207
+Win Rate: 44.1%
+Net Realized PnL: +5.25 USD | Fees Paid: $203.50
+Profit Factor: 1.07
+Max Drawdown: +705.11 USD
+Exit Reasons: tp1=175, tp2=135, stop=51, session=9
+
+------------------------------------------------------------
+Running on MGCZ5 (Micro Gold)...
+------------------------------------------------------------
+BACKTEST SUMMARY
+Total Trades: 376 | Wins: 154 | Losses: 222
+Win Rate: 41.0%
+Net Realized PnL: -597.42 USD | Fees Paid: $470.42
+Profit Factor: 0.98
+Max Drawdown: +2542.32 USD
+Exit Reasons: tp1=179, tp2=140, stop=47, session=10
+
+------------------------------------------------------------
+Running on M6EZ5 (Micro Euro)...
+------------------------------------------------------------
+BACKTEST SUMMARY
+Total Trades: 194 | Wins: 102 | Losses: 92
+Win Rate: 52.6%
+Net Realized PnL: -176.15 USD | Fees Paid: $162.40
+Profit Factor: 0.97
+Max Drawdown: +208.95 USD
+Exit Reasons: tp1=70, stop=67, tp2=34, session=23
+
+
+################################################################################
+STRATEGY #3: POWER OF THREE (PO3) LITE
+################################################################################
+
+------------------------------------------------------------
+Running on MNQZ5 (Micro Nasdaq)...
+------------------------------------------------------------
+BACKTEST SUMMARY
+Total Trades: 16 | Wins: 7 | Losses: 9
+Win Rate: 43.8%
+Net Realized PnL: +701.09 USD | Fees Paid: $15.91
+Profit Factor: 1.56
+Max Drawdown: +972.99 USD
+Exit Reasons: stop=9, tp1=4, tp2=3
+
+------------------------------------------------------------
+Running on MESZ5 (Micro S&P 500)...
+------------------------------------------------------------
+BACKTEST SUMMARY
+Total Trades: 16 | Wins: 6 | Losses: 10
+Win Rate: 37.5%
+Net Realized PnL: +444.23 USD | Fees Paid: $17.02
+Profit Factor: 2.29
+Max Drawdown: +252.22 USD
+Exit Reasons: stop=10, tp1=4, tp2=2
+
+------------------------------------------------------------
+Running on MGCZ5 (Micro Gold)...
+------------------------------------------------------------
+BACKTEST SUMMARY
+Total Trades: 18 | Wins: 11 | Losses: 7
+Win Rate: 61.1%
+Net Realized PnL: +2270.72 USD | Fees Paid: $41.28
+Profit Factor: 2.88
+Max Drawdown: +595.16 USD
+Exit Reasons: tp1=5, tp2=3, stop=8, session=2
+
+------------------------------------------------------------
+Running on M6EZ5 (Micro Euro)...
+------------------------------------------------------------
+BACKTEST SUMMARY
+Total Trades: 22 | Wins: 6 | Losses: 16
+Win Rate: 27.3%
+Net Realized PnL: -82.15 USD | Fees Paid: $17.15
+Profit Factor: 0.75
+Max Drawdown: +161.15 USD
+Exit Reasons: stop=9, tp1=8, tp2=5
+
+================================================================================
+ALL BACKTESTS COMPLETE
+================================================================================

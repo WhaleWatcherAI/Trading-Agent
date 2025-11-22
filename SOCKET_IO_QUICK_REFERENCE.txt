@@ -1,0 +1,189 @@
+================================================================================
+SOCKET.IO EVENTS - QUICK REFERENCE TABLE
+================================================================================
+
+EVENT NAME      DIRECTION     FREQUENCY        SIZE        KEY FIELDS
+================================================================================
+
+CONFIG          S → C         Once/connect     ~200 B      symbol, bbPeriod, rsiPeriod
+CHARTHISTORY    Bidirectional On demand        ~150 KB     [array of bars with indicators]
+BAR             S → C         1/minute         ~300 B      OHLC, BB, RSI, TTM, squeeze
+TICK            S → C         High (quotes)    ~150 B      OHLC (light update)
+STATUS          S → C         30s + changes    ~1.5 KB     trading, position, account, PnL
+TRADE           S → C         On exit only     ~400 B      tradeId, side, entry/exit price
+LOG             S → C         Continuous      100-500 B    timestamp, message, type
+ALERT           S → C         As needed       100-300 B    message, type
+DISCONNECT      C → S         On disconnect    N/A         (auto event)
+CONNECT         C → S         On connect       N/A         (auto event)
+
+================================================================================
+
+SERVER EMISSION PATTERNS:
+
+Type 1: Socket.emit (individual client)
+  socket.emit('config', {...})
+  socket.emit('chartHistory', data)
+  socket.on('chartHistory', () => { ... })
+  socket.on('disconnect', () => { ... })
+
+Type 2: io.emit (broadcast to all clients)
+  io.emit('bar', chartPoint)
+  io.emit('tick', {...})
+  io.emit('status', {...})
+  io.emit('trade', trade)
+  io.emit('log', {...})
+
+================================================================================
+
+PORT MAPPING:
+
+Strategy Instance          Port    Environment Variable
+==========================================
+NQ Winner Enhanced (MNQ)   3333    TOPSTEPX_NQ_DASHBOARD_PORT
+MES Winner                 3334    TOPSTEPX_NQ_DASHBOARD_PORT
+MGC Winner                 3335    TOPSTEPX_NQ_DASHBOARD_PORT
+M6E Winner                 3336    TOPSTEPX_NQ_DASHBOARD_PORT
+MGC PO3                    3006    TOPSTEPX_MGC_DASHBOARD_PORT
+
+Multi-Symbol Master        N/A     (pulls data from above via REST)
+
+================================================================================
+
+CORE DATA STRUCTURES:
+
+ChartData Bar (used in chartHistory, bar events):
+  - timestamp: ISO string
+  - open, high, low, close: numbers
+  - bbUpper, bbBasis, bbLower: Bollinger Bands
+  - rsi: RSI value
+  - ttmMomentum: momentum value
+  - squeeze: {momentum, squeezeFiring}
+  - signal: 'long' | 'short' | null
+
+ActivePosition (in status.position):
+  - tradeId, symbol, contractId
+  - side: 'long' | 'short'
+  - entryPrice, entryTime
+  - totalQty, entryRSI
+  - entryOrderId, stopOrderId, targetOrderId
+  - unrealizedPnL
+
+AccountStatus (in status.accountStatus):
+  - balance, buyingPower
+  - dailyPnL, dailyLossLimit
+  - isAtRisk
+
+Trade (trade event):
+  - tradeId, side
+  - entryPrice, exitPrice
+  - entryTime, exitTime
+  - quantity, pnl
+  - exitReason
+
+================================================================================
+
+BROADCAST UPDATE FUNCTION:
+
+broadcastDashboardUpdate() in live-topstepx-nq-winner-enhanced.ts:716
+
+Emits io.emit('status', {...}) with:
+  - tradingEnabled
+  - position (with current unrealizedPnL calculated)
+  - pendingSetup
+  - realizedPnL
+  - accountStatus
+  - lastQuote
+  - currentBar
+  - timestamp
+
+Called When:
+  - Position entry
+  - Position exit
+  - Trading state change
+  - Account balance update
+  - Every 30 seconds (periodic)
+
+================================================================================
+
+SYMBOL-SPECIFIC MESSAGING:
+
+All events include symbol context:
+  - config event: symbol field
+  - position object: symbol field
+  - tradeId: includes symbol prefix (e.g., NQ-WINNER-...)
+
+Message Isolation:
+  - Each strategy on separate port = separate WebSocket
+  - Symbol data only flows on its own connection
+  - Multi-symbol dashboard uses REST API to aggregate
+  - No cross-symbol emit patterns
+
+================================================================================
+
+DASHBOARD EVENT HANDLERS SUMMARY:
+
+connect -> emit('chartHistory')
+chartHistory -> updateCharts()
+bar -> update price + all indicators
+tick -> update price only (intra-bar)
+status -> updateStatus(), updatePositionDisplay(), updateTradeHistory()
+trade -> showAlert(), add to trades list
+log -> addActivityLog()
+alert -> showAlert()
+disconnect -> connection lost (auto-reconnect)
+
+================================================================================
+
+PERFORMANCE PROFILE:
+
+Update Frequency:
+  - tick: High (every quote update)
+  - bar: 1 per minute (on bar close)
+  - status: Every 30 seconds + state changes
+  - trade: Only on exit
+  - log: Strategy-dependent
+
+Data Limits:
+  - chartHistory: Last 500 bars cached
+  - Activity log: Last 50 in UI
+  - Trade history: Unlimited
+
+Bandwidth (rough estimates):
+  - Config: 200 bytes
+  - Tick: 150 bytes
+  - Bar: 300 bytes
+  - Status: 1,500 bytes
+  - Trade: 400 bytes
+  - Log: 100-500 bytes
+
+================================================================================
+
+IMPORTANT NOTES:
+
+1. Each symbol runs independently:
+   - NQ winner runs on 3333
+   - MES winner runs on 3334
+   - MGC winner runs on 3335
+   - M6E winner runs on 3336
+
+2. All strategies share same account:
+   - One account ID per user
+   - Multiple positions possible (one per symbol)
+   - Combined daily loss limit applied
+
+3. Dashboard connection:
+   - Single connection per strategy dashboard
+   - Multi-symbol dashboard uses iframes + REST API
+   - Socket.IO auto-reconnects on disconnect
+
+4. Chart data:
+   - Bootstrapped on connection (chartHistory)
+   - Updated on each bar close (bar event)
+   - Live quotes sent between bars (tick event)
+
+5. Position tracking:
+   - One position per symbol at a time
+   - Contains broker order IDs
+   - Unrealized PnL calculated every 30 seconds
+   - Exit triggers: stop loss, take profit, manual, end of session
+

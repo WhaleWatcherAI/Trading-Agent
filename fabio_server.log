@@ -1,0 +1,82 @@
+/Users/coreycosta/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+Server initialized for aiohttp.
+PprsjSGXPytQf2qMAAAA: Sending packet OPEN data {'sid': 'PprsjSGXPytQf2qMAAAA', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000, 'maxPayload': 1000000}
+PprsjSGXPytQf2qMAAAA: Received packet MESSAGE data 0
+emitting event "status" to kO7Qr2oM1McUOiESAAAB [/]
+PprsjSGXPytQf2qMAAAA: Sending packet MESSAGE data 2["status",{"isTrading":false,"accountStats":{"balance":50000.0,"dailyPnL":0,"tradesCount":0}}]
+PprsjSGXPytQf2qMAAAA: Sending packet MESSAGE data 0{"sid":"kO7Qr2oM1McUOiESAAAB"}
+PprsjSGXPytQf2qMAAAA: Received request to upgrade to websocket
+PprsjSGXPytQf2qMAAAA: Received packet MESSAGE data 2["request_chart_history"]
+received event "request_chart_history" from kO7Qr2oM1McUOiESAAAB [/]
+emitting event "chart_history" to kO7Qr2oM1McUOiESAAAB [/]
+PprsjSGXPytQf2qMAAAA: Sending packet MESSAGE data 2["chart_history",[]]
+PprsjSGXPytQf2qMAAAA: Upgrade to websocket successful
+PprsjSGXPytQf2qMAAAA: Sending packet PING data None
+PprsjSGXPytQf2qMAAAA: Received packet PONG data 
+lvAcrjJrjdnEGafiAAAC: Sending packet OPEN data {'sid': 'lvAcrjJrjdnEGafiAAAC', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000, 'maxPayload': 1000000}
+lvAcrjJrjdnEGafiAAAC: Received packet MESSAGE data 0
+emitting event "status" to jeV1JQvjnZli7eYuAAAD [/]
+lvAcrjJrjdnEGafiAAAC: Sending packet MESSAGE data 2["status",{"isTrading":false,"accountStats":{"balance":50000.0,"dailyPnL":0,"tradesCount":0}}]
+lvAcrjJrjdnEGafiAAAC: Sending packet MESSAGE data 0{"sid":"jeV1JQvjnZli7eYuAAAD"}
+lvAcrjJrjdnEGafiAAAC: Received request to upgrade to websocket
+lvAcrjJrjdnEGafiAAAC: Received packet MESSAGE data 2["request_chart_history"]
+received event "request_chart_history" from jeV1JQvjnZli7eYuAAAD [/]
+emitting event "chart_history" to jeV1JQvjnZli7eYuAAAD [/]
+lvAcrjJrjdnEGafiAAAC: Sending packet MESSAGE data 2["chart_history",[]]
+lvAcrjJrjdnEGafiAAAC: Upgrade to websocket successful
+lvAcrjJrjdnEGafiAAAC: Received packet MESSAGE data 2["start_trading"]
+received event "start_trading" from jeV1JQvjnZli7eYuAAAD [/]
+emitting event "log" to all [/]
+lvAcrjJrjdnEGafiAAAC: Sending packet MESSAGE data 2["log",{"message":"Starting Fabio Agent...","type":"info"}]
+emitting event "status" to all [/]
+emitting event "log" to all [/]
+lvAcrjJrjdnEGafiAAAC: Sending packet MESSAGE data 2["status",{"isTrading":true,"accountStats":{"balance":50000.0,"dailyPnL":0,"tradesCount":0}}]
+lvAcrjJrjdnEGafiAAAC: Sending packet MESSAGE data 2["log",{"message":"Fabio Agent initialized","type":"success"}]
+emitting event "log" to all [/]
+lvAcrjJrjdnEGafiAAAC: Sending packet MESSAGE data 2["log",{"message":"Fetching account balance from TopStep...","type":"info"}]
+emitting event "log" to all [/]
+lvAcrjJrjdnEGafiAAAC: Sending packet MESSAGE data 2["log",{"message":"Account balance: $50,000.00","type":"success"}]
+emitting event "log" to all [/]
+lvAcrjJrjdnEGafiAAAC: Sending packet MESSAGE data 2["log",{"message":"Connecting to market data stream...","type":"info"}]
+================================================================================
+🧠 FABIO AGENT - SOCKET.IO DASHBOARD SERVER
+================================================================================
+Symbol: NQZ5
+Mode: paper_trading
+Dashboard: http://localhost:3337
+================================================================================
+======== Running on http://0.0.0.0:3337 ========
+(Press CTRL+C to quit)
+[SocketIO] Client connected: kO7Qr2oM1McUOiESAAAB
+[SocketIO] Client kO7Qr2oM1McUOiESAAAB requesting chart history
+[SocketIO] Client disconnected: kO7Qr2oM1McUOiESAAAB
+[SocketIO] Client connected: jeV1JQvjnZli7eYuAAAD
+[SocketIO] Client jeV1JQvjnZli7eYuAAAD requesting chart history
+[SocketIO] Client jeV1JQvjnZli7eYuAAAD requested to start trading
+[TopstepClient] Failed to fetch account info: 404 Client Error: Not Found for url: https://api.topstepx.com/api/Account/13056702
+[TopstepClient] DEBUG: stream_snapshots() called, about to connect...
+[TopstepClient] DEBUG: connect() method called
+[TopstepClient] DEBUG: About to start hub connection...
+[TopstepClient] DEBUG: Hub thread started
+[TopstepClient] DEBUG: Hub connected after 1 seconds
+[TopstepClient] Connected to TopstepX market hub.
+[TopstepClient] DEBUG: Subscribing to contract CON.F.US.ENQ.Z25...
+Connection closed socket is already closed.
+[TopstepClient] Market hub connection closed.
+[TopstepClient] ⚠️  Failed to subscribe to quotes: socket is already closed.
+[TopstepClient] ⚠️  Failed to subscribe to trades: Hub is not running you cand send messages
+[TopstepClient] ⚠️  Failed to subscribe to market depth: Hub is not running you cand send messages
+[TopstepClient] DEBUG: connect() completed, entering snapshot loop...
+lvAcrjJrjdnEGafiAAAC: Sending packet PING data None
+lvAcrjJrjdnEGafiAAAC: Received packet PONG data 
+lvAcrjJrjdnEGafiAAAC: Sending packet PING data None
+lvAcrjJrjdnEGafiAAAC: Received packet PONG data 
+lvAcrjJrjdnEGafiAAAC: Sending packet PING data None
+lvAcrjJrjdnEGafiAAAC: Received packet PONG data 
+lvAcrjJrjdnEGafiAAAC: Sending packet PING data None
+lvAcrjJrjdnEGafiAAAC: Received packet PONG data 
+lvAcrjJrjdnEGafiAAAC: Sending packet PING data None
+service task canceled
+emitting event "log" to all [/]
+[SocketIO] Client disconnected: jeV1JQvjnZli7eYuAAAD
