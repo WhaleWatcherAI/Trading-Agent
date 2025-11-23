@@ -14,6 +14,9 @@ import {
   PullbackProfile,
   WatchZoneProfile,
 } from './openaiTradingAgent';
+import { buildMlFeatureSnapshot } from './mlFeatureExtractor';
+import { appendFileSync, existsSync, mkdirSync } from 'fs';
+import path from 'path';
 import { ExecutionManager } from './executionManager';
 import { tradingDB } from './tradingDatabase';
 import { MarketState } from './fabioPlaybook';
@@ -29,6 +32,9 @@ const pocCrossTracker = new POCCrossTracker();
 const marketStatsCalc = new MarketStatsCalculator();
 const performanceTracker = new PerformanceTracker();
 const notesManager = new HistoricalNotesManager();
+
+const mlSnapshotThrottleMs = 55_000;
+const lastMlSnapshotWrite: Record<string, number> = {};
 
 function isSelfLearningEnabled(): boolean {
   const flag = process.env.SELF_LEARNING_DISABLED?.toLowerCase();
@@ -363,7 +369,39 @@ export function buildFuturesMarketData(
     exhaustion: exhaustionSignals,
   };
 
+  // Persist lightweight snapshot for ML dataset building (JSONL, throttled per symbol)
+  try {
+    const mlSnapshot = buildMlFeatureSnapshot(marketData);
+    maybeWriteMlSnapshot(mlSnapshot);
+  } catch (error) {
+    console.warn('[ML] Failed to write snapshot for meta-label dataset:', (error as Error)?.message || error);
+  }
+
   return marketData;
+}
+
+function maybeWriteMlSnapshot(snapshot: ReturnType<typeof buildMlFeatureSnapshot>): void {
+  const ts = new Date(snapshot.timestamp || Date.now()).getTime();
+  if (!Number.isFinite(ts)) return;
+
+  const last = lastMlSnapshotWrite[snapshot.symbol] || 0;
+  if (ts - last < mlSnapshotThrottleMs) {
+    return;
+  }
+  lastMlSnapshotWrite[snapshot.symbol] = ts;
+
+  const targetDir = path.resolve(__dirname, '..', 'ml', 'data');
+  const targetFile = path.join(targetDir, 'snapshots.jsonl');
+  if (!existsSync(targetDir)) {
+    mkdirSync(targetDir, { recursive: true });
+  }
+
+  const payload = JSON.stringify(snapshot);
+  try {
+    appendFileSync(targetFile, `${payload}\n`, { encoding: 'utf-8' });
+  } catch (err) {
+    console.warn('[ML] Failed to append snapshot:', (err as Error)?.message || err);
+  }
 }
 
 function buildMicrostructureFromOrderFlow(

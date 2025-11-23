@@ -1,0 +1,8 @@
+lightgbm
+pandas
+numpy
+scikit-learn
+joblib
+pyarrow
+pydantic
+tqdm

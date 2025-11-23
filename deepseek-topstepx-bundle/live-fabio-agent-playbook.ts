@@ -34,6 +34,8 @@ import {
 import { analyzeFuturesMarket } from './lib/openaiTradingAgent';
 import { createExecutionManager } from './lib/executionManager';
 import { analyzePositionRisk } from './lib/riskManagementAgent';
+import { buildMlFeatureSnapshot } from './lib/mlFeatureExtractor';
+import { predictMetaLabel } from './lib/mlMetaLabelService';
 
 // Configuration
 const SYMBOL = process.env.TOPSTEPX_SYMBOL || 'NQZ5';
@@ -1012,6 +1014,20 @@ async function processMarketUpdate() {
     recentSessionProfiles,
     cvdMinuteBars
   );
+
+  // Lightweight ML prefilter (probabilities only, no gating yet)
+  try {
+    const mlSnapshot = buildMlFeatureSnapshot(marketData);
+    const mlScores = predictMetaLabel(mlSnapshot);
+    if (mlScores) {
+      marketData.mlScores = {
+        ...mlScores,
+        modelVersion: 'lightgbm-meta-label-v0',
+      };
+    }
+  } catch (error: any) {
+    console.warn('[ML] Meta-label scoring failed:', error?.message || error);
+  }
 
   // ========== NEW: Get OpenAI decision on a fixed interval (every minute) ==========
   let openaiDecision = null;

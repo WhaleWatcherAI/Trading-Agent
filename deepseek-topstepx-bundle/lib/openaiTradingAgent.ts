@@ -227,6 +227,13 @@ export interface FuturesMarketData {
   // Raw Market Statistics (for LLM regime inference)
   marketStats: MarketStatistics;
 
+  // ML meta-label probabilities (LightGBM)
+  mlScores?: {
+    p_win_5m?: number;
+    p_win_30m?: number;
+    modelVersion?: string;
+  };
+
   // Performance Metrics (self-learning feedback)
   performance: PerformanceMetrics | null;
 
