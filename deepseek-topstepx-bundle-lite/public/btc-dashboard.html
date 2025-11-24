@@ -1,0 +1,1925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BTC-USD Live Dashboard - Coinbase</title>
+    <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f1729 0%, #1a1f3a 100%);
+            color: #e2e8f0;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a1f3a 0%, #0f1729 100%);
+            padding: 1.25rem;
+            border-bottom: 2px solid #f7931a;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f7931a 0%, #ffa726 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.25rem;
+        }
+
+        .subtitle {
+            font-size: 0.875rem;
+            color: #94a3b8;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .status-bar {
+            background: rgba(26, 31, 58, 0.8);
+            padding: 1rem;
+            border-bottom: 1px solid #2a3150;
+            backdrop-filter: blur(10px);
+            display: flex;
+            gap: 2rem;
+            overflow-x: auto;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            white-space: nowrap;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            color: #f1f5f9;
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+
+        .stat-value.positive { color: #10b981; }
+        .stat-value.negative { color: #ef4444; }
+
+        #largeOrderMarkers, #orderbookCanvas, #volumeProfileCanvas, #aggressiveWhalesCanvas, #absorptionCanvas, #exhaustionCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        #orderbookCanvas { z-index: 10; }
+        #volumeProfileCanvas { z-index: 12; }
+        #largeOrderMarkers { z-index: 15; }
+        #aggressiveWhalesCanvas { z-index: 20; }
+        #exhaustionCanvas { z-index: 22; }
+        #absorptionCanvas { z-index: 25; }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(51, 65, 85, 0.2); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: rgba(247, 147, 26, 0.4); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(247, 147, 26, 0.6); }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div>
+                <div class="title">Bitcoin (BTC-USD) Live</div>
+                <div class="subtitle">Real-time Level 2 Orderbook | CVD | Large Order Detection | Coinbase Pro</div>
+            </div>
+            <div class="status-badge" id="status">LIVE</div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <div class="stat-item">
+            <div class="stat-label">Last Price</div>
+            <div class="stat-value" id="lastPrice">—</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">24h Change</div>
+            <div class="stat-value" id="change24h">—</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">24h Volume</div>
+            <div class="stat-value" id="volume24h">—</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">Spread</div>
+            <div class="stat-value" id="spread">—</div>
+        </div>
+    </div>
+
+    <div style="max-width: 1600px; margin: 0 auto; padding: 1rem; overflow-y: auto; height: calc(100vh - 160px);">
+        <div style="display: grid; grid-template-columns: 1fr 300px; gap: 1rem; margin-bottom: 1rem;">
+            <div style="background: #1e293b; border-radius: 0.5rem; padding: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <div style="font-weight: 600; color: #f1f5f9;">1-Minute Bitcoin Price Chart | Level 2 Orderbook</div>
+                </div>
+                <div style="height: 450px; width: 100%; position: relative;">
+                    <div id="mainChart" style="height: 100%; width: 100%;"></div>
+                    <canvas id="orderbookCanvas"></canvas>
+                    <canvas id="volumeProfileCanvas"></canvas>
+                    <canvas id="largeOrderMarkers"></canvas>
+                    <canvas id="aggressiveWhalesCanvas"></canvas>
+                    <canvas id="exhaustionCanvas"></canvas>
+                    <canvas id="absorptionCanvas"></canvas>
+                </div>
+            </div>
+
+            <div style="background: #1e293b; border-radius: 0.5rem; padding: 1rem;">
+                <div style="font-weight: 600; color: #f1f5f9; margin-bottom: 0.75rem; border-bottom: 2px solid #f7931a; padding-bottom: 0.5rem;">📊 Chart Legend</div>
+
+                <div style="margin-bottom: 1.25rem;">
+                    <div style="font-weight: 600; color: #94a3b8; font-size: 0.75rem; margin-bottom: 0.5rem; text-transform: uppercase;">Candlesticks</div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.375rem;">
+                        <div style="width: 16px; height: 16px; background: #10b981; border: 1px solid #059669;"></div>
+                        <span style="color: #cbd5e1; font-size: 0.875rem;">Green = Bullish</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 16px; height: 16px; background: #ef4444; border: 1px solid #dc2626;"></div>
+                        <span style="color: #cbd5e1; font-size: 0.875rem;">Red = Bearish</span>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1.25rem;">
+                    <div style="font-weight: 600; color: #94a3b8; font-size: 0.75rem; margin-bottom: 0.5rem; text-transform: uppercase;">Level 2 Orderbook</div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.375rem;">
+                        <div style="width: 30px; height: 8px; background: rgba(16, 185, 129, 0.4);"></div>
+                        <span style="color: #cbd5e1; font-size: 0.875rem;">Bid Orders (Buy)</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 30px; height: 8px; background: rgba(239, 68, 68, 0.4);"></div>
+                        <span style="color: #cbd5e1; font-size: 0.875rem;">Ask Orders (Sell)</span>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1.25rem;">
+                    <div style="font-weight: 600; color: #94a3b8; font-size: 0.75rem; margin-bottom: 0.5rem; text-transform: uppercase;">Volume Profile</div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.375rem;">
+                        <div style="width: 24px; height: 6px; background: rgba(148, 163, 184, 0.6);"></div>
+                        <span style="color: #cbd5e1; font-size: 0.8rem;">Horizontal bars (left) = traded volume by price since 6:00pm ET session start</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 0.35rem;">
+                        <label style="color: #94a3b8; font-size: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <input id="toggleVolumeProfile" type="checkbox" checked style="accent-color: #38bdf8; width: 14px; height: 14px;" />
+                            <span>Show volume profile</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1.25rem;">
+                    <div style="font-weight: 600; color: #94a3b8; font-size: 0.75rem; margin-bottom: 0.5rem; text-transform: uppercase;">Large Orders</div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.375rem;">
+                        <div style="width: 16px; height: 16px; background: rgba(16, 185, 129, 0.3); border: 2px solid #10b981; border-radius: 50%;"></div>
+                        <span style="color: #cbd5e1; font-size: 0.875rem;">Large Buy Orders</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 16px; height: 16px; background: rgba(239, 68, 68, 0.3); border: 2px solid #ef4444; border-radius: 50%;"></div>
+                        <span style="color: #cbd5e1; font-size: 0.875rem;">Large Sell Orders</span>
+                    </div>
+                    <div style="margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.35rem;">
+                        <label style="color: #94a3b8; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center;">
+                            <span>Resting L2 Threshold (BTC)</span>
+                            <input type="number" id="restingL2Threshold" value="5" min="0.1" step="0.1" style="margin-left: 0.75rem; width: 90px; background: rgba(51,65,85,0.5); border: 1px solid #475569; border-radius: 0.375rem; padding: 0.25rem 0.5rem; color: #f1f5f9; font-size: 0.8rem;" />
+                        </label>
+                        <label style="color: #94a3b8; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center;">
+                            <span>Aggressive Whale Threshold (BTC)</span>
+                            <input type="number" id="aggressiveWhaleThreshold" value="0.5" min="0.001" step="0.01" style="margin-left: 0.75rem; width: 90px; background: rgba(51,65,85,0.5); border: 1px solid #475569; border-radius: 0.375rem; padding: 0.25rem 0.5rem; color: #f1f5f9; font-size: 0.8rem;" />
+                            <span id="aggressiveThresholdUsd" style="margin-left: 0.5rem; color: #94a3b8; font-size: 0.75rem;"></span>
+                        </label>
+                        <label style="color: #94a3b8; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+                            <span>Absorption Threshold (BTC)</span>
+                            <input type="number" id="absorptionThreshold" value="1.0" min="0.001" step="0.1" style="margin-left: 0.75rem; width: 90px; background: rgba(51,65,85,0.5); border: 1px solid #475569; border-radius: 0.375rem; padding: 0.25rem 0.5rem; color: #f1f5f9; font-size: 0.8rem;" />
+                            <span id="absorptionThresholdUsd" style="margin-left: 0.5rem; color: #94a3b8; font-size: 0.75rem;"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1.25rem;">
+                    <div style="font-weight: 600; color: #94a3b8; font-size: 0.75rem; margin-bottom: 0.5rem; text-transform: uppercase;">Exhaustion Zones</div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.375rem;">
+                        <div style="width: 16px; height: 16px; border-radius: 0.25rem; background: rgba(34, 197, 94, 0.10); border: 2px solid #22c55e;"></div>
+                        <span style="color: #cbd5e1; font-size: 0.8rem;">ExB = Selling exhaustion (fade long)</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.375rem;">
+                        <div style="width: 16px; height: 16px; border-radius: 0.25rem; background: rgba(249, 115, 22, 0.10); border: 2px solid #f97316;"></div>
+                        <span style="color: #cbd5e1; font-size: 0.8rem;">ExS = Buying exhaustion (fade short)</span>
+                    </div>
+                    <label style="margin-top: 0.5rem; color: #94a3b8; font-size: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <input id="toggleExhaustionOverlay" type="checkbox" checked style="accent-color: #f97316; width: 14px; height: 14px;" />
+                        <span>Show exhaustion zones</span>
+                    </label>
+                    <div style="margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.35rem;">
+                        <label style="color: #94a3b8; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center;">
+                            <span>Min push volume (BTC)</span>
+                            <input type="number" id="exhaustionMinPush" value="0.3" min="0.05" step="0.05" style="margin-left: 0.75rem; width: 80px; background: rgba(51,65,85,0.5); border: 1px solid #475569; border-radius: 0.375rem; padding: 0.25rem 0.4rem; color: #f1f5f9; font-size: 0.8rem;" />
+                        </label>
+                        <label style="color: #94a3b8; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center;">
+                            <span>Drop factor (0–1)</span>
+                            <input type="number" id="exhaustionDropFactor" value="0.4" min="0.1" step="0.05" max="0.9" style="margin-left: 0.75rem; width: 80px; background: rgba(51,65,85,0.5); border: 1px solid #475569; border-radius: 0.375rem; padding: 0.25rem 0.4rem; color: #f1f5f9; font-size: 0.8rem;" />
+                        </label>
+                        <label style="color: #94a3b8; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center;">
+                            <span>Max extension (USD)</span>
+                            <input type="number" id="exhaustionMaxExtension" value="10" min="1" step="1" style="margin-left: 0.75rem; width: 80px; background: rgba(51,65,85,0.5); border: 1px solid #475569; border-radius: 0.375rem; padding: 0.25rem 0.4rem; color: #f1f5f9; font-size: 0.8rem;" />
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <div style="font-weight: 600; color: #94a3b8; font-size: 0.75rem; margin-bottom: 0.5rem; text-transform: uppercase;">Data Source</div>
+                    <div style="color: #cbd5e1; font-size: 0.875rem; line-height: 1.6;">
+                        <div>• Real-time Coinbase Pro WebSocket</div>
+                        <div>• Level 2 orderbook depth</div>
+                        <div>• Live trade execution data</div>
+                        <div>• 24/7 market coverage</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="background: #1e293b; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem;">
+            <div style="font-weight: 600; color: #f1f5f9; margin-bottom: 0.75rem;">📊 CVD (Cumulative Volume Delta)</div>
+            <div id="cvdChart" style="height: 180px; width: 100%;"></div>
+        </div>
+
+        <div style="background: #1e293b; border-radius: 0.5rem; padding: 1rem;">
+            <div style="font-weight: 600; color: #f1f5f9; margin-bottom: 0.75rem;">📋 Activity Log</div>
+            <div id="activityLog" style="max-height: 150px; overflow-y: auto; font-family: monospace; font-size: 0.875rem; color: #94a3b8; line-height: 1.5;">
+                <div style="color: #64748b;">Waiting for activity...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global error handler to suppress lightweight-charts rendering errors
+        window.addEventListener('error', function(event) {
+            if (event.message && event.message.includes('Value is null') &&
+                event.filename && event.filename.includes('lightweight-charts')) {
+                console.warn('⚠️ Suppressed chart rendering error (this is normal during updates)');
+                event.preventDefault();
+                return true;
+            }
+        });
+
+        // Global state
+        const ENABLE_ORDERBOOK_OVERLAYS = true;
+        const ENABLE_CVD_CHART = true;
+        const ENABLE_VOLUME_PROFILE = true;
+
+        let socket = null;
+        let chart = null;
+        let candlestickSeries = null;
+        let cvdChart = null;
+        let cvdSeries = null;
+
+        // Canvas overlays
+        let orderbookCanvas = null;
+        let orderbookCtx = null;
+        let largeOrderCanvas = null;
+        let largeOrderCtx = null;
+        let volumeProfileCanvas = null;
+        let volumeProfileCtx = null;
+        let aggressiveWhalesCanvas = null;
+        let aggressiveWhalesCtx = null;
+
+        // Data state
+        let orderbookData = { bids: [], asks: [] };
+        let largeOrdersData = [];
+
+        // Throttle candle updates to prevent overwhelming the chart
+        let lastCandleUpdate = 0;
+        let pendingCandleUpdate = null;
+        let cvdData = [];
+        let cumulativeDelta = 0;
+        let largeOrderThreshold = 5;
+        let aggressiveWhaleThreshold = 0.5; // Default: 0.5 BTC
+        let absorptionThresholdValue = 1.0; // Default: 1.0 BTC (separate from whale threshold)
+        let historicalCandlesLoaded = false;
+        let hasCandleData = false;
+        let allCandles = [];
+        let aggressiveWhales = [];
+        let largestTradeSeen = 0;
+        let totalTradesReceived = 0;
+        let initialFitDone = false;
+        let lastScrollTime = 0;
+
+        // Exhaustion detection (aggressive side runs out of fuel near highs/lows)
+        let exhaustionCanvas = null;
+        let exhaustionCtx = null;
+        let exhaustionEvents = []; // { side: 'buy'|'sell', price, zone, swingDelta, intensityDrop, priceExtensionUsd, timestamp }
+        let perSecondAggressiveBuckets = new Map(); // Map<timeSec, { time, buyVol, sellVol, high, low, lastPrice }>
+        const EXHAUSTION_WINDOW_SEC = 5; // Length of push/retest segments in seconds
+        const EXHAUSTION_LOOKBACK_SEC = EXHAUSTION_WINDOW_SEC * 2; // Push + retest span
+        let EXHAUSTION_MIN_PUSH_VOL = 0.3; // Minimum same-side volume in push window
+        let EXHAUSTION_DROP_FACTOR = 0.4; // Current window intensity must be < 40% of push
+        let EXHAUSTION_MAX_EXTENSION_USD = 10; // Max allowed price extension on retest
+        const EXHAUSTION_EVENT_COOLDOWN_MS = 60000; // Minimum time between events at same level
+        let exhaustionOverlayEnabled = true;
+
+        // Volume profile (traded volume by price since 6pm session start)
+        let volumeProfileBins = new Map(); // Map<priceKey, { price, buyVol, sellVol, totalVol, lastUpdate }>
+        const VOLUME_PROFILE_BIN_SIZE = 10; // $10 price buckets
+        const VOLUME_PROFILE_WINDOW_MS = 24 * 60 * 60 * 1000; // upper bound safety window (24h), actual cutoff is session start
+
+        // Absorption detection
+        let absorptionCanvas = null;
+        let absorptionCtx = null;
+        let absorptionZones = []; // { price, type: 'buy'|'sell', score, timestamp, aggVol, wallBefore, wallAfter }
+        let priceZones = new Map(); // Track zones: Map<zoneKey, { aggBuyVol, aggSellVol, priceMin, priceMax, wallBidBefore, wallAskBefore, startTime }>
+        const ZONE_RANGE_BTC = 5; // +/- $5 for BTC
+        const ZONE_WINDOW_MS = 3000; // 3 second window
+        // ABSORPTION_MIN_VOL is now synced with whale/large order thresholds - see getAbsorptionThreshold()
+        let lastPrice = 0;
+
+        // Initialize charts
+        function initCharts() {
+            console.log('Initializing charts...');
+            const container = document.getElementById('mainChart');
+
+            chart = LightweightCharts.createChart(container, {
+                width: container.clientWidth,
+                height: 450,
+                layout: {
+                    background: { type: LightweightCharts.ColorType.Solid, color: '#1e293b' },
+                    textColor: '#94a3b8',
+                },
+                grid: {
+                    vertLines: { color: 'rgba(14,23,38,0.4)' },
+                    horzLines: { color: 'rgba(14,23,38,0.4)' },
+                },
+                timeScale: {
+                    borderColor: '#334155',
+                    timeVisible: true,
+                    secondsVisible: false,
+                    rightOffset: 20, // Keep some space on the right for new candles
+                    lockVisibleTimeRangeOnResize: true, // Prevent zoom on resize
+                },
+                rightPriceScale: {
+                    borderColor: '#334155',
+                    autoScale: true, // Auto-scale price axis
+                },
+            });
+
+            candlestickSeries = chart.addCandlestickSeries({
+                upColor: '#10b981',
+                downColor: '#ef4444',
+                borderUpColor: '#10b981',
+                borderDownColor: '#ef4444',
+                wickUpColor: '#10b981',
+                wickDownColor: '#ef4444',
+                lastPriceAnimation: LightweightCharts.LastPriceAnimationMode.Continuous,
+            });
+
+            if (ENABLE_ORDERBOOK_OVERLAYS) {
+                initOrderbookCanvas();
+                if (ENABLE_VOLUME_PROFILE) {
+                    initVolumeProfileCanvas();
+                }
+                initLargeOrderCanvas();
+                initAggressiveWhalesCanvas();
+                initExhaustionCanvas();
+                initAbsorptionCanvas();
+            }
+            if (ENABLE_CVD_CHART) {
+                initCVDChart();
+            }
+
+            // Re-render overlays when chart scrolls or zooms
+            chart.timeScale().subscribeVisibleTimeRangeChange(() => {
+                if (hasCandleData) {
+                    renderOrderbook();
+                    if (ENABLE_VOLUME_PROFILE) {
+                        renderVolumeProfile();
+                    }
+                    renderLargeOrderMarkers();
+                    renderAggressiveWhales();
+                    renderExhaustion();
+                    renderAbsorption();
+                }
+            });
+
+            window.addEventListener('resize', () => {
+                if (chart) {
+                    chart.applyOptions({ width: container.clientWidth });
+                    resizeOrderbookCanvas();
+                    if (ENABLE_VOLUME_PROFILE) {
+                        resizeVolumeProfileCanvas();
+                    }
+                    resizeLargeOrderCanvas();
+                    resizeAggressiveWhalesCanvas();
+                    resizeExhaustionCanvas();
+                    resizeAbsorptionCanvas();
+                }
+                if (cvdChart) {
+                    const cvdContainer = document.getElementById('cvdChart');
+                    cvdChart.applyOptions({ width: cvdContainer.clientWidth });
+                }
+            });
+
+            console.log('Charts initialized');
+        }
+
+        // Initialize aggressive whales overlay canvas
+        function initAggressiveWhalesCanvas() {
+            aggressiveWhalesCanvas = document.getElementById('aggressiveWhalesCanvas');
+            aggressiveWhalesCtx = aggressiveWhalesCanvas.getContext('2d');
+            resizeAggressiveWhalesCanvas();
+            const whaleInput = document.getElementById('aggressiveWhaleThreshold');
+            const whaleUsdSpan = document.getElementById('aggressiveThresholdUsd');
+
+            function updateWhaleThresholdDisplay() {
+                if (whaleUsdSpan && lastPrice > 0) {
+                    const usdValue = aggressiveWhaleThreshold * lastPrice;
+                    whaleUsdSpan.textContent = `(~$${usdValue.toLocaleString('en-US', {maximumFractionDigits: 0})})`;
+                }
+            }
+
+            if (whaleInput) {
+                whaleInput.addEventListener('input', (e) => {
+                    const value = parseFloat(e.target.value) || 0.5;
+                    aggressiveWhaleThreshold = value;
+                    console.log('Aggressive whale threshold updated to:', aggressiveWhaleThreshold, 'BTC');
+                    updateWhaleThresholdDisplay();
+                    // Trigger immediate re-render
+                    if (hasCandleData) {
+                        renderAggressiveWhales();
+                    }
+                });
+            }
+
+            // Initial display update
+            updateWhaleThresholdDisplay();
+        }
+
+        function resizeAggressiveWhalesCanvas() {
+            const container = document.getElementById('mainChart');
+            aggressiveWhalesCanvas.width = container.clientWidth;
+            aggressiveWhalesCanvas.height = container.clientHeight;
+        }
+
+        // Exhaustion overlay canvas (zones where aggression has dried up)
+        function initExhaustionCanvas() {
+            exhaustionCanvas = document.getElementById('exhaustionCanvas');
+            if (!exhaustionCanvas) {
+                console.warn('⚠️ Exhaustion canvas element not found');
+                return;
+            }
+            exhaustionCtx = exhaustionCanvas.getContext('2d');
+            resizeExhaustionCanvas();
+            console.log('✅ Exhaustion canvas initialized');
+
+            const toggle = document.getElementById('toggleExhaustionOverlay');
+            if (toggle) {
+                exhaustionOverlayEnabled = toggle.checked;
+                toggle.addEventListener('change', (event) => {
+                    const target = event.target;
+                    exhaustionOverlayEnabled = !!target.checked;
+                    renderExhaustion();
+                });
+            }
+
+            const minPushInput = document.getElementById('exhaustionMinPush');
+            if (minPushInput) {
+                minPushInput.addEventListener('input', (event) => {
+                    const target = event.target;
+                    const value = parseFloat(target.value);
+                    if (Number.isFinite(value) && value > 0) {
+                        EXHAUSTION_MIN_PUSH_VOL = value;
+                    }
+                });
+            }
+
+            const dropFactorInput = document.getElementById('exhaustionDropFactor');
+            if (dropFactorInput) {
+                dropFactorInput.addEventListener('input', (event) => {
+                    const target = event.target;
+                    const value = parseFloat(target.value);
+                    if (Number.isFinite(value) && value > 0 && value < 1) {
+                        EXHAUSTION_DROP_FACTOR = value;
+                    }
+                });
+            }
+
+            const maxExtensionInput = document.getElementById('exhaustionMaxExtension');
+            if (maxExtensionInput) {
+                maxExtensionInput.addEventListener('input', (event) => {
+                    const target = event.target;
+                    const value = parseFloat(target.value);
+                    if (Number.isFinite(value) && value >= 0.5) {
+                        EXHAUSTION_MAX_EXTENSION_USD = value;
+                    }
+                });
+            }
+        }
+
+        function resizeExhaustionCanvas() {
+            if (!exhaustionCanvas || !exhaustionCtx) return;
+            const container = document.getElementById('mainChart');
+            if (!container) return;
+
+            exhaustionCanvas.width = container.clientWidth;
+            exhaustionCanvas.height = container.clientHeight;
+
+            if (chart && hasCandleData) {
+                renderExhaustion();
+            }
+        }
+
+        // Unified candle handler used for both live and historical candles.
+        // Validates data, maintains a local allCandles array, and applies it
+        // to the candlestick series with setData to keep the chart state consistent.
+        function handleCandle(candle, isLiveUpdate = true) {
+            if (!candle || !candlestickSeries || !chart) return;
+
+            // Validate all required fields (use explicit null/undefined check, not falsy check)
+            if (candle.time == null || candle.open == null || candle.high == null || candle.low == null || candle.close == null) {
+                console.error('Invalid candle data received:', candle);
+                return;
+            }
+
+            // Parse and validate values
+            const time = typeof candle.time === 'number' ? candle.time : parseInt(candle.time);
+            const open = typeof candle.open === 'number' ? candle.open : parseFloat(candle.open);
+            const high = typeof candle.high === 'number' ? candle.high : parseFloat(candle.high);
+            const low = typeof candle.low === 'number' ? candle.low : parseFloat(candle.low);
+            const close = typeof candle.close === 'number' ? candle.close : parseFloat(candle.close);
+
+            // Final validation check
+            if (!Number.isFinite(time) || !Number.isFinite(open) || !Number.isFinite(high) || !Number.isFinite(low) || !Number.isFinite(close)) {
+                console.error('NaN/invalid values in candle data:', candle);
+                return;
+            }
+
+            // Ensure high >= low and all values are reasonable
+            if (high < low || high < Math.min(open, close) || low > Math.max(open, close)) {
+                console.error('Invalid OHLC relationship:', { time, open, high, low, close });
+                return;
+            }
+
+            const candleData = { time, open, high, low, close };
+
+            // Merge into local candles array to keep a clean, ordered history
+            if (!Array.isArray(allCandles)) {
+                allCandles = [];
+            }
+
+            let isNewCandle = false;
+            if (allCandles.length === 0) {
+                allCandles.push(candleData);
+                isNewCandle = true;
+                console.log('📌 First candle added');
+            } else {
+                const last = allCandles[allCandles.length - 1];
+                if (time === last.time) {
+                    // Update the last bar in-place
+                    allCandles[allCandles.length - 1] = candleData;
+                    // console.log('🔄 Updated current candle');
+                } else if (time > last.time) {
+                    // Append new bar
+                    allCandles.push(candleData);
+                    isNewCandle = true;
+                    console.log('📌 NEW CANDLE detected! (time:', time, 'prev:', last.time, ')');
+                } else {
+                    // Out-of-order/stale candle - ignore to avoid corrupting the series
+                    console.warn('Ignoring out-of-order candle:', candleData);
+                }
+            }
+
+            // Keep a reasonable history length on the client
+            const MAX_CLIENT_CANDLES = 500;
+            if (allCandles.length > MAX_CLIENT_CANDLES) {
+                allCandles = allCandles.slice(-MAX_CLIENT_CANDLES);
+            }
+
+            // Apply full data snapshot to the series.
+            try {
+                candlestickSeries.setData(allCandles);
+                hasCandleData = allCandles.length > 0;
+
+                // Only fit content once on initial load (when loading historical data)
+                if (chart && allCandles.length > 0 && !initialFitDone && !isLiveUpdate) {
+                    setTimeout(() => {
+                        chart.timeScale().fitContent();
+                        initialFitDone = true;
+                        console.log('📊 Initial chart fit complete - tracking live candles');
+                    }, 100);
+                }
+                // Scroll to show new candles as they arrive (prevents whales from being off-screen)
+                else if (chart && isNewCandle && isLiveUpdate && initialFitDone) {
+                    const now = Date.now();
+                    // Throttle: only scroll once per 3 seconds
+                    if (now - lastScrollTime > 3000) {
+                        chart.timeScale().scrollToPosition(0, false);
+                        lastScrollTime = now;
+                    }
+                }
+            } catch (error) {
+                console.error('Error applying candles to chart:', error);
+            }
+        }
+
+        // Initialize CVD chart (rendered as a simple line series to avoid candlestick rendering issues)
+        function initCVDChart() {
+            const container = document.getElementById('cvdChart');
+
+            cvdChart = LightweightCharts.createChart(container, {
+                width: container.clientWidth,
+                height: 180,
+                layout: {
+                    background: { type: LightweightCharts.ColorType.Solid, color: '#1e293b' },
+                    textColor: '#94a3b8',
+                },
+                grid: {
+                    vertLines: { color: 'rgba(14,23,38,0.4)' },
+                    horzLines: { color: 'rgba(14,23,38,0.4)' },
+                },
+                timeScale: {
+                    borderColor: '#334155',
+                    timeVisible: true,
+                },
+                rightPriceScale: {
+                    borderColor: '#334155',
+                },
+            });
+
+            // Use a line series for CVD to keep rendering simple and robust
+            cvdSeries = cvdChart.addLineSeries({
+                color: '#10b981',
+                lineWidth: 2,
+            });
+
+            console.log('CVD chart initialized');
+        }
+
+        // Initialize orderbook canvas
+        function initOrderbookCanvas() {
+            orderbookCanvas = document.getElementById('orderbookCanvas');
+            orderbookCtx = orderbookCanvas.getContext('2d');
+            resizeOrderbookCanvas();
+            console.log('Orderbook canvas initialized:', orderbookCanvas.width, 'x', orderbookCanvas.height);
+            // Don't start continuous rendering - will render when orderbook data arrives
+            // renderOrderbook();
+        }
+
+        function resizeOrderbookCanvas() {
+            const container = document.getElementById('mainChart');
+            orderbookCanvas.width = container.clientWidth;
+            orderbookCanvas.height = container.clientHeight;
+        }
+
+        // Volume profile canvas
+        function initVolumeProfileCanvas() {
+            volumeProfileCanvas = document.getElementById('volumeProfileCanvas');
+            if (!volumeProfileCanvas) {
+                console.warn('⚠️ Volume profile canvas element not found');
+                return;
+            }
+            volumeProfileCtx = volumeProfileCanvas.getContext('2d');
+            resizeVolumeProfileCanvas();
+            console.log('✅ Volume profile canvas initialized');
+
+            const toggle = document.getElementById('toggleVolumeProfile');
+            if (toggle) {
+                toggle.checked = ENABLE_VOLUME_PROFILE;
+                toggle.addEventListener('change', (event) => {
+                    const target = event.target;
+                    const enabled = !!target.checked;
+                    // We don't flip ENABLE_VOLUME_PROFILE constant; just hide/show rendering.
+                    if (!enabled) {
+                        if (volumeProfileCtx && volumeProfileCanvas) {
+                            volumeProfileCtx.clearRect(0, 0, volumeProfileCanvas.width, volumeProfileCanvas.height);
+                        }
+                    } else {
+                        renderVolumeProfile();
+                    }
+                });
+            }
+        }
+
+        function resizeVolumeProfileCanvas() {
+            if (!volumeProfileCanvas || !volumeProfileCtx) return;
+            const container = document.getElementById('mainChart');
+            if (!container) return;
+            volumeProfileCanvas.width = container.clientWidth;
+            volumeProfileCanvas.height = container.clientHeight;
+            if (chart && hasCandleData) {
+                renderVolumeProfile();
+            }
+        }
+
+        function renderOrderbook() {
+            // Require a fully initialized chart with candle data before rendering overlays
+            if (!orderbookCtx || !chart || !candlestickSeries || !hasCandleData) {
+                return;
+            }
+
+            orderbookCtx.clearRect(0, 0, orderbookCanvas.width, orderbookCanvas.height);
+
+            if (orderbookData.bids.length === 0 && orderbookData.asks.length === 0) {
+                return;
+            }
+
+            try {
+                const priceScale = candlestickSeries.priceScale();
+                if (!priceScale) {
+                    console.warn('PriceScale not available yet');
+                    return;
+                }
+
+                const allQuantities = [
+                    ...orderbookData.bids.map(b => b.quantity),
+                    ...orderbookData.asks.map(a => a.quantity)
+                ];
+                const maxQuantity = Math.max(...allQuantities, 1);
+                const maxBarWidth = orderbookCanvas.width * 0.4; // Increased from 0.3 to make bars more visible
+
+                let barsDrawn = 0;
+                let barsSkipped = 0;
+
+                // Draw bids (green bars) - show ALL bids to visualize support levels
+                orderbookCtx.fillStyle = 'rgba(16, 185, 129, 0.8)'; // Increased opacity
+                orderbookData.bids.forEach((bid, index) => {
+                    try {
+                        const y = candlestickSeries.priceToCoordinate(bid.price);
+                        if (y !== null && y !== undefined && !isNaN(y) && y >= -100 && y <= orderbookCanvas.height + 100) {
+                            const barWidth = Math.max((bid.quantity / maxQuantity) * maxBarWidth, 2); // Minimum 2px width
+                            const x = orderbookCanvas.width - barWidth;
+                            // Thicker bars for larger orders (support levels)
+                            const barHeight = bid.quantity > maxQuantity * 0.5 ? 14 : 8; // Increased from 12/6
+                            orderbookCtx.fillRect(x, y - barHeight / 2, barWidth, barHeight);
+                            barsDrawn++;
+                        } else {
+                            barsSkipped++;
+                        }
+                    } catch (e) {
+                        // Skip this bar if priceToCoordinate fails during chart update
+                        barsSkipped++;
+                    }
+                });
+
+                // Draw asks (red bars) - show ALL asks to visualize resistance levels
+                orderbookCtx.fillStyle = 'rgba(239, 68, 68, 0.8)'; // Increased opacity
+                orderbookData.asks.forEach((ask, index) => {
+                    try {
+                        const y = candlestickSeries.priceToCoordinate(ask.price);
+                        if (y !== null && y !== undefined && !isNaN(y) && y >= -100 && y <= orderbookCanvas.height + 100) {
+                            const barWidth = Math.max((ask.quantity / maxQuantity) * maxBarWidth, 2); // Minimum 2px width
+                            const x = orderbookCanvas.width - barWidth;
+                            // Thicker bars for larger orders (resistance levels)
+                            const barHeight = ask.quantity > maxQuantity * 0.5 ? 14 : 8; // Increased from 12/6
+                            orderbookCtx.fillRect(x, y - barHeight / 2, barWidth, barHeight);
+                            barsDrawn++;
+                        } else {
+                            barsSkipped++;
+                        }
+                    } catch (e) {
+                        // Skip this bar if priceToCoordinate fails during chart update
+                        barsSkipped++;
+                    }
+                });
+
+                // Debug logging only when bars aren't being drawn
+                if (barsDrawn === 0 && orderbookData.bids.length > 0) {
+                    const bidPrices = orderbookData.bids.map(b => b.price);
+                    const askPrices = orderbookData.asks.map(a => a.price);
+                    console.warn(`⚠️ No orderbook bars visible in viewport!`);
+                    console.warn(`Bid range: $${Math.min(...bidPrices).toFixed(2)} - $${Math.max(...bidPrices).toFixed(2)}`);
+                    console.warn(`Ask range: $${Math.min(...askPrices).toFixed(2)} - $${Math.max(...askPrices).toFixed(2)}`);
+                    console.warn(`Zoom out to see orderbook depth bars`);
+                } else if (barsDrawn > 0 && barsSkipped > barsDrawn * 2) {
+                    // Many bars are being skipped - zoom out to see them
+                    console.log(`📊 Showing ${barsDrawn} orderbook levels (${barsSkipped} outside viewport - zoom out to see more)`);
+                }
+
+            } catch (error) {
+                console.error('Error rendering orderbook:', error);
+            }
+        }
+
+        // Initialize large order markers canvas
+        function initLargeOrderCanvas() {
+            largeOrderCanvas = document.getElementById('largeOrderMarkers');
+            largeOrderCtx = largeOrderCanvas.getContext('2d');
+            resizeLargeOrderCanvas();
+            // Don't start continuous rendering - will render when orderbook data arrives
+            // renderLargeOrderMarkers();
+
+            const largeInput = document.getElementById('restingL2Threshold');
+            if (largeInput) {
+                largeInput.addEventListener('input', (e) => {
+                    const value = parseFloat(e.target.value) || 5;
+                    largeOrderThreshold = value;
+                    console.log('Resting L2 threshold updated to:', largeOrderThreshold);
+                    // Trigger immediate re-render
+                    if (hasCandleData) {
+                        renderLargeOrderMarkers();
+                    }
+                });
+            }
+        }
+
+        function resizeLargeOrderCanvas() {
+            const container = document.getElementById('mainChart');
+            largeOrderCanvas.width = container.clientWidth;
+            largeOrderCanvas.height = container.clientHeight;
+        }
+
+        function renderLargeOrderMarkers() {
+            // Require initialized chart with candle data before rendering markers
+            if (!largeOrderCtx || !chart || !candlestickSeries || !hasCandleData) {
+                return;
+            }
+
+            largeOrderCtx.clearRect(0, 0, largeOrderCanvas.width, largeOrderCanvas.height);
+
+            if (largeOrdersData.length === 0) {
+                return;
+            }
+
+            try {
+                const priceScale = candlestickSeries.priceScale();
+                if (!priceScale) {
+                    console.warn('PriceScale not available for large orders');
+                    return;
+                }
+
+                const largeOrders = largeOrdersData.filter(order => order.quantity >= largeOrderThreshold);
+
+                // Log only occasionally to reduce spam (every ~100 frames)
+                if (Math.random() < 0.01) {
+                    console.log(`Large orders: ${largeOrders.length} orders above threshold ${largeOrderThreshold} BTC (total: ${largeOrdersData.length})`);
+                }
+
+                let markersDrawn = 0;
+                largeOrders.forEach(order => {
+                    try {
+                        const y = candlestickSeries.priceToCoordinate(order.price);
+                        if (y !== null && y !== undefined && !isNaN(y) && y >= 0 && y <= largeOrderCanvas.height) {
+                            const color = order.side === 'buy' ? '#10b981' : '#ef4444';
+                            const bgColor = order.side === 'buy' ? 'rgba(16, 185, 129, 0.5)' : 'rgba(239, 68, 68, 0.5)';
+
+                            const radius = Math.min(12 + Math.log10(order.quantity + 1) * 3, 20);
+                            largeOrderCtx.beginPath();
+                            largeOrderCtx.arc(largeOrderCanvas.width - 50, y, radius, 0, 2 * Math.PI);
+                            largeOrderCtx.fillStyle = bgColor;
+                            largeOrderCtx.fill();
+                            largeOrderCtx.strokeStyle = color;
+                            largeOrderCtx.lineWidth = 2;
+                            largeOrderCtx.stroke();
+
+                            // Use white text inside the bubble for better contrast
+                            largeOrderCtx.fillStyle = '#ffffff';
+                            largeOrderCtx.font = 'bold 10px monospace';
+                            largeOrderCtx.textAlign = 'center';
+                            largeOrderCtx.textBaseline = 'middle';
+                            largeOrderCtx.fillText(order.quantity.toFixed(2), largeOrderCanvas.width - 50, y);
+                            markersDrawn++;
+                        }
+                    } catch (e) {
+                        // Skip this marker if priceToCoordinate fails during chart update
+                    }
+                });
+
+                // Removed logging spam - markers are drawn silently
+
+            } catch (error) {
+                console.error('Error rendering large order markers:', error);
+            }
+        }
+
+        // Aggressive whales (Bookmap-style bubbles from Advanced Trade market_trades)
+        function renderAggressiveWhales() {
+            console.log('🎨 renderAggressiveWhales() called');
+
+            if (!aggressiveWhalesCtx || !chart || !candlestickSeries || !hasCandleData) {
+                console.warn('⚠️ Cannot render whales - missing prerequisites:', {
+                    hasCtx: !!aggressiveWhalesCtx,
+                    hasChart: !!chart,
+                    hasSeries: !!candlestickSeries,
+                    hasCandleData
+                });
+                return;
+            }
+
+            aggressiveWhalesCtx.clearRect(0, 0, aggressiveWhalesCanvas.width, aggressiveWhalesCanvas.height);
+
+            if (!Array.isArray(aggressiveWhales) || aggressiveWhales.length === 0) {
+                console.log('ℹ️ No whales to render (array empty)');
+                return;
+            }
+
+            console.log(`🐋 Attempting to render ${aggressiveWhales.length} whales`);
+
+            try {
+                const timeScale = chart.timeScale();
+                let drawnCount = 0;
+                let skippedCount = 0;
+
+                aggressiveWhales.forEach((trade, index) => {
+                    if (!trade) {
+                        skippedCount++;
+                        return;
+                    }
+
+                    const { time, price, size, side } = trade;
+                    if (!Number.isFinite(time) || !Number.isFinite(price) || !Number.isFinite(size)) {
+                        console.warn(`Whale ${index}: Invalid data`, trade);
+                        skippedCount++;
+                        return;
+                    }
+
+                    const x = timeScale.timeToCoordinate(time);
+                    const y = candlestickSeries.priceToCoordinate(price);
+
+                    if (x == null || y == null) {
+                        // Off-chart (normal for old data outside visible range)
+                        if (index < 5) {
+                            console.log(`Whale ${index} SKIPPED: time=${time}, price=${price}, x=${x}, y=${y}`);
+                        }
+                        skippedCount++;
+                        return;
+                    }
+
+                    // Only draw if within canvas bounds (with a small margin)
+                    if (x < -50 || x > aggressiveWhalesCanvas.width + 50 ||
+                        y < -50 || y > aggressiveWhalesCanvas.height + 50) {
+                        console.log(`Whale ${index}: Outside canvas bounds (x: ${x}, y: ${y}, canvas: ${aggressiveWhalesCanvas.width}x${aggressiveWhalesCanvas.height})`);
+                        skippedCount++;
+                        return;
+                    }
+
+                    const isBuy = side === 'buy';
+                    const color = isBuy ? '#10b981' : '#ef4444';
+                    const bgColor = isBuy ? 'rgba(16, 185, 129, 0.35)' : 'rgba(239, 68, 68, 0.35)';
+
+                    const radius = Math.min(10 + Math.log10(size + 1) * 4, 26);
+
+                    aggressiveWhalesCtx.beginPath();
+                    aggressiveWhalesCtx.arc(x, y, radius, 0, 2 * Math.PI);
+                    aggressiveWhalesCtx.fillStyle = bgColor;
+                    aggressiveWhalesCtx.fill();
+                    aggressiveWhalesCtx.strokeStyle = color;
+                    aggressiveWhalesCtx.lineWidth = 2;
+                    aggressiveWhalesCtx.stroke();
+
+                    aggressiveWhalesCtx.fillStyle = '#ffffff';
+                    aggressiveWhalesCtx.font = 'bold 10px monospace';
+                    aggressiveWhalesCtx.textAlign = 'center';
+                    aggressiveWhalesCtx.textBaseline = 'middle';
+
+                    // Format size with appropriate decimal places
+                    let sizeText;
+                    if (size >= 1) {
+                        sizeText = size.toFixed(2); // 1.23
+                    } else if (size >= 0.01) {
+                        sizeText = size.toFixed(3); // 0.123
+                    } else {
+                        sizeText = size.toFixed(4); // 0.0123
+                    }
+                    aggressiveWhalesCtx.fillText(sizeText, x, y);
+
+                    console.log(`✅ Drew whale ${index}: ${sizeText} BTC @ $${price.toFixed(2)} → coords (x:${x.toFixed(0)}, y:${y.toFixed(0)}) ${isBuy ? 'GREEN' : 'RED'}`);
+                    drawnCount++;
+                });
+
+                console.log(`📊 Render complete: ${drawnCount} drawn, ${skippedCount} skipped`);
+            } catch (error) {
+                console.error('Error rendering aggressive whales:', error);
+            }
+        }
+
+        // Absorption detection functions
+        function initAbsorptionCanvas() {
+            absorptionCanvas = document.getElementById('absorptionCanvas');
+            if (!absorptionCanvas) {
+                console.warn('Absorption canvas element not found');
+                return;
+            }
+            absorptionCtx = absorptionCanvas.getContext('2d');
+            resizeAbsorptionCanvas();
+            console.log('✅ Absorption canvas initialized');
+        }
+
+        function resizeAbsorptionCanvas() {
+            if (!absorptionCanvas || !absorptionCtx) return;
+            const container = document.getElementById('mainChart');
+            if (!container) return;
+
+            absorptionCanvas.width = container.clientWidth;
+            absorptionCanvas.height = container.clientHeight;
+
+            // Re-render after resize
+            if (chart && hasCandleData) {
+                renderAbsorption();
+            }
+        }
+
+        // Helper: Get zone key for a price (rounds to $5 buckets for BTC)
+        function getZoneKey(price) {
+            return Math.floor(price / ZONE_RANGE_BTC) * ZONE_RANGE_BTC;
+        }
+
+        // Helper: Get absorption threshold (synced with whale/large order thresholds)
+        function getAbsorptionThreshold() {
+            // Use dedicated absorption threshold (independent from whale threshold)
+            return absorptionThresholdValue || 1.0; // Fallback to 1.0 BTC
+        }
+
+        // Track aggressive volume in price zones
+        function processAggressiveTrade(price, size, side) {
+            if (!price || !size || !side) return;
+
+            const zoneKey = getZoneKey(price);
+            const now = Date.now();
+
+            // Get or create zone
+            if (!priceZones.has(zoneKey)) {
+                priceZones.set(zoneKey, {
+                    aggBuyVol: 0,
+                    aggSellVol: 0,
+                    priceMin: price,
+                    priceMax: price,
+                    wallBidBefore: 0,
+                    wallAskBefore: 0,
+                    startTime: now
+                });
+            }
+
+            const zone = priceZones.get(zoneKey);
+
+            // Update volume
+            if (side === 'buy') {
+                zone.aggBuyVol += size;
+            } else {
+                zone.aggSellVol += size;
+            }
+
+            // Update price range
+            zone.priceMin = Math.min(zone.priceMin, price);
+            zone.priceMax = Math.max(zone.priceMax, price);
+
+            // Check for absorption after window expires
+            const elapsed = now - zone.startTime;
+            if (elapsed >= ZONE_WINDOW_MS) {
+                detectAbsorption(zoneKey, zone);
+                priceZones.delete(zoneKey); // Clear processed zone
+            }
+        }
+
+        // Volume profile helpers
+        function getVolumeProfileKey(price) {
+            return Math.floor(price / VOLUME_PROFILE_BIN_SIZE) * VOLUME_PROFILE_BIN_SIZE;
+        }
+
+        // Session starts at 6pm local time (interpreted as 6pm ET when run on an ET machine).
+        function getSessionStartMs(referenceMs) {
+            const now = new Date(referenceMs || Date.now());
+            const year = now.getFullYear();
+            const month = now.getMonth();
+            const date = now.getDate();
+
+            // 18:00 local today
+            const sessionStartToday = new Date(year, month, date, 18, 0, 0, 0);
+            if (now.getTime() >= sessionStartToday.getTime()) {
+                return sessionStartToday.getTime();
+            }
+
+            // Otherwise, session started yesterday at 18:00
+            const sessionStartPrev = new Date(year, month, date - 1, 18, 0, 0, 0);
+            return sessionStartPrev.getTime();
+        }
+
+        function updateVolumeProfile(price, size, side, timestampMs) {
+            if (!Number.isFinite(price) || !Number.isFinite(size) || size <= 0) return;
+            if (!volumeProfileBins) {
+                volumeProfileBins = new Map();
+            }
+
+            const sessionStart = getSessionStartMs(timestampMs);
+            if (timestampMs < sessionStart) {
+                return;
+            }
+
+            const key = getVolumeProfileKey(price);
+            const existing = volumeProfileBins.get(key) || {
+                price: key,
+                buyVol: 0,
+                sellVol: 0,
+                totalVol: 0,
+                lastUpdate: timestampMs
+            };
+
+            if (side === 'buy') {
+                existing.buyVol += size;
+            } else if (side === 'sell') {
+                existing.sellVol += size;
+            }
+            existing.totalVol = existing.buyVol + existing.sellVol;
+            existing.lastUpdate = timestampMs;
+
+            volumeProfileBins.set(key, existing);
+
+            cleanupVolumeProfile(timestampMs);
+            renderVolumeProfile();
+        }
+
+        function cleanupVolumeProfile(nowMs) {
+            if (!volumeProfileBins) return;
+            const sessionStart = getSessionStartMs(nowMs);
+            const cutoff = sessionStart; // keep only current session bins
+            for (const [key, bin] of volumeProfileBins.entries()) {
+                if (!bin || bin.lastUpdate < cutoff) {
+                    volumeProfileBins.delete(key);
+                }
+            }
+        }
+
+        // Maintain per-second buckets of aggressive flow for exhaustion detection
+        function updateAggressiveBuckets(timeSec, price, size, side) {
+            if (!Number.isFinite(timeSec) || !Number.isFinite(price) || !Number.isFinite(size)) return;
+            if (!side) return;
+
+            if (!perSecondAggressiveBuckets.has(timeSec)) {
+                perSecondAggressiveBuckets.set(timeSec, {
+                    time: timeSec,
+                    buyVol: 0,
+                    sellVol: 0,
+                    high: price,
+                    low: price,
+                    lastPrice: price
+                });
+            }
+
+            const bucket = perSecondAggressiveBuckets.get(timeSec);
+            if (!bucket) return;
+
+            if (side === 'buy') {
+                bucket.buyVol += size;
+            } else if (side === 'sell') {
+                bucket.sellVol += size;
+            }
+
+            bucket.high = Math.max(bucket.high, price);
+            bucket.low = Math.min(bucket.low, price);
+            bucket.lastPrice = price;
+
+            cleanupOldAggressiveBuckets(timeSec);
+            detectExhaustion(timeSec);
+        }
+
+        function cleanupOldAggressiveBuckets(currentTimeSec) {
+            const cutoff = currentTimeSec - (EXHAUSTION_LOOKBACK_SEC + 10); // Keep a bit more than strictly needed
+            for (const [key, bucket] of perSecondAggressiveBuckets.entries()) {
+                if (!bucket || bucket.time < cutoff) {
+                    perSecondAggressiveBuckets.delete(key);
+                }
+            }
+        }
+
+        // Detect buying/selling exhaustion using two consecutive windows:
+        // push window (older) vs retest window (most recent).
+        function detectExhaustion(currentTimeSec) {
+            if (!chart || !candlestickSeries || !hasCandleData) return;
+
+            const startTime = currentTimeSec - EXHAUSTION_LOOKBACK_SEC;
+            const buckets = Array.from(perSecondAggressiveBuckets.values())
+                .filter(b => b && b.time >= startTime && b.time <= currentTimeSec)
+                .sort((a, b) => a.time - b.time);
+
+            if (buckets.length < EXHAUSTION_LOOKBACK_SEC) {
+                return;
+            }
+
+            const splitTime = currentTimeSec - EXHAUSTION_WINDOW_SEC;
+            const pushBuckets = buckets.filter(b => b.time < splitTime);
+            const retestBuckets = buckets.filter(b => b.time >= splitTime);
+
+            if (pushBuckets.length === 0 || retestBuckets.length === 0) {
+                return;
+            }
+
+            const pushBuyVol = pushBuckets.reduce((sum, b) => sum + (b.buyVol || 0), 0);
+            const pushSellVol = pushBuckets.reduce((sum, b) => sum + (b.sellVol || 0), 0);
+            const retestBuyVol = retestBuckets.reduce((sum, b) => sum + (b.buyVol || 0), 0);
+            const retestSellVol = retestBuckets.reduce((sum, b) => sum + (b.sellVol || 0), 0);
+
+            const pushHigh = Math.max(...pushBuckets.map(b => b.high));
+            const pushLow = Math.min(...pushBuckets.map(b => b.low));
+            const retestHigh = Math.max(...retestBuckets.map(b => b.high));
+            const retestLow = Math.min(...retestBuckets.map(b => b.low));
+            const lastBucket = buckets[buckets.length - 1];
+            const lastPriceLocal = lastBucket.lastPrice;
+
+            const pushRange = Math.max(pushHigh - pushLow, 1);
+            const retestRange = Math.max(retestHigh - retestLow, 1);
+
+            const pushBuyIntensity = pushBuyVol / pushRange;
+            const pushSellIntensity = pushSellVol / pushRange;
+            const retestBuyIntensity = retestBuyVol / retestRange;
+            const retestSellIntensity = retestSellVol / retestRange;
+
+            const buyIntensityDrop = pushBuyIntensity > 0 ? (retestBuyIntensity / pushBuyIntensity) : 1;
+            const sellIntensityDrop = pushSellIntensity > 0 ? (retestSellIntensity / pushSellIntensity) : 1;
+
+            const buyDeltaPush = pushBuyVol - pushSellVol;
+            const buyDeltaRetest = retestBuyVol - retestSellVol;
+            const sellDeltaPush = pushSellVol - pushBuyVol;
+            const sellDeltaRetest = retestSellVol - retestBuyVol;
+
+            const priceExtensionUp = retestHigh - pushHigh;
+            const priceExtensionDown = pushLow - retestLow;
+
+            // Buying exhaustion near highs (fade short)
+            if (
+                pushBuyVol >= EXHAUSTION_MIN_PUSH_VOL &&
+                buyIntensityDrop < EXHAUSTION_DROP_FACTOR &&
+                priceExtensionUp <= EXHAUSTION_MAX_EXTENSION_USD &&
+                lastPriceLocal >= pushHigh - EXHAUSTION_MAX_EXTENSION_USD &&
+                buyDeltaPush > 0 &&
+                buyDeltaRetest <= buyDeltaPush
+            ) {
+                const level = retestHigh;
+                maybeAddExhaustionEvent({
+                    side: 'sell', // fade direction
+                    price: level,
+                    zone: { low: pushLow, high: retestHigh },
+                    swingDelta: { push: buyDeltaPush, retest: buyDeltaRetest },
+                    intensityDrop: buyIntensityDrop,
+                    priceExtensionUsd: priceExtensionUp,
+                    timestamp: Date.now()
+                });
+            }
+
+            // Selling exhaustion near lows (fade long)
+            if (
+                pushSellVol >= EXHAUSTION_MIN_PUSH_VOL &&
+                sellIntensityDrop < EXHAUSTION_DROP_FACTOR &&
+                priceExtensionDown <= EXHAUSTION_MAX_EXTENSION_USD &&
+                lastPriceLocal <= pushLow + EXHAUSTION_MAX_EXTENSION_USD &&
+                sellDeltaPush > 0 &&
+                sellDeltaRetest <= sellDeltaPush
+            ) {
+                const level = retestLow;
+                maybeAddExhaustionEvent({
+                    side: 'buy', // fade direction
+                    price: level,
+                    zone: { low: retestLow, high: pushHigh },
+                    swingDelta: { push: sellDeltaPush, retest: sellDeltaRetest },
+                    intensityDrop: sellIntensityDrop,
+                    priceExtensionUsd: priceExtensionDown,
+                    timestamp: Date.now()
+                });
+            }
+        }
+
+        function maybeAddExhaustionEvent(event) {
+            if (!event || !Number.isFinite(event.price)) return;
+
+            const now = event.timestamp || Date.now();
+            const recentExisting = exhaustionEvents.find(e =>
+                Math.abs(e.price - event.price) <= ZONE_RANGE_BTC &&
+                Math.abs(now - e.timestamp) <= EXHAUSTION_EVENT_COOLDOWN_MS
+            );
+
+            if (recentExisting) {
+                return;
+            }
+
+            exhaustionEvents.push(event);
+
+            // Keep only recent exhaustion events (last 30 minutes)
+            const cutoff = now - (30 * 60 * 1000);
+            exhaustionEvents = exhaustionEvents.filter(e => e.timestamp >= cutoff);
+
+            console.log(`💨 EXHAUSTION ${event.side.toUpperCase()} @ $${event.price.toFixed(2)} | pushΔ=${event.swingDelta.push.toFixed(3)} retestΔ=${event.swingDelta.retest.toFixed(3)} | drop=${(event.intensityDrop).toFixed(2)} | ext=$${event.priceExtensionUsd.toFixed(2)}`);
+
+            renderExhaustion();
+        }
+
+        // Detect if absorption occurred
+        function detectAbsorption(zoneKey, zone) {
+            const absorptionThreshold = getAbsorptionThreshold();
+            const buyAbsorption = zone.aggBuyVol >= absorptionThreshold;
+            const sellAbsorption = zone.aggSellVol >= absorptionThreshold;
+
+            if (!buyAbsorption && !sellAbsorption) return;
+
+            // Calculate absorption score (how much volume hit without breaking through)
+            const priceMovement = zone.priceMax - zone.priceMin;
+            const expectedMovement = ZONE_RANGE_BTC; // Expected to move through zone
+
+            // If price barely moved despite heavy volume = strong absorption
+            const score = Math.max(zone.aggBuyVol, zone.aggSellVol) / (1 + priceMovement / expectedMovement);
+
+            if (buyAbsorption && priceMovement < ZONE_RANGE_BTC * 0.5) {
+                // Aggressive buying absorbed = Resistance (bearish)
+                const absorption = {
+                    price: zoneKey,
+                    type: 'sell', // RED - resistance
+                    score: score,
+                    timestamp: Date.now(),
+                    aggVol: zone.aggBuyVol,
+                    priceRange: priceMovement
+                };
+                absorptionZones.push(absorption);
+                console.log(`🟥 BUY ABSORPTION (Resistance) @ $${zoneKey.toFixed(0)} | ${zone.aggBuyVol.toFixed(3)} BTC absorbed | Score: ${score.toFixed(2)} | Price move: $${priceMovement.toFixed(2)}`);
+            }
+
+            if (sellAbsorption && priceMovement < ZONE_RANGE_BTC * 0.5) {
+                // Aggressive selling absorbed = Support (bullish)
+                const absorption = {
+                    price: zoneKey,
+                    type: 'buy', // BLUE - support
+                    score: score,
+                    timestamp: Date.now(),
+                    aggVol: zone.aggSellVol,
+                    priceRange: priceMovement
+                };
+                absorptionZones.push(absorption);
+                console.log(`🟦 SELL ABSORPTION (Support) @ $${zoneKey.toFixed(0)} | ${zone.aggSellVol.toFixed(3)} BTC absorbed | Score: ${score.toFixed(2)} | Price move: $${priceMovement.toFixed(2)}`);
+            }
+
+            // Keep only recent absorptions (last 30 minutes)
+            const cutoffTime = Date.now() - (30 * 60 * 1000);
+            absorptionZones = absorptionZones.filter(a => a.timestamp >= cutoffTime);
+
+            // Trigger immediate render after detecting absorption
+            if (buyAbsorption || sellAbsorption) {
+                renderAbsorption();
+            }
+        }
+
+        // Cleanup old zones
+        function cleanupOldZones() {
+            const now = Date.now();
+            const cutoff = now - (ZONE_WINDOW_MS * 2); // Double window as grace period
+
+            for (const [key, zone] of priceZones.entries()) {
+                if (now - zone.startTime > cutoff) {
+                    priceZones.delete(key);
+                }
+            }
+        }
+
+        function cleanupExhaustionData() {
+            const now = Date.now();
+            const cutoffEvents = now - (30 * 60 * 1000);
+            exhaustionEvents = exhaustionEvents.filter(e => e.timestamp >= cutoffEvents);
+
+            // Per-second buckets are already cleaned incrementally in updateAggressiveBuckets,
+            // but we add a time-based sweep here in case there is a lull in trading.
+            const currentTimeSec = Math.floor(now / 1000);
+            cleanupOldAggressiveBuckets(currentTimeSec);
+        }
+
+        function renderAbsorption() {
+            if (!absorptionCanvas || !absorptionCtx || !chart || !candlestickSeries) {
+                console.log('⚠️ Absorption render skipped: missing dependencies');
+                return;
+            }
+
+            console.log(`📐 Canvas dimensions: ${absorptionCanvas.width}x${absorptionCanvas.height}`);
+
+            // Clear canvas
+            absorptionCtx.clearRect(0, 0, absorptionCanvas.width, absorptionCanvas.height);
+
+            if (absorptionZones.length === 0) return;
+
+            console.log(`🎨 Rendering ${absorptionZones.length} absorption zones`);
+
+            const visibleRange = chart.timeScale().getVisibleLogicalRange();
+            if (!visibleRange) return;
+
+            let drawn = 0;
+            let skipped = 0;
+
+            // Render each absorption zone
+            for (const absorption of absorptionZones) {
+                const y = candlestickSeries.priceToCoordinate(absorption.price);
+                console.log(`  Zone ${absorption.type} @ $${absorption.price}: y=${y}`);
+
+                if (y === null) {
+                    skipped++;
+                    continue; // Off chart
+                }
+
+                const isBuy = absorption.type === 'buy';
+                absorptionCtx.strokeStyle = isBuy ? '#3b82f6' : '#ef4444'; // Blue for buy, red for sell
+                absorptionCtx.fillStyle = isBuy ? 'rgba(59, 130, 246, 0.1)' : 'rgba(239, 68, 68, 0.1)';
+                absorptionCtx.lineWidth = 2;
+
+                // Draw diamond/rectangle marker
+                const width = 60;
+                const height = 20;
+                const x = absorptionCanvas.width - 80;
+
+                absorptionCtx.beginPath();
+                absorptionCtx.rect(x, y - height / 2, width, height);
+                absorptionCtx.fill();
+                absorptionCtx.stroke();
+
+                // Label
+                absorptionCtx.fillStyle = isBuy ? '#3b82f6' : '#ef4444';
+                absorptionCtx.font = 'bold 10px monospace';
+                absorptionCtx.textAlign = 'right';
+                absorptionCtx.textBaseline = 'middle';
+                const label = `${isBuy ? '↑' : '↓'} ${absorption.aggVol.toFixed(2)}`;
+                absorptionCtx.fillText(label, x + width - 4, y);
+
+                console.log(`  📌 Drew ${isBuy ? 'BUY' : 'SELL'} at x=${x}, y=${y}, w=${width}, h=${height}`);
+
+                drawn++;
+            }
+
+            console.log(`✅ Absorption render: ${drawn} drawn, ${skipped} skipped`);
+        }
+
+        function renderExhaustion() {
+            if (!exhaustionCanvas || !exhaustionCtx || !chart || !candlestickSeries) {
+                console.log('⚠️ Exhaustion render skipped: missing dependencies');
+                return;
+            }
+
+            exhaustionCtx.clearRect(0, 0, exhaustionCanvas.width, exhaustionCanvas.height);
+
+            if (!exhaustionOverlayEnabled) {
+                return;
+            }
+
+            if (!Array.isArray(exhaustionEvents) || exhaustionEvents.length === 0) {
+                return;
+            }
+
+            const visibleRange = chart.timeScale().getVisibleLogicalRange();
+            if (!visibleRange) return;
+
+            let drawn = 0;
+            let skipped = 0;
+
+            for (const event of exhaustionEvents) {
+                if (!event) {
+                    skipped++;
+                    continue;
+                }
+
+                const y = candlestickSeries.priceToCoordinate(event.price);
+                if (y == null) {
+                    skipped++;
+                    continue;
+                }
+
+                const isBuyZone = event.side === 'buy'; // fade long
+                exhaustionCtx.strokeStyle = isBuyZone ? '#22c55e' : '#f97316'; // greenish for buy, orange for sell
+                exhaustionCtx.fillStyle = isBuyZone ? 'rgba(34, 197, 94, 0.10)' : 'rgba(249, 115, 22, 0.10)';
+                exhaustionCtx.lineWidth = 2;
+
+                const width = 70;
+                const height = 16;
+                const x = exhaustionCanvas.width - 160;
+
+                exhaustionCtx.beginPath();
+                exhaustionCtx.rect(x, y - height / 2, width, height);
+                exhaustionCtx.fill();
+                exhaustionCtx.stroke();
+
+                exhaustionCtx.fillStyle = isBuyZone ? '#22c55e' : '#f97316';
+                exhaustionCtx.font = 'bold 10px monospace';
+                exhaustionCtx.textAlign = 'left';
+                exhaustionCtx.textBaseline = 'middle';
+
+                const labelSide = isBuyZone ? 'B' : 'S';
+                const labelDrop = event.intensityDrop != null ? (event.intensityDrop).toFixed(2) : '';
+                const label = `Ex${labelSide} ${labelDrop}`;
+                exhaustionCtx.fillText(label, x + 4, y);
+
+                drawn++;
+            }
+
+            console.log(`✅ Exhaustion render: ${drawn} drawn, ${skipped} skipped`);
+        }
+
+        function renderVolumeProfile() {
+            if (!volumeProfileCanvas || !volumeProfileCtx || !chart || !candlestickSeries) {
+                return;
+            }
+
+            volumeProfileCtx.clearRect(0, 0, volumeProfileCanvas.width, volumeProfileCanvas.height);
+
+            if (!volumeProfileBins || volumeProfileBins.size === 0) {
+                return;
+            }
+
+            const bins = Array.from(volumeProfileBins.values()).sort((a, b) => a.price - b.price);
+            if (bins.length === 0) return;
+
+            const maxVol = bins.reduce((max, bin) => Math.max(max, bin.totalVol || 0), 0) || 1;
+            const maxBarWidth = volumeProfileCanvas.width * 0.25; // 25% of width
+
+            for (const bin of bins) {
+                if (!bin || !Number.isFinite(bin.price)) continue;
+
+                const y = candlestickSeries.priceToCoordinate(bin.price);
+                if (y == null || y < -50 || y > volumeProfileCanvas.height + 50) continue;
+
+                const width = Math.max((bin.totalVol / maxVol) * maxBarWidth, 2);
+                const x = 4; // draw on the left side of the chart
+                const barHeight = 6;
+
+                const buyVol = bin.buyVol || 0;
+                const sellVol = bin.sellVol || 0;
+                const net = buyVol - sellVol;
+
+                let color;
+                if (net > 0) {
+                    color = 'rgba(34, 197, 94, 0.7)'; // green-ish
+                } else if (net < 0) {
+                    color = 'rgba(248, 113, 113, 0.7)'; // red-ish
+                } else {
+                    color = 'rgba(148, 163, 184, 0.6)'; // neutral
+                }
+
+                volumeProfileCtx.fillStyle = color;
+                volumeProfileCtx.fillRect(x, y - barHeight / 2, width, barHeight);
+            }
+        }
+
+        // Activity log
+        function addActivityLog(message, type = 'info') {
+            const logEl = document.getElementById('activityLog');
+            if (!logEl) return;
+
+            if (logEl.children.length === 1 && logEl.textContent.includes('Waiting for activity')) {
+                logEl.innerHTML = '';
+            }
+
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: '#94a3b8',
+                success: '#22c55e',
+                warning: '#eab308',
+                error: '#ef4444'
+            };
+
+            const entry = document.createElement('div');
+            entry.style.color = colors[type] || colors.info;
+            entry.style.marginBottom = '4px';
+            entry.style.padding = '0.25rem 0';
+            entry.style.borderBottom = '1px solid rgba(100, 116, 139, 0.2)';
+            entry.textContent = `[${timestamp}] ${message}`;
+
+            logEl.appendChild(entry);
+
+            while (logEl.children.length > 50) {
+                logEl.removeChild(logEl.firstChild);
+            }
+
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        // Socket connection
+        function connect() {
+            console.log('Connecting to BTC dashboard server...');
+
+            socket = io({
+                reconnection: true,
+                reconnectionDelay: 1000,
+                reconnectionDelayMax: 5000,
+            });
+
+            socket.on('connect', () => {
+                console.log('Connected to BTC dashboard server');
+                addActivityLog('Connected to server', 'success');
+            });
+
+            socket.on('disconnect', () => {
+                console.log('Disconnected from server');
+                addActivityLog('Disconnected from server', 'error');
+            });
+
+            // Price updates
+            socket.on('price', (data) => {
+                console.log('🔔 PRICE EVENT RECEIVED:', data);
+                if (data.price) {
+                    const formattedPrice = '$' + parseFloat(data.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    console.log('💰 Updating last price to:', formattedPrice);
+                    document.getElementById('lastPrice').textContent = formattedPrice;
+                }
+            });
+
+            // 24h stats
+            socket.on('stats', (data) => {
+                if (data.volume) {
+                    document.getElementById('volume24h').textContent = parseFloat(data.volume).toLocaleString('en-US', { maximumFractionDigits: 2 }) + ' BTC';
+                }
+                if (data.change) {
+                    const changeEl = document.getElementById('change24h');
+                    const changeVal = parseFloat(data.change);
+                    changeEl.textContent = (changeVal >= 0 ? '+' : '') + changeVal.toFixed(2) + '%';
+                    changeEl.className = 'stat-value ' + (changeVal >= 0 ? 'positive' : 'negative');
+                }
+            });
+
+            // Orderbook updates (optionally enabled)
+            if (ENABLE_ORDERBOOK_OVERLAYS) {
+                socket.on('orderbook', (data) => {
+                    if (data && data.bids && data.asks) {
+                        orderbookData.bids = data.bids.map(([price, quantity]) => ({
+                            price: parseFloat(price),
+                            quantity: parseFloat(quantity)
+                        }));
+                        orderbookData.asks = data.asks.map(([price, quantity]) => ({
+                            price: parseFloat(price),
+                            quantity: parseFloat(quantity)
+                        }));
+
+                        console.log(`📖 Orderbook updated: ${orderbookData.bids.length} bids, ${orderbookData.asks.length} asks`);
+                        if (orderbookData.bids.length > 0 && orderbookData.asks.length > 0) {
+                            const highestBid = orderbookData.bids[0].price;
+                            const lowestBid = orderbookData.bids[orderbookData.bids.length - 1].price;
+                            const lowestAsk = orderbookData.asks[0].price;
+                            const highestAsk = orderbookData.asks[orderbookData.asks.length - 1].price;
+                            console.log(`   Bids: $${lowestBid.toFixed(2)} to $${highestBid.toFixed(2)} (spread: $${(lowestAsk - highestBid).toFixed(2)})`);
+                            console.log(`   Asks: $${lowestAsk.toFixed(2)} to $${highestAsk.toFixed(2)}`);
+                            console.log(`   Total range: $${lowestBid.toFixed(2)} to $${highestAsk.toFixed(2)} = $${(highestAsk - lowestBid).toFixed(2)}`);
+                        }
+
+                        // Update large orders
+                        largeOrdersData = [
+                            ...orderbookData.bids.map(b => ({ ...b, side: 'buy' })),
+                            ...orderbookData.asks.map(a => ({ ...a, side: 'sell' }))
+                        ];
+
+                        // Update spread
+                        if (orderbookData.bids.length > 0 && orderbookData.asks.length > 0) {
+                            const bestBid = Math.max(...orderbookData.bids.map(b => b.price));
+                            const bestAsk = Math.min(...orderbookData.asks.map(a => a.price));
+                            const spread = bestAsk - bestBid;
+                            document.getElementById('spread').textContent = '$' + spread.toFixed(2);
+                        }
+
+                        // Trigger overlay rendering when orderbook updates
+                        setTimeout(() => {
+                            // Only render overlays once we have valid candle data on the chart.
+                            if (orderbookCanvas && chart && candlestickSeries && hasCandleData) {
+                                renderOrderbook();
+                            }
+                            if (largeOrderCanvas && chart && candlestickSeries && hasCandleData) {
+                                renderLargeOrderMarkers();
+                            }
+                        }, 100);
+                    }
+                });
+            }
+
+            // Aggressive trade flow from Advanced Trade market_trades (Bookmap-style whale bubbles)
+            socket.on('aggressive_trade', (trade) => {
+                if (!trade) return;
+
+                const price = parseFloat(trade.price ?? trade.price?.toString());
+                const size = parseFloat(trade.size ?? trade.size?.toString());
+                const sideRaw = (trade.side || '').toString().toLowerCase(); // 'buy' or 'sell'
+
+                // Server timestamps are 1 year in future (~31,536,000,000 ms), subtract to fix
+                const ONE_YEAR_MS = 365.25 * 24 * 60 * 60 * 1000; // 31,557,600,000 ms
+                const rawTimestampMs = typeof trade.timestampMs === 'number'
+                    ? trade.timestampMs
+                    : new Date(trade.time).getTime();
+                const timestampMs = rawTimestampMs - ONE_YEAR_MS;
+
+                // Debug timestamp conversion
+                if (Math.random() < 0.01) {
+                    console.log(`📅 Timestamp fix: raw=${rawTimestampMs} (${new Date(rawTimestampMs).toISOString()}) → corrected=${timestampMs} (${new Date(timestampMs).toISOString()}) → chartTime=${Math.floor(timestampMs / 1000)}`);
+                }
+
+                if (!Number.isFinite(price) || !Number.isFinite(size) || !Number.isFinite(timestampMs)) {
+                    console.warn('Skipping invalid aggressive trade:', trade);
+                    return;
+                }
+
+                const side = sideRaw === 'buy' ? 'buy' : sideRaw === 'sell' ? 'sell' : null;
+                if (!side) {
+                    console.warn('Skipping aggressive trade with unknown side:', trade);
+                    return;
+                }
+
+                // Convert to chart time (seconds since epoch, same as candles)
+                const time = Math.floor(timestampMs / 1000);
+
+                // Update statistics for ALL trades (regardless of threshold)
+                totalTradesReceived++;
+                if (size > largestTradeSeen) {
+                    largestTradeSeen = size;
+                    console.log(`🏆 NEW LARGEST TRADE: ${largestTradeSeen.toFixed(4)} BTC @ $${price.toFixed(2)} (${side})`);
+                }
+
+                // Track ALL aggressive trades for absorption detection
+                processAggressiveTrade(price, size, side);
+                // Track per-second aggressive flow for exhaustion detection
+                updateAggressiveBuckets(time, price, size, side);
+
+                // Log statistics every 100 trades
+                if (totalTradesReceived % 100 === 0) {
+                    console.log(`📊 TRADE STATISTICS:
+                    • Total trades received: ${totalTradesReceived.toLocaleString()}
+                    • Largest trade seen: ${largestTradeSeen.toFixed(4)} BTC (~$${(largestTradeSeen * price).toFixed(2)})
+                    • Current threshold: ${aggressiveWhaleThreshold} BTC
+                    • Whales captured: ${aggressiveWhales.length} (last 5 min)`);
+                }
+
+                // Threshold for whale visualization (BTC)
+                const whaleThreshold = aggressiveWhaleThreshold || largeOrderThreshold || 0.5;
+
+                // Log all trades above 0.0001 BTC for debugging
+                if (size >= 0.0001) {
+                    console.log(`🐋 Trade: ${size.toFixed(4)} BTC @ $${price.toFixed(2)} (${side}) - Threshold: ${whaleThreshold} BTC`);
+                }
+
+                if (size < whaleThreshold) {
+                    return; // Filter out trades below threshold
+                }
+
+                // Log whale trades that passed the threshold
+                console.log(`✅ WHALE ADDED: ${size.toFixed(4)} BTC @ $${price.toFixed(2)} (${side})`);
+
+                if (!Array.isArray(aggressiveWhales)) {
+                    aggressiveWhales = [];
+                }
+
+                aggressiveWhales.push({ time, price, size, side });
+
+                // Keep a rolling window of recent whales (e.g., last 5 minutes instead of 2)
+                const cutoffTime = time - 300; // 5 minutes
+                aggressiveWhales = aggressiveWhales.filter(w => w.time >= cutoffTime);
+
+                // Scroll to show the latest data (where whale trades are happening)
+                // Throttle: only scroll once per 3 seconds to avoid constant repositioning
+                if (chart && initialFitDone) {
+                    const now = Date.now();
+                    if (now - lastScrollTime > 3000) {
+                        chart.timeScale().scrollToPosition(0, false);
+                        lastScrollTime = now;
+                    }
+                }
+
+                // Render bubbles as soon as we have candle data
+                if (chart && candlestickSeries && hasCandleData) {
+                    renderAggressiveWhales();
+                }
+
+                // Log summary of whales in memory
+                console.log(`📊 Total whales in memory: ${aggressiveWhales.length} (last 5 minutes)`);
+            });
+
+            // Trade data for CVD (optionally enabled)
+            if (ENABLE_CVD_CHART) {
+            socket.on('trade', (trade) => {
+                    if (!trade || trade.price == null || trade.size == null) return;
+
+                    const price = typeof trade.price === 'string' ? parseFloat(trade.price) : trade.price;
+                    const size = typeof trade.size === 'string' ? parseFloat(trade.size) : trade.size;
+                    const side = trade.side === 'buy' ? 'buy' : 'sell';
+                    const delta = side === 'buy' ? size : -size;
+
+                    if (!Number.isFinite(delta)) {
+                        console.warn('Skipping trade with invalid size for CVD:', trade);
+                        return;
+                    }
+
+                    cumulativeDelta += delta;
+
+                    // Update volume profile using trade data
+                    const tradeTimestampMs = trade.time ? new Date(trade.time).getTime() : Date.now();
+                    updateVolumeProfile(price, size, side, tradeTimestampMs);
+
+                    const timestamp = Math.floor(Date.now() / 60000) * 60000;
+                    const time = Math.floor(timestamp / 1000);
+
+                    let cvdPoint = cvdData.find(p => p.time === time);
+                    if (!cvdPoint) {
+                        cvdPoint = {
+                            time,
+                            value: cumulativeDelta,
+                        };
+                        cvdData.push(cvdPoint);
+                    } else {
+                        cvdPoint.value = cumulativeDelta;
+                    }
+
+                    if (cvdSeries && cvdData.length > 0) {
+                        // Clean and validate CVD data before sending to Lightweight Charts (line series expects { time, value })
+                        const cleanCvdData = cvdData
+                            .map(point => {
+                                if (!point) return null;
+                                const t = point.time;
+                                const v = point.value;
+
+                                if (
+                                    t == null || v == null ||
+                                    !Number.isFinite(t) || !Number.isFinite(v)
+                                ) {
+                                    console.warn('Skipping invalid CVD point:', point);
+                                    return null;
+                                }
+
+                                return { time: t, value: v };
+                            })
+                            .filter(Boolean)
+                            .sort((a, b) => a.time - b.time);
+
+                        if (cleanCvdData.length === 0) {
+                            return;
+                        }
+
+                        try {
+                            cvdSeries.setData(cleanCvdData.slice(-200));
+                            if (cvdChart) {
+                                cvdChart.timeScale().fitContent();
+                            }
+                        } catch (error) {
+                            console.error('Error updating CVD series:', error);
+                        }
+                    }
+                });
+            }
+
+            // Candle updates - live stream
+            socket.on('candle', (candle) => {
+                console.log('🕯️ CANDLE EVENT RECEIVED:', candle);
+                handleCandle(candle);
+            });
+
+            // Historical candles - feed through the same handler as live candles
+            socket.on('candles', (candles) => {
+                console.log('📦 CANDLES EVENT (historical) RECEIVED:', candles ? candles.length : 'null', 'candles');
+                if (!candles || !Array.isArray(candles) || !candlestickSeries || historicalCandlesLoaded) {
+                    if (historicalCandlesLoaded) {
+                        console.log('⚠️ Historical candles already loaded, ignoring subsequent payload');
+                    }
+                    return;
+                }
+
+                console.log(`📊 Loading ${candles.length} historical candles via unified handler`);
+
+                for (const raw of candles) {
+                    handleCandle(raw, false);  // Mark as NOT a live update
+                }
+
+                historicalCandlesLoaded = true;
+                addActivityLog(`Loaded historical candles (total bars on chart: ${allCandles.length})`, 'info');
+                console.log('✅ Historical candles loaded via unified path, total on chart:', allCandles.length);
+            });
+
+            socket.on('log', (data) => {
+                addActivityLog(data.message, data.type || 'info');
+            });
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 DOM loaded, initializing BTC dashboard...');
+            console.log('📍 CODE VERSION: 2025-01-16-ABSORPTION-DEBUG-CANVAS');
+            initCharts();
+            connect();
+            addActivityLog('Bitcoin dashboard initialized', 'info');
+
+            // Periodic cleanup of old absorption/exhaustion zones
+            setInterval(() => {
+                cleanupOldZones();
+                cleanupExhaustionData();
+            }, 5000); // Every 5 seconds
+        });
+    </script>
+</body>
+</html>

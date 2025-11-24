@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Symbol Trading Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #0a0e27;
+            color: #e0e0e0;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a1f3a 0%, #0f1729 100%);
+            padding: 15px 20px;
+            border-bottom: 1px solid #2a3150;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .title {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .account-info {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .account-stat {
+            text-align: center;
+        }
+
+        .account-label {
+            font-size: 10px;
+            color: #8892b0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 3px;
+        }
+
+        .account-value {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .account-value.positive {
+            color: #00d4aa;
+        }
+
+        .account-value.negative {
+            color: #ff6b6b;
+        }
+
+        .tabs {
+            display: flex;
+            background: #1a1f3a;
+            border-bottom: 1px solid #2a3150;
+            padding: 0 10px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .tab:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .tab.active {
+            border-bottom-color: #667eea;
+            color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+            height: calc(100vh - 120px);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .symbol-frame {
+            border: none;
+            width: 100%;
+            height: 100%;
+            background: #0a0e27;
+        }
+
+        .grid-view {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            height: calc(100vh - 120px);
+            gap: 1px;
+            background: #2a3150;
+        }
+
+        .grid-item {
+            background: #0a0e27;
+            position: relative;
+        }
+
+        .grid-label {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(102, 126, 234, 0.9);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .expand-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(26, 31, 58, 0.9);
+            color: white;
+            border: 1px solid #667eea;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            z-index: 10;
+            transition: all 0.2s;
+        }
+
+        .expand-btn:hover {
+            background: #667eea;
+        }
+
+        .account-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .account-selector select {
+            background: #1a1f3a;
+            color: #e0e0e0;
+            border: 1px solid #667eea;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .account-selector select:hover {
+            background: #242b4a;
+        }
+
+        #accountContent {
+            padding: 20px;
+            overflow-y: auto;
+            height: calc(100vh - 120px);
+        }
+
+        .account-section {
+            background: #1a1f3a;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .account-section h2 {
+            margin: 0 0 15px 0;
+            color: #667eea;
+            font-size: 18px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #0a0e27;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #2a3150;
+        }
+
+        .stat-card .label {
+            font-size: 11px;
+            color: #8892b0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #e0e0e0;
+        }
+
+        .trades-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .trades-table th,
+        .trades-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #2a3150;
+        }
+
+        .trades-table th {
+            background: #0a0e27;
+            color: #8892b0;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .trades-table td {
+            font-size: 13px;
+        }
+
+        .symbol-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .symbol-card {
+            background: #0a0e27;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #2a3150;
+        }
+
+        .symbol-card h3 {
+            margin: 0 0 10px 0;
+            color: #667eea;
+            font-size: 16px;
+        }
+
+        .master-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .control-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-start-all {
+            background: #22c55e;
+            color: white;
+        }
+
+        .btn-start-all:hover {
+            background: #16a34a;
+            transform: translateY(-1px);
+        }
+
+        .btn-stop-all {
+            background: #f97316;
+            color: white;
+        }
+
+        .btn-stop-all:hover {
+            background: #ea580c;
+            transform: translateY(-1px);
+        }
+
+        .btn-flatten-all {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-flatten-all:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="title">🚀 Multi-Symbol Trading Dashboard</div>
+        <div class="master-controls">
+            <button class="control-btn btn-start-all" onclick="startAllTrading()">▶ Start All</button>
+            <button class="control-btn btn-stop-all" onclick="stopAllTrading()">⏸ Stop All</button>
+            <button class="control-btn btn-flatten-all" onclick="flattenAllPositions()">⏏ Flatten All</button>
+        </div>
+        <div class="account-info">
+            <div class="account-selector">
+                <div class="account-label">Account</div>
+                <select id="accountSelector" onchange="switchAllAccounts()">
+                    <option value="">Loading...</option>
+                </select>
+            </div>
+            <div class="account-stat">
+                <div class="account-label">Balance</div>
+                <div class="account-value" id="balance">$0.00</div>
+            </div>
+            <div class="account-stat">
+                <div class="account-label">Daily P&L</div>
+                <div class="account-value" id="dailyPnL">$0.00</div>
+            </div>
+            <div class="account-stat">
+                <div class="account-label">Total Realized</div>
+                <div class="account-value" id="totalRealized">$0.00</div>
+            </div>
+            <div class="account-stat">
+                <div class="account-label">Total Trades</div>
+                <div class="account-value" id="totalTrades">0</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" data-tab="grid">Grid View</div>
+        <div class="tab" data-tab="account">Account</div>
+        <div class="tab" data-tab="nq-ict">NQ ICT</div>
+        <div class="tab" data-tab="mnq">MNQ Full</div>
+        <div class="tab" data-tab="mes">MES Full</div>
+        <div class="tab" data-tab="mgc">MGC Full</div>
+        <div class="tab" data-tab="m6e">M6E Full</div>
+    </div>
+
+    <div class="tab-content active" id="grid">
+        <div class="grid-view">
+            <div class="grid-item">
+                <div class="grid-label">MNQ</div>
+                <button class="expand-btn" onclick="switchTab('mnq')">Expand ↗</button>
+                <iframe src="http://localhost:3333" class="symbol-frame"></iframe>
+            </div>
+            <div class="grid-item">
+                <div class="grid-label">MES</div>
+                <button class="expand-btn" onclick="switchTab('mes')">Expand ↗</button>
+                <iframe src="http://localhost:3334" class="symbol-frame"></iframe>
+            </div>
+            <div class="grid-item">
+                <div class="grid-label">MGC</div>
+                <button class="expand-btn" onclick="switchTab('mgc')">Expand ↗</button>
+                <iframe src="http://localhost:3335" class="symbol-frame"></iframe>
+            </div>
+            <div class="grid-item">
+                <div class="grid-label">M6E</div>
+                <button class="expand-btn" onclick="switchTab('m6e')">Expand ↗</button>
+                <iframe src="http://localhost:3336" class="symbol-frame"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-content" id="account">
+        <div id="accountContent">
+            <div class="account-section">
+                <h2>Account Overview</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="label">Account Balance</div>
+                        <div class="value" id="acctBalance">$0.00</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Daily P&L</div>
+                        <div class="value" id="acctDailyPnL">$0.00</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Buying Power</div>
+                        <div class="value" id="acctBuyingPower">$0.00</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Daily Loss Limit</div>
+                        <div class="value" id="acctDailyLimit">$2,000.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="account-section">
+                <h2>Combined Performance (All Symbols)</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="label">Total Trades</div>
+                        <div class="value" id="acctTotalTrades">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Total Realized P&L</div>
+                        <div class="value" id="acctTotalRealized">$0.00</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Win Rate</div>
+                        <div class="value" id="acctWinRate">0%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Average P&L</div>
+                        <div class="value" id="acctAvgPnL">$0.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="account-section">
+                <h2>Performance by Symbol</h2>
+                <div class="symbol-breakdown" id="symbolBreakdown">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <div class="account-section">
+                <h2>Recent Trades (All Symbols)</h2>
+                <table class="trades-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Symbol</th>
+                            <th>Side</th>
+                            <th>Entry</th>
+                            <th>Exit</th>
+                            <th>Qty</th>
+                            <th>P&L</th>
+                            <th>Result</th>
+                        </tr>
+                    </thead>
+                    <tbody id="allTradesBody">
+                        <tr><td colspan="8" style="text-align: center; color: #8892b0;">No trades yet</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-content" id="nq-ict">
+        <iframe src="http://localhost:3337" class="symbol-frame"></iframe>
+    </div>
+
+    <div class="tab-content" id="mnq">
+        <iframe src="http://localhost:3333" class="symbol-frame"></iframe>
+    </div>
+
+    <div class="tab-content" id="mes">
+        <iframe src="http://localhost:3334" class="symbol-frame"></iframe>
+    </div>
+
+    <div class="tab-content" id="mgc">
+        <iframe src="http://localhost:3335" class="symbol-frame"></iframe>
+    </div>
+
+    <div class="tab-content" id="m6e">
+        <iframe src="http://localhost:3336" class="symbol-frame"></iframe>
+    </div>
+
+    <script>
+        // Tab switching
+        function switchTab(tabName) {
+            // Update tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.tab === tabName) {
+                    tab.classList.add('active');
+                }
+            });
+
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+                if (content.id === tabName) {
+                    content.classList.add('active');
+                }
+            });
+        }
+
+        // Tab click handlers
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                switchTab(tab.dataset.tab);
+            });
+        });
+
+        // Fetch account data from MNQ instance (they all share the same account)
+        async function updateAccountInfo() {
+            try {
+                const response = await fetch('http://localhost:3333/api/status');
+                const data = await response.json();
+
+                if (data.accountStatus) {
+                    document.getElementById('balance').textContent =
+                        `$${data.accountStatus.balance.toFixed(2)}`;
+
+                    const dailyPnL = data.accountStatus.dailyPnL || 0;
+                    const pnlEl = document.getElementById('dailyPnL');
+                    pnlEl.textContent = `$${dailyPnL.toFixed(2)}`;
+                    pnlEl.className = dailyPnL >= 0 ? 'account-value positive' : 'account-value negative';
+                }
+
+                // Get account ID (only if element exists)
+                const accountsResponse = await fetch('http://localhost:3333/api/accounts');
+                const accounts = await accountsResponse.json();
+                if (accounts && accounts.length > 0) {
+                    const currentAccount = accounts.find(a => a.isCurrent) || accounts[0];
+                    const accountIdEl = document.getElementById('accountId');
+                    if (accountIdEl) {
+                        accountIdEl.textContent = currentAccount.id;
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to fetch account info:', error);
+            }
+        }
+
+        // Fetch combined statistics from all 4 instances
+        async function updateCombinedStats() {
+            try {
+                const responses = await Promise.all([
+                    fetch('http://localhost:3333/api/status').catch(() => null),
+                    fetch('http://localhost:3334/api/status').catch(() => null),
+                    fetch('http://localhost:3335/api/status').catch(() => null),
+                    fetch('http://localhost:3336/api/status').catch(() => null),
+                ]);
+
+                const data = await Promise.all(
+                    responses.map(r => r ? r.json().catch(() => null) : null)
+                );
+
+                let totalRealized = 0;
+                let totalTrades = 0;
+
+                data.forEach(d => {
+                    if (d && d.performance) {
+                        totalRealized += d.performance.realizedPnL || 0;
+                        totalTrades += d.performance.tradesCount || 0;
+                    }
+                });
+
+                const realizedEl = document.getElementById('totalRealized');
+                realizedEl.textContent = `$${totalRealized.toFixed(2)}`;
+                realizedEl.className = totalRealized >= 0 ? 'account-value positive' : 'account-value negative';
+
+                document.getElementById('totalTrades').textContent = totalTrades;
+            } catch (error) {
+                console.error('Failed to fetch combined stats:', error);
+            }
+        }
+
+        // Load accounts and populate dropdown
+        async function loadAccounts() {
+            try {
+                const response = await fetch('http://localhost:3333/api/accounts');
+                const accounts = await response.json();
+
+                const selector = document.getElementById('accountSelector');
+                const currentSelection = selector.value; // Preserve current selection
+                selector.innerHTML = '';
+
+                accounts.forEach(account => {
+                    const option = document.createElement('option');
+                    option.value = account.id;
+                    option.textContent = `${account.name} (${account.id})`;
+                    selector.appendChild(option);
+                });
+
+                // Restore previous selection or select current account
+                if (currentSelection && accounts.find(a => a.id == currentSelection)) {
+                    selector.value = currentSelection;
+                } else {
+                    const currentAccount = accounts.find(a => a.isCurrent);
+                    if (currentAccount) {
+                        selector.value = currentAccount.id;
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load accounts:', error);
+            }
+        }
+
+        // Switch all 4 instances to the selected account
+        async function switchAllAccounts() {
+            const selector = document.getElementById('accountSelector');
+            const accountId = selector.value;
+
+            if (!accountId) {
+                console.warn('No account selected, skipping switch');
+                return;
+            }
+
+            console.log('Switching all instances to account:', accountId);
+
+            const ports = [3333, 3334, 3335, 3336];
+            const promises = ports.map(port =>
+                fetch(`http://localhost:${port}/api/account/${accountId}`, { method: 'POST' })
+                    .then(r => r.json())
+                    .then(data => ({ ...data, port }))
+                    .catch(err => ({ error: err.message, port, success: false }))
+            );
+
+            const results = await Promise.all(promises);
+            console.log('Account switch results:', results);
+
+            // Check for failures
+            const failures = results.filter(r => !r.success);
+            if (failures.length > 0) {
+                console.error('Some instances failed to switch:', failures);
+
+                // Show user-friendly error message
+                const errorMessages = failures.map(f => f.message || f.error).filter(Boolean);
+                if (errorMessages.length > 0) {
+                    alert(`Account switch failed:\n\n${errorMessages[0]}\n\nMake sure to:\n1. Stop all trading (⏸ Stop All)\n2. Close all positions (⏏ Flatten All)\n3. Then try switching accounts again.`);
+                } else {
+                    alert(`Failed to switch ${failures.length} instance(s). Check console for details.`);
+                }
+                return; // Don't refresh if switch failed
+            }
+
+            console.log('✅ All instances switched successfully');
+
+            // Refresh all data after switching
+            setTimeout(() => {
+                updateAccountInfo();
+                updateCombinedStats();
+                updateAccountTab();
+            }, 500);
+        }
+
+        // Update the Account tab with unified data
+        async function updateAccountTab() {
+            try {
+                const ports = [
+                    { port: 3333, symbol: 'MNQ' },
+                    { port: 3334, symbol: 'MES' },
+                    { port: 3335, symbol: 'MGC' },
+                    { port: 3336, symbol: 'M6E' }
+                ];
+
+                // Fetch status from all instances
+                const responses = await Promise.all(
+                    ports.map(p =>
+                        fetch(`http://localhost:${p.port}/api/status`)
+                            .then(r => r.json())
+                            .then(data => ({ ...data, symbol: p.symbol }))
+                            .catch(() => null)
+                    )
+                );
+
+                const validData = responses.filter(d => d !== null);
+
+                // Update account overview (same for all)
+                if (validData[0]?.accountStatus) {
+                    const acct = validData[0].accountStatus;
+                    document.getElementById('acctBalance').textContent = `$${acct.balance.toFixed(2)}`;
+
+                    const dailyPnL = acct.dailyPnL || 0;
+                    const pnlEl = document.getElementById('acctDailyPnL');
+                    pnlEl.textContent = `$${dailyPnL.toFixed(2)}`;
+                    pnlEl.style.color = dailyPnL >= 0 ? '#00d4aa' : '#ff6b6b';
+
+                    document.getElementById('acctBuyingPower').textContent = `$${acct.buyingPower.toFixed(2)}`;
+                }
+
+                // Calculate combined performance
+                let totalTrades = 0;
+                let totalRealized = 0;
+                let totalWins = 0;
+
+                const symbolStats = [];
+
+                validData.forEach(d => {
+                    if (d.performance) {
+                        const perf = d.performance;
+                        totalTrades += perf.tradesCount || 0;
+                        totalRealized += perf.realizedPnL || 0;
+                        totalWins += perf.winCount || 0;
+
+                        symbolStats.push({
+                            symbol: d.symbol,
+                            trades: perf.tradesCount || 0,
+                            realized: perf.realizedPnL || 0,
+                            wins: perf.winCount || 0,
+                            losses: perf.lossCount || 0,
+                            winRate: perf.tradesCount > 0 ? ((perf.winCount / perf.tradesCount) * 100).toFixed(1) : '0.0'
+                        });
+                    }
+                });
+
+                // Update combined stats
+                document.getElementById('acctTotalTrades').textContent = totalTrades;
+
+                const realizedEl = document.getElementById('acctTotalRealized');
+                realizedEl.textContent = `$${totalRealized.toFixed(2)}`;
+                realizedEl.style.color = totalRealized >= 0 ? '#00d4aa' : '#ff6b6b';
+
+                const winRate = totalTrades > 0 ? ((totalWins / totalTrades) * 100).toFixed(1) : '0.0';
+                document.getElementById('acctWinRate').textContent = `${winRate}%`;
+
+                const avgPnL = totalTrades > 0 ? (totalRealized / totalTrades).toFixed(2) : '0.00';
+                const avgEl = document.getElementById('acctAvgPnL');
+                avgEl.textContent = `$${avgPnL}`;
+                avgEl.style.color = parseFloat(avgPnL) >= 0 ? '#00d4aa' : '#ff6b6b';
+
+                // Update symbol breakdown
+                const breakdownDiv = document.getElementById('symbolBreakdown');
+                breakdownDiv.innerHTML = symbolStats.map(stat => `
+                    <div class="symbol-card">
+                        <h3>${stat.symbol}</h3>
+                        <div style="margin-bottom: 8px;">
+                            <div style="font-size: 11px; color: #8892b0;">REALIZED P&L</div>
+                            <div style="font-size: 18px; font-weight: 600; color: ${stat.realized >= 0 ? '#00d4aa' : '#ff6b6b'};">
+                                $${stat.realized.toFixed(2)}
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px;">
+                            <div>
+                                <div style="color: #8892b0;">Trades</div>
+                                <div style="font-weight: 600;">${stat.trades}</div>
+                            </div>
+                            <div>
+                                <div style="color: #8892b0;">Win Rate</div>
+                                <div style="font-weight: 600; color: #00d4aa;">${stat.winRate}%</div>
+                            </div>
+                            <div>
+                                <div style="color: #8892b0;">Wins</div>
+                                <div style="font-weight: 600; color: #00d4aa;">${stat.wins}</div>
+                            </div>
+                            <div>
+                                <div style="color: #8892b0;">Losses</div>
+                                <div style="font-weight: 600; color: #ff6b6b;">${stat.losses}</div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Fetch and display recent trades from all symbols
+                await updateAllTrades();
+
+            } catch (error) {
+                console.error('Failed to update account tab:', error);
+            }
+        }
+
+        // Fetch and display all trades from all symbols
+        async function updateAllTrades() {
+            try {
+                const ports = [
+                    { port: 3333, symbol: 'MNQ' },
+                    { port: 3334, symbol: 'MES' },
+                    { port: 3335, symbol: 'MGC' },
+                    { port: 3336, symbol: 'M6E' }
+                ];
+
+                const allTrades = [];
+
+                for (const p of ports) {
+                    try {
+                        const response = await fetch(`http://localhost:${p.port}/api/trades`);
+                        const trades = await response.json();
+                        trades.forEach(trade => {
+                            allTrades.push({ ...trade, symbol: p.symbol });
+                        });
+                    } catch (err) {
+                        console.warn(`Failed to fetch trades from ${p.symbol}:`, err);
+                    }
+                }
+
+                // Sort by exit time (most recent first)
+                allTrades.sort((a, b) => new Date(b.exitTime) - new Date(a.exitTime));
+
+                // Display up to 20 most recent trades
+                const tbody = document.getElementById('allTradesBody');
+                if (allTrades.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #8892b0;">No trades yet</td></tr>';
+                } else {
+                    tbody.innerHTML = allTrades.slice(0, 20).map(trade => {
+                        try {
+                            const exitTime = new Date(trade.exitTime).toLocaleString();
+                            const pnlColor = trade.pnl >= 0 ? '#00d4aa' : '#ff6b6b';
+                            const result = trade.pnl >= 0 ? 'WIN' : 'LOSS';
+                            const resultColor = trade.pnl >= 0 ? '#00d4aa' : '#ff6b6b';
+
+                            // Safe numeric conversion with fallbacks
+                            const entryPrice = trade.entryPrice != null ? Number(trade.entryPrice).toFixed(4) : '—';
+                            const exitPrice = trade.exitPrice != null ? Number(trade.exitPrice).toFixed(4) : '—';
+                            const quantity = trade.quantity != null ? trade.quantity : '—';
+                            const pnl = trade.pnl != null ? Number(trade.pnl).toFixed(2) : '—';
+
+                            return `
+                                <tr>
+                                    <td>${exitTime}</td>
+                                    <td><strong>${trade.symbol || '—'}</strong></td>
+                                    <td>${(trade.side || '—').toUpperCase()}</td>
+                                    <td>${entryPrice}</td>
+                                    <td>${exitPrice}</td>
+                                    <td>${quantity}</td>
+                                    <td style="color: ${pnlColor}; font-weight: 600;">$${pnl}</td>
+                                    <td style="color: ${resultColor}; font-weight: 600;">${result}</td>
+                                </tr>
+                            `;
+                        } catch (e) {
+                            console.warn('Error rendering trade row:', trade, e);
+                            return '';
+                        }
+                    }).join('');
+                }
+            } catch (error) {
+                console.error('Failed to update all trades:', error);
+            }
+        }
+
+        // Helper function to get active ports
+        async function getActivePorts() {
+            const ports = [3333, 3334, 3335, 3336];
+            console.log('[getActivePorts] Checking ports:', ports);
+
+            const checks = await Promise.all(
+                ports.map(port =>
+                    fetch(`http://localhost:${port}/api/status`)
+                        .then(r => {
+                            console.log(`[getActivePorts] Port ${port} responded with status ${r.status}`);
+                            return r.json();
+                        })
+                        .then(data => {
+                            console.log(`[getActivePorts] Port ${port} JSON:`, data);
+                            return port;
+                        })
+                        .catch(err => {
+                            console.log(`[getActivePorts] Port ${port} FAILED:`, err.message);
+                            return null;
+                        })
+                )
+            );
+
+            const activePorts = checks.filter(p => p !== null);
+            console.log('[getActivePorts] Active ports found:', activePorts);
+            return activePorts;
+        }
+
+        // Master control functions
+        async function startAllTrading() {
+            console.log('Starting all trading instances...');
+            const activePorts = await getActivePorts();
+
+            if (activePorts.length === 0) {
+                alert('No trading instances are running. Please start the servers first.');
+                return;
+            }
+
+            console.log(`Found ${activePorts.length} active instance(s):`, activePorts);
+
+            const promises = activePorts.map(port =>
+                fetch(`http://localhost:${port}/api/trading/start`, { method: 'POST' })
+                    .then(r => r.json())
+                    .then(data => ({ ...data, port, active: true }))
+                    .catch(err => ({ error: err.message, port, success: false, active: true }))
+            );
+
+            const results = await Promise.all(promises);
+            console.log('Start all results:', results);
+
+            const failures = results.filter(r => r.active && !r.success);
+            const successes = results.filter(r => r.active && r.success);
+
+            if (failures.length > 0) {
+                console.error('Some instances failed to start:', failures);
+                alert(`Started ${successes.length} instance(s), but ${failures.length} failed. Check console for details.`);
+            } else {
+                console.log(`All ${successes.length} instance(s) started successfully`);
+            }
+
+            // Refresh data
+            setTimeout(() => {
+                updateAccountInfo();
+                updateCombinedStats();
+            }, 500);
+        }
+
+        async function stopAllTrading() {
+            console.log('Stopping all trading instances...');
+            const activePorts = await getActivePorts();
+
+            if (activePorts.length === 0) {
+                alert('No trading instances are running.');
+                return;
+            }
+
+            console.log(`Found ${activePorts.length} active instance(s):`, activePorts);
+
+            const promises = activePorts.map(port =>
+                fetch(`http://localhost:${port}/api/trading/stop`, { method: 'POST' })
+                    .then(r => r.json())
+                    .then(data => ({ ...data, port, active: true }))
+                    .catch(err => ({ error: err.message, port, success: false, active: true }))
+            );
+
+            const results = await Promise.all(promises);
+            console.log('Stop all results:', results);
+
+            const failures = results.filter(r => r.active && !r.success);
+            const successes = results.filter(r => r.active && r.success);
+
+            if (failures.length > 0) {
+                console.error('Some instances failed to stop:', failures);
+                alert(`Stopped ${successes.length} instance(s), but ${failures.length} failed. Check console for details.`);
+            } else {
+                console.log(`All ${successes.length} instance(s) stopped successfully`);
+            }
+
+            // Refresh data
+            setTimeout(() => {
+                updateAccountInfo();
+                updateCombinedStats();
+            }, 500);
+        }
+
+        async function flattenAllPositions() {
+            const activePorts = await getActivePorts();
+
+            if (activePorts.length === 0) {
+                alert('No trading instances are running.');
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to flatten ALL positions across ${activePorts.length} active symbol(s)?`)) {
+                return;
+            }
+
+            console.log('Flattening all positions...');
+            console.log(`Found ${activePorts.length} active instance(s):`, activePorts);
+
+            const promises = activePorts.map(port =>
+                fetch(`http://localhost:${port}/api/position/flatten`, { method: 'POST' })
+                    .then(r => r.json())
+                    .then(data => ({ ...data, port, active: true }))
+                    .catch(err => ({ error: err.message, port, success: false, active: true }))
+            );
+
+            const results = await Promise.all(promises);
+            console.log('Flatten all results:', results);
+
+            const failures = results.filter(r => r.active && !r.success);
+            const successes = results.filter(r => r.active && r.success);
+
+            if (failures.length > 0) {
+                console.error('Some instances failed to flatten:', failures);
+                alert(`Flattened ${successes.length} position(s), but ${failures.length} failed. Check console for details.`);
+            } else {
+                console.log(`All ${successes.length} position(s) flattened successfully`);
+            }
+
+            // Refresh data
+            setTimeout(() => {
+                updateAccountInfo();
+                updateCombinedStats();
+                updateAccountTab();
+            }, 500);
+        }
+
+        // Initial update
+        loadAccounts();
+        updateAccountInfo();
+        updateCombinedStats();
+        updateAccountTab();
+
+        // Update every 2 seconds for live feel
+        setInterval(() => {
+            updateAccountInfo();
+            updateCombinedStats();
+            updateAccountTab();
+        }, 2000);
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '0') switchTab('account');
+            if (e.key === '1') switchTab('mnq');
+            if (e.key === '2') switchTab('mes');
+            if (e.key === '3') switchTab('mgc');
+            if (e.key === '4') switchTab('m6e');
+            if (e.key === 'g' || e.key === 'G') switchTab('grid');
+        });
+    </script>
+</body>
+</html>
