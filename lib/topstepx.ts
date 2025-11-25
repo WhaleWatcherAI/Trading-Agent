@@ -83,6 +83,7 @@ export async function authenticate(): Promise<string> {
           'Content-Type': 'application/json',
         },
         timeout: 30000,
+        maxRedirects: 5,
       }
     );
 
