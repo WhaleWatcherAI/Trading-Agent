@@ -1067,8 +1067,13 @@ function makeDecision(): AgentDecision {
 }
 
 // Process Market Data Update (with OpenAI Integration)
+// Gold agent adds delay to stagger API calls from NQ when both receive same candle
+const PROCESS_DELAY_MS = 1500; // Gold waits 1.5s after receiving data before processing
 async function processMarketUpdate() {
   if (bars.length < 3) return;
+
+  // Stagger processing to avoid hitting API at same time as NQ agent
+  await new Promise(resolve => setTimeout(resolve, PROCESS_DELAY_MS));
 
   log(`[DEBUG processMarketUpdate] Entered function with ${bars.length} bars`, 'info');
 
