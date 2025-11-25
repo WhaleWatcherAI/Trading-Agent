@@ -1723,6 +1723,8 @@ async function connectMarketData() {
     const book: Record<number, { price: number; bidSize: number; askSize: number }> = {};
 
     for (const entry of depth) {
+      if (!entry || entry.price == null) continue;
+
       const price = Number(entry.price);
       const volume = Number(entry.volume || entry.currentVolume || 0);
       const type = entry.type;
