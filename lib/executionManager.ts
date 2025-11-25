@@ -197,6 +197,44 @@ export class ExecutionManager {
   }
 
   /**
+   * Get open orders from WebSocket cache instead of API call
+   * Returns same format as searchOpenOrders for compatibility
+   */
+  private async getOpenOrdersCached(): Promise<any> {
+    // Fallback to API if account feed not initialized yet
+    if (!this.accountFeedInitialized || !this.accountFeed || typeof this.accountFeed.getOpenOrders !== 'function') {
+      console.warn('[ExecutionManager] Account feed not ready, falling back to API call');
+      return await this.restClient.searchOpenOrders({ accountId: this.tradingAccount.id });
+    }
+
+    try {
+      const orders = this.accountFeed.getOpenOrders();
+      // Convert to same format as searchOpenOrders API response
+      return {
+        success: true,
+        errorCode: 0,
+        errorMessage: null,
+        orders: orders.map((o: any) => ({
+          id: o.orderId,
+          accountId: this.tradingAccount.id,
+          contractId: o.contractId,
+          symbolId: o.symbol,
+          status: o.status,
+          type: o.type,
+          side: o.side,
+          size: o.size,
+          limitPrice: o.limitPrice,
+          stopPrice: o.stopPrice,
+          fillVolume: o.filledSize,
+        })),
+      };
+    } catch (error: any) {
+      console.warn('[ExecutionManager] Error getting cached orders, falling back to API:', error?.message);
+      return await this.restClient.searchOpenOrders({ accountId: this.tradingAccount.id });
+    }
+  }
+
+  /**
    * Handle real-time position updates from websocket
    */
   private handleAccountFeedUpdate(snapshot: any): void {
@@ -248,7 +286,7 @@ export class ExecutionManager {
 
     // Block if any working entry orders exist for this contract (either side)
     try {
-      const openOrders = await this.restClient.searchOpenOrders({ accountId: this.tradingAccount.id });
+      const openOrders = await this.getOpenOrdersCached();
       const workingEntry = (openOrders?.orders || []).some((o: any) =>
         o.contractId === this.contractId &&
         this.isOrderWorking(o) &&
@@ -575,7 +613,7 @@ export class ExecutionManager {
         }
 
         // Also check for open orders that might be filling
-        const openOrders = await this.restClient.searchOpenOrders({ accountId: this.tradingAccount.id });
+        const openOrders = await this.getOpenOrdersCached();
         const pendingEntryOrders = (openOrders?.orders || []).filter(
           (order: any) => order.contractId === this.contractId && order.type === 2 && order.status === 1
         );
@@ -980,7 +1018,7 @@ export class ExecutionManager {
   ): Promise<{ stop?: ProjectXOrderRecord; target?: ProjectXOrderRecord }> {
     for (let i = 0; i < attempts; i++) {
       try {
-        const response = await this.restClient!.searchOpenOrders({ accountId: this.tradingAccount!.id });
+        const response = await this.getOpenOrdersCached();
         if (response?.success && Array.isArray(response.orders)) {
           const relevantOrders = response.orders.filter(order =>
             order.contractId === this.contractId && order.side === protectiveSide
@@ -1021,7 +1059,7 @@ export class ExecutionManager {
     }
 
     try {
-      const response = await this.restClient.searchOpenOrders({ accountId: this.tradingAccount.id });
+      const response = await this.getOpenOrdersCached();
       if (!response?.success) {
         console.warn('[ExecutionManager] Failed to search open orders:', response?.errorMessage || 'Unknown error');
         return;
@@ -1068,7 +1106,7 @@ export class ExecutionManager {
     const allowRecreate = createIfMissing && !position.usesNativeBracket;
 
     try {
-      const response = await this.restClient.searchOpenOrders({ accountId: this.tradingAccount.id });
+      const response = await this.getOpenOrdersCached();
       if (!response?.success || !Array.isArray(response.orders)) {
         console.warn('[ExecutionManager] syncProtectiveOrdersFromOpenOrders: failed to fetch open orders');
         return;
@@ -1124,7 +1162,7 @@ export class ExecutionManager {
 
     try {
       // Check open orders for this contract
-      const openOrders = await this.restClient.searchOpenOrders({ accountId: this.tradingAccount.id });
+      const openOrders = await this.getOpenOrdersCached();
       const hasProtective = (openOrders?.orders || []).some(o => o.contractId === this.contractId);
 
       // Check positions
@@ -1158,7 +1196,7 @@ export class ExecutionManager {
           await new Promise(resolve => setTimeout(resolve, retryDelayMs));
         }
 
-        const response = await this.restClient.searchOpenOrders({ accountId: this.tradingAccount.id });
+        const response = await this.getOpenOrdersCached();
         if (!response?.success) {
           console.warn('[ExecutionManager] verifyNativeBracket: searchOpenOrders failed:', response?.errorMessage || 'Unknown error');
           if (attempt === maxRetries) {
@@ -1237,7 +1275,7 @@ export class ExecutionManager {
 
         // FALLBACK: Try to reconstruct position from open bracket orders
         try {
-          const openOrdersResponse = await this.restClient.searchOpenOrders({ accountId: this.tradingAccount.id });
+          const openOrdersResponse = await this.getOpenOrdersCached();
           console.log(`[ExecutionManager] 📋 REHYDRATE FALLBACK: Open orders API returned: success=${openOrdersResponse?.success}, orderCount=${openOrdersResponse?.orders?.length || 0}`);
 
           if (openOrdersResponse?.success && Array.isArray(openOrdersResponse.orders) && openOrdersResponse.orders.length > 0) {
@@ -1507,7 +1545,7 @@ export class ExecutionManager {
       console.log(`[ExecutionManager] 🔍 REHYDRATE: Searching for existing bracket orders in open orders...`);
 
       try {
-        const openOrdersResponse = await this.restClient.searchOpenOrders({ accountId: this.tradingAccount.id });
+        const openOrdersResponse = await this.getOpenOrdersCached();
         console.log(`[ExecutionManager] 📋 REHYDRATE: Open orders API returned: success=${openOrdersResponse?.success}, orderCount=${openOrdersResponse?.orders?.length || 0}`);
 
         if (openOrdersResponse?.success && Array.isArray(openOrdersResponse.orders)) {
@@ -2021,9 +2059,7 @@ export class ExecutionManager {
     try {
       console.log('[ExecutionManager] 🔍 Verifying brackets are canceled by checking open orders...');
 
-      const response = await this.restClient.searchOpenOrders({
-        accountId: this.tradingAccount.id
-      });
+      const response = await this.getOpenOrdersCached();
 
       if (!response?.success || !response?.orders) {
         console.warn('[ExecutionManager] ⚠️ Could not verify bracket cancellation - API call failed');
@@ -2085,7 +2121,7 @@ export class ExecutionManager {
     try {
       const [positions, openOrders] = await Promise.all([
         this.restClient.getPositions(this.tradingAccount.id),
-        this.restClient.searchOpenOrders({ accountId: this.tradingAccount.id }),
+        this.getOpenOrdersCached(),
       ]);
 
       const openOrderList = openOrders?.orders || [];
@@ -2687,7 +2723,7 @@ export class ExecutionManager {
          * As a secondary signal, check for any protective open orders on this contract.
          */
         if (this.activePositions.size > 0) {
-          const openOrders = await this.restClient.searchOpenOrders({ accountId: this.tradingAccount.id });
+          const openOrders = await this.getOpenOrdersCached();
           const hasProtective = (openOrders?.orders || []).some(o => o.contractId === this.contractId);
           // Assume position exists to avoid blocking protective adjustments when rest endpoint is flaky
           this.brokerHasPosition = true;
@@ -2823,9 +2859,7 @@ export class ExecutionManager {
       console.log(`[ExecutionManager] 🧹 Checking for orphaned protective orders while flat...`);
 
       // Search for any working orders for this contract
-      const response = await this.restClient.searchOpenOrders({
-        accountId: this.tradingAccount.id,
-      });
+      const response = await this.getOpenOrdersCached();
 
       if (!response?.orders || response.orders.length === 0) {
         return;
