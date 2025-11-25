@@ -3,6 +3,7 @@ import type { ReasoningEffort } from 'openai/resources/shared';
 import { jsonrepair } from 'jsonrepair';
 import { fabioPlaybook, MarketState, SetupModel } from './fabioPlaybook';
 import { POCCrossStats, MarketStatistics, PerformanceMetrics, HistoricalNote } from './enhancedFeatures';
+import { buildDeepseekCacheOptions } from './deepseekCache';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -388,7 +389,7 @@ Respond ONLY in JSON with the required fields for execution.`;
                 reasoning_effort: reasoningEffort,
                 ...(responseFormat ? { response_format: responseFormat } : {}),
                 stream: true,
-              });
+              }, buildDeepseekCacheOptions('trading-agent'));
 
               let streamedContent = '';
               let reasoningLog = '';
@@ -432,7 +433,7 @@ Respond ONLY in JSON with the required fields for execution.`;
                 temperature: attempt.temperature,
                 reasoning_effort: reasoningEffort,
                 ...(responseFormat ? { response_format: responseFormat } : {}),
-              });
+              }, buildDeepseekCacheOptions('trading-agent'));
 
               const message: any = completion.choices?.[0]?.message;
               const reasoning = extractReasoningFromMessage(message);
@@ -482,7 +483,7 @@ Respond ONLY in JSON with the required fields for execution.`;
                   max_tokens: 700,
                   temperature: 0.2,
                   response_format: responseFormat,
-                });
+                }, buildDeepseekCacheOptions('trading-agent'));
 
                 content = extractMessageText(fallbackResponse.choices[0]?.message);
 
@@ -507,7 +508,7 @@ Respond ONLY in JSON with the required fields for execution.`;
           max_tokens: 1000,
           messages: messages,
           ...(responseFormat ? { response_format: responseFormat } : {}),
-        });
+        }, buildDeepseekCacheOptions('trading-agent'));
         content = extractMessageText(response.choices[0]?.message);
       }
 
