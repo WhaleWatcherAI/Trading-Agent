@@ -12,10 +12,25 @@ interface PositionInfo {
   lastUpdate: string;
 }
 
+interface OrderInfo {
+  orderId: string | number;
+  contractId?: string;
+  symbol?: string;
+  side: number;
+  size: number;
+  type: number;
+  status: number;
+  limitPrice?: number;
+  stopPrice?: number;
+  filledSize?: number;
+  lastUpdate: string;
+}
+
 interface AccountSnapshot {
   accountId: number;
   account?: Record<string, any> | null;
   positions: PositionInfo[];
+  orders: OrderInfo[];
   lastUpdate?: string;
 }
 
@@ -49,8 +64,9 @@ class TopstepxAccountFeed extends EventEmitter {
   private snapshot: {
     account: Record<string, any> | null;
     positions: Map<string, PositionInfo>;
+    orders: Map<string | number, OrderInfo>;
     lastUpdate?: string;
-  } = { account: null, positions: new Map() };
+  } = { account: null, positions: new Map(), orders: new Map() };
   private starting = false;
 
   constructor(private accountId: number) {
@@ -102,6 +118,35 @@ class TopstepxAccountFeed extends EventEmitter {
         this.emit('update', this.getSnapshot());
       });
 
+      this.hub.on('GatewayUserOrder', data => {
+        const orderId = data.id ?? data.orderId ?? data.orderID;
+        if (!orderId) return;
+
+        // Status codes: 0=PendingNew, 1=New, 2=PartialFill, 3=Filled, 4=Canceled, 5=Rejected, etc.
+        const status = Number(data.status ?? 0);
+
+        // Remove filled or canceled orders
+        if (status === 3 || status === 4 || status === 5) {
+          this.snapshot.orders.delete(orderId);
+        } else {
+          const info: OrderInfo = {
+            orderId,
+            contractId: data.contractId ?? data.instrumentId,
+            symbol: data.symbol ?? data.contractName,
+            side: Number(data.side ?? 0),
+            size: Number(data.size ?? data.quantity ?? 0),
+            type: Number(data.type ?? data.orderType ?? 0),
+            status,
+            limitPrice: data.limitPrice != null ? Number(data.limitPrice) : undefined,
+            stopPrice: data.stopPrice != null ? Number(data.stopPrice) : undefined,
+            filledSize: data.filledSize != null ? Number(data.filledSize) : undefined,
+            lastUpdate: new Date().toISOString(),
+          };
+          this.snapshot.orders.set(orderId, info);
+        }
+        this.emit('update', this.getSnapshot());
+      });
+
       const subscribe = async () => {
         if (!this.hub) return;
         try {
@@ -129,8 +174,13 @@ class TopstepxAccountFeed extends EventEmitter {
       accountId: this.accountId,
       account: this.snapshot.account,
       positions: Array.from(this.snapshot.positions.values()),
+      orders: Array.from(this.snapshot.orders.values()),
       lastUpdate: this.snapshot.lastUpdate,
     };
+  }
+
+  getOpenOrders(): OrderInfo[] {
+    return Array.from(this.snapshot.orders.values());
   }
 }
 
