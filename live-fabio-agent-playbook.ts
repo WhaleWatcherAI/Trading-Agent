@@ -218,6 +218,7 @@ let realizedPnL = 0; // Track realized P&L from closed positions
 
 // OpenAI Rate Limiting - Only call once per completed 5-minute candle
 let lastOpenAIAnalysisTime = 0;
+let lastVolumeProfileLog = 0; // Throttle volume profile logging
 
 // Utility Functions
 function log(message: string, type: 'info' | 'success' | 'warning' | 'error' = 'info') {
@@ -1243,10 +1244,20 @@ async function processMarketUpdate() {
   const profileSource = dayBars.length > 0 ? dayBars : bars.slice(-50);
   volumeProfile = calculateVolumeProfile(profileSource);
 
-  // Debug logging
-  if (dayBars.length > 0) {
-    log(`📊 Volume Profile: Using ${dayBars.length} bars from session start ${tradingDayStart.toISOString()}`, 'info');
-    log(`   VAH: ${volumeProfile.vah.toFixed(2)}, POC: ${volumeProfile.poc.toFixed(2)}, VAL: ${volumeProfile.val.toFixed(2)}`, 'info');
+  // Calculate session high/low for comparison
+  const sessionHigh = profileSource.length > 0 ? Math.max(...profileSource.map(b => b.high)) : 0;
+  const sessionLow = profileSource.length > 0 ? Math.min(...profileSource.map(b => b.low)) : 0;
+  const firstBarTime = profileSource.length > 0 ? profileSource[0].timestamp : 'none';
+  const lastBarTime = profileSource.length > 0 ? profileSource[profileSource.length - 1].timestamp : 'none';
+
+  // Always log volume profile details (throttled to once per minute)
+  const now = Date.now();
+  if (!lastVolumeProfileLog || now - lastVolumeProfileLog > 60000) {
+    lastVolumeProfileLog = now;
+    log(`📊 VOLUME PROFILE: ${profileSource.length} bars | Session: ${firstBarTime} → ${lastBarTime}`, 'info');
+    log(`   Session High: ${sessionHigh.toFixed(2)} | Session Low: ${sessionLow.toFixed(2)}`, 'info');
+    log(`   VAH: ${volumeProfile.vah.toFixed(2)} | POC: ${volumeProfile.poc.toFixed(2)} | VAL: ${volumeProfile.val.toFixed(2)}`, 'info');
+    log(`   LVNs: ${volumeProfile.lvns.slice(0, 3).map(l => l.toFixed(2)).join(', ')}`, 'info');
   }
 
   // Update market structure (existing)
