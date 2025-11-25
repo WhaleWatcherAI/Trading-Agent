@@ -1921,35 +1921,59 @@ async function connectMarketData() {
 
   const handleDepth = (id: string, depth: any) => {
     const allowId = resolvedContractId || contractId;
-    if (id && allowId && id !== allowId) return;
-    const bids = depth?.bids || depth?.Bids;
-    const asks = depth?.asks || depth?.Asks;
-    if (!Array.isArray(bids) || !Array.isArray(asks)) return;
+    if (id && allowId && id !== allowId) {
+      return;
+    }
 
-    l2Data = [];
-    const depthLevels = Math.min(10, Math.max(bids.length, asks.length));
+    // TopstepX sends depth as an array of entries with type field (not separate bids/asks arrays)
+    // type=6 appears to be bid, type=5 appears to be ask
+    if (!Array.isArray(depth) || depth.length === 0) {
+      return;
+    }
+
     const book: Record<number, { price: number; bidSize: number; askSize: number }> = {};
-    for (let i = 0; i < depthLevels; i++) {
-      if (bids[i]) {
-        const price = bids[i].price;
-        book[price] = book[price] || { price, bidSize: 0, askSize: 0 };
-        book[price].bidSize += bids[i].size;
+
+    for (const entry of depth) {
+      const price = Number(entry.price);
+      const volume = Number(entry.volume || entry.currentVolume || 0);
+      const type = entry.type;
+
+      if (price <= 0 || volume <= 0) continue;
+
+      if (!book[price]) {
+        book[price] = { price, bidSize: 0, askSize: 0 };
       }
-      if (asks[i]) {
-        const price = asks[i].price;
-        book[price] = book[price] || { price, bidSize: 0, askSize: 0 };
-        book[price].askSize += asks[i].size;
+
+      // Map type to bid/ask: type 6 = bid, type 5 = ask
+      if (type === 6) {
+        book[price].bidSize += volume;
+      } else if (type === 5) {
+        book[price].askSize += volume;
       }
     }
+
     l2Data = Object.values(book).sort((a, b) => a.price - b.price);
     processMarketUpdate();
   };
 
-  // Depth feeds often come in various casings - listen to all variants
-  marketHub.on('gatewaydepth', handleDepth);
-  marketHub.on('GatewayMarketDepth', handleDepth);
-  marketHub.on('gatewayDepth', handleDepth);
-  marketHub.on('GatewayDepth', handleDepth);
+  // Log all events to debug what's actually being sent
+  (marketHub as any).onclose(() => log('[MarketHub] Connection closed', 'warn'));
+  (marketHub as any).onreconnecting(() => log('[MarketHub] Reconnecting...', 'warn'));
+  (marketHub as any).onreconnected(() => log('[MarketHub] Reconnected', 'info'));
+
+  // Depth feeds often come in various casings - listen to all variants with debug logging
+  let firstDepthLogged = false;
+  const logFirstDepth = (eventName: string) => (id: string, depth: any) => {
+    if (!firstDepthLogged) {
+      log(`[DEBUG] First depth event received via '${eventName}' for id=${id}`, 'info');
+      firstDepthLogged = true;
+    }
+    handleDepth(id, depth);
+  };
+  marketHub.on('gatewaydepth', logFirstDepth('gatewaydepth'));
+  marketHub.on('GatewayMarketDepth', logFirstDepth('GatewayMarketDepth'));
+  marketHub.on('gatewayDepth', logFirstDepth('gatewayDepth'));
+  marketHub.on('GatewayDepth', logFirstDepth('GatewayDepth'));
   marketHub.on('gatewaylogout', (msg: any) => {
     log(`[MarketHub] gatewaylogout event: ${JSON.stringify(msg)}`, 'warn');
   });
