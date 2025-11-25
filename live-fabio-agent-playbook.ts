@@ -1251,7 +1251,10 @@ async function processMarketUpdate() {
   const now = Date.now();
   if (!lastVolumeProfileLog || now - lastVolumeProfileLog > 60000) {
     lastVolumeProfileLog = now;
+    const tradingDayStart = getTradingDayStart();
     log(`📊 VOLUME PROFILE: ${profileSource.length} bars | Session: ${firstBarTime} → ${lastBarTime}`, 'info');
+    log(`   Expected session start: ${tradingDayStart.toISOString()}`, 'info');
+    log(`   historicalSessionBars.length: ${historicalSessionBars.length}`, 'info');
     log(`   Session High: ${sessionHigh.toFixed(2)} | Session Low: ${sessionLow.toFixed(2)}`, 'info');
     log(`   VAH: ${volumeProfile.vah.toFixed(2)} | POC: ${volumeProfile.poc.toFixed(2)} | VAL: ${volumeProfile.val.toFixed(2)}`, 'info');
     log(`   LVNs: ${volumeProfile.lvns.slice(0, 3).map(l => l.toFixed(2)).join(', ')}`, 'info');
@@ -1942,9 +1945,11 @@ async function connectMarketData() {
     processMarketUpdate();
   };
 
-  // Depth feeds often come as lowercase gatewaydepth
+  // Depth feeds often come in various casings - listen to all variants
   marketHub.on('gatewaydepth', handleDepth);
   marketHub.on('GatewayMarketDepth', handleDepth);
+  marketHub.on('gatewayDepth', handleDepth);
+  marketHub.on('GatewayDepth', handleDepth);
   marketHub.on('gatewaylogout', (msg: any) => {
     log(`[MarketHub] gatewaylogout event: ${JSON.stringify(msg)}`, 'warn');
   });
