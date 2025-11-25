@@ -164,7 +164,8 @@ let livePrice: number = 0;
 let livePriceTimestamp: number = 0;
 
 // Market Data Storage
-let bars: TopstepXFuturesBar[] = [];
+let bars: TopstepXFuturesBar[] = [];  // Real-time 1-min bars built from trades
+let historicalSessionBars: TopstepXFuturesBar[] = []; // Historical 5-min bars from session start
 let l2Data: L2Level[] = [];
 let orderFlowData: OrderFlowData = {
   bigPrints: [],
@@ -1235,13 +1236,9 @@ async function processMarketUpdate() {
     currentPosition = executionManager.getActivePosition();
   }
 
-  // Update volume profile using the full trading day (DAS-style session VP)
-  const tradingDayStart = getTradingDayStart();
-  const dayBars = bars.filter(bar => {
-    const ts = new Date(bar.timestamp).getTime();
-    return !Number.isNaN(ts) && ts >= tradingDayStart.getTime();
-  });
-  const profileSource = dayBars.length > 0 ? dayBars : bars.slice(-50);
+  // Update volume profile using historical session bars (5-min bars from session start)
+  // Fall back to recent bars only if no historical data available
+  const profileSource = historicalSessionBars.length > 0 ? historicalSessionBars : bars.slice(-50);
   volumeProfile = calculateVolumeProfile(profileSource);
 
   // Calculate session high/low for comparison
@@ -2270,8 +2267,9 @@ async function loadHistoricalData() {
     });
 
     if (historicalBars && historicalBars.length > 0) {
-      bars = historicalBars;
-      volumeProfile = calculateVolumeProfile(bars);
+      historicalSessionBars = historicalBars;  // Store in separate array
+      bars = historicalBars.slice();  // Initialize bars with historical data
+      volumeProfile = calculateVolumeProfile(historicalSessionBars);  // Use historical for profile
       marketStructure.state = detectMarketState();
       cvdMinuteBars = [];
       currentCvdBar = null;
@@ -2279,7 +2277,7 @@ async function loadHistoricalData() {
       orderFlowData.cvdHistory = [];
       orderFlowData.bigPrints = [];
       orderFlowData.footprintImbalance = {};
-      log(`✅ Loaded ${bars.length} historical 5-min bars from TopstepX`, 'success');
+      log(`✅ Loaded ${historicalSessionBars.length} historical 5-min bars from TopstepX`, 'success');
     } else {
       log('No historical bars returned from TopstepX', 'warning');
     }
