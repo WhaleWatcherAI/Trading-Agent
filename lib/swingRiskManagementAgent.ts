@@ -9,6 +9,7 @@
 import OpenAI from 'openai';
 import { ActivePosition } from './executionManager';
 import { TopstepXFuturesBar } from './topstepx';
+import { buildDeepseekCacheOptions } from './deepseekCache';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -24,6 +25,7 @@ export interface SwingRiskManagementDecision {
   urgency: 'low' | 'medium' | 'high';
   riskLevel: 'conservative' | 'balanced' | 'aggressive';
   daysInTrade: number;
+  positionVersion?: number;
 }
 
 interface SwingMarketSnapshot {
@@ -214,7 +216,7 @@ EXAMPLES OF PROPER SWING RISK MANAGEMENT:
       temperature: 1,
       max_tokens: 16000,
       stream: true,
-    });
+    }, buildDeepseekCacheOptions('swing-risk-mgmt'));
 
     let fullContent = '';
     let reasoningContent = '';
@@ -321,6 +323,7 @@ function parseSwingRiskManagementResponse(content: string, daysInTrade: number):
       urgency: parsed.urgency || 'low',
       riskLevel: parsed.riskLevel || 'balanced',
       daysInTrade: parsed.daysInTrade || daysInTrade,
+      positionVersion: parsed.positionVersion,
     };
 
   } catch (error: any) {

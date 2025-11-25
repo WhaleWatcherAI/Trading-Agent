@@ -1,9 +1,9 @@
 export type MarketState =
-  | 'balanced'
-  | 'out_of_balance_uptrend'
-  | 'out_of_balance_downtrend'
-  | 'balanced_with_failed_breakout_above'
-  | 'balanced_with_failed_breakout_below';
+  | 'in_value'
+  | 'above_value'
+  | 'below_value'
+  | 'in_value_failed_breakout_above'
+  | 'in_value_failed_breakout_below';
 
 export type SessionName = 'London' | 'NewYork' | 'Other';
 

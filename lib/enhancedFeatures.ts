@@ -21,6 +21,9 @@ export interface MarketStatistics {
   time_in_value_sec: number;
   cvd_slope_5min: number;
   cvd_slope_15min: number;
+  volatilityRegime?: 'low' | 'normal' | 'high';
+  atr5m?: number;
+  currentRangeTicks?: number;
 }
 
 export interface PerformanceMetrics {

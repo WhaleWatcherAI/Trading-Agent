@@ -15,11 +15,13 @@ import {
   OrderSide,
 } from './topstepx';
 import { createProjectXRest, ProjectXOrderRecord } from '../projectx-rest';
+import { getTopstepxAccountFeed } from './server/topstepxAccountFeed';
 
 interface ExecutionManagerOptions {
   tickSize?: number;
   preferredAccountId?: number;
   enableNativeBrackets?: boolean;
+  requireNativeBrackets?: boolean;
 }
 
 /**
@@ -79,6 +81,7 @@ interface ExecutionResult {
 export class ExecutionManager {
   private activePositions: Map<string, ActivePosition> = new Map();
   private executedOrders: Map<string, ExecutedOrder> = new Map();
+  private positionVersionBySymbol: Record<string, number> = {};
   private orderIdCounter = 0;
   private tradingAccount: TopstepXAccount | null = null;
   private restClient: ReturnType<typeof createProjectXRest> | null = null;
@@ -87,15 +90,29 @@ export class ExecutionManager {
   private readonly rewardPoints = 50;
   private readonly preferredAccountId?: number;
   private readonly enableNativeBrackets: boolean;
+  private readonly requireNativeBrackets: boolean;
   private lastBrokerSync = 0;
   private readonly brokerSyncIntervalMs = 15_000;
   private lastEntryOrderTime = 0;
   private readonly entryOrderGracePeriodMs = 90_000; // 90 seconds to prevent duplicate entries after stop loss
+  private protectionLockUntilMs = 0; // block early cancel/replace right after entry
+  // Debounce broker-flat signals to avoid clearing/canceling on feed lag
+  private flatSeenAtMs: number | null = null;
+  private readonly flatConfirmMs = 2500; // require 2.5s consecutive flat before cleanup
 
   // Broker position monitoring to prevent naked close orders
   private brokerHasPosition = false;
   private lastBrokerPositionCheck = 0;
   private readonly brokerPositionCheckIntervalMs = 2_000; // Check every 2 seconds
+  private readonly emergencyCooldownMs = 20_000; // short lockout after circuit breaker flatten
+  private lastEmergencyFlatten = 0;
+  private flatCooldownUntilBySymbol: Record<string, number> = {};
+  private lastExternalVersionBump = 0;
+  private accountFeed: any = null; // Websocket feed for real-time position updates
+  private accountFeedInitialized = false;
+  private lastProtectiveModifyMs = 0; // track recent stop/target modifies to avoid false “no stop” detection
+  private lastStopModifyMs = 0;
+  private lastTargetModifyMs = 0;
 
   constructor(
     private symbol: string,
@@ -105,14 +122,25 @@ export class ExecutionManager {
     options: ExecutionManagerOptions = {}
   ) {
     this.tickSize = options.tickSize && options.tickSize > 0 ? options.tickSize : 0.25;
+    console.log(`[ExecutionManager] Initialized with tickSize=${this.tickSize} for ${symbol} (provided: ${options.tickSize})`);
     this.preferredAccountId = options.preferredAccountId;
-    this.enableNativeBrackets = Boolean(options.enableNativeBrackets);
+    this.enableNativeBrackets = options.enableNativeBrackets !== false; // default true to force native when supported
+    this.requireNativeBrackets = true; // always require native brackets to avoid non-OCO exposure
     try {
       this.restClient = createProjectXRest();
     } catch (error: any) {
       console.warn('[ExecutionManager] Unable to initialize ProjectX REST client (falling back to legacy order flow):', error?.message || error);
       this.restClient = null;
     }
+  }
+
+  private markProtectionLock(seconds: number = 6) {
+    this.protectionLockUntilMs = Date.now() + seconds * 1000;
+    console.warn(`[ExecutionManager] 🔒 Protection lock active for ${seconds}s to prevent early bracket cancels/adjusts.`);
+  }
+
+  private isProtectionLocked(): boolean {
+    return Date.now() < this.protectionLockUntilMs;
   }
 
   private async ensureRestContext(): Promise<boolean> {
@@ -136,6 +164,59 @@ export class ExecutionManager {
     return true;
   }
 
+  /**
+   * Initialize websocket account feed for real-time position updates
+   */
+  async initializeAccountFeed(): Promise<void> {
+    if (this.accountFeedInitialized || !this.tradingAccount) {
+      return;
+    }
+
+    try {
+      console.log(`[ExecutionManager] 🔌 Initializing websocket position feed for account ${this.tradingAccount.id}...`);
+      this.accountFeed = await getTopstepxAccountFeed(this.tradingAccount.id);
+
+      // Listen for position updates
+      this.accountFeed.on('update', (snapshot: any) => {
+        this.handleAccountFeedUpdate(snapshot);
+      });
+
+      this.accountFeedInitialized = true;
+      console.log(`[ExecutionManager] ✅ Websocket position feed connected and listening`);
+    } catch (error: any) {
+      console.error('[ExecutionManager] ❌ Failed to initialize account feed:', error?.message || error);
+    }
+  }
+
+  /**
+   * Handle real-time position updates from websocket
+   */
+  private handleAccountFeedUpdate(snapshot: any): void {
+    if (!snapshot || !Array.isArray(snapshot.positions)) {
+      return;
+    }
+
+    // Find position for our contract
+    const positionData = snapshot.positions.find((p: any) =>
+      p.contractId === this.contractId || p.symbol === this.symbol
+    );
+
+    const currentPosition = this.getActivePosition();
+
+    // Position closed externally (manual close, stop hit, target hit)
+    if (currentPosition && (!positionData || positionData.netQty === 0)) {
+      console.log(`[ExecutionManager] 🔔 Websocket detected position close for ${this.symbol} - syncing...`);
+      this.clearIfBrokerFlat();
+      console.log(`[ExecutionManager] ✅ Position cleared from tracking (external close detected)`);
+    }
+
+    // Position opened externally
+    else if (!currentPosition && positionData && positionData.netQty !== 0) {
+      console.log(`[ExecutionManager] 🔔 Websocket detected new position for ${this.symbol} (netQty=${positionData.netQty})`);
+      this.handleWebsocketPositionUpdate(positionData);
+    }
+  }
+
   private async executeWithRest(
     order: ExecutedOrder,
     currentPrice: number,
@@ -146,7 +227,7 @@ export class ExecutionManager {
       return null;
     }
 
-    // CRITICAL: Validate ENTRY order against broker state
+    // CRITICAL: Validate ENTRY order against broker state and working entries
     console.log(`[ExecutionManager] 🔍 [ENTRY ORDER VALIDATION] Checking broker is FLAT...`);
     const brokerHasPosition = await this.refreshBrokerPositionStatus();
 
@@ -155,6 +236,24 @@ export class ExecutionManager {
       order.status = 'rejected';
       order.reason = 'ENTRY blocked: Position already exists at broker';
       return null;
+    }
+
+    // Block if any working entry orders exist for this contract (either side)
+    try {
+      const openOrders = await this.restClient.searchOpenOrders({ accountId: this.tradingAccount.id });
+      const workingEntry = (openOrders?.orders || []).some((o: any) =>
+        o.contractId === this.contractId &&
+        this.isOrderWorking(o) &&
+        !this.isProtectiveOrder(o, undefined) // any non-protective order while flat counts as entry risk
+      );
+      if (workingEntry) {
+        console.error(`[ExecutionManager] 🚫 [ENTRY ORDER BLOCKED] Existing working entry order detected for contract ${this.contractId}.`);
+        order.status = 'rejected';
+        order.reason = 'ENTRY blocked: existing working entry order';
+        return null;
+      }
+    } catch (error: any) {
+      console.warn('[ExecutionManager] ⚠️ Unable to check working entry orders:', error?.message || error);
     }
 
     console.log(`[ExecutionManager] ✅ [ENTRY ORDER APPROVED] Broker is FLAT - proceeding with entry`);
@@ -167,6 +266,23 @@ export class ExecutionManager {
       plannedLevels.stopLoss,
       plannedLevels.takeProfit,
     );
+
+    // Validate bracket orientation before submit
+    if (order.side === 'buy') {
+      if (plannedLevels.stopLoss >= entryReference || plannedLevels.takeProfit <= entryReference) {
+        console.error('[ExecutionManager] 🚫 Invalid LONG brackets (stop/target orientation). Aborting entry.');
+        order.status = 'rejected';
+        order.reason = 'Invalid LONG brackets';
+        return null;
+      }
+    } else {
+      if (plannedLevels.stopLoss <= entryReference || plannedLevels.takeProfit >= entryReference) {
+        console.error('[ExecutionManager] 🚫 Invalid SHORT brackets (stop/target orientation). Aborting entry.');
+        order.status = 'rejected';
+        order.reason = 'Invalid SHORT brackets';
+        return null;
+      }
+    }
 
     try {
       console.log(`[ExecutionManager] Submitting ${order.side.toUpperCase()} OCO bracket via REST API...`);
@@ -228,60 +344,96 @@ export class ExecutionManager {
       const verified = await this.verifyNativeBracket(stopLoss, takeProfit, order.side);
       stopOrderId = stopOrderId ?? verified.stopOrderId;
       targetOrderId = targetOrderId ?? verified.targetOrderId;
+
+      // If still missing any leg, retry open-order search a few times before giving up
+      if (!stopOrderId || !targetOrderId) {
+        console.warn('[ExecutionManager] ⚠️ Bracket IDs missing after initial verify; retrying open-order lookup...');
+        const protectiveSide = this.getProtectiveSide({ side: order.side === 'buy' ? 'long' : 'short' });
+        const retryFound = await this.findProtectiveOrdersWithRetry(protectiveSide, stopLoss, takeProfit, 4, 1000);
+        stopOrderId = stopOrderId ?? retryFound.stop?.id;
+        targetOrderId = targetOrderId ?? retryFound.target?.id;
+        if (retryFound.stop) {
+          console.log(`[ExecutionManager] 🔍 Retry found stop ID ${retryFound.stop.id} @ ${retryFound.stop.stopPrice}`);
+        }
+        if (retryFound.target) {
+          console.log(`[ExecutionManager] 🔍 Retry found target ID ${retryFound.target.id} @ ${retryFound.target.limitPrice}`);
+        }
+      }
+
       const hasNativeBracket = Boolean(stopOrderId && targetOrderId);
 
       if (!hasNativeBracket) {
-        console.warn('[ExecutionManager] ⚠️ REST bracket legs not found after verification. Placing protective orders manually.');
-        const fallbackBrackets = await this.submitBracketOrders(order, stopLoss, takeProfit);
-
-        // CRITICAL VALIDATION: Ensure BOTH brackets were created successfully
-        const hasBothBrackets = Boolean(fallbackBrackets.stopOrderId && fallbackBrackets.targetOrderId);
-
-        if (!hasBothBrackets) {
-          console.error('[ExecutionManager] ❌ CRITICAL: Fallback brackets FAILED! Position would be NAKED!');
-          console.error(`[ExecutionManager] Stop: ${fallbackBrackets.stopOrderId ? 'OK' : 'MISSING'}, Target: ${fallbackBrackets.targetOrderId ? 'OK' : 'MISSING'}`);
-          console.error('[ExecutionManager] 🚫 EMERGENCY: Closing naked position at broker immediately!');
-
-          // CRITICAL: Entry order was already filled at broker, must close it immediately
+        if (this.requireNativeBrackets) {
+          console.error('[ExecutionManager] ❌ Native bracket legs missing after verification and native required. Flattening entry to avoid non-OCO exposure.');
           try {
-            const closeSide = order.side === 'buy' ? 1 : 0; // Opposite side to close
-            console.log(`[ExecutionManager] 🚨 Placing emergency MARKET ${closeSide === 0 ? 'BUY' : 'SELL'} to close naked position...`);
-
-            const closeResponse = await this.restClient.placeOrder({
+            const closeSide = order.side === 'buy' ? 1 : 0;
+            await this.restClient.placeOrder({
               accountId: this.tradingAccount.id,
               contractId: this.contractId,
               side: closeSide,
               size: order.quantity,
-              type: 2, // Market order to close immediately
-              timeInForce: 3, // IOC (Immediate or Cancel)
+              type: 2, // Market
+              timeInForce: 3, // IOC
             });
+          } catch (closeError: any) {
+            console.error('[ExecutionManager] ❌ Failed to flatten after native bracket missing:', closeError?.message || closeError);
+          }
+          order.status = 'rejected';
+          order.reason = 'Native bracket verification failed';
+          return null;
+        } else {
+          console.warn('[ExecutionManager] ⚠️ REST bracket legs not found after verification. Placing protective orders manually.');
+          const fallbackBrackets = await this.submitBracketOrders(order, stopLoss, takeProfit);
 
-            if (closeResponse?.success) {
-              console.log('[ExecutionManager] ✅ Naked position successfully closed at broker');
-            } else {
-              console.error('[ExecutionManager] ❌ FAILED TO CLOSE NAKED POSITION!', closeResponse?.errorMessage);
+          // CRITICAL VALIDATION: Ensure BOTH brackets were created successfully
+          const hasBothBrackets = Boolean(fallbackBrackets.stopOrderId && fallbackBrackets.targetOrderId);
+
+          if (!hasBothBrackets) {
+            console.error('[ExecutionManager] ❌ CRITICAL: Fallback brackets FAILED! Position would be NAKED!');
+            console.error(`[ExecutionManager] Stop: ${fallbackBrackets.stopOrderId ? 'OK' : 'MISSING'}, Target: ${fallbackBrackets.targetOrderId ? 'OK' : 'MISSING'}`);
+            console.error('[ExecutionManager] 🚫 EMERGENCY: Closing naked position at broker immediately!');
+
+            // CRITICAL: Entry order was already filled at broker, must close it immediately
+            try {
+              const closeSide = order.side === 'buy' ? 1 : 0; // Opposite side to close
+              console.log(`[ExecutionManager] 🚨 Placing emergency MARKET ${closeSide === 0 ? 'BUY' : 'SELL'} to close naked position...`);
+
+              const closeResponse = await this.restClient.placeOrder({
+                accountId: this.tradingAccount.id,
+                contractId: this.contractId,
+                side: closeSide,
+                size: order.quantity,
+                type: 2, // Market order to close immediately
+                timeInForce: 3, // IOC (Immediate or Cancel)
+              });
+
+              if (closeResponse?.success) {
+                console.log('[ExecutionManager] ✅ Naked position successfully closed at broker');
+              } else {
+                console.error('[ExecutionManager] ❌ FAILED TO CLOSE NAKED POSITION!', closeResponse?.errorMessage);
+                console.error('[ExecutionManager] 🚨 MANUAL INTERVENTION REQUIRED - Naked position exists at broker!');
+              }
+            } catch (closeError: any) {
+              console.error('[ExecutionManager] ❌ Exception while closing naked position:', closeError.message);
               console.error('[ExecutionManager] 🚨 MANUAL INTERVENTION REQUIRED - Naked position exists at broker!');
             }
-          } catch (closeError: any) {
-            console.error('[ExecutionManager] ❌ Exception while closing naked position:', closeError.message);
-            console.error('[ExecutionManager] 🚨 MANUAL INTERVENTION REQUIRED - Naked position exists at broker!');
+
+            // Mark order as failed and return null to prevent local tracking
+            order.status = 'rejected';
+            order.reason = 'Failed to create protective brackets - naked position closed at broker';
+            return null;
           }
 
-          // Mark order as failed and return null to prevent local tracking
-          order.status = 'rejected';
-          order.reason = 'Failed to create protective brackets - naked position closed at broker';
-          return null;
+          console.log('[ExecutionManager] ✅ Fallback brackets successfully created - Stop & Target both confirmed');
+          return {
+            order,
+            stopLoss,
+            takeProfit,
+            stopOrderId: fallbackBrackets.stopOrderId,
+            targetOrderId: fallbackBrackets.targetOrderId,
+            usesNativeBracket: false,
+          };
         }
-
-        console.log('[ExecutionManager] ✅ Fallback brackets successfully created - Stop & Target both confirmed');
-        return {
-          order,
-          stopLoss,
-          takeProfit,
-          stopOrderId: fallbackBrackets.stopOrderId,
-          targetOrderId: fallbackBrackets.targetOrderId,
-          usesNativeBracket: false,
-        };
       }
 
       console.log(`[ExecutionManager] ✅ REST bracket placed (Order ID: ${order.id})`);
@@ -503,6 +655,11 @@ export class ExecutionManager {
     if (this.restClient && this.enableNativeBrackets) {
       executionResult = await this.executeWithRest(order, currentPrice, overrides);
       if (!executionResult) {
+        // If order was explicitly rejected by safeguards, DO NOT fallback to legacy
+        if (order.status === 'rejected') {
+          console.error('[ExecutionManager] 🚫 Order rejected by safeguards - NO FALLBACK TO LEGACY');
+          return null;
+        }
         console.warn('[ExecutionManager] REST bracket order failed, falling back to legacy submission');
       }
     }
@@ -560,7 +717,8 @@ export class ExecutionManager {
       usesNativeBracket,
     };
 
-    this.activePositions.set(decision.id, position);
+    this.activePositions.set(this.symbol, position);
+    this.markProtectionLock(6);
 
     if (!position.stopOrderId || !position.targetOrderId) {
       console.log('[ExecutionManager] ⚠️ Missing bracket order IDs, attempting to sync from broker...');
@@ -635,9 +793,48 @@ export class ExecutionManager {
 
     const defaults = side === 'buy' ? defaultBuy : defaultSell;
 
+    // Apply overrides if provided
+    let desiredStop = overrides?.stopLoss ?? defaults.stopLoss;
+    let desiredTarget = overrides?.takeProfit ?? defaults.takeProfit;
+
+    // Directional safety clamps
+    if (side === 'buy') {
+      // Stop must be below entry
+      if (desiredStop >= entryPrice) {
+        console.warn(`[ExecutionManager] ⚠️ Long stop override invalid (${desiredStop.toFixed(2)} >= entry ${entryPrice.toFixed(2)}). Resetting to default.`);
+        desiredStop = defaults.stopLoss;
+      }
+      // Target must be above entry
+      if (desiredTarget <= entryPrice) {
+        console.warn(`[ExecutionManager] ⚠️ Long target override invalid (${desiredTarget.toFixed(2)} <= entry ${entryPrice.toFixed(2)}). Resetting to default.`);
+        desiredTarget = defaults.takeProfit;
+      }
+    } else {
+      // SHORT
+      // Stop must be above entry
+      if (desiredStop <= entryPrice) {
+        console.warn(`[ExecutionManager] ⚠️ Short stop override invalid (${desiredStop.toFixed(2)} <= entry ${entryPrice.toFixed(2)}). Resetting to default.`);
+        desiredStop = defaults.stopLoss;
+      }
+      // Target must be below entry
+      if (desiredTarget >= entryPrice) {
+        console.warn(`[ExecutionManager] ⚠️ Short target override invalid (${desiredTarget.toFixed(2)} >= entry ${entryPrice.toFixed(2)}). Resetting to default.`);
+        desiredTarget = defaults.takeProfit;
+      }
+    }
+
+    // Clamp stop distance so it cannot exceed target distance (keeps stops tighter than TP)
+    const stopDist = Math.abs(desiredStop - entryPrice);
+    const targetDist = Math.abs(desiredTarget - entryPrice);
+    if (targetDist > 0 && stopDist > targetDist) {
+      const clampedStop = entryPrice + Math.sign(desiredStop - entryPrice) * targetDist;
+      console.warn(`[ExecutionManager] ⚠️ Stop distance (${stopDist.toFixed(2)}) exceeds target distance (${targetDist.toFixed(2)}). Clamping stop to ${clampedStop.toFixed(2)}.`);
+      desiredStop = clampedStop;
+    }
+
     return {
-      stopLoss: overrides?.stopLoss ?? defaults.stopLoss,
-      takeProfit: overrides?.takeProfit ?? defaults.takeProfit,
+      stopLoss: desiredStop,
+      takeProfit: desiredTarget,
     };
   }
 
@@ -647,20 +844,32 @@ export class ExecutionManager {
     stopPrice: number,
     targetPrice: number
   ): { stopTicks: number; targetTicks: number } {
+    const MAX_TICKS = 1000; // broker limit for bracket distances
+
+    // Calculate raw signed distances in ticks (rounded to nearest tick)
     const rawStopTicks = Math.round((stopPrice - entryReference) / this.tickSize);
     const rawTargetTicks = Math.round((targetPrice - entryReference) / this.tickSize);
 
-    const stopTicks = rawStopTicks !== 0
-      ? rawStopTicks
-      : side === 'buy'
-        ? -1
-        : 1;
+    // TopStepX expects signed ticks:
+    //  - LONG: stopTicks should be negative (below), targetTicks positive (above)
+    //  - SHORT: stopTicks should be positive (above), targetTicks negative (below)
+    const stopSign = side === 'buy' ? -1 : 1;
+    const targetSign = side === 'buy' ? 1 : -1;
 
-    const targetTicks = rawTargetTicks !== 0
-      ? rawTargetTicks
-      : side === 'buy'
-        ? 1
-        : -1;
+    let stopTicksMagnitude = rawStopTicks !== 0 ? Math.abs(rawStopTicks) : 1;
+    let targetTicksMagnitude = rawTargetTicks !== 0 ? Math.abs(rawTargetTicks) : 1;
+
+    if (stopTicksMagnitude > MAX_TICKS) {
+      console.warn(`[ExecutionManager] ⚠️ stopTicks magnitude ${stopTicksMagnitude} exceeds ${MAX_TICKS}, clamping.`);
+      stopTicksMagnitude = MAX_TICKS;
+    }
+    if (targetTicksMagnitude > MAX_TICKS) {
+      console.warn(`[ExecutionManager] ⚠️ targetTicks magnitude ${targetTicksMagnitude} exceeds ${MAX_TICKS}, clamping.`);
+      targetTicksMagnitude = MAX_TICKS;
+    }
+
+    const stopTicks = stopSign * stopTicksMagnitude;
+    const targetTicks = targetSign * targetTicksMagnitude;
 
     return {
       stopTicks,
@@ -751,6 +960,49 @@ export class ExecutionManager {
     });
   }
 
+  /**
+   * Retry helper: find protective orders over several attempts to allow broker to populate OCO legs.
+   */
+  private async findProtectiveOrdersWithRetry(
+    protectiveSide: number,
+    desiredStop: number,
+    desiredTarget: number,
+    attempts: number = 3,
+    delayMs: number = 750
+  ): Promise<{ stop?: ProjectXOrderRecord; target?: ProjectXOrderRecord }> {
+    for (let i = 0; i < attempts; i++) {
+      try {
+        const response = await this.restClient!.searchOpenOrders({ accountId: this.tradingAccount!.id });
+        if (response?.success && Array.isArray(response.orders)) {
+          const relevantOrders = response.orders.filter(order =>
+            order.contractId === this.contractId && order.side === protectiveSide
+          );
+          const stopOrder = this.pickClosestOrder(
+            relevantOrders.filter(o => typeof o.stopPrice === 'number'),
+            desiredStop,
+            'stopPrice'
+          );
+          const targetOrder = this.pickClosestOrder(
+            relevantOrders.filter(o => typeof o.limitPrice === 'number'),
+            desiredTarget,
+            'limitPrice'
+          );
+
+          if (stopOrder || targetOrder) {
+            return { stop: stopOrder, target: targetOrder };
+          }
+        }
+      } catch (err) {
+        console.warn('[ExecutionManager] findProtectiveOrdersWithRetry error:', (err as any)?.message || err);
+      }
+
+      if (i < attempts - 1) {
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+      }
+    }
+    return {};
+  }
+
   private async ensureBracketOrderIds(position: ActivePosition): Promise<void> {
     if (!this.restClient || !this.tradingAccount) {
       return;
@@ -789,6 +1041,68 @@ export class ExecutionManager {
       }
     } catch (error: any) {
       console.warn('[ExecutionManager] Unable to sync bracket order IDs:', error?.message || error);
+    }
+  }
+
+  /**
+   * Hard sync protective order IDs (stop/target) from open orders for this contract.
+   * Optionally recreates any missing leg to avoid running unprotected.
+   */
+  async syncProtectiveOrdersFromOpenOrders(
+    position: ActivePosition,
+    createIfMissing: boolean = false
+  ): Promise<void> {
+    if (!this.restClient || !this.tradingAccount) {
+      return;
+    }
+
+    // For native brackets, never recreate single legs (would break OCO linkage)
+    const allowRecreate = createIfMissing && !position.usesNativeBracket;
+
+    try {
+      const response = await this.restClient.searchOpenOrders({ accountId: this.tradingAccount.id });
+      if (!response?.success || !Array.isArray(response.orders)) {
+        console.warn('[ExecutionManager] syncProtectiveOrdersFromOpenOrders: failed to fetch open orders');
+        return;
+      }
+
+      const protectiveSide = this.getProtectiveSide(position);
+      const relevantOrders = (response.orders || []).filter(order =>
+        order.contractId === this.contractId && order.side === protectiveSide
+      );
+
+      const stopCandidates = relevantOrders.filter(order => typeof order.stopPrice === 'number' && Number.isFinite(order.stopPrice as number));
+      const targetCandidates = relevantOrders.filter(order => typeof order.limitPrice === 'number' && Number.isFinite(order.limitPrice as number));
+
+      const stopOrder = this.pickClosestOrder(stopCandidates, position.stopLoss, 'stopPrice');
+      const targetOrder = this.pickClosestOrder(targetCandidates, position.target, 'limitPrice');
+
+      if (stopOrder) {
+        position.stopOrderId = stopOrder.id;
+        position.stopLoss = Number(stopOrder.stopPrice);
+        console.log(`[ExecutionManager] 🔄 Synced stop from open orders: ${position.stopLoss.toFixed(2)} (ID ${stopOrder.id})`);
+      }
+
+      if (targetOrder) {
+        position.targetOrderId = targetOrder.id;
+        position.target = Number(targetOrder.limitPrice);
+        console.log(`[ExecutionManager] 🔄 Synced target from open orders: ${position.target.toFixed(2)} (ID ${targetOrder.id})`);
+      }
+
+      if (allowRecreate) {
+        if (!stopOrder) {
+          console.warn('[ExecutionManager] ⚠️ No stop order found in open orders; recreating protective stop.');
+          await this.cancelAndReplaceStop(position, position.stopLoss);
+        }
+        if (!targetOrder) {
+          console.warn('[ExecutionManager] ⚠️ No target order found in open orders; recreating protective target.');
+          await this.cancelAndReplaceTarget(position, position.target);
+        }
+      } else if (createIfMissing && position.usesNativeBracket && (!stopOrder || !targetOrder)) {
+        console.warn('[ExecutionManager] ⚠️ Native bracket missing IDs; refusing to recreate single legs to avoid breaking OCO linkage.');
+      }
+    } catch (error: any) {
+      console.warn('[ExecutionManager] syncProtectiveOrdersFromOpenOrders error:', error?.message || error);
     }
   }
 
@@ -1108,7 +1422,7 @@ export class ExecutionManager {
               usesNativeBracket: Boolean(stopOrderId && targetOrderId),
             };
 
-            this.activePositions.set(decision.id, activePosition);
+            this.activePositions.set(this.symbol, activePosition);
 
             // Set lastEntryOrderTime to prevent immediate grace period expiry
             this.lastEntryOrderTime = Date.now();
@@ -1281,7 +1595,7 @@ export class ExecutionManager {
         usesNativeBracket: Boolean(stopOrderId && targetOrderId),
       };
 
-      this.activePositions.set(decision.id, activePosition);
+      this.activePositions.set(this.symbol, activePosition);
 
       // Set lastEntryOrderTime to prevent immediate grace period expiry
       this.lastEntryOrderTime = Date.now();
@@ -1752,6 +2066,14 @@ export class ExecutionManager {
     }
     this.lastBrokerSync = now;
 
+    const symbolKey = this.symbol || this.contractId || 'default';
+    const prevActive = this.getActivePosition();
+    const prevQtySigned = prevActive
+      ? (prevActive.side === 'long' ? 1 : -1) * (prevActive.contracts || 0)
+      : 0;
+
+    let bumpedThisSync = false;
+
     try {
       const [positions, openOrders] = await Promise.all([
         this.restClient.getPositions(this.tradingAccount.id),
@@ -1761,6 +2083,22 @@ export class ExecutionManager {
       const openOrderList = openOrders?.orders || [];
       const brokerPosition = (positions || []).find(pos => this.extractNetQuantity(pos) !== 0 && pos.contractId === this.contractId);
       const active = this.getActivePosition();
+
+      // Invariant 1: If flat at broker, there should be no protective orders (do not cancel resting entries)
+      // CRITICAL: Only cancel protective orders if we have NO locally tracked active position
+      // TopStepX positions API is laggy, so we must check local state first to prevent canceling live brackets
+      if (!brokerPosition && !active) {
+        const orphanProtective = openOrderList.filter(order =>
+          order.contractId === this.contractId &&
+          this.isProtectiveOrder(order, undefined)
+        );
+        if (orphanProtective.length > 0) {
+          console.log(`[ExecutionManager] ⚠️ Flat at broker AND no active local position - found ${orphanProtective.length} true orphan protective order(s). Canceling for safety...`);
+          await this.cancelOrders(orphanProtective);
+        }
+      } else if (!brokerPosition && active) {
+        console.log(`[ExecutionManager] ⚠️ TopStepX positions API reports flat but we have active local position - API lag detected, preserving protective orders`);
+      }
 
       if (!brokerPosition) {
         if (active) {
@@ -1815,6 +2153,10 @@ export class ExecutionManager {
 
           console.log('[ExecutionManager] ❌ Broker reports FLAT, no matching brackets found. Clearing local position state.');
           this.activePositions.delete(active.decisionId);
+          if (!bumpedThisSync) {
+            this.bumpPositionVersion(symbolKey);
+            bumpedThisSync = true;
+          }
 
           // CRITICAL: Update lastEntryOrderTime to enforce grace period after broker close
           // This prevents immediate re-entry when stop loss was hit
@@ -1826,6 +2168,10 @@ export class ExecutionManager {
 
       if (!active) {
         await this.rehydrateActivePosition();
+        if (!bumpedThisSync) {
+          this.bumpPositionVersion(symbolKey);
+          bumpedThisSync = true;
+        }
         return;
       }
 
@@ -1833,6 +2179,25 @@ export class ExecutionManager {
       active.contracts = brokerQty || active.contracts;
       const protectiveSide = this.getProtectiveSide(active);
       const relevantOrders = openOrderList.filter(order => order.contractId === this.contractId && order.side === protectiveSide);
+      const hasStop = relevantOrders.some(o => this.isStopLike(o) && this.isOrderWorking(o) && this.isProtectiveOrder(o, protectiveSide));
+
+      // When we just modified protectives, broker may cancel/replace internally; allow a short transition window
+      const inProtectiveTransition = Date.now() - this.lastProtectiveModifyMs < 5000;
+
+      // Invariant 2: position exists -> must have a protective stop sized to position
+      if (!hasStop) {
+        if (inProtectiveTransition) {
+          console.warn('[ExecutionManager] ⏳ Protective stop missing but within post-modify transition window; holding to avoid false flatten.');
+          return;
+        }
+        console.warn('[ExecutionManager] 🚨 Broker shows position but no working protective stop detected. Triggering safety flatten.');
+        // Attempt to cancel any open orders to avoid unintended flips, then flatten
+        await this.cancelOrders(openOrderList.filter(order => order.contractId === this.contractId));
+        await this.flattenPosition(brokerQty, active.side === 'long' ? 'sell' : 'buy', currentPrice);
+        this.lastEmergencyFlatten = Date.now();
+        this.markFlatCooldown(symbolKey);
+        return;
+      }
 
       const locateOrderById = (id?: string | number) => {
         if (!id) return undefined;
@@ -1860,6 +2225,16 @@ export class ExecutionManager {
       }
     } catch (error: any) {
       console.warn('[ExecutionManager] Failed to sync broker state:', error?.message || error);
+    }
+
+    // Version bump if signed qty changed
+    const newActive = this.getActivePosition();
+    const newQtySigned = newActive
+      ? (newActive.side === 'long' ? 1 : -1) * (newActive.contracts || 0)
+      : 0;
+    if (newQtySigned !== prevQtySigned && !bumpedThisSync) {
+      this.bumpPositionVersion(symbolKey);
+      bumpedThisSync = true;
     }
   }
 
@@ -1889,22 +2264,104 @@ export class ExecutionManager {
    * Dynamically adjust protective orders via TopstepX modify API
    * Enhanced with detailed logging, retry logic, and cancel-replace fallback
    */
-  async adjustActiveProtection(newStop?: number | null, newTarget?: number | null): Promise<boolean> {
+  async adjustActiveProtection(newStop?: number | null, newTarget?: number | null, positionVersion?: number): Promise<boolean> {
+    const adjustTraceId = `adj-${Date.now()}`;
+    const trace = (msg: string, extra?: any) => {
+      if (extra !== undefined) {
+        console.warn(`[AdjustTrace ${adjustTraceId}] ${msg}`, extra);
+      } else {
+        console.warn(`[AdjustTrace ${adjustTraceId}] ${msg}`);
+      }
+    };
+    trace(`start newStop=${newStop ?? 'none'} newTarget=${newTarget ?? 'none'} version=${positionVersion ?? 'n/a'}`);
+
     // Hard guard: if broker shows flat or no protective orders remain, skip adjustments
     const brokerPositionCheck = await this.rehydrateActivePosition();
     if (!brokerPositionCheck) {
+      trace('abort: rehydrateActivePosition returned false (broker flat / no active position)');
       console.warn('[ExecutionManager] 🚫 adjustActiveProtection aborted: broker reports flat / no active position.');
       return false;
     }
 
     const position = this.getActivePosition();
-    if (!position) {
-      console.warn('[ExecutionManager] 🚫 adjustActiveProtection: No active position found');
+    if (!position && !this.brokerHasPosition) {
+      trace('abort: no active position locally or at broker');
+      console.warn('[ExecutionManager] 🚫 adjustActiveProtection: No active position locally or at broker');
+      return false;
+    }
+
+    // REMOVED: Protection lock - risk manager needs to act immediately to move stops to breakeven
+    // The AI risk manager is smart enough to handle early adjustments properly
+    // if (this.isProtectionLocked()) {
+    //   trace('abort: protection lock active');
+    //   console.warn('[ExecutionManager] 🛑 adjustActiveProtection skipped: protection lock active right after entry.');
+    //   return false;
+    // }
+
+    // Belt-and-suspenders: if broker is flat but we still have a local position, do NOT adjust/cancel;
+    // hold brackets until broker position is confirmed gone.
+    const brokerHasPos = await this.refreshBrokerPositionStatus();
+    if (!brokerHasPos && position) {
+      trace('abort: broker flat signal but local position exists (holding)');
+      console.warn('[ExecutionManager] ⚠️ adjustActiveProtection skipped: broker flat signal but local position exists. Holding brackets.');
+      return false;
+    } else if (!brokerHasPos) {
+      trace('abort: broker flat at modification time');
+      console.warn('[ExecutionManager] 🚫 adjustActiveProtection blocked: broker flat at modification time.');
+      return false;
+    }
+
+    // Cooldown: if we recently flattened, ignore any risk adjustments
+    const symbolKey = position.symbol || this.contractId || 'default';
+    if (this.inFlatCooldown(symbolKey)) {
+      trace('abort: flat cooldown active');
+      console.warn('[ExecutionManager] ⏳ adjustActiveProtection blocked: flat cooldown active.');
+      return false;
+    }
+
+    // Stale decision guard: require matching positionVersion if provided
+    const currentVersion = this.positionVersionBySymbol[position.symbol] ?? 0;
+    if (typeof positionVersion === 'number' && positionVersion !== currentVersion) {
+      trace(`abort: stale decision (decisionV=${positionVersion}, currentV=${currentVersion})`);
+      console.warn(`[ExecutionManager] 🚫 adjustActiveProtection: stale decision ignored (decisionV=${positionVersion}, currentV=${currentVersion})`);
       return false;
     }
 
     const hasNewStop = typeof newStop === 'number' && Number.isFinite(newStop);
     const hasNewTarget = typeof newTarget === 'number' && Number.isFinite(newTarget);
+
+    // Always refresh protective order IDs from broker before attempting modifications
+    await this.syncProtectiveOrdersFromOpenOrders(position, false);
+
+    // If broker is flat per open orders + positions, clear and refuse any adjustment
+    const brokerFlat = await this.verifyPositionFlattened();
+    if (brokerFlat) {
+      trace('abort: verifyPositionFlattened returned true');
+      console.warn('[ExecutionManager] 🚫 Broker flat per verifyPositionFlattened; clearing local position and skipping adjustments.');
+      this.activePositions.clear();
+      this.positionVersionBySymbol = {};
+      this.brokerHasPosition = false;
+      return false;
+    }
+
+    // For native brackets: if we don't have both IDs after sync, refuse to adjust to avoid breaking OCO linkage
+    if (position.usesNativeBracket) {
+      if ((hasNewStop && !position.stopOrderId) || (hasNewTarget && !position.targetOrderId)) {
+        trace('abort: native bracket leg missing after sync', {
+          stopNeeded: hasNewStop,
+          targetNeeded: hasNewTarget,
+          stopOrderId: position.stopOrderId || 'MISSING',
+          targetOrderId: position.targetOrderId || 'MISSING',
+        });
+        console.warn('[ExecutionManager] 🚫 Native bracket leg missing; refusing adjustment to avoid breaking OCO.', {
+          stopNeeded: hasNewStop,
+          targetNeeded: hasNewTarget,
+          stopOrderId: position.stopOrderId || 'MISSING',
+          targetOrderId: position.targetOrderId || 'MISSING',
+        });
+        return false;
+      }
+    }
 
     console.log(`[ExecutionManager] 🛡️ adjustActiveProtection called:`, {
       currentStop: position.stopLoss,
@@ -1917,9 +2374,11 @@ export class ExecutionManager {
 
     const stopNeedsUpdate = hasNewStop && Math.abs((newStop as number) - position.stopLoss) >= this.tickSize / 2;
     const targetNeedsUpdate = hasNewTarget && Math.abs((newTarget as number) - position.target) >= this.tickSize / 2;
+    trace('stop/target need update flags', { stopNeedsUpdate, targetNeedsUpdate, tickSize: this.tickSize, currentStop: position.stopLoss, requestedStop: newStop, currentTarget: position.target, requestedTarget: newTarget });
 
     if (!stopNeedsUpdate && !targetNeedsUpdate) {
       console.log('[ExecutionManager] ✅ No updates needed (prices within tolerance)');
+      trace('no-op: within tolerance');
       return false;
     }
 
@@ -1933,6 +2392,24 @@ export class ExecutionManager {
     console.log('[ExecutionManager] 🔍 Ensuring bracket order IDs are available...');
     await this.ensureBracketOrderIds(position);
 
+    // If still missing, hard-sync from open orders and recreate if necessary
+    if ((stopNeedsUpdate && !position.stopOrderId) || (targetNeedsUpdate && !position.targetOrderId)) {
+      console.warn('[ExecutionManager] ⚠️ Missing bracket IDs after initial sync; attempting hard sync from open orders...');
+      await this.syncProtectiveOrdersFromOpenOrders(position, !position.usesNativeBracket);
+
+      // If still missing any leg, refuse to adjust and warn
+      if ((stopNeedsUpdate && !position.stopOrderId) || (targetNeedsUpdate && !position.targetOrderId)) {
+        console.error('[ExecutionManager] 🚫 Protective leg missing after hard sync; refusing to adjust to avoid naked state.', {
+          stopNeeded: stopNeedsUpdate,
+          targetNeeded: targetNeedsUpdate,
+          stopOrderId: position.stopOrderId || 'MISSING',
+          targetOrderId: position.targetOrderId || 'MISSING',
+          usesNativeBracket: position.usesNativeBracket,
+        });
+        return false;
+      }
+    }
+
     // Validate we have order IDs after sync attempt
     if ((stopNeedsUpdate && !position.stopOrderId) || (targetNeedsUpdate && !position.targetOrderId)) {
       console.error('[ExecutionManager] ❌ CRITICAL: Missing bracket order IDs after sync attempt!', {
@@ -1941,87 +2418,94 @@ export class ExecutionManager {
         stopNeeded: stopNeedsUpdate,
         targetNeeded: targetNeedsUpdate,
       });
-
-      // Check broker open orders; if none, avoid naked state by flattening
-      const brokerFlat = await this.verifyPositionFlattened();
-      if (brokerFlat) {
-        console.warn('[ExecutionManager] 🛑 Broker reports flat and no bracket IDs present — skipping adjustments.');
-        return false;
-      }
-
-      // Try cancel-and-replace fallback
-      console.log('[ExecutionManager] 🔄 Attempting cancel-and-replace fallback...');
-      const replaced = await this.cancelAndReplaceBrackets(position, newStop, newTarget);
-      if (!replaced) {
-        console.error('[ExecutionManager] ❌ Cancel-and-replace fallback failed; cannot risk naked position.');
-        return false;
-      }
-      return true;
+      console.warn('[ExecutionManager] 🚫 Modify-only mode: refusing to recreate or cancel/replace missing legs. Holding existing protection.');
+      return false;
     }
 
     let updated = false;
 
-    // Modify stop loss with retry logic
-    if (stopNeedsUpdate) {
-      let normalizedStop = this.normalizePrice(newStop as number);
+      // Modify stop loss with retry logic
+      if (stopNeedsUpdate) {
+        let normalizedStop = this.normalizePrice(newStop as number);
 
-      // Validate stop against current market price to prevent broker rejection
-      const currentPrice = position.currentPrice;
-      const minStopDistance = this.tickSize * 4; // Minimum 4 ticks away from market
-      let skipStopUpdate = false;
+        // Validate stop against current market price to prevent broker rejection
+        const currentPrice = position.currentPrice;
+        const isGoldSymbol = this.symbol.startsWith('GC') || this.symbol.startsWith('MGC');
+        const minStopDistance = this.tickSize * (isGoldSymbol ? 2 : 4); // tighter for gold, default stricter for others
+        let skipStopUpdate = false;
 
-      if (position.side === 'short') {
-        // For SHORT: stop-sell order must be ABOVE current ask price
-        const minValidStop = currentPrice + minStopDistance;
-        if (normalizedStop < minValidStop) {
-          // Check if adjusting would worsen our stop (move it higher/looser)
-          if (minValidStop > position.stopLoss) {
-            console.log(`[ExecutionManager] ⚠️ SHORT stop adjustment skipped: requested ${normalizedStop.toFixed(2)} too close to market ${currentPrice.toFixed(2)}, would need ${minValidStop.toFixed(2)} but current ${position.stopLoss.toFixed(2)} is better. Keeping existing stop.`);
+        const rawSide = position.side;
+        const side = (rawSide || '').toString().toLowerCase();
+        const isShort = side.startsWith('short') || side === 'sell';
+        const isLong = side.startsWith('long') || side === 'buy';
+
+        if (!isShort && !isLong) {
+          console.warn(`[ExecutionManager] 🛑 Stop trail skipped: unknown side=${rawSide}`);
+          skipStopUpdate = true;
+        } else if (isShort) {
+          // For SHORT: stop must stay ABOVE current price
+          if (normalizedStop <= currentPrice) {
+            console.warn(`[ExecutionManager] 🛑 SHORT trail skipped: newStop ${normalizedStop.toFixed(2)} is <= current ${currentPrice.toFixed(2)} (wrong side)`);
             skipStopUpdate = true;
-          } else {
-            console.log(`[ExecutionManager] ⚠️ SHORT stop ${normalizedStop.toFixed(2)} too close to market ${currentPrice.toFixed(2)}, adjusting to valid ${minValidStop.toFixed(2)}`);
-            normalizedStop = this.normalizePrice(minValidStop);
+          }
+          const minValidStop = currentPrice + minStopDistance;
+          if (!skipStopUpdate && normalizedStop < minValidStop) {
+            if (minValidStop > position.stopLoss) {
+              console.log(`[ExecutionManager] ⚠️ SHORT stop adjustment skipped: requested ${normalizedStop.toFixed(2)} too close to market ${currentPrice.toFixed(2)}, would need ${minValidStop.toFixed(2)} but current ${position.stopLoss.toFixed(2)} is better. Keeping existing stop.`);
+              skipStopUpdate = true;
+            } else {
+              console.log(`[ExecutionManager] ⚠️ SHORT stop ${normalizedStop.toFixed(2)} too close to market ${currentPrice.toFixed(2)}, adjusting to valid ${minValidStop.toFixed(2)}`);
+              normalizedStop = this.normalizePrice(minValidStop);
+            }
+          }
+        } else {
+          // For LONG: stop must stay BELOW current price
+          if (normalizedStop >= currentPrice) {
+            console.warn(`[ExecutionManager] 🛑 LONG trail skipped: newStop ${normalizedStop.toFixed(2)} is >= current ${currentPrice.toFixed(2)} (wrong side)`);
+            skipStopUpdate = true;
+          }
+          const maxValidStop = currentPrice - minStopDistance;
+          if (!skipStopUpdate && normalizedStop > maxValidStop) {
+            if (maxValidStop < position.stopLoss) {
+              console.log(`[ExecutionManager] ⚠️ LONG stop adjustment skipped: requested ${normalizedStop.toFixed(2)} too close to market ${currentPrice.toFixed(2)}, would need ${maxValidStop.toFixed(2)} but current ${position.stopLoss.toFixed(2)} is better. Keeping existing stop.`);
+              skipStopUpdate = true;
+            } else {
+              console.log(`[ExecutionManager] ⚠️ LONG stop ${normalizedStop.toFixed(2)} too close to market ${currentPrice.toFixed(2)}, adjusting to valid ${maxValidStop.toFixed(2)}`);
+              normalizedStop = this.normalizePrice(maxValidStop);
+            }
           }
         }
-      } else {
-        // For LONG: stop-buy order must be BELOW current bid price
-        const maxValidStop = currentPrice - minStopDistance;
-        if (normalizedStop > maxValidStop) {
-          // Check if adjusting would worsen our stop (move it lower/looser)
-          if (maxValidStop < position.stopLoss) {
-            console.log(`[ExecutionManager] ⚠️ LONG stop adjustment skipped: requested ${normalizedStop.toFixed(2)} too close to market ${currentPrice.toFixed(2)}, would need ${maxValidStop.toFixed(2)} but current ${position.stopLoss.toFixed(2)} is better. Keeping existing stop.`);
-            skipStopUpdate = true;
+
+        if (!skipStopUpdate) {
+          // Throttle stop modifies to avoid churn
+          if (Date.now() - this.lastStopModifyMs < 8000) {
+            console.warn('[ExecutionManager] ⏳ Stop modify throttled (min 8s between modifies).');
+          } else if (Math.abs(normalizedStop - position.stopLoss) < this.tickSize * 3) {
+            console.warn('[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.');
           } else {
-            console.log(`[ExecutionManager] ⚠️ LONG stop ${normalizedStop.toFixed(2)} too close to market ${currentPrice.toFixed(2)}, adjusting to valid ${maxValidStop.toFixed(2)}`);
-            normalizedStop = this.normalizePrice(maxValidStop);
-          }
-        }
-      }
+            console.log(`[ExecutionManager] 🎯 Attempting to modify STOP: ${position.stopLoss.toFixed(2)} -> ${normalizedStop.toFixed(2)} (OrderID: ${position.stopOrderId})`);
 
-      if (!skipStopUpdate) {
-        console.log(`[ExecutionManager] 🎯 Attempting to modify STOP: ${position.stopLoss.toFixed(2)} -> ${normalizedStop.toFixed(2)} (OrderID: ${position.stopOrderId})`);
-
-        const stopModified = await this.modifyOrderWithRetry(
-          position.stopOrderId!,
-          { stopPrice: normalizedStop },
-          'STOP',
-          3 // 3 retries
-        );
+            const stopModified = await this.modifyOrderWithRetry(
+              position.stopOrderId!,
+              { stopPrice: normalizedStop },
+              'STOP',
+              3 // 3 retries
+            );
 
         if (stopModified) {
           position.stopLoss = normalizedStop;
           updated = true;
+          this.lastStopModifyMs = Date.now();
           console.log(`[ExecutionManager] ✅ Stop loss successfully updated to ${normalizedStop.toFixed(2)}`);
+          // Refresh IDs in case broker handled modify as cancel/replace
+          await this.syncProtectiveOrdersFromOpenOrders(position, true);
+          this.lastProtectiveModifyMs = Date.now();
         } else {
-          console.error(`[ExecutionManager] ❌ Stop modification failed after retries - attempting cancel-and-replace...`);
-          // Try cancel-and-replace for this specific order
-          const replaced = await this.cancelAndReplaceStop(position, normalizedStop);
-          if (replaced) {
-            updated = true;
-            console.log(`[ExecutionManager] ✅ Stop loss replaced via cancel-and-replace at ${normalizedStop.toFixed(2)}`);
-          }
+          console.error(`[ExecutionManager] ❌ Stop modification failed after retries.`);
+          // For safety, do NOT cancel/replace if modify fails; keep existing stop to avoid orphaning
         }
       }
+    }
     }
 
     // Modify target with retry logic
@@ -2029,30 +2513,41 @@ export class ExecutionManager {
       const normalizedTarget = this.normalizePrice(newTarget as number);
       console.log(`[ExecutionManager] 🎯 Attempting to modify TARGET: ${position.target.toFixed(2)} -> ${normalizedTarget.toFixed(2)} (OrderID: ${position.targetOrderId})`);
 
-      const targetModified = await this.modifyOrderWithRetry(
-        position.targetOrderId!,
-        { limitPrice: normalizedTarget },
-        'TARGET',
-        3 // 3 retries
-      );
-
-      if (targetModified) {
-        position.target = normalizedTarget;
-        updated = true;
-        console.log(`[ExecutionManager] ✅ Target successfully updated to ${normalizedTarget.toFixed(2)}`);
+      // Throttle target modifies to avoid churn
+      if (Date.now() - this.lastTargetModifyMs < 8000) {
+        console.warn('[ExecutionManager] ⏳ Target modify throttled (min 8s between modifies).');
+      } else if (Math.abs(normalizedTarget - position.target) < this.tickSize * 3) {
+        console.warn('[ExecutionManager] ⏳ Target modify skipped: change < 3 ticks.');
       } else {
-        console.error(`[ExecutionManager] ❌ Target modification failed after retries - attempting cancel-and-replace...`);
-        // Try cancel-and-replace for this specific order
-        const replaced = await this.cancelAndReplaceTarget(position, normalizedTarget);
-        if (replaced) {
+        console.log(`[ExecutionManager] 🎯 Attempting to modify TARGET: ${position.target.toFixed(2)} -> ${normalizedTarget.toFixed(2)} (OrderID: ${position.targetOrderId})`);
+
+        const targetModified = await this.modifyOrderWithRetry(
+          position.targetOrderId!,
+          { limitPrice: normalizedTarget },
+          'TARGET',
+          3 // 3 retries
+        );
+
+        if (targetModified) {
+          position.target = normalizedTarget;
           updated = true;
-          console.log(`[ExecutionManager] ✅ Target replaced via cancel-and-replace at ${normalizedTarget.toFixed(2)}`);
+          this.lastTargetModifyMs = Date.now();
+          console.log(`[ExecutionManager] ✅ Target successfully updated to ${normalizedTarget.toFixed(2)}`);
+          // Refresh IDs in case broker handled modify as cancel/replace
+          await this.syncProtectiveOrdersFromOpenOrders(position, true);
+          this.lastProtectiveModifyMs = Date.now();
+        } else {
+          console.error(`[ExecutionManager] ❌ Target modification failed after retries.`);
+          // Safety: do not cancel/replace on modify failure to avoid orphaning
         }
       }
     }
 
     if (updated) {
       console.log(`[ExecutionManager] ✅ Bracket adjustment completed successfully`);
+
+      // Post-adjustment safety: ensure both protective legs exist at broker
+      await this.syncProtectiveOrdersFromOpenOrders(position, true);
     } else {
       console.error(`[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied`);
     }
@@ -2077,9 +2572,15 @@ export class ExecutionManager {
       try {
         console.log(`[ExecutionManager] 🔄 Attempt ${attempt}/${maxRetries} to modify ${orderType} order ${orderId}`);
 
+        const numericOrderId = Number(orderId);
+        if (!Number.isFinite(numericOrderId)) {
+          console.warn(`[ExecutionManager] 🚫 ${orderType} modification aborted: non-numeric orderId ${orderId}`);
+          return false;
+        }
+
         const result = await this.restClient.modifyOrder({
           accountId: this.tradingAccount.id,
-          orderId,
+          orderId: numericOrderId,
           ...params,
         });
 
@@ -2111,131 +2612,14 @@ export class ExecutionManager {
   }
 
   /**
-   * Fallback: Cancel and replace both brackets
-   */
-  private async cancelAndReplaceBrackets(
-    position: ActivePosition,
-    newStop?: number | null,
-    newTarget?: number | null
-  ): Promise<boolean> {
-    console.log('[ExecutionManager] 🔄 Executing cancel-and-replace for brackets...');
-
-    const stopReplaced = newStop ? await this.cancelAndReplaceStop(position, newStop) : true;
-    const targetReplaced = newTarget ? await this.cancelAndReplaceTarget(position, newTarget) : true;
-
-    return stopReplaced && targetReplaced;
-  }
-
-  /**
-   * Cancel and replace stop loss order
-   */
-  private async cancelAndReplaceStop(position: ActivePosition, newStop: number): Promise<boolean> {
-    if (!this.restClient || !this.tradingAccount) {
-      return false;
-    }
-
-    try {
-      const previousStopId = position.stopOrderId;
-
-      // Place new stop order BEFORE canceling the old one to avoid naked exposure
-      const oppositeSide = position.side === 'long' ? 1 : 0; // Opposite side for protective order
-      console.log(`[ExecutionManager] 📝 Placing new stop order @ ${newStop.toFixed(2)}`);
-
-      const result = await this.restClient.placeOrder({
-        accountId: this.tradingAccount.id,
-        contractId: this.contractId,
-        side: oppositeSide,
-        size: position.contracts,
-        type: 4, // Stop market
-        stopPrice: newStop,
-        timeInForce: 1, // GTC
-      });
-
-      if (result?.success !== false && result?.orderId) {
-        position.stopOrderId = String(result.orderId);
-        position.stopLoss = newStop;
-        console.log(`[ExecutionManager] ✅ New stop order placed: ${result.orderId}`);
-
-        // Now cancel the old stop (if it exists) to avoid duplicates, but only after the new one is live
-        if (previousStopId && String(previousStopId) !== String(result.orderId)) {
-          try {
-            console.log(`[ExecutionManager] 🗑️ Canceling previous stop order ${previousStopId} after successful replacement`);
-            await this.restClient.cancelOrder({
-              accountId: this.tradingAccount.id,
-              orderId: String(previousStopId),
-            });
-          } catch (cancelError: any) {
-            console.warn('[ExecutionManager] ⚠️ Failed to cancel previous stop after replacement - leaving both stops active:', cancelError?.message || cancelError);
-          }
-        }
-        return true;
-      }
-
-      console.error('[ExecutionManager] ❌ Failed to place replacement stop:', result?.errorMessage);
-      // Keep existing stop intact if placement failed
-      if (previousStopId) {
-        position.stopOrderId = previousStopId;
-      }
-      return false;
-    } catch (error: any) {
-      console.error('[ExecutionManager] ❌ Cancel-and-replace stop failed:', error?.message || error);
-      return false;
-    }
-  }
-
-  /**
-   * Cancel and replace target order
-   */
-  private async cancelAndReplaceTarget(position: ActivePosition, newTarget: number): Promise<boolean> {
-    if (!this.restClient || !this.tradingAccount) {
-      return false;
-    }
-
-    try {
-      // Cancel existing target if we have the ID
-      if (position.targetOrderId) {
-        console.log(`[ExecutionManager] 🗑️ Canceling existing target order ${position.targetOrderId}`);
-        await this.restClient.cancelOrder({
-          accountId: this.tradingAccount.id,
-          orderId: String(position.targetOrderId),
-        });
-      }
-
-      // Place new target order
-      const oppositeSide = position.side === 'long' ? 1 : 0; // Opposite side for protective order
-      console.log(`[ExecutionManager] 📝 Placing new target order @ ${newTarget.toFixed(2)}`);
-
-      const result = await this.restClient.placeOrder({
-        accountId: this.tradingAccount.id,
-        contractId: this.contractId,
-        side: oppositeSide,
-        size: position.contracts,
-        type: 1, // Limit
-        limitPrice: newTarget,
-        timeInForce: 1, // GTC
-      });
-
-      if (result?.success !== false && result?.orderId) {
-        position.targetOrderId = String(result.orderId);
-        position.target = newTarget;
-        console.log(`[ExecutionManager] ✅ New target order placed: ${result.orderId}`);
-        return true;
-      }
-
-      console.error('[ExecutionManager] ❌ Failed to place replacement target:', result?.errorMessage);
-      return false;
-    } catch (error: any) {
-      console.error('[ExecutionManager] ❌ Cancel-and-replace target failed:', error?.message || error);
-      return false;
-    }
-  }
-
-  /**
    * Get active position
    */
   getActivePosition(): ActivePosition | null {
-    if (this.activePositions.size === 0) return null;
-    return Array.from(this.activePositions.values())[0];
+    const pos = this.activePositions.get(this.symbol) || null;
+    if (!pos && this.activePositions.size > 0) {
+      console.warn(`[ExecutionManager] getActivePosition() -> null for ${this.symbol}. Keys: ${Array.from(this.activePositions.keys()).join(',')}`);
+    }
+    return pos;
   }
 
   /**
@@ -2267,6 +2651,10 @@ export class ExecutionManager {
 
     // Check frequently (every 2 seconds)
     if (now - this.lastBrokerPositionCheck < this.brokerPositionCheckIntervalMs && this.lastBrokerPositionCheck > 0) {
+      // If a recent emergency flatten occurred, respect cooldown
+      if (this.lastEmergencyFlatten > 0 && now - this.lastEmergencyFlatten < this.emergencyCooldownMs) {
+        return false;
+      }
       return this.brokerHasPosition;
     }
 
@@ -2282,12 +2670,187 @@ export class ExecutionManager {
         (pos: any) => this.extractNetQuantity(pos) !== 0 && pos.contractId === this.contractId
       );
 
-      this.brokerHasPosition = Boolean(brokerPosition);
+      if (brokerPosition) {
+        this.brokerHasPosition = true;
+      } else {
+        /**
+         * The positions endpoint can intermittently return 404/[] even when a position exists.
+         * If we are actively tracking a position in memory, avoid falsely marking flat.
+         * As a secondary signal, check for any protective open orders on this contract.
+         */
+        if (this.activePositions.size > 0) {
+          const openOrders = await this.restClient.searchOpenOrders({ accountId: this.tradingAccount.id });
+          const hasProtective = (openOrders?.orders || []).some(o => o.contractId === this.contractId);
+          // Assume position exists to avoid blocking protective adjustments when rest endpoint is flaky
+          this.brokerHasPosition = true;
+          const activePosition = this.getActivePosition();
+          if (activePosition) {
+            await this.syncProtectiveOrdersFromOpenOrders(activePosition, false);
+          }
+          console.warn(`[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory${hasProtective ? ' and protective orders' : ''}.`);
+        } else {
+          this.brokerHasPosition = false;
+        }
+      }
+
       console.log(`[ExecutionManager] 📊 Broker position check: ${this.brokerHasPosition ? 'POSITION EXISTS' : 'FLAT'}`);
       return this.brokerHasPosition;
     } catch (error: any) {
       console.error(`[ExecutionManager] ⚠️ Error checking broker position:`, error.message);
       return this.brokerHasPosition; // Return cached value on error
+    }
+  }
+
+  /**
+   * Force-clear local position if broker is flat (from websocket or REST/open orders)
+   */
+  async clearIfBrokerFlat(): Promise<boolean> {
+    const brokerFlat = await this.verifyPositionFlattened();
+    if (brokerFlat) {
+      const localPos = this.getActivePosition();
+
+      // Debounce: if we still have a local position, treat flat as a transient blip until confirmed
+      if (localPos) {
+        if (this.flatSeenAtMs === null) {
+          this.flatSeenAtMs = Date.now();
+          console.warn('[ExecutionManager] ⚠️ Broker flat blip detected; starting debounce. Holding local position/brackets.');
+          return false;
+        }
+
+        const flatDuration = Date.now() - this.flatSeenAtMs;
+        if (flatDuration < this.flatConfirmMs) {
+          console.warn(`[ExecutionManager] ⚠️ Broker still flat but within debounce (${flatDuration}ms/${this.flatConfirmMs}ms). Holding local position/brackets.`);
+          return false;
+        }
+
+        console.warn('[ExecutionManager] ✅ Broker flat confirmed after debounce — clearing local active position.');
+      }
+
+      // Confirmed flat (or no local position)
+      this.flatSeenAtMs = null;
+      this.activePositions.clear();
+      this.positionVersionBySymbol = {};
+      this.brokerHasPosition = false;
+      return true;
+    }
+    // Not flat; reset debounce
+    this.flatSeenAtMs = null;
+    return false;
+  }
+
+  /**
+   * Ingest websocket position updates (SignalR) to keep local state in sync
+   */
+  handleWebsocketPositionUpdate(positionMsg: any) {
+    try {
+      const qty = this.extractNetQuantity(positionMsg);
+      const isSameContract = positionMsg.contractId === this.contractId;
+
+      // Ignore updates that are not for this contract
+      if (!isSameContract) {
+        return;
+      }
+
+      const hasPosition = qty !== 0;
+      if (!hasPosition) {
+        // Do not immediately clear brackets on a transient flat message; wait for confirmation elsewhere
+        console.log(`[ExecutionManager] ⚠️ WS reports FLAT for ${this.symbol}; preserving local position/brackets until confirmed.`);
+        this.brokerHasPosition = false;
+        return;
+      }
+
+      const side: 'long' | 'short' = qty > 0 ? 'long' : 'short';
+      const entryPrice = this.extractEntryPrice(positionMsg);
+      if (!entryPrice) return;
+
+      const existing = this.getActivePosition();
+      const isSame = existing && existing.entryPrice === entryPrice && existing.side === side;
+
+      if (!existing || !isSame) {
+        const fallbackLevels = this.calculateBracketLevels(entryPrice, side === 'long' ? 'buy' : 'sell');
+        const activePosition: ActivePosition = {
+          decisionId: existing?.decisionId || `ws-${Date.now()}`,
+          symbol: this.symbol,
+          side,
+          entryPrice,
+          entryTime: positionMsg.updateTimestamp || new Date().toISOString(),
+          stopLoss: existing?.stopLoss ?? fallbackLevels.stopLoss,
+          target: existing?.target ?? fallbackLevels.takeProfit,
+          contracts: Math.abs(qty),
+          currentPrice: entryPrice,
+          unrealizedPnL: 0,
+          unrealizedPnLPercent: 0,
+          stopOrderId: existing?.stopOrderId,
+          targetOrderId: existing?.targetOrderId,
+          usesNativeBracket: existing?.usesNativeBracket,
+        };
+        this.activePositions.clear();
+        // Store positions keyed by symbol for consistent lookups
+        this.activePositions.set(this.symbol, activePosition);
+        console.log(`[ExecutionManager] 🔔 Websocket position update synced: ${side.toUpperCase()} @ ${entryPrice.toFixed(2)} (${activePosition.contracts} contracts)`);
+      }
+      this.brokerHasPosition = true;
+    } catch (err: any) {
+      console.warn('[ExecutionManager] handleWebsocketPositionUpdate error:', err?.message || err);
+    }
+  }
+
+  /**
+   * Proactively clean up any orphaned protective orders when flat
+   * Called periodically by agents to ensure no resting limit/stop orders remain
+   */
+  async cleanupOrphanedOrders(): Promise<void> {
+    if (!this.restClient || !this.tradingAccount) {
+      return;
+    }
+
+    try {
+      // First verify we're actually flat at the broker
+      const brokerHasPosition = await this.refreshBrokerPositionStatus();
+      if (brokerHasPosition) {
+        // We have a position, so protective orders are legitimate
+        return;
+      }
+
+      console.log(`[ExecutionManager] 🧹 Checking for orphaned protective orders while flat...`);
+
+      // Search for any working orders for this contract
+      const response = await this.restClient.searchOpenOrders({
+        accountId: this.tradingAccount.id,
+      });
+
+      if (!response?.orders || response.orders.length === 0) {
+        return;
+      }
+
+      // Find working protective orders for this contract
+      const orphanedOrders = response.orders.filter((order: any) =>
+        order.contractId === this.contractId &&
+        this.isOrderWorking(order) &&
+        this.isProtectiveOrder(order, undefined)
+      );
+
+      if (orphanedOrders.length === 0) {
+        return;
+      }
+
+      console.error(`[ExecutionManager] 🚨 Found ${orphanedOrders.length} orphaned protective order(s) while flat!`);
+
+      // Cancel each orphaned order
+      for (const order of orphanedOrders) {
+        try {
+          console.log(`[ExecutionManager] 🗑️ Canceling orphaned order ${order.id} (${order.stopPrice ? 'STOP' : 'LIMIT'} @ ${order.stopPrice || order.limitPrice})`);
+          await this.restClient.cancelOrder({
+            accountId: this.tradingAccount.id,
+            orderId: String(order.id),
+          });
+          console.log(`[ExecutionManager] ✅ Successfully canceled orphaned order ${order.id}`);
+        } catch (error: any) {
+          console.error(`[ExecutionManager] ❌ Failed to cancel orphaned order ${order.id}:`, error?.message || error);
+        }
+      }
+    } catch (error: any) {
+      console.warn('[ExecutionManager] ⚠️ Orphan cleanup check failed:', error?.message || error);
     }
   }
 
@@ -2303,6 +2866,99 @@ export class ExecutionManager {
    */
   getOrders(): ExecutedOrder[] {
     return Array.from(this.executedOrders.values());
+  }
+
+  private isStopLike(order: any): boolean {
+    return typeof order.stopPrice === 'number' ||
+      typeof order.triggerPrice === 'number' ||
+      typeof order.stop === 'number';
+  }
+
+  private bumpPositionVersion(symbol: string) {
+    this.positionVersionBySymbol[symbol] = (this.positionVersionBySymbol[symbol] ?? 0) + 1;
+  }
+
+  private markFlatCooldown(symbol: string, durationMs: number = 10_000) {
+    this.flatCooldownUntilBySymbol[symbol] = Date.now() + durationMs;
+  }
+
+  private inFlatCooldown(symbol: string): boolean {
+    return (this.flatCooldownUntilBySymbol[symbol] ?? 0) > Date.now();
+  }
+
+  private isOrderWorking(order: any): boolean {
+    const status = (order?.status || '').toString().toLowerCase();
+    if (!status) return true;
+    return !['filled', 'cancelled', 'canceled', 'rejected', 'expired', 'done'].some(term => status.includes(term));
+  }
+
+  private isProtectiveOrder(order: any, protectiveSide?: 'buy' | 'sell'): boolean {
+    if (protectiveSide && order.side && order.side !== protectiveSide) return false;
+    const typeRaw = order.type ?? order.orderType;
+    const typeStr = String(typeRaw || '').toLowerCase();
+    const typeIsStop = typeStr.includes('stop') || typeRaw === 3 || typeRaw === 4; // common enums for stop / stop-limit
+    const hasStopLike = this.isStopLike(order);
+    const reduceOnly =
+      order.reduceOnly === true ||
+      order.isReduceOnly === true ||
+      order.closePosition === true;
+    const coi = String(order.clientOrderId || '').toLowerCase();
+    const bracketTagged =
+      Boolean(order.parentOrderId) ||
+      Boolean(order.bracketId) ||
+      Boolean(order.ocoGroupId) ||
+      coi.includes('bracket') || coi.includes('tp') || coi.includes('sl') || coi.includes('oco');
+    return hasStopLike && (reduceOnly || bracketTagged || typeIsStop);
+  }
+
+  private async cancelOrders(orders: any[]) {
+    for (const order of orders) {
+      try {
+        await this.restClient?.cancelOrder({
+          accountId: this.tradingAccount?.id,
+          orderId: String(order.id),
+        });
+        console.log(`[ExecutionManager] ✅ Cancelled order ${order.id}`);
+      } catch (err: any) {
+        console.warn(`[ExecutionManager] ⚠️ Failed to cancel order ${order.id}:`, err?.message || err);
+      }
+    }
+  }
+
+  private async flattenPosition(qty: number, side: 'buy' | 'sell', currentPrice: number) {
+    if (!this.restClient || !this.tradingAccount) return;
+    try {
+      console.log(`[ExecutionManager] 🛑 Emergency flatten: sending market ${side.toUpperCase()} for qty=${qty}`);
+      await this.restClient.placeOrder({
+        accountId: this.tradingAccount.id,
+        contractId: this.contractId,
+        side: side === 'buy' ? 0 : 1,
+        size: qty,
+        type: 2, // Market
+        timeInForce: 0, // IOC
+      });
+      const symbolKey = this.symbol || this.contractId || 'default';
+      this.bumpPositionVersion(symbolKey);
+      this.markFlatCooldown(symbolKey);
+    } catch (err: any) {
+      console.error('[ExecutionManager] ❌ Emergency flatten failed:', err?.message || err);
+    }
+  }
+
+  /**
+   * Expose current position version for a symbol
+   */
+  getPositionVersion(symbol: string): number {
+    return this.positionVersionBySymbol[symbol] ?? 0;
+  }
+
+  /**
+   * External version bump hook (e.g., from WS execution events)
+   */
+  bumpVersionExternal(): void {
+    const symbolKey = this.symbol || this.contractId || 'default';
+    this.bumpPositionVersion(symbolKey);
+    this.lastExternalVersionBump = Date.now();
   }
 
   /**

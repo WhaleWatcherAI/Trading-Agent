@@ -76,7 +76,14 @@ export function createProjectXRest(baseUrl?: string) {
   }
   const jwtMgr = createJwtManager(fetchJwt);
 
-  async function doFetch(path: string, init: RequestInit, tryRefresh = true): Promise<Response> {
+  /**
+   * Sleep helper for rate limit backoff
+   */
+  function sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  async function doFetch(path: string, init: RequestInit, tryRefresh = true, retryCount = 0): Promise<Response> {
     const jwt = await jwtMgr.getJwt();
     console.log(`[doFetch] Making request to ${resolvedBase}${path}`);
 
@@ -96,10 +103,21 @@ export function createProjectXRest(baseUrl?: string) {
       });
       clearTimeout(timeoutId);
       console.log(`[doFetch] Received response with status ${res.status}`);
+
+      // Handle 401 unauthorized
       if (res.status === 401 && tryRefresh) {
         await jwtMgr.markStaleAndRefresh();
-        return doFetch(path, init, false);
+        return doFetch(path, init, false, retryCount);
       }
+
+      // Handle 429 rate limit with exponential backoff
+      if (res.status === 429 && retryCount < 3) {
+        const delayMs = Math.pow(2, retryCount + 1) * 1000; // 2s, 4s, 8s
+        console.log(`[doFetch] Rate limited (429), retrying in ${delayMs}ms (attempt ${retryCount + 1}/3)`);
+        await sleep(delayMs);
+        return doFetch(path, init, tryRefresh, retryCount + 1);
+      }
+
       return res;
     } catch (error: any) {
       clearTimeout(timeoutId);

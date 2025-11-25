@@ -4,7 +4,7 @@ import { createProjectXRest } from '../projectx-rest';
 function getTopstepEnv() {
   return {
     apiKey: process.env.TOPSTEPX_API_KEY || '',
-    baseUrl: process.env.TOPSTEPX_BASE_URL || 'https://api.topstepx.com',
+  baseUrl: process.env.TOPSTEPX_BASE_URL || 'https://gateway.topstepx.com',
     username: process.env.TOPSTEPX_USERNAME || '',
   };
 }
@@ -102,13 +102,20 @@ export async function authenticate(): Promise<string> {
 }
 
 /**
- * Get an authenticated axios client with JWT token
+ * Sleep helper for rate limit backoff
+ */
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Get an authenticated axios client with JWT token and retry logic
  */
 async function getAuthenticatedClient(): Promise<AxiosInstance> {
   const token = await authenticate();
   const { baseUrl } = getTopstepEnv();
 
-  return axios.create({
+  const client = axios.create({
     baseURL: baseUrl,
     timeout: 30000,
     headers: {
@@ -117,6 +124,37 @@ async function getAuthenticatedClient(): Promise<AxiosInstance> {
       'Accept': 'application/json',
     },
   });
+
+  // Add response interceptor for rate limit handling
+  client.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+      const config = error.config;
+
+      // Handle 429 rate limit errors
+      if (error.response?.status === 429) {
+        // Check if we've already retried too many times
+        config._retryCount = config._retryCount || 0;
+
+        if (config._retryCount < 3) {
+          config._retryCount += 1;
+
+          // Exponential backoff: 2s, 4s, 8s
+          const delayMs = Math.pow(2, config._retryCount) * 1000;
+          console.log(`[topstepx] Rate limited (429), retrying in ${delayMs}ms (attempt ${config._retryCount}/3)`);
+
+          await sleep(delayMs);
+
+          // Retry the request
+          return client(config);
+        }
+      }
+
+      return Promise.reject(error);
+    }
+  );
+
+  return client;
 }
 
 /**
@@ -281,7 +319,11 @@ export async function fetchTopstepXFuturesMetadata(symbolOrContractId: string): 
   try {
     const contracts = await fetchTopstepXContracts(false);
     const upper = identifier.toUpperCase();
-    return contracts.find(contract => contract.name?.toUpperCase() === upper) || null;
+    const found = contracts.find(contract => contract.name?.toUpperCase() === upper) || null;
+    if (found) {
+      console.log(`[topstepx] Found contract ${found.name}: tickSize=${found.tickSize}, tickValue=${found.tickValue}`);
+    }
+    return found;
   } catch (error: any) {
     console.error('[topstepx] Failed to fetch contract metadata list:', error.response?.data || error.message);
     return null;
