@@ -310,6 +310,17 @@ export async function fetchTopstepXContract(contractId: string): Promise<Topstep
   }
 }
 
+// Simple cache for contract metadata to avoid repeated API calls
+const contractMetadataCache: Map<string, TopstepXContract> = new Map();
+
+// Known contract ID mappings for common symbols (avoids fetching full contract list)
+const KNOWN_CONTRACT_IDS: Record<string, string> = {
+  'NQZ5': 'CON.F.US.ENQ.Z25',
+  'MGCZ5': 'CON.F.US.MGC.Z25',
+  'MNQ': 'CON.F.US.MNQ.Z25',
+  'MGC': 'CON.F.US.MGC.Z25',
+};
+
 export async function fetchTopstepXFuturesMetadata(symbolOrContractId: string): Promise<TopstepXContract | null> {
   assertTopstepXReady();
 
@@ -318,16 +329,41 @@ export async function fetchTopstepXFuturesMetadata(symbolOrContractId: string): 
     return null;
   }
 
-  const isContractId = identifier.startsWith('CON.');
-  if (isContractId) {
-    return fetchTopstepXContract(identifier);
+  // Check cache first
+  if (contractMetadataCache.has(identifier)) {
+    return contractMetadataCache.get(identifier)!;
   }
 
+  const isContractId = identifier.startsWith('CON.');
+  if (isContractId) {
+    const metadata = await fetchTopstepXContract(identifier);
+    if (metadata) {
+      contractMetadataCache.set(identifier, metadata);
+    }
+    return metadata;
+  }
+
+  // Try known contract ID mapping first (avoids fetching full list)
+  const upper = identifier.toUpperCase();
+  const knownContractId = KNOWN_CONTRACT_IDS[upper];
+  if (knownContractId) {
+    console.log(`[topstepx] Using known contract ID for ${upper}: ${knownContractId}`);
+    const metadata = await fetchTopstepXContract(knownContractId);
+    if (metadata) {
+      contractMetadataCache.set(identifier, metadata);
+      contractMetadataCache.set(upper, metadata);
+      console.log(`[topstepx] Found contract ${metadata.name}: tickSize=${metadata.tickSize}, tickValue=${metadata.tickValue}`);
+      return metadata;
+    }
+  }
+
+  // Fallback: fetch full contract list (only if known mapping didn't work)
   try {
     const contracts = await fetchTopstepXContracts(false);
-    const upper = identifier.toUpperCase();
     const found = contracts.find(contract => contract.name?.toUpperCase() === upper) || null;
     if (found) {
+      contractMetadataCache.set(identifier, found);
+      contractMetadataCache.set(upper, found);
       console.log(`[topstepx] Found contract ${found.name}: tickSize=${found.tickSize}, tickValue=${found.tickValue}`);
     }
     return found;
