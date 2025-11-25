@@ -22,6 +22,7 @@ interface ExecutionManagerOptions {
   preferredAccountId?: number;
   enableNativeBrackets?: boolean;
   requireNativeBrackets?: boolean;
+  brokerSyncOffsetMs?: number; // Offset for broker sync timing (for multi-agent staggering)
 }
 
 /**
@@ -126,6 +127,13 @@ export class ExecutionManager {
     this.preferredAccountId = options.preferredAccountId;
     this.enableNativeBrackets = options.enableNativeBrackets !== false; // default true to force native when supported
     this.requireNativeBrackets = true; // always require native brackets to avoid non-OCO exposure
+
+    // Apply broker sync offset for multi-agent staggering (Gold uses offset to avoid rate limiting with NQ)
+    if (options.brokerSyncOffsetMs && options.brokerSyncOffsetMs > 0) {
+      this.lastBrokerSync = Date.now() - this.brokerSyncIntervalMs + options.brokerSyncOffsetMs;
+      console.log(`[ExecutionManager] Broker sync offset: ${options.brokerSyncOffsetMs}ms (first sync delayed)`);
+    }
+
     try {
       this.restClient = createProjectXRest();
     } catch (error: any) {

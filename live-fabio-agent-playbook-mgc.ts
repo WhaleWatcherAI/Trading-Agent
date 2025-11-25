@@ -1067,13 +1067,8 @@ function makeDecision(): AgentDecision {
 }
 
 // Process Market Data Update (with OpenAI Integration)
-// Gold agent adds delay to stagger API calls from NQ when both receive same candle
-const PROCESS_DELAY_MS = 1500; // Gold waits 1.5s after receiving data before processing
 async function processMarketUpdate() {
   if (bars.length < 3) return;
-
-  // Stagger processing to avoid hitting API at same time as NQ agent
-  await new Promise(resolve => setTimeout(resolve, PROCESS_DELAY_MS));
 
   log(`[DEBUG processMarketUpdate] Entered function with ${bars.length} bars`, 'info');
 
@@ -1947,6 +1942,7 @@ async function connectMarketData() {
     preferredAccountId: ACCOUNT_ID > 0 ? ACCOUNT_ID : undefined,
     enableNativeBrackets: process.env.TOPSTEPX_ENABLE_NATIVE_BRACKETS === 'true',
     requireNativeBrackets: process.env.TOPSTEPX_REQUIRE_NATIVE_BRACKETS !== 'false',
+    brokerSyncOffsetMs: 7500, // Gold syncs 7.5s after NQ (half of 15s interval) to stagger API calls
   });
   log(`⚙️ Execution manager initialized for ${SYMBOL} (${LIVE_TRADING ? 'LIVE TRADING' : 'SIM MODE'})`, LIVE_TRADING ? 'warning' : 'success');
 
