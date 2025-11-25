@@ -2262,13 +2262,17 @@ async function loadHistoricalData() {
 
     log(`📅 Trading day: ${startTime.toISOString()} to ${endTime.toISOString()}`, 'info');
 
+    // Use 10-second bars for accurate volume profile with full trading day coverage
+    // Full session = ~18.5 hours = 6,660 10-second bars (fits in single request!)
+    log('Fetching 10-second bars for full trading day...', 'info');
+
     const historicalBars = await fetchTopstepXFuturesBars({
       contractId,
       startTime: startTime.toISOString(),
       endTime: endTime.toISOString(),
-      unit: 2,        // Minutes
-      unitNumber: 5,  // 5-minute bars (less data, avoids rate limit)
-      limit: 500,     // ~18 hours * 12 bars/hour = 216 bars
+      unit: 1,        // Seconds
+      unitNumber: 10, // 10-second bars (full day coverage, good granularity)
+      limit: 20000,   // Max per request (should be enough for full day)
     });
 
     if (historicalBars && historicalBars.length > 0) {
@@ -2282,7 +2286,7 @@ async function loadHistoricalData() {
       orderFlowData.cvdHistory = [];
       orderFlowData.bigPrints = [];
       orderFlowData.footprintImbalance = {};
-      log(`✅ Loaded ${historicalSessionBars.length} historical 5-min bars from TopstepX`, 'success');
+      log(`✅ Loaded ${historicalSessionBars.length} historical 10-second bars from TopstepX`, 'success');
     } else {
       log('No historical bars returned from TopstepX', 'warning');
     }
