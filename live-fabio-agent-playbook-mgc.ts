@@ -40,9 +40,12 @@ const SYMBOL = process.env.TOPSTEPX_SYMBOL || 'MGCZ5';
 const ACCOUNT_ID = parseInt(process.env.TOPSTEPX_ACCOUNT_ID || '0');
 const DASHBOARD_PORT = 3338; // Different port for GC instance
 const CONTRACTS = 1;
-// Analyze with DeepSeek Reasoner every 60 seconds (same cadence as NQ)
+// Analyze with DeepSeek Reasoner every 60 seconds
+// Gold uses +30s offset from NQ to stagger API calls and reduce rate limiting
 const ANALYSIS_INTERVAL_MS = 60_000;
+const ANALYSIS_OFFSET_MS = 30_000; // Gold starts analysis 30s after NQ cycle
 const RISK_MGMT_INTERVAL_MS = 3_000; // Risk management checks every 3 seconds (aggressive stop tightening)
+const RISK_MGMT_OFFSET_MS = 1_500; // Gold risk mgmt offset by 1.5s from NQ
 
 // Volume Profile Types
 interface VolumeNode {
@@ -173,7 +176,8 @@ let cvdMinuteBars: CurrentCvdBar[] = [];
 
 // Position Management
 let currentPosition: any = null;
-let lastRiskMgmtTime = Date.now(); // Initialize to now to prevent immediate spam
+// Initialize with offset so Gold's risk mgmt checks are staggered from NQ (1.5s offset)
+let lastRiskMgmtTime = Date.now() - RISK_MGMT_OFFSET_MS; // Gold checks 1.5s after NQ
 let lastRiskMgmtDecision: any = null; // Store last Risk Management decision for dashboard
 let accountBalance = 50000;
 
@@ -182,7 +186,8 @@ let executionManager: ExecutionManager | null = null;
 let realizedPnL = 0; // Track realized P&L from closed positions
 
 // OpenAI Rate Limiting - Only call once per completed 5-minute candle
-let lastOpenAIAnalysisTime = 0;
+// Initialize with offset so Gold starts analysis 30s after NQ cycle
+let lastOpenAIAnalysisTime = Date.now() - ANALYSIS_INTERVAL_MS + ANALYSIS_OFFSET_MS;
 
 // Utility Functions
 function log(message: string, type: 'info' | 'success' | 'warning' | 'error' = 'info') {

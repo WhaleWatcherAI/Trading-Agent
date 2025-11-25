@@ -136,17 +136,19 @@ async function getAuthenticatedClient(): Promise<AxiosInstance> {
     async (error) => {
       const config = error.config;
 
-      // Handle 429 rate limit errors
+      // Handle 429 rate limit errors with jitter to prevent multi-agent collision
       if (error.response?.status === 429) {
         // Check if we've already retried too many times
         config._retryCount = config._retryCount || 0;
 
-        if (config._retryCount < 3) {
+        if (config._retryCount < 5) {
           config._retryCount += 1;
 
-          // Exponential backoff: 2s, 4s, 8s
-          const delayMs = Math.pow(2, config._retryCount) * 1000;
-          console.log(`[topstepx] Rate limited (429), retrying in ${delayMs}ms (attempt ${config._retryCount}/3)`);
+          // Exponential backoff: 2s, 4s, 8s, 16s, 32s + random jitter
+          const baseDelayMs = Math.pow(2, config._retryCount) * 1000;
+          const jitterMs = Math.floor(Math.random() * 2000); // 0-2000ms random jitter
+          const delayMs = baseDelayMs + jitterMs;
+          console.log(`[topstepx] Rate limited (429), retrying in ${delayMs}ms (base ${baseDelayMs}ms + jitter ${jitterMs}ms) (attempt ${config._retryCount}/5)`);
 
           await sleep(delayMs);
 

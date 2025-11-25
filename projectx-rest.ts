@@ -110,10 +110,13 @@ export function createProjectXRest(baseUrl?: string) {
         return doFetch(path, init, false, retryCount);
       }
 
-      // Handle 429 rate limit with exponential backoff
-      if (res.status === 429 && retryCount < 3) {
-        const delayMs = Math.pow(2, retryCount + 1) * 1000; // 2s, 4s, 8s
-        console.log(`[doFetch] Rate limited (429), retrying in ${delayMs}ms (attempt ${retryCount + 1}/3)`);
+      // Handle 429 rate limit with exponential backoff + jitter
+      // Jitter prevents multiple agents from retrying at the same time
+      if (res.status === 429 && retryCount < 5) {
+        const baseDelayMs = Math.pow(2, retryCount + 1) * 1000; // 2s, 4s, 8s, 16s, 32s
+        const jitterMs = Math.floor(Math.random() * 2000); // 0-2000ms random jitter
+        const delayMs = baseDelayMs + jitterMs;
+        console.log(`[doFetch] Rate limited (429), retrying in ${delayMs}ms (base ${baseDelayMs}ms + jitter ${jitterMs}ms) (attempt ${retryCount + 1}/5)`);
         await sleep(delayMs);
         return doFetch(path, init, tryRefresh, retryCount + 1);
       }
