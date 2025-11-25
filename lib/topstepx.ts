@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
+import fetch from 'node-fetch';
 import { createProjectXRest } from '../projectx-rest';
 
 function getTopstepEnv() {
@@ -71,33 +72,36 @@ export async function authenticate(): Promise<string> {
   }
 
   try {
-    const response = await axios.post(
-      `${baseUrl}/api/Auth/loginKey`,
-      {
+    // Use fetch instead of axios for better proxy compatibility
+    const response = await fetch(`${baseUrl}/api/Auth/loginKey`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'text/plain',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
         userName: username,
         apiKey,
-      },
-      {
-        headers: {
-          'Accept': 'text/plain',
-          'Content-Type': 'application/json',
-        },
-        timeout: 30000,
-        maxRedirects: 5,
-      }
-    );
+      }),
+    });
 
-    if (!response.data.success || response.data.errorCode !== 0) {
-      throw new Error(`Authentication failed: Error Code ${response.data.errorCode}`);
+    if (!response.ok) {
+      throw new Error(`Authentication HTTP error: ${response.status}`);
     }
 
-    sessionToken = response.data.token;
+    const data = await response.json();
+
+    if (!data.success || data.errorCode !== 0) {
+      throw new Error(`Authentication failed: Error Code ${data.errorCode}`);
+    }
+
+    sessionToken = data.token;
     // Token expires in 24 hours, refresh 1 hour before expiry
     tokenExpiry = Date.now() + (23 * 60 * 60 * 1000);
 
     return sessionToken;
   } catch (error: any) {
-    console.error('[topstepx] Authentication failed:', error.response?.data || error.message);
+    console.error('[topstepx] Authentication failed:', error.message);
     throw error;
   }
 }
