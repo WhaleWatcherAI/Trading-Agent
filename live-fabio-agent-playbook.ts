@@ -2290,7 +2290,13 @@ async function loadHistoricalData() {
     } else {
       log('No historical bars returned from TopstepX', 'warning');
     }
+
+    // Small delay before next API call
+    await new Promise(resolve => setTimeout(resolve, 500));
     await refreshHigherTimeframes(true);
+
+    // Small delay before final API call
+    await new Promise(resolve => setTimeout(resolve, 500));
     await refreshRecentVolumeProfiles(true);
   } catch (error: any) {
     log(`Failed to load historical data: ${error.message}`, 'error');
@@ -2335,6 +2341,9 @@ async function main() {
       log(`⚠️  Failed to fetch account balance: ${error.message}, using default: $${accountBalance}`, 'warning');
     }
 
+    // Small delay to spread out API calls and reduce rate limiting
+    await new Promise(resolve => setTimeout(resolve, 500));
+
     // Resolve contract ID FIRST before loading historical data
     const metadata = await fetchTopstepXFuturesMetadata(SYMBOL);
     if (!metadata) {
@@ -2342,6 +2351,9 @@ async function main() {
     }
     contractId = metadata.id;
     log(`Resolved ${SYMBOL} to contractId=${contractId}`, 'info');
+
+    // Small delay before historical data fetch (which makes multiple API calls)
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     await loadHistoricalData();
 
