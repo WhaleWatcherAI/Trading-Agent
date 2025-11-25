@@ -1,4 +1,3 @@
-Unstaged changes after reset:
-M	lib/topstepx.ts
-M	logs/fabio-gold.log
-M	logs/fabio-nq.log
+node_modules/
+logs/*.log
+.env
