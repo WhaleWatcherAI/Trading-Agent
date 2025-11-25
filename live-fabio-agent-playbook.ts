@@ -2299,6 +2299,13 @@ async function loadHistoricalData() {
 
 // Main Function
 async function main() {
+  // Add optional startup delay to stagger multiple agents (reduces rate limiting)
+  const startupDelayMs = parseInt(process.env.STARTUP_DELAY_MS || '0', 10);
+  if (startupDelayMs > 0) {
+    console.log(`⏳ Startup delay: ${startupDelayMs}ms to avoid rate limiting...`);
+    await new Promise(resolve => setTimeout(resolve, startupDelayMs));
+  }
+
   process.stderr.write('DEBUG: main() function called\n');
   console.error('DEBUG: About to print header');
   console.log('\n' + '='.repeat(80));

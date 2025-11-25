@@ -2073,6 +2073,13 @@ async function loadHistoricalData() {
 
 // Main Function
 async function main() {
+  // Add optional startup delay to stagger multiple agents (reduces rate limiting)
+  const startupDelayMs = parseInt(process.env.STARTUP_DELAY_MS || '0', 10);
+  if (startupDelayMs > 0) {
+    console.log(`⏳ Startup delay: ${startupDelayMs}ms to avoid rate limiting...`);
+    await new Promise(resolve => setTimeout(resolve, startupDelayMs));
+  }
+
   console.log('\n' + '='.repeat(80));
   console.log('🧠 FABIO AGENT - VOLUME PROFILE & ORDER FLOW TRADING');
   console.log('='.repeat(80));
