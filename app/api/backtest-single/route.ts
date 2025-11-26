@@ -269,20 +269,11 @@ async function backtestSingleStock(symbol: string, testDate: string): Promise<{ 
 
       const pnlPercent = ((estimatedCurrentPremium - entryPremium) / entryPremium) * 100;
 
-      // Check GEX zone crossing
-      const currentGexZone = getGexZoneForPrice(currentPrice);
-      const previousGexZone = currentTrade.previousGexZone;
-      const gexWallCrossing = previousGexZone === 'POSITIVE' && (currentGexZone === 'NEUTRAL' || currentGexZone === 'NEGATIVE');
-
       let exitReason: string | null = null;
       if (oppositeCross) exitReason = 'Opposite Signal';
-      else if (gexWallCrossing) exitReason = 'GEX Wall Cross';
       else if (pnlPercent <= STOP_LOSS_PERCENT) exitReason = 'Stop Loss';
       else if (pnlPercent >= TAKE_PROFIT_PERCENT) exitReason = 'Take Profit';
       else if (i === history.length - 1) exitReason = 'End of Day';
-
-      // Update previous GEX zone for next iteration
-      currentTrade.previousGexZone = currentGexZone;
 
       if (exitReason) {
         const exitPremium = estimatedCurrentPremium * (1 - SLIPPAGE_PERCENT / 100);
@@ -353,9 +344,11 @@ async function backtestSingleStock(symbol: string, testDate: string): Promise<{ 
     avgHoldMinutes,
     profitFactor,
     callPutRatio,
-    bias: isBullishBias ? 'BULLISH' : isBearishBias ? 'BEARISH' : 'NEUTRAL',
+    bias: ratioData.bias,
     netGex,
     hasNegativeGex,
+    sentiment: sentimentAnalysis.sentiment,
+    sentimentScore: sentimentAnalysis.score,
   };
 
   console.log(`✅ Backtest complete: ${trades.length} trades found\n`);

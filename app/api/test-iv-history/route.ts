@@ -4,7 +4,7 @@ import { getIvRankHistory } from '@/lib/unusualwhales';
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
   const ticker = params.get('ticker') || 'SPY';
-  const date = params.get('date');
+  const date = params.get('date') || undefined;
 
   try {
     const history = await getIvRankHistory(ticker, date);

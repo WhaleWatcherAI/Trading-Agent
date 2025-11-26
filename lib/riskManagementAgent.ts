@@ -710,14 +710,13 @@ function parseRiskManagementResponse(content: string, pos: ActivePosition, marke
         ? snappedStop < pos.stopLoss  // LONG: new stop below current = loosening (moving away from breakeven)
         : snappedStop > pos.stopLoss; // SHORT: new stop above current = loosening (moving away from breakeven)
 
-      // Check if this is the special case of moving to breakeven with sufficient profit
+      // Check if this is the special case of moving to breakeven
       const isMovingToBreakeven = Math.abs(snappedStop - pos.entryPrice) < 0.01;
-      const hasSufficientProfit = profitLossTicks >= 8 && percentToTarget >= 10;
 
       if (isLoosening) {
-        // Allow the move if it's to breakeven AND we have sufficient profit
-        if (isMovingToBreakeven && hasSufficientProfit) {
-          console.log(`[RiskMgmt] ✅ BREAKEVEN EXCEPTION: Allowing move to breakeven ${snappedStop.toFixed(2)} (${profitLossTicks.toFixed(1)} ticks profit, ${percentToTarget.toFixed(1)}% to target)`);
+        // Allow the move if it's to exact breakeven (trust the auto breakeven logic)
+        if (isMovingToBreakeven) {
+          console.log(`[RiskMgmt] ✅ BREAKEVEN EXCEPTION: Allowing move to breakeven ${snappedStop.toFixed(2)}`);
         } else {
           console.warn(`[RiskMgmt] 🚫 SAFETY BLOCK: Stop would loosen from ${pos.stopLoss.toFixed(2)} to ${snappedStop.toFixed(2)}. Stops can ONLY tighten.`);
           snappedStop = null;

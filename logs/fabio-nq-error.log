@@ -1,419 +1,121 @@
 DEBUG: main() function called
 DEBUG: About to print header
-[RiskMgmt] 🚫 SAFETY BLOCK: Stop would loosen from 25179.75 to 25183.75. Stops can ONLY tighten.
-[RiskMgmt] 🚫 SAFETY BLOCK: Stop would loosen from 25179.75 to 25183.50. Stops can ONLY tighten.
-[RiskMgmt] 🚫 SAFETY BLOCK: Stop would loosen from 25179.75 to 25183.50. Stops can ONLY tighten.
-[RiskMgmt] 🚫 SAFETY BLOCK: Stop would loosen from 25179.75 to 25183.50. Stops can ONLY tighten.
-[RiskMgmt] 🚫 SAFETY BLOCK: Stop would loosen from 25179.75 to 25181.75. Stops can ONLY tighten.
-[RiskMgmt] 🚫 SAFETY BLOCK: Stop would loosen from 25179.75 to 25183.50. Stops can ONLY tighten.
-[RiskMgmt] 🚫 SAFETY BLOCK: Stop would loosen from 25179.75 to 25182.75. Stops can ONLY tighten.
-[RiskMgmt] 🚫 SAFETY BLOCK: Stop would loosen from 25179.75 to 25183.75. Stops can ONLY tighten.
-[RiskMgmt] 🚫 SAFETY BLOCK: Stop would loosen from 25179.75 to 25183.50. Stops can ONLY tighten.
-[RiskMgmt] 🚫 SAFETY BLOCK: Stop would loosen from 25179.75 to 25183.50. Stops can ONLY tighten.
-[RiskMgmt] 🚫 SAFETY BLOCK: Stop would loosen from 25179.75 to 25183.50. Stops can ONLY tighten.
-[RiskMgmt] 🚫 SAFETY BLOCK: Stop would loosen from 25179.75 to 25183.50. Stops can ONLY tighten.
-[ExecutionManager] ⚠️ Broker flat blip detected; starting debounce. Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (7ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (8ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker flat blip detected; starting debounce. Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (5ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (6ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (41ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (44ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (46ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (47ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (48ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker flat blip detected; starting debounce. Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (2ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (6ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (10ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker flat blip detected; starting debounce. Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (78ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (86ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (89ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (98ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker flat blip detected; starting debounce. Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker flat blip detected; starting debounce. Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (6ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (10ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker flat blip detected; starting debounce. Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (31ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (295ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (296ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (296ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (296ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (432ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (432ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (433ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (433ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (433ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (600ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (600ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (600ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (601ms/2500ms). Holding local position/brackets.
-[RiskMgmt] 🚫 SAFETY BLOCK: Stop would loosen from 25179.75 to 25182.75. Stops can ONLY tighten.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (644ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (646ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (646ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (647ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1149ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1152ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1153ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1153ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1403ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1405ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1405ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1406ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1754ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1756ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1756ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1756ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1794ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1797ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1798ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1798ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1972ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (2051ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (2053ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (2055ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (2057ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ✅ Broker flat confirmed after debounce — clearing local active position.
-[2025-11-26T05:07:30.383Z] Error: A callback for the method 'gatewayuserorder' threw error 'TypeError: import_tradingDatabase.tradingDB.getLastPendingDecision is not a function'.
-[2025-11-26T05:07:31.305Z] Error: A callback for the method 'gatewayuseraccount' threw error 'TypeError: import_tradingDatabase.tradingDB.getLastPendingDecision is not a function'.
+[OpenAI] Reasoner attempt 1 failed: Reasoner returned empty response
+[OpenAI] Retrying reasoner with alternate delivery (non-stream).
+[OpenAI] Reasoner attempt 1 failed: terminated
+[OpenAI] Retrying reasoner with alternate delivery (non-stream).
+[OpenAI] Reasoner attempt 2 failed: Reasoner returned empty response
+[OpenAI] Retrying reasoner with alternate delivery (non-stream).
+[OpenAI] Reasoner attempt 3 failed: Reasoner returned empty response
+[OpenAI] All reasoner attempts failed. Falling back to deepseek-chat/GPT-4...
+[OpenAI] Reasoner attempt 2 failed: Reasoner returned empty response
+[OpenAI] Retrying reasoner with alternate delivery (non-stream).
+[ExecutionManager] ⚠️ Short stop override invalid (25082.50 <= entry 25194.25). Resetting to default.
+[ExecutionManager] ⚠️ Short stop override invalid (25082.50 <= entry 25194.25). Resetting to default.
+[2025-11-26T05:24:34.779Z] Error: A callback for the method 'gatewayuserorder' threw error 'TypeError: import_tradingDatabase.tradingDB.getLastPendingDecision is not a function'.
 [ExecutionManager] 🔒 Protection lock active for 6s to prevent early bracket cancels/adjusts.
-[AdjustTrace adj-1764133651887] start newStop=25181.5 newTarget=25152 version=n/a
-[AdjustTrace adj-1764133651887] abort: broker flat signal but local position exists (holding)
-[ExecutionManager] ⚠️ adjustActiveProtection skipped: broker flat signal but local position exists. Holding brackets.
-[AdjustTrace adj-1764133659820] start newStop=25179.5 newTarget=none version=n/a
+[AdjustTrace adj-1764134676285] start newStop=25082.5 newTarget=25025 version=n/a
 [ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764133659820] stop/target need update flags {
+[AdjustTrace adj-1764134676285] stop/target need update flags {
   stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
+  targetNeedsUpdate: true,
   tickSize: 0.25,
-  currentStop: 25181,
-  requestedStop: 25179.5,
-  currentTarget: 25151.5,
-  requestedTarget: null
+  currentStop: 25218.75,
+  requestedStop: 25082.5,
+  currentTarget: 25024.5,
+  requestedTarget: 25025
 }
-[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25082.50 is < current 25194.25 (wrong side)
+[ExecutionManager] ⏳ Target modify skipped: change < 3 ticks.
 [ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
-[AdjustTrace adj-1764133661365] start newStop=25179.5 newTarget=none version=n/a
-[AdjustTrace adj-1764133661365] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25181,
-  requestedStop: 25179.5,
-  currentTarget: 25151.5,
-  requestedTarget: null
-}
-[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
-[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
-[AdjustTrace adj-1764133675141] start newStop=25179.5 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764133675141] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25181,
-  requestedStop: 25179.5,
-  currentTarget: 25151.5,
-  requestedTarget: null
-}
-[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
-[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
-[AdjustTrace adj-1764133692174] start newStop=25179.5 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764133692174] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25181,
-  requestedStop: 25179.5,
-  currentTarget: 25151.5,
-  requestedTarget: null
-}
-[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
-[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
-[ExecutionManager] ⚠️ Broker flat blip detected; starting debounce. Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker flat blip detected; starting debounce. Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (2ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (43ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (45ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (46ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (48ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (97ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (106ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (113ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (114ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (342ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (344ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (351ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (417ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (418ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (419ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (421ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (422ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (423ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (424ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (426ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (427ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (506ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (509ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (625ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (629ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (631ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (687ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (694ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (696ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (697ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (735ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (738ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (786ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (788ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (792ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (793ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (794ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (796ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (797ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (902ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (904ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (906ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (906ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1002ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1004ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1044ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1045ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1045ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1045ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1082ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1114ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1291ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1292ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1293ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1295ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1395ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1398ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1405ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1418ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1420ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1456ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1458ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1461ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1461ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1699ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1701ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1701ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1701ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1810ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1813ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1813ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1821ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (2154ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (2161ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (2162ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (2166ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (2198ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (2204ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (2205ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (2207ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ✅ Broker flat confirmed after debounce — clearing local active position.
-[2025-11-26T05:09:17.902Z] Error: A callback for the method 'gatewayuserorder' threw error 'TypeError: import_tradingDatabase.tradingDB.getLastPendingDecision is not a function'.
-[2025-11-26T05:09:19.021Z] Error: A callback for the method 'gatewayuseraccount' threw error 'TypeError: import_tradingDatabase.tradingDB.getLastPendingDecision is not a function'.
-[ExecutionManager] 🔒 Protection lock active for 6s to prevent early bracket cancels/adjusts.
-[AdjustTrace adj-1764133759406] start newStop=25197.5 newTarget=25166 version=n/a
-[AdjustTrace adj-1764133759406] abort: broker flat signal but local position exists (holding)
-[ExecutionManager] ⚠️ adjustActiveProtection skipped: broker flat signal but local position exists. Holding brackets.
-[AdjustTrace adj-1764133768216] start newStop=25189.5 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764133768216] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25197.5,
-  requestedStop: 25189.5,
-  currentTarget: 25166,
-  requestedTarget: null
-}
-[RiskMgmt] 🚫 SAFETY BLOCK: Stop would loosen from 25189.50 to 25191.00. Stops can ONLY tighten.
-[ExecutionManager] ⚠️ Broker flat blip detected; starting debounce. Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (100ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (102ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (103ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (104ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (277ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (279ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (281ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (282ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (284ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (387ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (388ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (390ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (391ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (441ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (450ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (454ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (454ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (806ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (812ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (815ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (816ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (841ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (841ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (841ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (842ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1548ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1550ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1550ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1551ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (2191ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (2193ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (2193ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (2197ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ✅ Broker flat confirmed after debounce — clearing local active position.
-[AdjustTrace adj-1764133785014] start newStop=25186.75 newTarget=none version=n/a
-[AdjustTrace adj-1764133785014] abort: rehydrateActivePosition returned false (broker flat / no active position)
-[ExecutionManager] 🚫 adjustActiveProtection aborted: broker reports flat / no active position.
-[2025-11-26T05:11:05.585Z] Error: A callback for the method 'gatewayuserorder' threw error 'TypeError: import_tradingDatabase.tradingDB.getLastPendingDecision is not a function'.
-[ExecutionManager] 🔒 Protection lock active for 6s to prevent early bracket cancels/adjusts.
-[AdjustTrace adj-1764133865588] start newStop=25197.5 newTarget=25112.5 version=n/a
-[AdjustTrace adj-1764133865588] abort: broker flat signal but local position exists (holding)
-[ExecutionManager] ⚠️ adjustActiveProtection skipped: broker flat signal but local position exists. Holding brackets.
-[AdjustTrace adj-1764133873498] start newStop=25191.75 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764133873498] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25196.25,
-  requestedStop: 25191.75,
-  currentTarget: 25111.25,
-  requestedTarget: null
-}
-[AdjustTrace adj-1764133875281] start newStop=25191.25 newTarget=none version=n/a
-[AdjustTrace adj-1764133875281] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25191.75,
-  requestedStop: 25191.25,
-  currentTarget: 25111.25,
-  requestedTarget: null
-}
-[ExecutionManager] ⏳ Stop modify throttled (min 8s between modifies).
-[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
-[AdjustTrace adj-1764133890741] start newStop=25190 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764133890741] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25191.75,
-  requestedStop: 25190,
-  currentTarget: 25111.25,
-  requestedTarget: null
-}
-[AdjustTrace adj-1764133905592] start newStop=25190 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764133905592] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25191,
-  requestedStop: 25190,
-  currentTarget: 25111.25,
-  requestedTarget: null
-}
-[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
-[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
-[AdjustTrace adj-1764133929352] start newStop=25190 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764133929352] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25191,
-  requestedStop: 25190,
-  currentTarget: 25111.25,
-  requestedTarget: null
-}
-[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
-[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
-[AdjustTrace adj-1764133937850] start newStop=25190 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764133937850] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25191,
-  requestedStop: 25190,
-  currentTarget: 25111.25,
-  requestedTarget: null
-}
-[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
-[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
-[AdjustTrace adj-1764133954631] start newStop=25190 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764133954631] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25191,
-  requestedStop: 25190,
-  currentTarget: 25111.25,
-  requestedTarget: null
-}
-[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
-[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
-[AdjustTrace adj-1764133968390] start newStop=25190 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764133968390] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25191,
-  requestedStop: 25190,
-  currentTarget: 25111.25,
-  requestedTarget: null
-}
-[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
-[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
-[AdjustTrace adj-1764133985795] start newStop=25190 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764133985795] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25191,
-  requestedStop: 25190,
-  currentTarget: 25111.25,
-  requestedTarget: null
-}
-[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
-[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
-[AdjustTrace adj-1764134000335] start newStop=25190 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764134000335] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25191,
-  requestedStop: 25190,
-  currentTarget: 25111.25,
-  requestedTarget: null
-}
-[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
-[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
-[AdjustTrace adj-1764134016067] start newStop=25190 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764134016067] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25191,
-  requestedStop: 25190,
-  currentTarget: 25111.25,
-  requestedTarget: null
-}
-[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
-[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[OpenAI] Reasoner attempt 1 failed: Reasoner returned empty response
+[OpenAI] Retrying reasoner with alternate delivery (non-stream).
+[RiskMgmt] Failed to parse risk management response: profitLossTicks is not defined
+[RiskMgmt] ❌ Error analyzing position risk: profitLossTicks is not defined | Position: short @ 25194.25
+[RiskMgmt] Stack trace: ReferenceError: profitLossTicks is not defined
+    at parseRiskManagementResponse (/Users/coreycosta/trading-agent/lib/riskManagementAgent.ts:715:35)
+    at analyzePositionRisk (/Users/coreycosta/trading-agent/lib/riskManagementAgent.ts:555:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async processMarketUpdate (/Users/coreycosta/trading-agent/live-fabio-agent-playbook.ts:1407:32)
+[RiskMgmt] Failed to parse risk management response: profitLossTicks is not defined
+[RiskMgmt] ❌ Error analyzing position risk: profitLossTicks is not defined | Position: short @ 25194.25
+[RiskMgmt] Stack trace: ReferenceError: profitLossTicks is not defined
+    at parseRiskManagementResponse (/Users/coreycosta/trading-agent/lib/riskManagementAgent.ts:715:35)
+    at analyzePositionRisk (/Users/coreycosta/trading-agent/lib/riskManagementAgent.ts:555:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async processMarketUpdate (/Users/coreycosta/trading-agent/live-fabio-agent-playbook.ts:1571:32)
+[RiskMgmt] Failed to parse risk management response: profitLossTicks is not defined
+[RiskMgmt] ❌ Error analyzing position risk: profitLossTicks is not defined | Position: short @ 25194.25
+[RiskMgmt] Stack trace: ReferenceError: profitLossTicks is not defined
+    at parseRiskManagementResponse (/Users/coreycosta/trading-agent/lib/riskManagementAgent.ts:715:35)
+    at analyzePositionRisk (/Users/coreycosta/trading-agent/lib/riskManagementAgent.ts:555:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async processMarketUpdate (/Users/coreycosta/trading-agent/live-fabio-agent-playbook.ts:1571:32)
+[OpenAI] Reasoner attempt 3 failed: Reasoner returned empty response
+[OpenAI] All reasoner attempts failed. Falling back to deepseek-chat/GPT-4...
+[RiskMgmt] Failed to parse risk management response: profitLossTicks is not defined
+[RiskMgmt] ❌ Error analyzing position risk: profitLossTicks is not defined | Position: short @ 25194.25
+[RiskMgmt] Stack trace: ReferenceError: profitLossTicks is not defined
+    at parseRiskManagementResponse (/Users/coreycosta/trading-agent/lib/riskManagementAgent.ts:715:35)
+    at analyzePositionRisk (/Users/coreycosta/trading-agent/lib/riskManagementAgent.ts:555:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async processMarketUpdate (/Users/coreycosta/trading-agent/live-fabio-agent-playbook.ts:1571:32)
+[OpenAI] Reasoner attempt 1 failed: terminated
+[OpenAI] Retrying reasoner with alternate delivery (non-stream).
+[RiskMgmt] Failed to parse risk management response: profitLossTicks is not defined
+[RiskMgmt] ❌ Error analyzing position risk: profitLossTicks is not defined | Position: short @ 25194.25
+[RiskMgmt] Stack trace: ReferenceError: profitLossTicks is not defined
+    at parseRiskManagementResponse (/Users/coreycosta/trading-agent/lib/riskManagementAgent.ts:715:35)
+    at analyzePositionRisk (/Users/coreycosta/trading-agent/lib/riskManagementAgent.ts:555:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async processMarketUpdate (/Users/coreycosta/trading-agent/live-fabio-agent-playbook.ts:1571:32)
+[OpenAI] Reasoner attempt 2 failed: Reasoner returned empty response
+[OpenAI] Retrying reasoner with alternate delivery (non-stream).
+[RiskMgmt] Failed to parse risk management response: profitLossTicks is not defined
+[RiskMgmt] ❌ Error analyzing position risk: profitLossTicks is not defined | Position: short @ 25194.25
+[RiskMgmt] Stack trace: ReferenceError: profitLossTicks is not defined
+    at parseRiskManagementResponse (/Users/coreycosta/trading-agent/lib/riskManagementAgent.ts:715:35)
+    at analyzePositionRisk (/Users/coreycosta/trading-agent/lib/riskManagementAgent.ts:555:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async processMarketUpdate (/Users/coreycosta/trading-agent/live-fabio-agent-playbook.ts:1571:32)
+[RiskMgmt] Failed to parse risk management response: profitLossTicks is not defined
+[RiskMgmt] ❌ Error analyzing position risk: profitLossTicks is not defined | Position: short @ 25194.25
+[RiskMgmt] Stack trace: ReferenceError: profitLossTicks is not defined
+    at parseRiskManagementResponse (/Users/coreycosta/trading-agent/lib/riskManagementAgent.ts:715:35)
+    at analyzePositionRisk (/Users/coreycosta/trading-agent/lib/riskManagementAgent.ts:555:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async processMarketUpdate (/Users/coreycosta/trading-agent/live-fabio-agent-playbook.ts:1571:32)
+[RiskMgmt] Failed to parse risk management response: profitLossTicks is not defined
+[RiskMgmt] ❌ Error analyzing position risk: profitLossTicks is not defined | Position: short @ 25194.25
+[RiskMgmt] Stack trace: ReferenceError: profitLossTicks is not defined
+    at parseRiskManagementResponse (/Users/coreycosta/trading-agent/lib/riskManagementAgent.ts:715:35)
+    at analyzePositionRisk (/Users/coreycosta/trading-agent/lib/riskManagementAgent.ts:555:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async processMarketUpdate (/Users/coreycosta/trading-agent/live-fabio-agent-playbook.ts:1571:32)
+[OpenAI] Reasoner attempt 3 failed: Reasoner returned empty response
+[OpenAI] All reasoner attempts failed. Falling back to deepseek-chat/GPT-4...
+[OpenAI] Reasoner attempt 2 failed: Reasoner returned empty response
+[OpenAI] Retrying reasoner with alternate delivery (non-stream).
+[RiskMgmt] Failed to parse risk management response: profitLossTicks is not defined
+[RiskMgmt] ❌ Error analyzing position risk: profitLossTicks is not defined | Position: short @ 25194.25
+[RiskMgmt] Stack trace: ReferenceError: profitLossTicks is not defined
+    at parseRiskManagementResponse (/Users/coreycosta/trading-agent/lib/riskManagementAgent.ts:715:35)
+    at analyzePositionRisk (/Users/coreycosta/trading-agent/lib/riskManagementAgent.ts:555:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async processMarketUpdate (/Users/coreycosta/trading-agent/live-fabio-agent-playbook.ts:1571:32)
+[RiskMgmt] Failed to parse risk management response: profitLossTicks is not defined
+[RiskMgmt] ❌ Error analyzing position risk: profitLossTicks is not defined | Position: short @ 25194.25
+[RiskMgmt] Stack trace: ReferenceError: profitLossTicks is not defined
+    at parseRiskManagementResponse (/Users/coreycosta/trading-agent/lib/riskManagementAgent.ts:715:35)
+    at analyzePositionRisk (/Users/coreycosta/trading-agent/lib/riskManagementAgent.ts:555:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async processMarketUpdate (/Users/coreycosta/trading-agent/live-fabio-agent-playbook.ts:1571:32)
+[RiskMgmt] Failed to parse risk management response: profitLossTicks is not defined
+[RiskMgmt] ❌ Error analyzing position risk: profitLossTicks is not defined | Position: short @ 25194.25
+[RiskMgmt] Stack trace: ReferenceError: profitLossTicks is not defined
+    at parseRiskManagementResponse (/Users/coreycosta/trading-agent/lib/riskManagementAgent.ts:715:35)
+    at analyzePositionRisk (/Users/coreycosta/trading-agent/lib/riskManagementAgent.ts:555:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async processMarketUpdate (/Users/coreycosta/trading-agent/live-fabio-agent-playbook.ts:1571:32)
+[OpenAI] Reasoner attempt 3 failed: Reasoner returned empty response
+[OpenAI] All reasoner attempts failed. Falling back to deepseek-chat/GPT-4...
