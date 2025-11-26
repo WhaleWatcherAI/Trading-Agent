@@ -53,6 +53,7 @@ interface MarketSnapshot {
   cvd: number;
   cvdTrend: 'up' | 'down' | 'neutral';
   orderFlowPressure: 'bullish' | 'bearish' | 'neutral';
+  tickSize?: number; // Required for stop/target calculations
   volumeProfile?: {
     poc: number;
     vah: number;

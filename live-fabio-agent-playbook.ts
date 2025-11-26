@@ -520,7 +520,8 @@ function buildRiskSnapshot(
   orderFlowData: any,
   marketStructure: any,
   currentCvdBar: CurrentCvdBar | null,
-  l2Data: any
+  l2Data: any,
+  tickSize?: number
 ): any {
   const currentBar = bars[bars.length - 1];
   // Prefer executionManager-tracked price if available, else last bar close
@@ -538,6 +539,7 @@ function buildRiskSnapshot(
     cvd: orderFlowData.cvd,
     cvdTrend: orderFlowData.cvdTrend,
     orderFlowPressure: orderFlowData.cvdTrend === 'up' ? 'bullish' : orderFlowData.cvdTrend === 'down' ? 'bearish' : 'neutral',
+    tickSize, // Required for stop/target calculations in risk management
     volumeProfile: {
       poc: volumeProfile.poc,
       vah: volumeProfile.vah,
@@ -1410,6 +1412,7 @@ async function processMarketUpdate() {
               marketStructure,
               currentCvdBar,
               l2Data,
+              0.25 // NQ tick size
             ),
             0.25 // NQ tick size
           );
@@ -1576,6 +1579,7 @@ async function processMarketUpdate() {
               marketStructure,
               currentCvdBar,
               l2Data,
+              0.25 // NQ tick size
             ),
             0.25 // NQ tick size
           );
