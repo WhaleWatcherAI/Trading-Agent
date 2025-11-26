@@ -85,7 +85,7 @@ async function backtestSingleStock(symbol: string, testDate: string): Promise<{ 
   // Get sentiment analysis from news headlines
   const sentimentAnalysis = await analyzeSentiment(symbol, testDate);
 
-  console.log(`💭 ${symbol} Sentiment: ${sentimentAnalysis.sentiment} (${sentimentAnalysis.sentimentScore}/10)`);
+  console.log(`💭 ${symbol} Sentiment: ${sentimentAnalysis.sentiment} (${sentimentAnalysis.score}/10)`);
   console.log(`   Reasoning: ${sentimentAnalysis.reasoning}`);
   console.log(`   News Count: ${sentimentAnalysis.newsCount}`);
 
@@ -123,15 +123,15 @@ async function backtestSingleStock(symbol: string, testDate: string): Promise<{ 
       netGex,
       hasNegativeGex,
       sentiment: sentimentAnalysis.sentiment,
-      sentimentScore: sentimentAnalysis.sentimentScore,
+      sentimentScore: sentimentAnalysis.score,
     };
 
     return { trades: [], stats };
   }
 
   // Filter 2: Only proceed if sentiment score is 8 or higher
-  if (sentimentAnalysis.sentimentScore < 8) {
-    console.log(`⏭️  Skipping ${symbol} - Sentiment score too low (${sentimentAnalysis.sentimentScore}/10, need 8+)`);
+  if (sentimentAnalysis.score < 8) {
+    console.log(`⏭️  Skipping ${symbol} - Sentiment score too low (${sentimentAnalysis.score}/10, need 8+)`);
 
     const stats: BacktestStats = {
       symbol,
@@ -152,13 +152,13 @@ async function backtestSingleStock(symbol: string, testDate: string): Promise<{ 
       netGex,
       hasNegativeGex,
       sentiment: sentimentAnalysis.sentiment,
-      sentimentScore: sentimentAnalysis.sentimentScore,
+      sentimentScore: sentimentAnalysis.score,
     };
 
     return { trades: [], stats };
   }
 
-  console.log(`✅ ${symbol} passed filters: Negative GEX + Sentiment ${sentimentAnalysis.sentimentScore}/10`);
+  console.log(`✅ ${symbol} passed filters: Negative GEX + Sentiment ${sentimentAnalysis.score}/10`);
 
   // Get options chain for trading (only nearest expiration)
   const optionsChain = await getOptionsChain(symbol, undefined, testDate);
@@ -203,7 +203,7 @@ async function backtestSingleStock(symbol: string, testDate: string): Promise<{ 
           continue;
         }
 
-        console.log(`✅ Taking ${direction} trade - SMA ${crossesUp ? 'UP' : 'DOWN'} matches ${sentimentAnalysis.sentiment} sentiment (${sentimentAnalysis.sentimentScore}/10)`);
+        console.log(`✅ Taking ${direction} trade - SMA ${crossesUp ? 'UP' : 'DOWN'} matches ${sentimentAnalysis.sentiment} sentiment (${sentimentAnalysis.score}/10)`);
 
         let underlyingEntryPrice: number;
         if (crossesUp) {
