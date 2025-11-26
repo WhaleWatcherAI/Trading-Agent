@@ -704,18 +704,28 @@ function parseRiskManagementResponse(content: string, pos: ActivePosition, marke
 
     // 🚨 CRITICAL SAFETY: NEVER allow stop to move BACKWARDS (away from current price)
     // Stops can ONLY tighten (move toward current price), NEVER loosen
+    // EXCEPTION: Allow moving to exact breakeven when we have 8+ ticks profit and 10%+ to target
     if (typeof snappedStop === 'number' && typeof pos.stopLoss === 'number') {
       const isLoosening = pos.side === 'long'
         ? snappedStop < pos.stopLoss  // LONG: new stop below current = loosening (moving away from breakeven)
         : snappedStop > pos.stopLoss; // SHORT: new stop above current = loosening (moving away from breakeven)
 
+      // Check if this is the special case of moving to breakeven with sufficient profit
+      const isMovingToBreakeven = Math.abs(snappedStop - pos.entryPrice) < 0.01;
+      const hasSufficientProfit = profitLossTicks >= 8 && percentToTarget >= 10;
+
       if (isLoosening) {
-        console.warn(`[RiskMgmt] 🚫 SAFETY BLOCK: Stop would loosen from ${pos.stopLoss.toFixed(2)} to ${snappedStop.toFixed(2)}. Stops can ONLY tighten.`);
-        snappedStop = null;
-        parsed.action = parsed.action === 'ADJUST_STOP' ? 'HOLD_BRACKETS'
-          : parsed.action === 'ADJUST_BOTH' ? 'ADJUST_TARGET'
-          : parsed.action;
-        parsed.reasoning = `${parsed.reasoning} | SAFETY: Rejected stop loosening. Stops can only tighten.`;
+        // Allow the move if it's to breakeven AND we have sufficient profit
+        if (isMovingToBreakeven && hasSufficientProfit) {
+          console.log(`[RiskMgmt] ✅ BREAKEVEN EXCEPTION: Allowing move to breakeven ${snappedStop.toFixed(2)} (${profitLossTicks.toFixed(1)} ticks profit, ${percentToTarget.toFixed(1)}% to target)`);
+        } else {
+          console.warn(`[RiskMgmt] 🚫 SAFETY BLOCK: Stop would loosen from ${pos.stopLoss.toFixed(2)} to ${snappedStop.toFixed(2)}. Stops can ONLY tighten.`);
+          snappedStop = null;
+          parsed.action = parsed.action === 'ADJUST_STOP' ? 'HOLD_BRACKETS'
+            : parsed.action === 'ADJUST_BOTH' ? 'ADJUST_TARGET'
+            : parsed.action;
+          parsed.reasoning = `${parsed.reasoning} | SAFETY: Rejected stop loosening. Stops can only tighten.`;
+        }
       }
     }
 

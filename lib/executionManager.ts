@@ -2614,9 +2614,15 @@ export class ExecutionManager {
           skipStopUpdate = true;
         } else if (isShort) {
           // For SHORT: stop must stay ABOVE current price (but allow exact match for breakeven)
+          // EXCEPTION: Allow moving to breakeven even if below current price
+          const isMovingToBreakeven = Math.abs(normalizedStop - position.entryPrice) < 0.01;
           if (normalizedStop < currentPrice) {
-            console.warn(`[ExecutionManager] 🛑 SHORT trail skipped: newStop ${normalizedStop.toFixed(2)} is < current ${currentPrice.toFixed(2)} (wrong side)`);
-            skipStopUpdate = true;
+            if (isMovingToBreakeven) {
+              console.log(`[ExecutionManager] ✅ BREAKEVEN EXCEPTION: Allowing SHORT stop at breakeven ${normalizedStop.toFixed(2)} (entry: ${position.entryPrice.toFixed(2)}) even though below current ${currentPrice.toFixed(2)}`);
+            } else {
+              console.warn(`[ExecutionManager] 🛑 SHORT trail skipped: newStop ${normalizedStop.toFixed(2)} is < current ${currentPrice.toFixed(2)} (wrong side)`);
+              skipStopUpdate = true;
+            }
           }
           const minValidStop = currentPrice + minStopDistance;
           if (!skipStopUpdate && normalizedStop < minValidStop) {
@@ -2630,9 +2636,15 @@ export class ExecutionManager {
           }
         } else {
           // For LONG: stop must stay BELOW current price (but allow exact match for breakeven)
+          // EXCEPTION: Allow moving to breakeven even if above current price
+          const isMovingToBreakeven = Math.abs(normalizedStop - position.entryPrice) < 0.01;
           if (normalizedStop > currentPrice) {
-            console.warn(`[ExecutionManager] 🛑 LONG trail skipped: newStop ${normalizedStop.toFixed(2)} is > current ${currentPrice.toFixed(2)} (wrong side)`);
-            skipStopUpdate = true;
+            if (isMovingToBreakeven) {
+              console.log(`[ExecutionManager] ✅ BREAKEVEN EXCEPTION: Allowing LONG stop at breakeven ${normalizedStop.toFixed(2)} (entry: ${position.entryPrice.toFixed(2)}) even though above current ${currentPrice.toFixed(2)}`);
+            } else {
+              console.warn(`[ExecutionManager] 🛑 LONG trail skipped: newStop ${normalizedStop.toFixed(2)} is > current ${currentPrice.toFixed(2)} (wrong side)`);
+              skipStopUpdate = true;
+            }
           }
           const maxValidStop = currentPrice - minStopDistance;
           if (!skipStopUpdate && normalizedStop > maxValidStop) {
