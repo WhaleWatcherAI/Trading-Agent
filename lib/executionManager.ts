@@ -86,8 +86,9 @@ export class ExecutionManager {
   private tradingAccount: TopstepXAccount | null = null;
   private restClient: ReturnType<typeof createProjectXRest> | null = null;
   private readonly tickSize: number;
-  private readonly riskPoints = 25;
-  private readonly rewardPoints = 50;
+  private readonly riskPoints = 20;  // Risk in points (tight stops for scalps)
+  private readonly rewardPoints = 60; // Reward in points (1:3 R:R minimum for intraday/scalps)
+  private readonly MIN_RR_RATIO = 3.0; // Minimum risk-reward ratio (1:3 or better)
   private readonly preferredAccountId?: number;
   private readonly enableNativeBrackets: boolean;
   private readonly requireNativeBrackets: boolean;
@@ -772,7 +773,17 @@ export class ExecutionManager {
 
   /**
    * Calculate strategic stop loss and take profit levels
-   * Uses ATR-based risk management with 2:1 reward-to-risk ratio
+   * Uses structure-based risk management with 1:3+ reward-to-risk ratio for intraday/scalps
+   *
+   * STOP LOSS PLACEMENT:
+   * - Placed BEHIND key support/resistance levels for protection
+   * - Behind bid/ask walls to avoid stop hunts
+   * - At least 1-2 ticks beyond the invalidation level
+   *
+   * TAKE PROFIT PLACEMENT:
+   * - Placed BEFORE key levels to ensure fills (avoid rejections)
+   * - 1-2 ticks before resistance (longs) or support (shorts)
+   * - Before large resting walls that may absorb momentum
    */
   private calculateBracketLevels(
     entryPrice: number,
@@ -793,7 +804,7 @@ export class ExecutionManager {
 
     const defaults = side === 'buy' ? defaultBuy : defaultSell;
 
-    // Apply overrides if provided
+    // Apply overrides if provided (from AI analysis with technical levels)
     let desiredStop = overrides?.stopLoss ?? defaults.stopLoss;
     let desiredTarget = overrides?.takeProfit ?? defaults.takeProfit;
 
@@ -823,14 +834,29 @@ export class ExecutionManager {
       }
     }
 
-    // Clamp stop distance so it cannot exceed target distance (keeps stops tighter than TP)
+    // Calculate R:R ratio and enforce minimum 1:3 for intraday/scalp trades
     const stopDist = Math.abs(desiredStop - entryPrice);
     const targetDist = Math.abs(desiredTarget - entryPrice);
-    if (targetDist > 0 && stopDist > targetDist) {
-      const clampedStop = entryPrice + Math.sign(desiredStop - entryPrice) * targetDist;
-      console.warn(`[ExecutionManager] ⚠️ Stop distance (${stopDist.toFixed(2)}) exceeds target distance (${targetDist.toFixed(2)}). Clamping stop to ${clampedStop.toFixed(2)}.`);
-      desiredStop = clampedStop;
+    const currentRR = stopDist > 0 ? targetDist / stopDist : 0;
+
+    // ENFORCE 1:3 MINIMUM R:R RATIO
+    if (currentRR < this.MIN_RR_RATIO && stopDist > 0) {
+      // Adjust target to achieve minimum R:R while keeping stop at structure
+      const requiredTargetDist = stopDist * this.MIN_RR_RATIO;
+      if (side === 'buy') {
+        desiredTarget = entryPrice + requiredTargetDist;
+      } else {
+        desiredTarget = entryPrice - requiredTargetDist;
+      }
+      console.log(`[ExecutionManager] 📊 Adjusted target for 1:${this.MIN_RR_RATIO} R:R ratio. Stop: ${stopDist.toFixed(2)}pts, Target: ${requiredTargetDist.toFixed(2)}pts`);
     }
+
+    // Round to valid tick increment
+    desiredStop = Math.round(desiredStop / this.tickSize) * this.tickSize;
+    desiredTarget = Math.round(desiredTarget / this.tickSize) * this.tickSize;
+
+    const finalRR = stopDist > 0 ? Math.abs(desiredTarget - entryPrice) / stopDist : 0;
+    console.log(`[ExecutionManager] 🎯 Final brackets: Entry=${entryPrice.toFixed(2)}, Stop=${desiredStop.toFixed(2)}, Target=${desiredTarget.toFixed(2)}, R:R=1:${finalRR.toFixed(1)}`);
 
     return {
       stopLoss: desiredStop,

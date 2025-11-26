@@ -1114,6 +1114,22 @@ export async function processOpenAIDecision(
     return { executed: false };
   }
 
+  // CRITICAL: Validate 1:3 minimum R:R ratio for intraday/scalp trades
+  const MIN_RR_RATIO = 3.0;
+  if (openaiDecision.stopLoss && openaiDecision.target && openaiDecision.entryPrice) {
+    const stopDist = Math.abs(openaiDecision.entryPrice - openaiDecision.stopLoss);
+    const targetDist = Math.abs(openaiDecision.target - openaiDecision.entryPrice);
+    const rrRatio = stopDist > 0 ? targetDist / stopDist : 0;
+
+    if (rrRatio < MIN_RR_RATIO) {
+      console.log(`[OpenAI] ⚠️ R:R ratio ${rrRatio.toFixed(2)} below minimum 1:${MIN_RR_RATIO} - Not executing trade`);
+      console.log(`[OpenAI] Stop: ${openaiDecision.stopLoss.toFixed(2)} (${stopDist.toFixed(2)}pts), Target: ${openaiDecision.target.toFixed(2)} (${targetDist.toFixed(2)}pts)`);
+      console.log(`[OpenAI] Reasoning: ${openaiDecision.reasoning}`);
+      return { executed: false };
+    }
+    console.log(`[OpenAI] ✅ R:R ratio validated: 1:${rrRatio.toFixed(1)} (minimum 1:${MIN_RR_RATIO})`);
+  }
+
   // Check if already in position (one position at a time)
   const activePosition = executionManager.getActivePosition();
   if (activePosition) {
