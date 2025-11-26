@@ -196,47 +196,61 @@ export async function analyzePositionRisk(
     ? pos.stopLoss < breakevenPlusOneTick
     : pos.stopLoss > breakevenPlusOneTick;
 
-  // PHASE 1A: HARD GUARANTEE - once we have enough cushion, FORCE move to breakeven + 1 tick
-  // This ensures the trade always locks out loss and at least a tiny profit, even if the LLM is slow/indecisive.
-  if (!stopIsSecured && stopBelowBreakevenPlusOne && profitLossTicks >= BREAKEVEN_PLUS_ONE_TRIGGER) {
-    const newStop = breakevenPlusOneTick;
+  // AUTOMATIC BELL CURVE - Based on PROFIT, not on whether previous stop moves succeeded
+  // This ensures bell curve kicks in even if bracket adjustments failed before
+  if (profitLossTicks >= BREAKEVEN_PLUS_ONE_TRIGGER) {
+    const bellCurveResult = calculateBellCurveStop(pos, market.currentPrice);
 
+    // Calculate what the stop SHOULD be (at minimum breakeven + 1 tick, but use bell curve if higher)
+    let targetStop = breakevenPlusOneTick;
+
+    if (bellCurveResult && bellCurveResult.newStop) {
+      // Use bell curve stop if it's tighter than breakeven + 1
+      const bellCurveIsTighter = pos.side === 'long'
+        ? bellCurveResult.newStop > breakevenPlusOneTick
+        : bellCurveResult.newStop < breakevenPlusOneTick;
+
+      if (bellCurveIsTighter) {
+        targetStop = bellCurveResult.newStop;
+      }
+    }
+
+    // Only adjust if the new stop is tighter than current stop
     const isTightening = pos.side === 'long'
-      ? newStop > pos.stopLoss
-      : newStop < pos.stopLoss;
+      ? targetStop > pos.stopLoss
+      : targetStop < pos.stopLoss;
 
     if (isTightening) {
-      console.log(`[RiskMgmt] 🧱 PHASE 1 AUTO: Profit ${profitLossTicks.toFixed(1)} ticks >= ${BREAKEVEN_PLUS_ONE_TRIGGER} ticks. Forcing stop to breakeven + 1 tick at ${newStop.toFixed(2)} to secure the trade.`);
-      return {
-        action: 'ADJUST_STOP',
-        newStopLoss: newStop,
-        newTarget: null,
-        reasoning: `[PHASE 1 AUTO] Sufficient profit (${profitLossTicks.toFixed(1)} ticks) - moving stop to breakeven + 1 tick (${newStop.toFixed(2)}) to lock out loss and hand off to bell curve.`,
-        urgency: 'high',
-        riskLevel: 'conservative',
-        positionVersion: pos.positionVersion,
-      };
-    }
-  }
+      const phase = bellCurveResult && targetStop !== breakevenPlusOneTick ? 'BELL CURVE' : 'BREAKEVEN';
+      const reasoning = bellCurveResult && targetStop !== breakevenPlusOneTick
+        ? bellCurveResult.reasoning
+        : `Moving stop to breakeven + 1 tick (${breakevenPlusOneTick.toFixed(2)}) to lock out loss.`;
 
-  // PHASE 2: If breakeven + 1 tick is secured, use FAST bell curve logic (overrides LLM)
-  if (stopIsSecured) {
-    const bellCurveResult = calculateBellCurveStop(pos, market.currentPrice);
-    if (bellCurveResult) {
-      console.log(`[RiskMgmt] ⚡ BELL CURVE (Phase 2): ${bellCurveResult.reasoning}`);
+      console.log(`[RiskMgmt] ⚡ AUTO ${phase}: Profit ${profitLossTicks.toFixed(1)} ticks. Moving stop from ${pos.stopLoss.toFixed(2)} to ${targetStop.toFixed(2)}`);
       return {
         action: 'ADJUST_STOP',
-        newStopLoss: bellCurveResult.newStop,
+        newStopLoss: targetStop,
         newTarget: null,
-        reasoning: `[BELL CURVE - PHASE 2] ${bellCurveResult.reasoning}`,
-        urgency: bellCurveResult.lockPercent > 70 ? 'high' : 'medium',
+        reasoning: `[AUTO ${phase}] ${reasoning}`,
+        urgency: 'high',
         riskLevel: 'balanced',
         positionVersion: pos.positionVersion,
       };
+    } else {
+      // Stop is already at or past where it should be - nothing to do
+      console.log(`[RiskMgmt] ✅ Stop already secured at ${pos.stopLoss.toFixed(2)} (target was ${targetStop.toFixed(2)})`);
+      return {
+        action: 'HOLD_BRACKETS',
+        newStopLoss: null,
+        newTarget: null,
+        reasoning: `Stop already secured at ${pos.stopLoss.toFixed(2)}. No adjustment needed.`,
+        urgency: 'low',
+        riskLevel: 'conservative',
+      };
     }
   }
 
-  // PHASE 1: Use LLM to manage getting to breakeven + 1 tick
+  // Not enough profit yet - use LLM to manage (optional early tightening)
   console.log(`[RiskMgmt] 🤖 LLM (Phase 1): Managing stop to reach breakeven + 1 tick (${breakevenPlusOneTick.toFixed(2)})`);
   console.log(`[RiskMgmt] 📊 Current stop: ${pos.stopLoss.toFixed(2)} | Target: ${breakevenPlusOneTick.toFixed(2)} | Secured: ${stopIsSecured}`);
 
