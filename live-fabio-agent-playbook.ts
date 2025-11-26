@@ -521,8 +521,9 @@ function buildRiskSnapshot(
   l2Data: any
 ): any {
   const currentBar = bars[bars.length - 1];
-  // Prefer executionManager-tracked price if available, else last bar close
-  const currentPrice = position?.currentPrice || currentBar?.close || position.entryPrice;
+  // Use live price first (most accurate), then position price, then bar close
+  const priceIsFresh = livePriceTimestamp && (Date.now() - livePriceTimestamp < 5000);
+  const currentPrice = (priceIsFresh && livePrice) || position?.currentPrice || currentBar?.close || position.entryPrice;
 
   // Extract trade leg volume profile (nodes between stop and target)
   const tradeLegProfile = extractTradeLegProfile(volumeProfile, position);
@@ -1389,17 +1390,26 @@ async function processMarketUpdate() {
             return;
           }
 
+          const riskSnapshot = buildRiskSnapshot(
+            currentPosition,
+            bars,
+            volumeProfile,
+            orderFlowData,
+            marketStructure,
+            currentCvdBar,
+            l2Data,
+          );
+
+          // Log price info for debugging breakeven issues
+          const profitPts = currentPosition.side === 'long'
+            ? riskSnapshot.currentPrice - currentPosition.entryPrice
+            : currentPosition.entryPrice - riskSnapshot.currentPrice;
+          const profitDollars = profitPts * 20; // NQ is $20/point
+          log(`🛡️ [RiskMgmt] Price: ${riskSnapshot.currentPrice.toFixed(2)} | Entry: ${currentPosition.entryPrice.toFixed(2)} | Profit: ${profitPts.toFixed(2)}pts ($${profitDollars.toFixed(0)}) | Stop: ${currentPosition.stopLoss.toFixed(2)}`, 'info');
+
           const riskDecision = await analyzePositionRisk(
             currentPosition,
-            buildRiskSnapshot(
-              currentPosition,
-              bars,
-              volumeProfile,
-              orderFlowData,
-              marketStructure,
-              currentCvdBar,
-              l2Data,
-            ),
+            riskSnapshot,
             0.25 // NQ tick size
           );
 
@@ -1555,17 +1565,26 @@ async function processMarketUpdate() {
             return;
           }
 
+          const riskSnapshot = buildRiskSnapshot(
+            currentPosition,
+            bars,
+            volumeProfile,
+            orderFlowData,
+            marketStructure,
+            currentCvdBar,
+            l2Data,
+          );
+
+          // Log price/profit for debugging breakeven issues
+          const profitPts = currentPosition.side === 'long'
+            ? riskSnapshot.currentPrice - currentPosition.entryPrice
+            : currentPosition.entryPrice - riskSnapshot.currentPrice;
+          const profitDollars = profitPts * 20; // NQ is $20/point
+          log(`🛡️ [RiskMgmt] Price: ${riskSnapshot.currentPrice.toFixed(2)} | Entry: ${currentPosition.entryPrice.toFixed(2)} | Profit: ${profitPts.toFixed(2)}pts ($${profitDollars.toFixed(0)}) | Stop: ${currentPosition.stopLoss.toFixed(2)}`, 'info');
+
           const riskDecision = await analyzePositionRisk(
             currentPosition,
-            buildRiskSnapshot(
-              currentPosition,
-              bars,
-              volumeProfile,
-              orderFlowData,
-              marketStructure,
-              currentCvdBar,
-              l2Data,
-            ),
+            riskSnapshot,
             0.25 // NQ tick size
           );
 
