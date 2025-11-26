@@ -299,17 +299,23 @@ ${market.recentBars && market.recentBars.length > 0 ? market.recentBars.slice(-5
   `  ${i + 1}. O: ${bar.open.toFixed(2)}, H: ${bar.high.toFixed(2)}, L: ${bar.low.toFixed(2)}, C: ${bar.close.toFixed(2)}, Vol: ${bar.volume}`
 ).join('\n') : '  No recent bar data available'}
 
+🔥🔥🔥 PRIMARY INDICATORS (MOST IMPORTANT - ANALYZE THESE FIRST):
+
 Order Flow:
 - CVD: ${market.cvd.toFixed(2)} (Trend: ${market.cvdTrend ? market.cvdTrend.toUpperCase() : 'N/A'})
 - Order Flow Pressure: ${market.orderFlowPressure ? market.orderFlowPressure.toUpperCase() : 'N/A'}
 ${market.whaleActivity ? `- Whale Activity: ${market.whaleActivity}` : ''}
 
-${market.volumeProfile ? `Volume Profile (Full Session):
+${market.marketStructure ? `Market Structure: ${market.marketStructure}` : ''}
+
+⚠️ SECONDARY INDICATORS (LESS ACCURATE - USE ONLY FOR CONFIRMATION):
+
+${market.volumeProfile ? `Volume Profile (Full Session) - ⚠️ LESS ACCURATE, use last:
 - POC: ${market.volumeProfile.poc.toFixed(2)}
 - VAH: ${market.volumeProfile.vah.toFixed(2)}
 - VAL: ${market.volumeProfile.val.toFixed(2)}` : ''}
 
-${market.tradeLegProfile ? `🎯 TRADE LEG VOLUME PROFILE (Stop to Target Range):
+${market.tradeLegProfile ? `Trade Leg Volume Profile - ⚠️ LESS ACCURATE, use for confirmation only:
 - Trade Range: ${market.tradeLegProfile.minPrice.toFixed(2)} to ${market.tradeLegProfile.maxPrice.toFixed(2)} (${market.tradeLegProfile.rangeSize.toFixed(2)} pts)
 - POC within Trade Leg: ${market.tradeLegProfile.poc ? market.tradeLegProfile.poc.toFixed(2) : 'None'}
 - High Volume Nodes (Support/Resistance):
@@ -317,8 +323,6 @@ ${market.tradeLegProfile.highVolumeNodes.map((n: any) => `  • ${n.price.toFixe
 - Low Volume Nodes (Potential Quick Move Zones):
 ${market.tradeLegProfile.lowVolumeNodes.map((n: any) => `  • ${n.price.toFixed(2)} (${n.volume} vol)`).join('\n') || '  None'}
 - Total Volume in Range: ${market.tradeLegProfile.totalVolume}` : ''}
-
-${market.marketStructure ? `Market Structure: ${market.marketStructure}` : ''}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔬 MICROSTRUCTURE & COMPUTED FEATURES (fields may be null/undefined)
@@ -337,14 +341,14 @@ Key Levels & Distances:
 - singlePrintZoneNearby: ${market.singlePrintZoneNearby ? JSON.stringify(market.singlePrintZoneNearby) : 'none'}
 - inSinglePrintZone: ${market.inSinglePrintZone}
 
-Order Flow & Liquidity:
+🔥🔥🔥 Order Flow & L2 Liquidity (ANALYZE FIRST):
+- 🔥 restingLiquidityWalls (L2 bid/ask walls - MOST IMPORTANT): ${market.restingLiquidityWalls ? JSON.stringify(market.restingLiquidityWalls) : 'none'}
+- 🔥 absorptionZone (order flow absorption - CRITICAL): ${market.absorptionZone ? JSON.stringify(market.absorptionZone) : 'none'}
 - deltaLast1m/5m: ${market.deltaLast1m} / ${market.deltaLast5m}
 - cvdSlopeShort/Long: ${market.cvdSlopeShort} / ${market.cvdSlopeLong}
 - cvdDivergence: ${market.cvdDivergence}
-- absorptionZone: ${market.absorptionZone ? JSON.stringify(market.absorptionZone) : 'none'}
 - exhaustionFlag: ${market.exhaustionFlag ? JSON.stringify(market.exhaustionFlag) : 'none'}
 - largePrints (top): ${market.largePrints ? JSON.stringify(market.largePrints) : 'none'}
-- restingLiquidityWalls (top): ${market.restingLiquidityWalls ? JSON.stringify(market.restingLiquidityWalls) : 'none'}
 - liquidityPullDetected: ${market.liquidityPullDetected}
 
 Volatility & Structure:
@@ -362,7 +366,7 @@ Volatility & Structure:
 At each update, estimate:
 - Continuation Probability (Pc): chance we reach TP before stop.
 - Reversal Probability (Pr): chance we reverse into stop or invalidate.
-- Edge Strength (E): structure alignment + orderflow + CVD + key levels + volatility regime.
+- Edge Strength (E): 🔥 L2 WALLS + ORDER FLOW + CVD (MOST IMPORTANT) >> structure + key levels
 - Local Risk:Reward (LRR) from current price: remaining reward vs profit at risk.
 
 Then act to improve EV.
@@ -372,30 +376,55 @@ Then act to improve EV.
 🚨 MANDATORY: You MUST analyze and cite specific microstructure levels for stop placement.
 DO NOT give generic reasoning. USE THE DATA PROVIDED.
 
+🔥🔥🔥 CRITICAL ANALYSIS ORDER - YOU MUST FOLLOW THIS EXACTLY:
+1. START your reasoning by analyzing restingLiquidityWalls (L2 bid/ask walls with $ amounts)
+2. THEN analyze absorptionZone (order flow absorption - where aggressive orders were absorbed)
+3. THEN analyze CVD trends and divergence
+4. THEN check single print zones and invalidation levels
+5. ONLY AT THE END mention volume profile HVN/LVN as SECONDARY confirmation
+
+❌ FORBIDDEN - DO NOT DO THIS:
+- DO NOT start your reasoning with "Price is at VAL support" or "Price is at VAH resistance"
+- DO NOT lead with "We're below/above POC"
+- DO NOT say "at value area low/high where rejection often occurs"
+- DO NOT make volume profile (VAL/VAH/POC) the PRIMARY focus of your analysis
+- Volume profile is LESS ACCURATE and should be mentioned LAST, if at all
+
+✅ CORRECT REASONING STRUCTURE:
+"L2 shows [X] lot bid/ask wall at [price]. Absorption zone detected at [price] on [side] with strength [X]. CVD shows [trend]. Single prints at [price]. Therefore placing stop at [price]. (Volume profile HVN at [price] provides secondary confirmation.)"
+
+🔥 PRIORITY: Focus on L2 resting liquidity walls and order flow absorption zones!
+Volume profile (HVN/LVN) is SECONDARY and less accurate.
+
 When in profit, trail stop aggressively by placing it behind technical support/resistance:
 
-REQUIRED ANALYSIS STEPS:
-1. Check absorptionZone - if present, place stop behind it (cite the price and side)
-2. Check restingLiquidityWalls - identify L2 walls that should hold for your direction
-3. Check distToNearestHvnAbove/Below - HVN levels act as magnets/resistance
-4. Check distToNearestLvnAbove/Below - LVN levels are continuation lanes
-5. Check singlePrintZoneNearby - single prints show imbalance, likely to fill
-6. Check invalidationPrice from structure analysis
+REQUIRED ANALYSIS STEPS (IN ORDER OF IMPORTANCE):
+1. 🔥 Check restingLiquidityWalls FIRST - identify L2 bid/ask walls (REAL $ protecting levels)
+2. 🔥 Check absorptionZone - where aggressive orders were absorbed (shows strength/weakness)
+3. Check CVD slopes and divergence - cumulative delta shows true buying/selling pressure
+4. Check singlePrintZoneNearby - single prints show imbalance, likely to fill
+5. Check invalidationPrice from structure analysis
+6. Check distToNearestHvnAbove/Below LAST - HVN levels (SECONDARY, less accurate)
 
-STOP PLACEMENT PRIORITY (in order):
+🚨 CRITICAL: LEVEL 2 RESTING WALLS AND ORDER FLOW ARE THE MOST IMPORTANT INDICATORS!
+Volume Profile data is LESS accurate and should be used ONLY as secondary confirmation.
+
+STOP PLACEMENT PRIORITY (in order of importance):
 For LONG positions trailing up:
-1. Above nearest HVN below current price (support)
-2. Above resting bid liquidity walls
-3. Above absorption zones on bid side
-4. Above single print zones (unfilled auction areas)
+1. 🔥 ABOVE resting bid liquidity walls (L2 data) - MOST IMPORTANT, real $ protecting position
+2. 🔥 ABOVE absorption zones on bid side - where selling was absorbed, shows strength
+3. Above CVD support zones - where cumulative delta turned positive
+4. Above single print zones (unfilled auction areas) - likely to fill and provide support
 5. Above recent swing low / invalidation price
+6. Above nearest HVN below (SECONDARY - volume profile less accurate)
 
 For SHORT positions trailing down:
-1. ABOVE nearest HVN above current price (resistance) - acts as ceiling/barrier
-2. ABOVE resting ask liquidity walls - large sell orders that resist upward moves
-3. ABOVE absorption zones on ask side - where buying was absorbed, protects from reversal
-4. ABOVE single print zones - unfilled areas that may fill on upward reversal
-5. ABOVE recent swing high / invalidation price - protects from structure break
+1. 🔥 BELOW resting ask liquidity walls (L2 data) - MOST IMPORTANT, real $ protecting position
+2. 🔥 BELOW absorption zones on ask side - where buying was absorbed, shows weakness
+3. Below CVD resistance zones - where cumulative delta turned negative
+4. Below single print zones - unfilled areas that may fill on downward continuation
+5. Below recent swing high / invalidation price
+6. Below nearest HVN above (SECONDARY - volume profile less accurate)
 
 ⚠️ CRITICAL FOR SHORT: Stop goes ABOVE resistance to protect from UPWARD reversals.
 Place stop "behind" the structural barrier that should prevent upward moves.
@@ -458,16 +487,19 @@ RESPOND WITH ONLY VALID JSON:
 
 REASONING EXAMPLES:
 
-✅ GOOD (cites specific data):
-"Position +14.5pts (26% to TP). Trailing stop from 24514.00 to 24495.00 - positioned below HVN at 24500.00 which shows 850 contracts of resting ask liquidity. This locks 60% of open profit while using structural resistance. Absorption detected at 24498.50 (ask side, strength 0.75) provides additional buffer. Pc remains high with CVD negative trend supporting short continuation."
+✅ GOOD (L2 and order flow FIRST, volume profile last):
+"L2 shows 1200 lot ask wall at 24492.00 protecting this level. Absorption zone at 24498.50 (ask side, strength 0.75) where selling was absorbed. CVD negative trend supporting continuation. Single prints above 24500. Trailing stop from 24514.00 to 24495.00 locks 60% of +14.5pts profit. (HVN at 24500.00 provides secondary confirmation.)"
 
-✅ GOOD (explains structural placement):
-"Stop at 24485.00 sits below nearest LVN at 24490.00 (4.5pts gap). L2 shows 1200 lot ask wall at 24492.00. Locking 10.5pts of 14.5pts profit (72%). invalidationPrice at 24500.00 validates this level. No single print zones above stop, continuation lane clear."
+✅ GOOD (cites L2 walls and order flow):
+"Resting bid liquidity wall at 25195.00 with 850 contracts provides strong support. Order flow shows absorption on bid side at 25193.50 (strength 0.82). CVD positive slope supporting long. No single prints below. Tightening stop to 25190.00 to lock profit while staying above L2 protection."
 
-❌ BAD (generic, no data):
-"Stop at 24514.00 provides adequate breathing room above recent highs while protecting against invalidation. Edge remains intact."
+❌ BAD (leads with volume profile - FORBIDDEN):
+"Price is at VAL support (25061.25) with recent bounce from 25061.25 low. We're below POC but at value area low where rejection often occurs. Structure shows higher lows. Neutral flow but location provides edge."
 
-❌ BAD (doesn't use microstructure):
+❌ BAD (mentions POC/VAH/VAL prominently):
+"Stop at 24514.00 provides adequate breathing room above VAH. POC acts as magnet. Edge remains intact at value area high."
+
+❌ BAD (generic, no L2 or order flow data):
 "Current brackets look good, market structure balanced, holding position."`;
 
   try {

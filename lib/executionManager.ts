@@ -2398,8 +2398,11 @@ export class ExecutionManager {
       targetOrderId: position.targetOrderId || 'MISSING',
     });
 
-    const stopNeedsUpdate = hasNewStop && Math.abs((newStop as number) - position.stopLoss) >= this.tickSize / 2;
-    const targetNeedsUpdate = hasNewTarget && Math.abs((newTarget as number) - position.target) >= this.tickSize / 2;
+    const stopDiff = hasNewStop ? Math.abs((newStop as number) - position.stopLoss) : 0;
+    const targetDiff = hasNewTarget ? Math.abs((newTarget as number) - position.target) : 0;
+    const stopNeedsUpdate = hasNewStop && stopDiff >= this.tickSize / 2;
+    const targetNeedsUpdate = hasNewTarget && targetDiff >= this.tickSize / 2;
+    console.log(`[ExecutionManager] 🔍 Update check: stopDiff=${stopDiff.toFixed(4)}, targetDiff=${targetDiff.toFixed(4)}, tolerance=${(this.tickSize / 2).toFixed(4)}, stopNeedsUpdate=${stopNeedsUpdate}, targetNeedsUpdate=${targetNeedsUpdate}`);
     trace('stop/target need update flags', { stopNeedsUpdate, targetNeedsUpdate, tickSize: this.tickSize, currentStop: position.stopLoss, requestedStop: newStop, currentTarget: position.target, requestedTarget: newTarget });
 
     if (!stopNeedsUpdate && !targetNeedsUpdate) {
@@ -2417,6 +2420,7 @@ export class ExecutionManager {
     // Try to find bracket order IDs if missing
     console.log('[ExecutionManager] 🔍 Ensuring bracket order IDs are available...');
     await this.ensureBracketOrderIds(position);
+    console.log(`[ExecutionManager] 🔍 After ensureBracketOrderIds: stopOrderId=${position.stopOrderId}, targetOrderId=${position.targetOrderId}, stopNeedsUpdate=${stopNeedsUpdate}, targetNeedsUpdate=${targetNeedsUpdate}`);
 
     // If still missing, hard-sync from open orders and recreate if necessary
     if ((stopNeedsUpdate && !position.stopOrderId) || (targetNeedsUpdate && !position.targetOrderId)) {
@@ -2448,10 +2452,12 @@ export class ExecutionManager {
       return false;
     }
 
+    console.log(`[ExecutionManager] ✅ Bracket validation passed. About to process stop/target updates...`);
     let updated = false;
 
       // Modify stop loss with retry logic
       if (stopNeedsUpdate) {
+        console.log(`[ExecutionManager] 🔧 stopNeedsUpdate=true, processing stop modification from ${position.stopLoss.toFixed(2)} to ${(newStop as number).toFixed(2)}`);
         let normalizedStop = this.normalizePrice(newStop as number);
 
         // Validate stop against current market price to prevent broker rejection
@@ -2578,6 +2584,7 @@ export class ExecutionManager {
       console.error(`[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied`);
     }
 
+    console.log(`[ExecutionManager] 🏁 adjustActiveProtection returning: ${updated}`);
     return updated;
   }
 
