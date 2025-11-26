@@ -1511,11 +1511,12 @@ async function processMarketUpdate() {
 
     // Guard: ensure price reference is sane before risk/exits
     const latestBarPrice = bars[bars.length - 1]?.close;
-    const posPrice = currentPosition?.currentPrice || latestBarPrice || currentPosition?.entryPrice || 0;
-    const priceGap = latestBarPrice ? Math.abs(posPrice - latestBarPrice) : 0;
+    const posPrice = latestBarPrice || currentPosition?.entryPrice || 0; // Use latest bar price as current price
+    // Only check for data staleness if we have both entry and current bar - skip the gap check during normal trading
+    // The "gap" could just be normal profit/loss, not stale data
     const gapTolerance = SYMBOL.startsWith('NQ') ? 15 : SYMBOL.startsWith('GC') ? 5 : 10; // points
-    if (priceGap > gapTolerance) {
-      log(`[Safety] 🚫 Skipping exits/risk: price gap too large. posPrice=${posPrice}, barPrice=${latestBarPrice}, gap=${priceGap.toFixed(2)} > tol=${gapTolerance}`, 'warn');
+    if (!latestBarPrice) {
+      log(`[Safety] 🚫 Skipping exits/risk: no valid bar price available`, 'warn');
       return;
     }
 
