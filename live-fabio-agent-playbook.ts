@@ -525,14 +525,30 @@ function computeEMA(values: number[], period: number): number {
 // Process L2 Data - Extract walls, whale prints, and detect wall pulls
 let previousL2Walls: Array<{ side: 'bid' | 'ask'; price: number; size: number }> = [];
 
+// Track wall history for break/hold detection
+interface WallHistory {
+  price: number;
+  side: 'bid' | 'ask';
+  size: number;
+  firstSeenAt: number;
+  status: 'active' | 'broken' | 'held';
+  priceAtFirstSeen: number;
+}
+let wallHistory: WallHistory[] = [];
+const WALL_HISTORY_MAX_AGE_MS = 5 * 60 * 1000; // 5 minutes
+
 function processL2Data(l2Levels: L2Level[], currentPrice: number): {
   walls: Array<{ side: 'bid' | 'ask'; price: number; size: number }>;
   whalePrints: Array<{ side: 'bid' | 'ask'; size: number; price: number }>;
   wallPullDetected: boolean;
+  recentWallBreaks: Array<{ side: 'bid' | 'ask'; price: number; brokenAgo: string }>;
+  recentWallHolds: Array<{ side: 'bid' | 'ask'; price: number; heldAgo: string }>;
 } {
   if (!l2Levels || l2Levels.length === 0) {
-    return { walls: [], whalePrints: [], wallPullDetected: false };
+    return { walls: [], whalePrints: [], wallPullDetected: false, recentWallBreaks: [], recentWallHolds: [] };
   }
+
+  const now = Date.now();
 
   // Calculate average sizes for comparison
   const bidSizes = l2Levels.map(l => l.bidSize || 0).filter(s => s > 0);
@@ -570,6 +586,72 @@ function processL2Data(l2Levels: L2Level[], currentPrice: number): {
       }
     }
   }
+
+  // Track wall breaks and holds
+  // Clean up old history
+  wallHistory = wallHistory.filter(w => now - w.firstSeenAt < WALL_HISTORY_MAX_AGE_MS);
+
+  // Update wall history with current walls
+  for (const wall of walls) {
+    const existing = wallHistory.find(
+      w => w.side === wall.side && Math.abs(w.price - wall.price) < 0.5 && w.status === 'active'
+    );
+    if (!existing) {
+      // New wall - add to history
+      wallHistory.push({
+        price: wall.price,
+        side: wall.side,
+        size: wall.size,
+        firstSeenAt: now,
+        status: 'active',
+        priceAtFirstSeen: currentPrice,
+      });
+    }
+  }
+
+  // Check for broken or held walls
+  for (const trackedWall of wallHistory) {
+    if (trackedWall.status !== 'active') continue;
+
+    // Check if wall is still present
+    const stillActive = walls.some(
+      w => w.side === trackedWall.side && Math.abs(w.price - trackedWall.price) < 0.5
+    );
+
+    if (!stillActive) {
+      // Wall disappeared - check if broken or pulled
+      if (trackedWall.side === 'bid' && currentPrice < trackedWall.price) {
+        // Price broke through bid wall (went lower)
+        trackedWall.status = 'broken';
+      } else if (trackedWall.side === 'ask' && currentPrice > trackedWall.price) {
+        // Price broke through ask wall (went higher)
+        trackedWall.status = 'broken';
+      } else {
+        // Wall held and price rejected
+        trackedWall.status = 'held';
+      }
+    }
+  }
+
+  // Compile recent breaks and holds for AI
+  const recentWallBreaks = wallHistory
+    .filter(w => w.status === 'broken')
+    .slice(-5)
+    .map(w => ({
+      side: w.side,
+      price: w.price,
+      brokenAgo: `${Math.round((now - w.firstSeenAt) / 1000)}s ago`,
+    }));
+
+  const recentWallHolds = wallHistory
+    .filter(w => w.status === 'held')
+    .slice(-5)
+    .map(w => ({
+      side: w.side,
+      price: w.price,
+      heldAgo: `${Math.round((now - w.firstSeenAt) / 1000)}s ago`,
+    }));
+
   previousL2Walls = walls;
 
   // Extract whale prints from order flow data (already tracked separately)
@@ -579,6 +661,8 @@ function processL2Data(l2Levels: L2Level[], currentPrice: number): {
     walls,
     whalePrints,
     wallPullDetected,
+    recentWallBreaks,
+    recentWallHolds,
   };
 }
 
@@ -710,6 +794,8 @@ function buildRiskSnapshot(
     largePrints: l2Analysis.whalePrints,
     restingLiquidityWalls: l2Analysis.walls,
     liquidityPullDetected: l2Analysis.wallPullDetected,
+    recentWallBreaks: l2Analysis.recentWallBreaks,
+    recentWallHolds: l2Analysis.recentWallHolds,
     volRegime: marketStructure?.volatilityRegime || 'normal',
     structureState: marketStructure?.state,
   };
