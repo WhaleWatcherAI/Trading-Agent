@@ -11,7 +11,7 @@ import { buildDeepseekCacheOptions } from './deepseekCache';
 
 // BELL CURVE STOP MANAGEMENT - Balance breathing room with profit protection
 // Philosophy: Give room to grow early, tighten aggressively near target
-const BREAKEVEN_PLUS_ONE_TRIGGER = 2; // in ticks: move stop to breakeven+1 tick once we have ~2 ticks profit (enough cushion to lock +1 tick)
+const BREAKEVEN_PLUS_ONE_TRIGGER = 6; // in ticks: move stop to breakeven+1 tick once we have ~6 ticks profit (enough cushion to lock +1 tick)
 const MIN_PROFIT_LOCK = 1; // minimum profit to lock (points, not ticks)
 const STOP_SAFETY_GAP = 0.25; // tight gap - quarter tick buffer
 
@@ -706,12 +706,12 @@ function parseRiskManagementResponse(content: string, pos: ActivePosition, marke
 
     // Check if proposed stop is moving toward breakeven+1 (allow even if not technically improving risk)
     const breakEvenPlus1 = pos.side === 'long'
-      ? pos.entryPrice - (tickSize || 0.25)
-      : pos.entryPrice + (tickSize || 0.25);
+      ? pos.entryPrice - (market.tickSize || 0.25)
+      : pos.entryPrice + (market.tickSize || 0.25);
     const isMovingTowardBreakEvenPlus1 = typeof snappedStop === 'number' && typeof pos.stopLoss === 'number'
       ? (pos.side === 'long'
-          ? snappedStop >= breakEvenPlus1 && snappedStop > pos.stopLoss - 2 * (tickSize || 0.25) // allow within 2 ticks of current stop
-          : snappedStop <= breakEvenPlus1 && snappedStop < pos.stopLoss + 2 * (tickSize || 0.25))
+          ? snappedStop >= breakEvenPlus1 && snappedStop > pos.stopLoss - 2 * (market.tickSize || 0.25) // allow within 2 ticks of current stop
+          : snappedStop <= breakEvenPlus1 && snappedStop < pos.stopLoss + 2 * (market.tickSize || 0.25))
       : false;
 
     const stopProposalImprovesRisk = typeof snappedStop === 'number' && typeof pos.stopLoss === 'number'

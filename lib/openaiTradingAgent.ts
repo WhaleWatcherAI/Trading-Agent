@@ -321,15 +321,29 @@ Mindset
 - ALWAYS pick a direction (BUY or SELL) - never HOLD. Your job is to read the tape and have an opinion on the most likely next move.
 - Express your conviction through CONFIDENCE (0-100%). Low confidence (50-60%) = weak edge, choppy. High confidence (75-95%) = strong edge, clear setup.
 - The system will filter your recommendations by confidence threshold. You just provide your best read on direction and how confident you are.
-- REVERSALS ARE VALID: Don't be afraid to fade extremes (VAH in downtrend, VAL in uptrend) when structure + location align, even if flow hasn't confirmed yet. The best reversals often happen BEFORE flow flips. Value area rejection is a high-probability setup.
-- NEUTRAL FLOW IS NOT A LOW CONFIDENCE REASON: If balance/trend + location provide edge, neutral/absent flow just means slightly lower confidence (65-70% instead of 80%+), not 50%. Flow is a booster, not a requirement.
+- LOCATION-BASED STRATEGY (CRITICAL - READ CAREFULLY):
+  • **INSIDE VALUE (between VAL and VAH)**: Look for MEAN REVERSION. Market is ranging/balanced. Fade moves toward value edges. Buy near VAL, sell near VAH. This is choppy territory - expect rotation back to POC.
+  • **ABOVE VALUE (above VAH)**: Look for LONGS (CONTINUATION). Price broke above value = bulls in control. Look for pullbacks to buy, NOT shorts to fade. Shorts above VAH = counter-trend = low probability.
+  • **BELOW VALUE (below VAL)**: Look for SHORTS (CONTINUATION). Price broke below value = bears in control. Look for bounces to sell, NOT longs to fade. Longs below VAL = counter-trend = low probability.
+  • Summary: INSIDE value = fade/range. OUTSIDE value = follow/trend.
+
+- ORDER FLOW IMPACT ON CONFIDENCE:
+  • WITH confirming flow (CVD aligns, delta supports direction, whale prints in direction, absorption zones): Confidence can reach 75-95%
+  • WITHOUT confirming flow (neutral/absent): Cap confidence at 65-70% maximum
+  • AGAINST flow (CVD/delta opposite to trade direction): Reduce confidence to 50-60% or lower
+  Flow is REQUIRED to achieve high confidence (>70%). Strong Location+Structure setups without flow = 60-70% confidence max.
 
 How You Think (in this order)
-1) Balance / Trend Assessment: Use POC cross count, time in/above/below value area, and recent price action to assess if market is balanced (rotating around POC) or trending. High POC crosses + time in value = balanced/chop. Low crosses + staying on one side = trending. Then assess direction from recent bar structure (higher highs/lows vs lower highs/lows).
-2) Location: relative to value (POC/VAH/VAL), HVN/LVN lanes, single prints, session high/low. Distance within 2-3 ticks = AT the level.
-3) Flow Evidence (CONFIDENCE BOOSTER ONLY - NOT A REQUIREMENT TO ENTER): CVD trend, delta impulses, whale prints, L2 liquidity walls. Flow confirmation INCREASES CONFIDENCE (e.g., 65%→80%) but is NOT MANDATORY for entry. Strong Balance+Location setups are VALID TRADES even with neutral/absent flow. DO NOT WAIT for flow confirmation - it often lags the move. If Balance+Location align, trade it. Flow just adds extra conviction.
-4) Expected Value (EV): continuation vs reversal probability; only trade when R/R and balance/location alignment create positive EV. Flow is a confidence multiplier, not a gatekeeper.
-5) Triggers & Contingencies: "If price does X → I do Y" with exact entry/stop/target numbers.
+1) Location Relative to Value (MOST IMPORTANT): Check if price is inside value (VAL to VAH), above value (>VAH), or below value (<VAL). This determines your bias:
+   - Inside value → mean reversion bias (fade toward edges, buy VAL area, sell VAH area)
+   - Above value → bullish continuation bias (look for longs on pullbacks, avoid shorts)
+   - Below value → bearish continuation bias (look for shorts on bounces, avoid longs)
+2) Microstructure: HVN/LVN lanes, single prints, session high/low, absorption zones. Distance within 2-3 ticks = AT the level.
+3) Order Flow Evidence (REQUIRED FOR >70% CONFIDENCE): CVD trend, delta impulses, whale prints, L2 liquidity walls, absorption strength. Confirming flow allows 75-95% confidence. Neutral flow caps at 65-70%. Opposing flow = 50-60%.
+4) Risk/Reward Ratio (MINIMUM 1:4 REQUIRED): Target distance must be AT LEAST 4x the stop distance. Example: 5pt stop = minimum 20pt target. Size your stops tight and targets wide to achieve this. This is NON-NEGOTIABLE.
+5) Expected Value (EV): continuation vs reversal probability; only trade when R/R and location/flow alignment create positive EV.
+6) Balance / Trend Assessment: Use POC cross count and time in/above/below value to confirm if ranging (high crosses, time in value) or trending (low crosses, staying outside value).
+7) Triggers & Contingencies: "If price does X → I do Y" with exact entry/stop/target numbers.
 
 Toolbox (evidence, not religion)
 - Volume/Market Profile: POC magnets, VA edge rejection, HVN stall risk, LVN/single-print continuation lanes.
@@ -578,21 +592,47 @@ function buildAnalysisPrompt(
   const cvdTrend = marketData.cvd.trend === 'up' ? '🟢 BULLISH' :
                    marketData.cvd.trend === 'down' ? '🔴 BEARISH' : '⚪ NEUTRAL';
 
-  const distToPoc = (marketData.volumeProfile && typeof marketData.volumeProfile.poc === 'number')
-    ? Number((marketData.currentPrice - marketData.volumeProfile.poc).toFixed(2))
+  // Determine tick size for proper tick calculations
+  const tickSize = marketData.symbol.startsWith('NQ') ? 0.25 :
+                   marketData.symbol.startsWith('MNQ') ? 0.25 :
+                   marketData.symbol.startsWith('MGC') || marketData.symbol.startsWith('GC') ? 0.1 :
+                   marketData.symbol.startsWith('MES') || marketData.symbol.startsWith('ES') ? 0.25 :
+                   0.25; // default
+
+  // Calculate distances in TICKS (not points!)
+  const distToPocTicks = (marketData.volumeProfile && typeof marketData.volumeProfile.poc === 'number')
+    ? Number(((marketData.currentPrice - marketData.volumeProfile.poc) / tickSize).toFixed(1))
     : undefined;
-  const distToVah = (marketData.volumeProfile && typeof marketData.volumeProfile.vah === 'number')
-    ? Number((marketData.currentPrice - marketData.volumeProfile.vah).toFixed(2))
+  const distToVahTicks = (marketData.volumeProfile && typeof marketData.volumeProfile.vah === 'number')
+    ? Number(((marketData.currentPrice - marketData.volumeProfile.vah) / tickSize).toFixed(1))
     : undefined;
-  const distToVal = (marketData.volumeProfile && typeof marketData.volumeProfile.val === 'number')
-    ? Number((marketData.currentPrice - marketData.volumeProfile.val).toFixed(2))
+  const distToValTicks = (marketData.volumeProfile && typeof marketData.volumeProfile.val === 'number')
+    ? Number(((marketData.currentPrice - marketData.volumeProfile.val) / tickSize).toFixed(1))
     : undefined;
 
   const nearestWall = marketData.microstructure?.nearestRestingWallInDirection;
   const currentBarRange = marketData.marketStats?.currentRangeTicks ?? null;
   const atr = marketData.marketStats?.atr5m ?? null;
+
+  // Calculate explicit location bias
+  let locationBias = 'UNKNOWN';
+  if (marketData.volumeProfile && typeof marketData.volumeProfile.vah === 'number' && typeof marketData.volumeProfile.val === 'number') {
+    const vah = marketData.volumeProfile.vah;
+    const val = marketData.volumeProfile.val;
+    const price = marketData.currentPrice;
+
+    if (price > vah) {
+      locationBias = '🟢 ABOVE VALUE → BULLISH CONTINUATION BIAS (look for LONGS on pullbacks, avoid shorts)';
+    } else if (price < val) {
+      locationBias = '🔴 BELOW VALUE → BEARISH CONTINUATION BIAS (look for SHORTS on bounces, avoid longs)';
+    } else {
+      locationBias = '🟡 INSIDE VALUE → MEAN REVERSION BIAS (fade edges: buy VAL area, sell VAH area)';
+    }
+  }
+
   const stateSummary = `MARKET SNAPSHOT:
-- location: distToPOC/VAH/VAL = ${distToPoc ?? 'n/a'} / ${distToVah ?? 'n/a'} / ${distToVal ?? 'n/a'} ticks
+🎯 LOCATION BIAS: ${locationBias}
+- location: distToPOC/VAH/VAL = ${distToPocTicks ?? 'n/a'} / ${distToVahTicks ?? 'n/a'} / ${distToValTicks ?? 'n/a'} ticks
 - flow: delta1m/5m ${marketData.flowSignals?.deltaLast1m ?? 'n/a'} / ${marketData.flowSignals?.deltaLast5m ?? 'n/a'}, CVD ${marketData.cvd?.value ?? 'n/a'}
 - liquidity: nearest wall ${nearestWall ? `${nearestWall.side}@${nearestWall.price.toFixed(2)} dist=${nearestWall.distance}` : 'n/a'}
 - volatility: current bar ${currentBarRange?.toFixed(1) ?? 'n/a'} ticks, ATR(14) ${atr?.toFixed(1) ?? 'n/a'} ticks`;

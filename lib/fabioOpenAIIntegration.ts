@@ -137,11 +137,15 @@ export function buildFuturesMarketData(
   realizedPnL: number = 0,
   higherTimeframes: HigherTimeframeSnapshot[] = [],
   recentVolumeProfiles: SessionVolumeProfileSummary[] = [],
-  cvdCandles: CurrentCvdBar[] = []
+  cvdCandles: CurrentCvdBar[] = [],
+  livePrice: number = 0,
+  livePriceTimestamp: number = 0
 ): FuturesMarketData {
   const selfLearning = isSelfLearningEnabled();
-  // Get current price from latest bar
-  const currentPrice = bars.length > 0 ? bars[bars.length - 1].close : 0;
+  // Get current price: prefer live price if fresh (< 5 seconds), otherwise use latest bar close
+  const barClose = bars.length > 0 ? bars[bars.length - 1].close : 0;
+  const priceIsFresh = livePriceTimestamp && (Date.now() - livePriceTimestamp < 5000);
+  const currentPrice = (priceIsFresh && livePrice) ? livePrice : barClose;
   const tickSize = estimateTickSize(orderFlowData, bars);
 
   // Get last 5 candles (25 minutes for 5-min bars)
@@ -1107,12 +1111,25 @@ export async function processOpenAIDecision(
   }
 
   // Minimum confidence threshold - still show decision but don't execute
-  if (openaiDecision.confidence < 70) {
+  if (openaiDecision.confidence < 65) {
     console.log(`[OpenAI] ${openaiDecision.decision} signal with ${openaiDecision.confidence}% confidence`);
-    console.log(`[OpenAI] Confidence below 70% threshold - Not executing trade`);
+    console.log(`[OpenAI] Confidence below 65% threshold - Not executing trade`);
     console.log(`[OpenAI] Reasoning: ${openaiDecision.reasoning}`);
     return { executed: false };
   }
+
+  // Calculate position size based on confidence
+  // 65% = 1 contract, 70% = 2, 75% = 3, 80% = 4, 85%+ = 5 (max)
+  let positionSize = 1;
+  if (openaiDecision.confidence >= 70) positionSize = 2;
+  if (openaiDecision.confidence >= 75) positionSize = 3;
+  if (openaiDecision.confidence >= 80) positionSize = 4;
+  if (openaiDecision.confidence >= 85) positionSize = 5;
+
+  console.log(`[OpenAI] ${openaiDecision.decision} signal with ${openaiDecision.confidence}% confidence → Position size: ${positionSize} contract${positionSize > 1 ? 's' : ''}`);
+
+  // Override the decision's quantity with confidence-based sizing
+  openaiDecision.quantity = positionSize;
 
   // Check if already in position (one position at a time)
   const activePosition = executionManager.getActivePosition();

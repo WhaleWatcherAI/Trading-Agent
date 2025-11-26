@@ -1127,7 +1127,9 @@ async function processMarketUpdate() {
     realizedPnL,
     higherTimeframeSnapshots,
     recentSessionProfiles,
-    cvdMinuteBars
+    cvdMinuteBars,
+    0,  // TODO: Add live price tracking for Gold agent
+    0   // TODO: Add live price timestamp for Gold agent
   );
 
   // ========== NEW: Get OpenAI decision on a fixed interval (every minute) ==========
@@ -1388,7 +1390,9 @@ async function processMarketUpdate() {
                 marketStructure,
                 currentCvdBar,
                 l2Data,
-              )
+                0.1 // Gold tick size
+              ),
+              0.1 // Gold tick size
             );
 
           log(`🛡️ [RiskMgmt] Decision: ${riskDecision.action} (${riskDecision.urgency} urgency)`, 'info');
@@ -1971,6 +1975,11 @@ async function connectMarketData() {
   // Initialize websocket position feed for real-time sync
   if (accountInitialized) {
     await executionManager.initializeAccountFeed();
+
+    // CRITICAL: Wait for websocket to receive bracket orders before attempting rehydration
+    // The websocket needs time to populate the order list before rehydration can detect brackets
+    log(`⏳ Waiting 3 seconds for websocket to sync bracket orders before rehydration...`, 'info');
+    await new Promise(resolve => setTimeout(resolve, 3000));
   }
 
   if (accountInitialized) {

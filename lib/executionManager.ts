@@ -262,6 +262,67 @@ export class ExecutionManager {
       this.handleWebsocketPositionUpdate(positionData);
     }
 
+    // CRITICAL: Detect filled entry when TopStepX doesn't send position events
+    // If we have brackets but no position and no entry order, the entry filled!
+    else if (!currentPosition && Array.isArray(snapshot.orders) && snapshot.orders.length > 0) {
+      const contractOrders = snapshot.orders.filter((o: any) =>
+        o.contractId === this.contractId || o.symbol === this.symbol
+      );
+
+      // Find bracket orders
+      const stopOrder = contractOrders.find((o: any) =>
+        (o.type === 4 || o.type === 5) && o.stopPrice != null
+      );
+      const targetOrder = contractOrders.find((o: any) =>
+        o.type === 1 && o.limitPrice != null
+      );
+
+      // If we have both brackets but no position, entry must have filled
+      if (stopOrder && targetOrder) {
+        console.log(`[ExecutionManager] 🔔 Websocket detected FILLED ENTRY (brackets exist but no position event) - reconstructing position...`);
+
+        // Reconstruct position from brackets
+        const positionSide: 'long' | 'short' = stopOrder.side === 0 ? 'short' : 'long'; // Protective order side is opposite
+        const stopLoss = Number(stopOrder.stopPrice);
+        const target = Number(targetOrder.limitPrice);
+        const contracts = stopOrder.size || 1;
+
+        // Estimate entry from brackets
+        const entryPrice = positionSide === 'long'
+          ? (stopLoss + target) / 2
+          : (target + stopLoss) / 2;
+
+        console.log(`[ExecutionManager] 📊 Reconstructed ${positionSide.toUpperCase()} position: Entry=${entryPrice.toFixed(2)}, Stop=${stopLoss.toFixed(2)}, Target=${target.toFixed(2)}`);
+
+        // Create position tracking
+        const decision = tradingDB.getLastPendingDecision();
+        if (decision) {
+          tradingDB.markDecisionFilled(decision.id, entryPrice);
+
+          const activePosition: ActivePosition = {
+            decisionId: decision.id,
+            symbol: this.symbol,
+            side: positionSide,
+            entryPrice,
+            entryTime: new Date().toISOString(),
+            stopLoss,
+            target,
+            contracts,
+            stopOrderId: stopOrder.orderId,
+            targetOrderId: targetOrder.orderId,
+            currentPrice: entryPrice,
+            positionAgeSeconds: 0,
+            unrealizedPnL: 0,
+            usesNativeBracket: true,
+            positionVersion: 1,
+          };
+
+          this.activePositions.set(this.symbol, activePosition);
+          console.log(`[ExecutionManager] ✅ Position created from websocket bracket detection`);
+        }
+      }
+    }
+
     // Sync stop/target from WebSocket orders if position exists
     if (currentPosition && Array.isArray(snapshot.orders) && snapshot.orders.length > 0) {
       const contractOrders = snapshot.orders.filter((o: any) =>
@@ -1415,6 +1476,28 @@ export class ExecutionManager {
                   entryPrice = Number(mostRecent.filledPrice);
                   actualEntryTime = mostRecent.updateTimestamp || mostRecent.creationTimestamp;
                   console.log(`[ExecutionManager] ✅ REHYDRATE FALLBACK: Found actual filled entry order (ID: ${mostRecent.id}) at ${entryPrice.toFixed(2)}`);
+
+                  // CRITICAL: Check if exit order also filled (stop or target)
+                  // If both entry AND exit filled, position is CLOSED (ghost brackets)
+                  const entryFillTime = new Date(actualEntryTime).getTime();
+                  const exitSide = positionSide === 'long' ? 1 : 0; // LONG exits with SELL (1), SHORT exits with BUY (0)
+
+                  const filledExitOrders = ordersResponse.orders.filter(order =>
+                    order.contractId === this.contractId &&
+                    order.side === exitSide &&
+                    order.status === 2 && // 2 = Filled
+                    order.fillVolume > 0 &&
+                    order.filledPrice &&
+                    new Date(order.updateTimestamp || order.creationTimestamp).getTime() > entryFillTime
+                  );
+
+                  if (filledExitOrders.length > 0) {
+                    const exitOrder = filledExitOrders[0];
+                    console.log(`[ExecutionManager] 🚫 REHYDRATE FALLBACK: Found FILLED EXIT order (ID: ${exitOrder.id}) at ${Number(exitOrder.filledPrice).toFixed(2)} after entry - POSITION ALREADY CLOSED!`);
+                    console.log(`[ExecutionManager] ❌ REHYDRATE FALLBACK: Brackets are orphaned from closed position. Skipping rehydration.`);
+                    console.log(`[ExecutionManager] 💡 TIP: Cancel orphaned bracket orders manually to avoid confusion.`);
+                    return null;
+                  }
                 }
               }
             } catch (searchError: any) {
