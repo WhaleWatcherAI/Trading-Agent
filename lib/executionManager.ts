@@ -261,6 +261,49 @@ export class ExecutionManager {
       console.log(`[ExecutionManager] 🔔 Websocket detected new position for ${this.symbol} (netQty=${positionData.netQty})`);
       this.handleWebsocketPositionUpdate(positionData);
     }
+
+    // Sync stop/target from WebSocket orders if position exists
+    if (currentPosition && Array.isArray(snapshot.orders) && snapshot.orders.length > 0) {
+      const contractOrders = snapshot.orders.filter((o: any) =>
+        o.contractId === this.contractId || o.symbol === this.symbol
+      );
+
+      // Find stop and target orders
+      const stopOrder = contractOrders.find((o: any) =>
+        (o.type === 4 || o.type === 5) && o.stopPrice != null // type 4=Stop, type 5=TrailingStop
+      );
+      const targetOrder = contractOrders.find((o: any) =>
+        o.type === 1 && o.limitPrice != null // type 1=Limit
+      );
+
+      let updated = false;
+
+      // Update stop if changed
+      if (stopOrder && stopOrder.stopPrice != null) {
+        const newStop = Number(stopOrder.stopPrice);
+        if (Math.abs(newStop - currentPosition.stopLoss) >= this.tickSize / 4) {
+          console.log(`[ExecutionManager] 🔄 WebSocket: Syncing stop from ${currentPosition.stopLoss.toFixed(2)} to ${newStop.toFixed(2)} (Order ID ${stopOrder.orderId})`);
+          currentPosition.stopLoss = newStop;
+          currentPosition.stopOrderId = stopOrder.orderId;
+          updated = true;
+        }
+      }
+
+      // Update target if changed
+      if (targetOrder && targetOrder.limitPrice != null) {
+        const newTarget = Number(targetOrder.limitPrice);
+        if (Math.abs(newTarget - currentPosition.target) >= this.tickSize / 4) {
+          console.log(`[ExecutionManager] 🔄 WebSocket: Syncing target from ${currentPosition.target.toFixed(2)} to ${newTarget.toFixed(2)} (Order ID ${targetOrder.orderId})`);
+          currentPosition.target = newTarget;
+          currentPosition.targetOrderId = targetOrder.orderId;
+          updated = true;
+        }
+      }
+
+      if (updated) {
+        console.log(`[ExecutionManager] ✅ Position brackets synced from WebSocket (stop=${currentPosition.stopLoss.toFixed(2)}, target=${currentPosition.target.toFixed(2)})`);
+      }
+    }
   }
 
   private async executeWithRest(

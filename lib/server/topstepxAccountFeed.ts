@@ -2,6 +2,7 @@ import { EventEmitter } from 'events';
 import { loadSignalR } from '@/lib/server/signalr-cjs';
 import { authenticate, fetchTopstepXAccounts } from '@/lib/topstepx';
 import { ensureSignalRPolyfills } from '@/lib/server/signalrPolyfill';
+import { createProjectXRest } from '@/projectx-rest';
 
 interface PositionInfo {
   key: string;
@@ -38,6 +39,8 @@ type HubConnection = any;
 
 class TopstepxAccountFeed extends EventEmitter {
   private hydratePromise: Promise<void> | null = null;
+  private ordersHydratePromise: Promise<void> | null = null;
+
   private async hydrateAccountDetails() {
     if (!this.hydratePromise) {
       this.hydratePromise = (async () => {
@@ -58,6 +61,49 @@ class TopstepxAccountFeed extends EventEmitter {
       })();
     }
     return this.hydratePromise;
+  }
+
+  private async hydrateOrders() {
+    if (!this.ordersHydratePromise) {
+      this.ordersHydratePromise = (async () => {
+        try {
+          console.log(`[topstepx-account-feed] 🔄 Rehydrating open orders for account ${this.accountId}...`);
+          const restClient = createProjectXRest();
+          const response = await restClient.searchOpenOrders({ accountId: this.accountId });
+
+          if (response.success && response.orders) {
+            console.log(`[topstepx-account-feed] 📋 Found ${response.orders.length} open order(s) from REST API`);
+
+            // Populate orders map from API response
+            for (const order of response.orders) {
+              const info: OrderInfo = {
+                orderId: order.id,
+                contractId: order.contractId,
+                symbol: order.symbolId,
+                side: order.side,
+                size: order.size,
+                type: order.type,
+                status: order.status,
+                limitPrice: order.limitPrice,
+                stopPrice: order.stopPrice,
+                filledSize: order.fillVolume,
+                lastUpdate: new Date().toISOString(),
+              };
+              this.snapshot.orders.set(order.id, info);
+              console.log(`[topstepx-account-feed] ✅ Rehydrated order ${order.id}: ${info.symbol} ${info.side===0?'BUY':'SELL'} ${info.size} @ ${info.limitPrice || info.stopPrice} (type=${info.type}, status=${info.status})`);
+            }
+
+            this.snapshot.lastUpdate = new Date().toISOString();
+            this.emit('update', this.getSnapshot());
+          } else {
+            console.log('[topstepx-account-feed] ℹ️ No open orders found via REST API');
+          }
+        } catch (err: any) {
+          console.warn('[topstepx-account-feed] ⚠️ Failed to hydrate orders:', err?.message || err);
+        }
+      })();
+    }
+    return this.ordersHydratePromise;
   }
 
   private hub: HubConnection | null = null;
@@ -118,30 +164,46 @@ class TopstepxAccountFeed extends EventEmitter {
         this.emit('update', this.getSnapshot());
       });
 
+      // Debug: log ALL events received from the hub
+      (this.hub as any).onclose = (error: any) => {
+        console.error('[topstepx-account-feed] 🔴 Hub connection closed:', error);
+      };
+
       this.hub.on('GatewayUserOrder', data => {
-        const orderId = data.id ?? data.orderId ?? data.orderID;
-        if (!orderId) return;
+        console.log('[topstepx-account-feed] 📨 GatewayUserOrder event received:', JSON.stringify(data));
 
-        // Status codes: 0=PendingNew, 1=New, 2=PartialFill, 3=Filled, 4=Canceled, 5=Rejected, etc.
-        const status = Number(data.status ?? 0);
+        // TopstepX sometimes wraps data in data.data property
+        const orderData = data.data ?? data;
 
-        // Remove filled or canceled orders
-        if (status === 3 || status === 4 || status === 5) {
+        const orderId = orderData.id ?? orderData.orderId ?? orderData.orderID;
+        if (!orderId) {
+          console.warn('[topstepx-account-feed] ⚠️ GatewayUserOrder missing orderId. Raw data:', data, 'Unwrapped:', orderData);
+          return;
+        }
+
+        // OrderStatus enum: 0=None, 1=Open, 2=Filled, 3=Cancelled, 4=Expired, 5=Rejected, 6=Pending
+        const status = Number(orderData.status ?? 0);
+
+        // Remove filled, cancelled, expired, or rejected orders (only track Open/Pending)
+        if (status === 2 || status === 3 || status === 4 || status === 5) {
+          const statusName = status === 2 ? 'Filled' : status === 3 ? 'Cancelled' : status === 4 ? 'Expired' : 'Rejected';
+          console.log(`[topstepx-account-feed] 🗑️ Removing order ${orderId} (status=${status}: ${statusName})`);
           this.snapshot.orders.delete(orderId);
         } else {
           const info: OrderInfo = {
             orderId,
-            contractId: data.contractId ?? data.instrumentId,
-            symbol: data.symbol ?? data.contractName,
-            side: Number(data.side ?? 0),
-            size: Number(data.size ?? data.quantity ?? 0),
-            type: Number(data.type ?? data.orderType ?? 0),
+            contractId: orderData.contractId ?? orderData.instrumentId,
+            symbol: orderData.symbol ?? orderData.contractName,
+            side: Number(orderData.side ?? 0),
+            size: Number(orderData.size ?? orderData.quantity ?? 0),
+            type: Number(orderData.type ?? orderData.orderType ?? 0),
             status,
-            limitPrice: data.limitPrice != null ? Number(data.limitPrice) : undefined,
-            stopPrice: data.stopPrice != null ? Number(data.stopPrice) : undefined,
-            filledSize: data.filledSize != null ? Number(data.filledSize) : undefined,
+            limitPrice: orderData.limitPrice != null ? Number(orderData.limitPrice) : undefined,
+            stopPrice: orderData.stopPrice != null ? Number(orderData.stopPrice) : undefined,
+            filledSize: orderData.filledSize != null ? Number(orderData.filledSize) : undefined,
             lastUpdate: new Date().toISOString(),
           };
+          console.log(`[topstepx-account-feed] ✅ Tracking order ${orderId}: ${info.symbol} ${info.side===0?'BUY':'SELL'} ${info.size} @ ${info.limitPrice || info.stopPrice} (type=${info.type}, status=${status})`);
           this.snapshot.orders.set(orderId, info);
         }
         this.emit('update', this.getSnapshot());
@@ -150,17 +212,26 @@ class TopstepxAccountFeed extends EventEmitter {
       const subscribe = async () => {
         if (!this.hub) return;
         try {
+          console.log(`[topstepx-account-feed] 📡 Subscribing to account ${this.accountId} data streams...`);
           await this.hub.invoke('SubscribeAccounts');
+          console.log('[topstepx-account-feed] ✅ SubscribeAccounts succeeded');
           await this.hub.invoke('SubscribeOrders', this.accountId);
+          console.log(`[topstepx-account-feed] ✅ SubscribeOrders(${this.accountId}) succeeded`);
           await this.hub.invoke('SubscribePositions', this.accountId);
+          console.log(`[topstepx-account-feed] ✅ SubscribePositions(${this.accountId}) succeeded`);
           await this.hub.invoke('SubscribeTrades', this.accountId);
+          console.log(`[topstepx-account-feed] ✅ SubscribeTrades(${this.accountId}) succeeded`);
         } catch (err) {
-          console.error('[topstepx-account-feed] subscribe failed', err);
+          console.error('[topstepx-account-feed] ❌ subscribe failed', err);
         }
       };
 
       await this.hub.start();
       await subscribe();
+
+      // Rehydrate existing open orders from REST API
+      await this.hydrateOrders();
+
       this.hub.onreconnected(() => {
         subscribe();
       });

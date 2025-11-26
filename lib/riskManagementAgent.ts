@@ -702,18 +702,37 @@ function parseRiskManagementResponse(content: string, pos: ActivePosition, marke
     const unrealizedPoints = pos.side === 'long'
       ? market.currentPrice - pos.entryPrice
       : pos.entryPrice - market.currentPrice;
+
+    // Check if proposed stop is moving toward breakeven+1 (allow even if not technically improving risk)
+    const breakEvenPlus1 = pos.side === 'long'
+      ? pos.entryPrice - (tickSize || 0.25)
+      : pos.entryPrice + (tickSize || 0.25);
+    const isMovingTowardBreakEvenPlus1 = typeof snappedStop === 'number' && typeof pos.stopLoss === 'number'
+      ? (pos.side === 'long'
+          ? snappedStop >= breakEvenPlus1 && snappedStop > pos.stopLoss - 2 * (tickSize || 0.25) // allow within 2 ticks of current stop
+          : snappedStop <= breakEvenPlus1 && snappedStop < pos.stopLoss + 2 * (tickSize || 0.25))
+      : false;
+
     const stopProposalImprovesRisk = typeof snappedStop === 'number' && typeof pos.stopLoss === 'number'
       ? (pos.side === 'long' ? snappedStop > pos.stopLoss : snappedStop < pos.stopLoss)
       : true; // if we don't have a current stop, allow the proposal
-    if (unrealizedPoints <= 0
+
+    // Block stop adjustments ONLY if:
+    // 1. Position is losing (unrealizedPoints < -$30 or 1.5 points)
+    // 2. Stop proposal doesn't improve risk
+    // 3. Stop isn't moving toward breakeven+1
+    const significantDrawdown = unrealizedPoints < -1.5; // More than 1.5 points down
+
+    if (significantDrawdown
       && (parsed.action === 'ADJUST_STOP' || parsed.action === 'ADJUST_BOTH')
-      && !stopProposalImprovesRisk) {
-      console.warn('[RiskMgmt] 🚫 Skip stop tightening: position not in profit and proposal does not improve risk.');
+      && !stopProposalImprovesRisk
+      && !isMovingTowardBreakEvenPlus1) {
+      console.warn('[RiskMgmt] 🚫 Skip stop tightening: position in significant drawdown and proposal does not improve risk or reach breakeven+1.');
       snappedStop = null;
       parsed.action = parsed.action === 'ADJUST_STOP' ? 'HOLD_BRACKETS'
         : parsed.action === 'ADJUST_BOTH' ? 'ADJUST_TARGET'
         : parsed.action;
-      parsed.reasoning = `${parsed.reasoning} | SAFETY: Stop not tightened; trade is not in profit and proposal was not an improvement.`;
+      parsed.reasoning = `${parsed.reasoning} | SAFETY: Stop not tightened; trade in drawdown and proposal was not an improvement.`;
     }
 
     return {
