@@ -102,15 +102,18 @@ interface MarketSnapshot {
  * FAST rule-based stop management (executes in milliseconds)
  * Handles obvious cases without LLM latency
  */
-function calculateBellCurveStop(pos: ActivePosition, currentPrice: number): { newStop: number; lockPercent: number; reasoning: string } | null {
+function calculateBellCurveStop(pos: ActivePosition, currentPrice: number, tickSize: number = 0.25): { newStop: number; lockPercent: number; reasoning: string } | null {
   const profitLoss = currentPrice - pos.entryPrice;
   const profitLossPoints = pos.side === 'long' ? profitLoss : -profitLoss;
 
-  const distanceToTarget = pos.side === 'long'
+  const distanceToTargetPoints = pos.side === 'long'
     ? pos.target - pos.entryPrice
     : pos.entryPrice - pos.target;
 
-  const percentToTarget = (profitLossPoints / distanceToTarget) * 100;
+  // Calculate in TICKS for accuracy
+  const profitLossTicks = profitLossPoints / tickSize;
+  const distanceToTargetTicks = distanceToTargetPoints / tickSize;
+  const percentToTarget = (profitLossTicks / distanceToTargetTicks) * 100;
 
   // Not profitable yet - don't move stop
   if (profitLossPoints <= 0) {
@@ -129,9 +132,12 @@ function calculateBellCurveStop(pos: ActivePosition, currentPrice: number): { ne
 
   // Calculate new stop based on lock percentage
   const profitToLock = profitLossPoints * (lockPercent / 100);
-  const newStop = pos.side === 'long'
+  let newStop = pos.side === 'long'
     ? pos.entryPrice + profitToLock
     : pos.entryPrice - profitToLock;
+
+  // Round to valid tick increment
+  newStop = Math.round(newStop / tickSize) * tickSize;
 
   // Don't move stop if it would loosen
   const currentStop = pos.stopLoss;
@@ -249,7 +255,7 @@ export async function analyzePositionRisk(
 
   // PHASE 2: If breakeven + 1 tick is secured, use FAST bell curve logic (overrides LLM)
   if (stopIsSecured) {
-    const bellCurveResult = calculateBellCurveStop(pos, market.currentPrice);
+    const bellCurveResult = calculateBellCurveStop(pos, market.currentPrice, tickSize);
     if (bellCurveResult) {
       console.log(`[RiskMgmt] ⚡ BELL CURVE (Phase 2): ${bellCurveResult.reasoning}`);
       return {
@@ -274,11 +280,7 @@ export async function analyzePositionRisk(
     ? pos.entryPrice - pos.stopLoss
     : pos.stopLoss - pos.entryPrice;
 
-  const distanceToTarget = pos.side === 'long'
-    ? pos.target - pos.entryPrice
-    : pos.entryPrice - pos.target;
-
-  const percentToTarget = (profitLossPoints / distanceToTarget) * 100;
+  // distanceToTarget and percentToTarget already calculated above (lines 230-233)
   const riskRewardRatio = distanceToTarget / distanceToStop;
 
   const prompt = `You are a RISK MANAGEMENT & TRADE OPTIMIZATION SPECIALIST for futures trading.
