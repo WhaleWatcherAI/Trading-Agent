@@ -220,6 +220,33 @@ export async function analyzePositionRisk(
     }
   }
 
+  // Calculate % to target for bell curve activation
+  const distanceToTarget = pos.side === 'long'
+    ? pos.target - pos.entryPrice
+    : pos.entryPrice - pos.target;
+  const percentToTarget = (profitLossPoints / distanceToTarget) * 100;
+
+  // PHASE 1B: AUTO BREAKEVEN - At 10% to target, FORCE stop to breakeven and activate bell curve
+  // This overrides LLM and hands off to bell curve immediately
+  if (percentToTarget >= 10 && pos.stopLoss !== pos.entryPrice) {
+    const stopNotAtBreakeven = pos.side === 'long'
+      ? pos.stopLoss < pos.entryPrice
+      : pos.stopLoss > pos.entryPrice;
+
+    if (stopNotAtBreakeven) {
+      console.log(`[RiskMgmt] 🎯 AUTO BREAKEVEN: ${percentToTarget.toFixed(1)}% to target reached. Moving stop to breakeven at ${pos.entryPrice.toFixed(2)} and activating bell curve.`);
+      return {
+        action: 'ADJUST_STOP',
+        newStopLoss: pos.entryPrice,
+        newTarget: null,
+        reasoning: `[AUTO BREAKEVEN] Position ${percentToTarget.toFixed(1)}% to target - automatically moving stop to breakeven (${pos.entryPrice.toFixed(2)}). Bell curve now active.`,
+        urgency: 'high',
+        riskLevel: 'conservative',
+        positionVersion: pos.positionVersion,
+      };
+    }
+  }
+
   // PHASE 2: If breakeven + 1 tick is secured, use FAST bell curve logic (overrides LLM)
   if (stopIsSecured) {
     const bellCurveResult = calculateBellCurveStop(pos, market.currentPrice);
@@ -613,40 +640,32 @@ function parseRiskManagementResponse(content: string, pos: ActivePosition, marke
     const percentToTarget = distanceToTarget > 0 ? (profitLossPoints / distanceToTarget) * 100 : 0;
 
     // BELL CURVE STOP MANAGEMENT: Progressive profit locking as we approach target
+    // Use the BELL_CURVE_STOPS array defined at the top of the file
     let minimumStop = parsed.newStopLoss;
 
     if (profitLossPoints > 0 && percentToTarget > 0) {
-      // Define the bell curve stop levels
+      // Find appropriate lock percentage from BELL_CURVE_STOPS waypoints
       let lockPercentage = 0;
-
-      if (percentToTarget >= 90) {
-        // Near target: Lock 85% of profit (very tight)
-        lockPercentage = 0.85;
-        console.log(`[RiskMgmt] 🎯 90%+ to target - Locking 85% of profit`);
-      } else if (percentToTarget >= 75) {
-        // 75% to target: Lock 70% of profit
-        lockPercentage = 0.70;
-        console.log(`[RiskMgmt] 🎯 75%+ to target - Locking 70% of profit`);
-      } else if (percentToTarget >= 50) {
-        // Halfway: Lock 40% of profit
-        lockPercentage = 0.40;
-        console.log(`[RiskMgmt] 🎯 50%+ to target - Locking 40% of profit`);
-      } else if (percentToTarget >= 25) {
-        // Quarter way: Move to breakeven
-        lockPercentage = 0;
-        console.log(`[RiskMgmt] 🎯 25%+ to target - Moving to breakeven`);
+      for (const waypoint of BELL_CURVE_STOPS) {
+        if (percentToTarget >= waypoint.percentToTarget) {
+          lockPercentage = waypoint.lockPercent;
+        } else {
+          break;
+        }
       }
+
+      console.log(`[RiskMgmt] 🎯 ${percentToTarget.toFixed(1)}% to target - Locking ${lockPercentage}% of profit (${(profitLossPoints * lockPercentage / 100).toFixed(2)} pts)`);
 
       // Calculate minimum stop based on profit locking
       if (lockPercentage > 0) {
-        const profitToLock = profitLossPoints * lockPercentage;
+        const profitToLock = profitLossPoints * (lockPercentage / 100);
         if (pos.side === 'long') {
           minimumStop = pos.entryPrice + profitToLock;
         } else {
           minimumStop = pos.entryPrice - profitToLock;
         }
-      } else if (percentToTarget >= 25) {
-        // At least breakeven
+      } else if (percentToTarget >= 10) {
+        // At 10% to target: At least breakeven
         minimumStop = pos.entryPrice;
       }
 
@@ -658,7 +677,7 @@ function parseRiskManagementResponse(content: string, pos: ActivePosition, marke
 
         if (llmStopInsufficient) {
           console.log(`[RiskMgmt] ⚡ BELL CURVE OVERRIDE: LLM stop ${parsed.newStopLoss.toFixed(2)} not tight enough. Using ${minimumStop.toFixed(2)}`);
-          parsed.reasoning += ` [Bell Curve Override: ${percentToTarget.toFixed(0)}% to target requires ${(lockPercentage * 100).toFixed(0)}% profit lock]`;
+          parsed.reasoning += ` [Bell Curve Override: ${percentToTarget.toFixed(0)}% to target requires ${lockPercentage}% profit lock]`;
         }
       }
     }
@@ -670,6 +689,23 @@ function parseRiskManagementResponse(content: string, pos: ActivePosition, marke
         snappedStop = Math.max(parsed.newStopLoss, minimumStop);
       } else {
         snappedStop = Math.min(parsed.newStopLoss, minimumStop);
+      }
+    }
+
+    // 🚨 CRITICAL SAFETY: NEVER allow stop to move BACKWARDS (away from current price)
+    // Stops can ONLY tighten (move toward current price), NEVER loosen
+    if (typeof snappedStop === 'number' && typeof pos.stopLoss === 'number') {
+      const isLoosening = pos.side === 'long'
+        ? snappedStop < pos.stopLoss  // LONG: new stop below current = loosening (moving away from breakeven)
+        : snappedStop > pos.stopLoss; // SHORT: new stop above current = loosening (moving away from breakeven)
+
+      if (isLoosening) {
+        console.warn(`[RiskMgmt] 🚫 SAFETY BLOCK: Stop would loosen from ${pos.stopLoss.toFixed(2)} to ${snappedStop.toFixed(2)}. Stops can ONLY tighten.`);
+        snappedStop = null;
+        parsed.action = parsed.action === 'ADJUST_STOP' ? 'HOLD_BRACKETS'
+          : parsed.action === 'ADJUST_BOTH' ? 'ADJUST_TARGET'
+          : parsed.action;
+        parsed.reasoning = `${parsed.reasoning} | SAFETY: Rejected stop loosening. Stops can only tighten.`;
       }
     }
 

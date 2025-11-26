@@ -819,3 +819,2438 @@ DEBUG: About to print header
 [OpenAI] Retrying reasoner with alternate delivery (non-stream).
 [OpenAI] Reasoner attempt 3 failed: Reasoner returned empty response
 [OpenAI] All reasoner attempts failed. Falling back to deepseek-chat/GPT-4...
+[OpenAI] Reasoner attempt 2 failed: Reasoner returned empty response
+[OpenAI] Retrying reasoner with alternate delivery (non-stream).
+[2025-11-26T03:28:58.580Z] Error: A callback for the method 'gatewayuserorder' threw error 'TypeError: import_tradingDatabase.tradingDB.getLastPendingDecision is not a function'.
+[ExecutionManager] 🔒 Protection lock active for 6s to prevent early bracket cancels/adjusts.
+[AdjustTrace adj-1764127738592] start newStop=25196.75 newTarget=25146 version=n/a
+[AdjustTrace adj-1764127738592] abort: broker flat signal but local position exists (holding)
+[ExecutionManager] ⚠️ adjustActiveProtection skipped: broker flat signal but local position exists. Holding brackets.
+[AdjustTrace adj-1764127748104] start newStop=25180.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127748104] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25196.75,
+  requestedStop: 25180.75,
+  currentTarget: 25146,
+  requestedTarget: null
+}
+[AdjustTrace adj-1764127748812] start newStop=25179.25 newTarget=none version=n/a
+[AdjustTrace adj-1764127748812] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180.75,
+  requestedStop: 25179.25,
+  currentTarget: 25146,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify throttled (min 8s between modifies).
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127751339] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127751339] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180.75,
+  requestedStop: 25179.25,
+  currentTarget: 25146,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify throttled (min 8s between modifies).
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[OpenAI] Reasoner attempt 1 failed: terminated
+[OpenAI] Retrying reasoner with alternate delivery (non-stream).
+[AdjustTrace adj-1764127759237] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127759237] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180.75,
+  requestedStop: 25179.25,
+  currentTarget: 25146,
+  requestedTarget: null
+}
+[AdjustTrace adj-1764127763749] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127763749] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25179.5,
+  requestedStop: 25179.25,
+  currentTarget: 25146,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify throttled (min 8s between modifies).
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127767046] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127767046] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25179.5,
+  requestedStop: 25179.25,
+  currentTarget: 25146,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify throttled (min 8s between modifies).
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127769702] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127769702] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25179.5,
+  requestedStop: 25178.5,
+  currentTarget: 25146,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127775485] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127775485] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25179.5,
+  requestedStop: 25178.5,
+  currentTarget: 25146,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127778220] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127778220] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25179.5,
+  requestedStop: 25178.5,
+  currentTarget: 25146,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127781336] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127781336] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25179.5,
+  requestedStop: 25178.5,
+  currentTarget: 25146,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[OpenAI] Reasoner attempt 3 failed: Reasoner returned empty response
+[OpenAI] All reasoner attempts failed. Falling back to deepseek-chat/GPT-4...
+[AdjustTrace adj-1764127784082] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127784082] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25179.5,
+  requestedStop: 25178.5,
+  currentTarget: 25146,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127788314] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127788314] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25179.5,
+  requestedStop: 25178.5,
+  currentTarget: 25146,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127794885] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127794885] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25179.5,
+  requestedStop: 25178.5,
+  currentTarget: 25146,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127796144] start newStop=25197.5 newTarget=25106.25 version=n/a
+[AdjustTrace adj-1764127796144] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: true,
+  tickSize: 0.25,
+  currentStop: 25179.5,
+  requestedStop: 25197.5,
+  currentTarget: 25146,
+  requestedTarget: 25106.25
+}
+[AdjustTrace adj-1764127799387] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127799387] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25197.5,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127803694] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127803694] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25197.5,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127805897] start newStop=25180 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127805897] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25197.5,
+  requestedStop: 25180,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25180.00 to 25181.00!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25180.00 to 25184.00!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[AdjustTrace adj-1764127817511] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127817511] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[OpenAI] Reasoner attempt 2 failed: Reasoner returned empty response
+[OpenAI] Retrying reasoner with alternate delivery (non-stream).
+[AdjustTrace adj-1764127820011] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127820011] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127823352] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127823352] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127827292] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127827292] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127830348] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127830348] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127832987] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127832987] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127836223] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127836223] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127841067] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127841067] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127842459] start newStop=25178.5 newTarget=none version=n/a
+[AdjustTrace adj-1764127842459] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127847136] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127847136] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127852856] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127852856] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127855180] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127855180] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127859742] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127859742] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[OpenAI] Reasoner attempt 3 failed: Reasoner returned empty response
+[OpenAI] All reasoner attempts failed. Falling back to deepseek-chat/GPT-4...
+[AdjustTrace adj-1764127862922] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127862922] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127867000] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127867000] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127872858] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127872858] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127874699] start newStop=25179.25 newTarget=none version=n/a
+[AdjustTrace adj-1764127874699] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127878675] start newStop=25197.5 newTarget=25106.25 version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127878675] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25197.5,
+  currentTarget: 25106.25,
+  requestedTarget: 25106.25
+}
+[AdjustTrace adj-1764127879641] start newStop=25178.5 newTarget=none version=n/a
+[AdjustTrace adj-1764127879641] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25197.5,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127882100] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127882100] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25197.5,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify throttled (min 8s between modifies).
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127884918] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127884918] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25197.5,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify throttled (min 8s between modifies).
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127889602] start newStop=25180 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127889602] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25197.5,
+  requestedStop: 25180,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[AdjustTrace adj-1764127892992] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127892992] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify throttled (min 8s between modifies).
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127897653] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127897653] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify throttled (min 8s between modifies).
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127900814] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127900814] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127904642] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127904642] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127907926] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127907926] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127911067] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127911067] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127914071] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127914071] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127918253] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127918253] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127921782] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127921782] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127926408] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127926408] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127928042] start newStop=25179.25 newTarget=none version=n/a
+[AdjustTrace adj-1764127928042] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127932243] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127932243] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127936249] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127936249] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127939083] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127939083] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127944990] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127944990] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127951575] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127951575] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127954197] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127954197] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127958301] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127958301] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127961098] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127961098] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127964469] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127964469] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127969246] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127969246] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127971709] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127971709] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127975896] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127975896] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127979193] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127979193] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127980562] start newStop=25179.25 newTarget=none version=n/a
+[AdjustTrace adj-1764127980562] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127985276] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127985276] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127988977] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127988977] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127993265] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127993265] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127995164] start newStop=25179.25 newTarget=none version=n/a
+[AdjustTrace adj-1764127995164] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764127998880] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764127998880] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128005095] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128005095] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128007329] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128007329] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128012400] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128012400] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128017160] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128017160] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128020463] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128020463] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128023927] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128023927] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128026590] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128026590] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128028909] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128028909] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128032042] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128032042] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128036525] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128036525] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128040601] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128040601] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128046657] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128046657] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128050166] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128050166] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128054180] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128054180] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128056892] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128056892] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128061103] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128061103] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128063413] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128063413] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128066587] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128066587] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128070002] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128070002] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128075424] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128075424] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128078076] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128078076] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128080295] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128080295] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128083560] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128083560] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128090475] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128090475] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128093414] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128093414] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128097638] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128097638] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128100884] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128100884] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128106108] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128106108] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128108554] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128108554] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128112890] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128112890] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128116589] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128116589] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128120828] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128120828] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128123635] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128123635] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128127195] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128127195] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128129468] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128129468] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128133231] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128133231] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128137239] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128137239] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128142217] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128142217] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128147028] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128147028] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128151259] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128151259] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128153820] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128153820] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128157101] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128157101] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128159917] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128159917] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128163380] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128163380] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128168409] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128168409] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128170713] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128170713] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128173820] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128173820] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128177623] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128177623] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128181501] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128181501] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128184040] start newStop=25179.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128184040] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25179.25,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify skipped: change < 3 ticks.
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128187828] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128187828] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25180,
+  requestedStop: 25178.5,
+  currentTarget: 25106.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25178.50 is <= current 25178.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[ExecutionManager] ⚠️ Broker flat blip detected; starting debounce. Holding local position/brackets.
+[AdjustTrace adj-1764128190987] start newStop=25178.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Broker flat blip detected; starting debounce. Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (2ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (13ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (14ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (58ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (60ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (61ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (62ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (64ms/2500ms). Holding local position/brackets.
+[AdjustTrace adj-1764128190987] abort: verifyPositionFlattened returned true
+[ExecutionManager] 🚫 Broker flat per verifyPositionFlattened; clearing local position and skipping adjustments.
+[AdjustTrace adj-1764128195069] start newStop=25178.5 newTarget=none version=n/a
+[AdjustTrace adj-1764128195069] abort: rehydrateActivePosition returned false (broker flat / no active position)
+[ExecutionManager] 🚫 adjustActiveProtection aborted: broker reports flat / no active position.
+[AdjustTrace adj-1764128199086] start newStop=25179.25 newTarget=none version=n/a
+[AdjustTrace adj-1764128199086] abort: rehydrateActivePosition returned false (broker flat / no active position)
+[ExecutionManager] 🚫 adjustActiveProtection aborted: broker reports flat / no active position.
+[OpenAI] Reasoner attempt 1 failed: terminated
+[OpenAI] Retrying reasoner with alternate delivery (non-stream).
+[OpenAI] Reasoner attempt 2 failed: Reasoner returned empty response
+[OpenAI] Retrying reasoner with alternate delivery (non-stream).
+[OpenAI] Reasoner attempt 1 failed: Reasoner returned empty response
+[OpenAI] Retrying reasoner with alternate delivery (non-stream).
+[OpenAI] Reasoner attempt 3 failed: Reasoner returned empty response
+[OpenAI] All reasoner attempts failed. Falling back to deepseek-chat/GPT-4...
+[ExecutionManager] ⚠️ Short stop override invalid (25182.50 <= entry 25187.75). Resetting to default.
+[ExecutionManager] ⚠️ Short stop override invalid (25182.50 <= entry 25187.75). Resetting to default.
+[2025-11-26T03:39:31.880Z] Error: A callback for the method 'gatewayuserorder' threw error 'TypeError: import_tradingDatabase.tradingDB.getLastPendingDecision is not a function'.
+[2025-11-26T03:39:32.986Z] Error: A callback for the method 'gatewayuseraccount' threw error 'TypeError: import_tradingDatabase.tradingDB.getLastPendingDecision is not a function'.
+[ExecutionManager] 🔒 Protection lock active for 6s to prevent early bracket cancels/adjusts.
+[AdjustTrace adj-1764128373381] start newStop=25182.5 newTarget=25155 version=n/a
+[AdjustTrace adj-1764128373381] abort: broker flat signal but local position exists (holding)
+[ExecutionManager] ⚠️ adjustActiveProtection skipped: broker flat signal but local position exists. Holding brackets.
+[AdjustTrace adj-1764128381211] start newStop=25195 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128381211] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25212.25,
+  requestedStop: 25195,
+  currentTarget: 25154.5,
+  requestedTarget: null
+}
+[AdjustTrace adj-1764128382466] start newStop=25190.25 newTarget=none version=n/a
+[AdjustTrace adj-1764128382466] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25195,
+  requestedStop: 25190.25,
+  currentTarget: 25154.5,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify throttled (min 8s between modifies).
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[OpenAI] Reasoner attempt 1 failed: Reasoner returned empty response
+[OpenAI] Retrying reasoner with alternate delivery (non-stream).
+[AdjustTrace adj-1764128386565] start newStop=25190.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128386565] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25195,
+  requestedStop: 25190.25,
+  currentTarget: 25154.5,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify throttled (min 8s between modifies).
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[OpenAI] Reasoner attempt 2 failed: terminated
+[OpenAI] Retrying reasoner with alternate delivery (non-stream).
+[AdjustTrace adj-1764128388705] start newStop=25190.25 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128388705] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25195,
+  requestedStop: 25190.25,
+  currentTarget: 25154.5,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify throttled (min 8s between modifies).
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128391700] start newStop=25190 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128391700] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25195,
+  requestedStop: 25190,
+  currentTarget: 25154.5,
+  requestedTarget: null
+}
+[AdjustTrace adj-1764128396317] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128396317] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25190,
+  requestedStop: 25187.75,
+  currentTarget: 25154.5,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128399511] start newStop=25188.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128399511] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25190,
+  requestedStop: 25188.75,
+  currentTarget: 25154.5,
+  requestedTarget: null
+}
+[ExecutionManager] ⏳ Stop modify throttled (min 8s between modifies).
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128401625] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128401625] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25190,
+  requestedStop: 25187.75,
+  currentTarget: 25154.5,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128404815] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128404815] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25190,
+  requestedStop: 25187.75,
+  currentTarget: 25154.5,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128408333] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128408333] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25190,
+  requestedStop: 25187.75,
+  currentTarget: 25154.5,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128412734] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128412734] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25190,
+  requestedStop: 25187.75,
+  currentTarget: 25154.5,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128417036] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128417036] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25190,
+  requestedStop: 25187.75,
+  currentTarget: 25154.5,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128419999] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128419999] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25190,
+  requestedStop: 25187.75,
+  currentTarget: 25154.5,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128423791] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128423791] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25190,
+  requestedStop: 25187.75,
+  currentTarget: 25154.5,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128426805] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128426805] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25190,
+  requestedStop: 25187.75,
+  currentTarget: 25154.5,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128431325] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128431325] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25190,
+  requestedStop: 25187.75,
+  currentTarget: 25154.5,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[OpenAI] Reasoner attempt 3 failed: Reasoner returned empty response
+[OpenAI] All reasoner attempts failed. Falling back to deepseek-chat/GPT-4...
+[AdjustTrace adj-1764128434711] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128434711] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25190,
+  requestedStop: 25187.75,
+  currentTarget: 25154.5,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128437394] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128437394] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25190,
+  requestedStop: 25187.75,
+  currentTarget: 25154.5,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128441701] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128441701] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25190,
+  requestedStop: 25187.75,
+  currentTarget: 25154.5,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128444167] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128444167] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25190,
+  requestedStop: 25187.75,
+  currentTarget: 25154.5,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[OpenAI] Reasoner attempt 2 failed: Reasoner returned empty response
+[OpenAI] Retrying reasoner with alternate delivery (non-stream).
+[AdjustTrace adj-1764128447904] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128447904] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25190,
+  requestedStop: 25187.75,
+  currentTarget: 25154.5,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128449977] start newStop=25197.5 newTarget=25166 version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128449977] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: true,
+  tickSize: 0.25,
+  currentStop: 25190,
+  requestedStop: 25197.5,
+  currentTarget: 25154.5,
+  requestedTarget: 25166
+}
+[AdjustTrace adj-1764128450540] start newStop=25187.75 newTarget=none version=n/a
+[AdjustTrace adj-1764128450540] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25197.5,
+  requestedStop: 25187.75,
+  currentTarget: 25166,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128453773] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128453773] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25197.5,
+  requestedStop: 25187.75,
+  currentTarget: 25166,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128458613] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128458613] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25197.5,
+  requestedStop: 25187.75,
+  currentTarget: 25166,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128463023] start newStop=25189.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128463023] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25197.5,
+  requestedStop: 25189.75,
+  currentTarget: 25166,
+  requestedTarget: null
+}
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25189.75 to 25190.25!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25189.75 to 25190.00!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25189.75 to 25190.50!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[AdjustTrace adj-1764128475529] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128475529] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25189.75,
+  requestedStop: 25187.75,
+  currentTarget: 25166,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128479133] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128479133] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25189.75,
+  requestedStop: 25187.75,
+  currentTarget: 25166,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128482282] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128482282] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25189.75,
+  requestedStop: 25187.75,
+  currentTarget: 25166,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128485572] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128485572] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25189.75,
+  requestedStop: 25187.75,
+  currentTarget: 25166,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128489304] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128489304] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25189.75,
+  requestedStop: 25187.75,
+  currentTarget: 25166,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[OpenAI] Reasoner attempt 3 failed: Reasoner returned empty response
+[OpenAI] All reasoner attempts failed. Falling back to deepseek-chat/GPT-4...
+[AdjustTrace adj-1764128495292] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128495292] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25189.75,
+  requestedStop: 25187.75,
+  currentTarget: 25166,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128496793] start newStop=25187.75 newTarget=none version=n/a
+[AdjustTrace adj-1764128496793] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25189.75,
+  requestedStop: 25187.75,
+  currentTarget: 25166,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128498880] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128498880] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25189.75,
+  requestedStop: 25187.75,
+  currentTarget: 25166,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128503118] start newStop=25188.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128503118] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25189.75,
+  requestedStop: 25188.5,
+  currentTarget: 25166,
+  requestedTarget: null
+}
+[AdjustTrace adj-1764128506014] start newStop=25187.75 newTarget=none version=n/a
+[AdjustTrace adj-1764128506156] start newStop=25197.5 newTarget=25166 version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128506156] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25188.75,
+  requestedStop: 25197.5,
+  currentTarget: 25166,
+  requestedTarget: 25166
+}
+[ExecutionManager] ⏳ Stop modify throttled (min 8s between modifies).
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128506014] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25188.75,
+  requestedStop: 25187.75,
+  currentTarget: 25166,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128512531] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128512531] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25188.75,
+  requestedStop: 25187.75,
+  currentTarget: 25166,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128514335] start newStop=25187.75 newTarget=none version=n/a
+[AdjustTrace adj-1764128514335] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25188.75,
+  requestedStop: 25187.75,
+  currentTarget: 25166,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128518495] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128518495] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25188.75,
+  requestedStop: 25187.75,
+  currentTarget: 25166,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128522576] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128522576] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25188.75,
+  requestedStop: 25187.75,
+  currentTarget: 25166,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128525866] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128525866] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25188.75,
+  requestedStop: 25187.75,
+  currentTarget: 25166,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128529574] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128529574] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25188.75,
+  requestedStop: 25187.75,
+  currentTarget: 25166,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128533518] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128533518] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25188.75,
+  requestedStop: 25187.75,
+  currentTarget: 25166,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128536156] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128536156] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25188.75,
+  requestedStop: 25187.75,
+  currentTarget: 25166,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128539330] start newStop=25187.75 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128539330] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25188.75,
+  requestedStop: 25187.75,
+  currentTarget: 25166,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25187.75 is <= current 25187.75 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25182.00 to 25187.75!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25181.00 to 25187.75!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25181.00 to 25187.75!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25181.00 to 25187.75!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25181.00 to 25187.75!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25181.00 to 25187.75!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25181.00 to 25187.75!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25181.00 to 25187.75!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25181.00 to 25187.75!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25181.00 to 25187.75!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25181.00 to 25187.75!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25181.00 to 25187.75!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25181.00 to 25187.75!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25181.00 to 25187.75!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25181.00 to 25187.75!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25181.00 to 25187.75!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25181.00 to 25187.75!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25181.00 to 25187.75!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25181.00 to 25187.75!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25179.00 to 25187.75!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25179.00 to 25187.75!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25179.00 to 25187.75!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[ExecutionManager] ⚠️ Broker flat blip detected; starting debounce. Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker flat blip detected; starting debounce. Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (10ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (11ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (20ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (21ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (233ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (236ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (249ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (250ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (282ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (295ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (297ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (298ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (380ms/2500ms). Holding local position/brackets.
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25179.00 to 25187.75!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (569ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (571ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (572ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (596ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (925ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (931ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (938ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (1689ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (1689ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (1693ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (1694ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (1737ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (1738ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (1738ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (1740ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (2386ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (2387ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (2388ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (2399ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (2409ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (2438ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (2448ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (2450ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (2486ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ✅ Broker flat confirmed after debounce — clearing local active position.
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25179.00 to 25187.75!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25179.00 to 25187.75!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25179.00 to 25186.00!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[OpenAI] Reasoner attempt 1 failed: Reasoner returned empty response
+[OpenAI] Retrying reasoner with alternate delivery (non-stream).
+[OpenAI] Reasoner attempt 2 failed: Reasoner returned empty response
+[OpenAI] Retrying reasoner with alternate delivery (non-stream).
+[OpenAI] Reasoner attempt 1 failed: Reasoner returned empty response
+[OpenAI] Retrying reasoner with alternate delivery (non-stream).
+[OpenAI] Reasoner attempt 3 failed: Reasoner returned empty response
+[OpenAI] All reasoner attempts failed. Falling back to deepseek-chat/GPT-4...
+[OpenAI] Reasoner attempt 1 failed: terminated
+[OpenAI] Retrying reasoner with alternate delivery (non-stream).
+[2025-11-26T03:46:55.178Z] Error: A callback for the method 'gatewayuserorder' threw error 'TypeError: import_tradingDatabase.tradingDB.getLastPendingDecision is not a function'.
+[ExecutionManager] 🔒 Protection lock active for 6s to prevent early bracket cancels/adjusts.
+[AdjustTrace adj-1764128815191] start newStop=25188.5 newTarget=25156 version=n/a
+[AdjustTrace adj-1764128815191] abort: broker flat signal but local position exists (holding)
+[ExecutionManager] ⚠️ adjustActiveProtection skipped: broker flat signal but local position exists. Holding brackets.
+[OpenAI] Reasoner attempt 2 failed: Reasoner returned empty response
+[OpenAI] Retrying reasoner with alternate delivery (non-stream).
+[AdjustTrace adj-1764128824243] start newStop=25184 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128824243] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25187.75,
+  requestedStop: 25184,
+  currentTarget: 25155.25,
+  requestedTarget: null
+}
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25184.00 to 25184.25!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[RiskMgmt] 🚫 REJECTED: AI tried to LOOSEN stop from 25184.00 to 25184.25!
+[RiskMgmt] 🚫 Stops can ONLY tighten, NEVER loosen. Keeping current stop.
+[AdjustTrace adj-1764128834115] start newStop=25184 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128834115] stop/target need update flags {
+  stopNeedsUpdate: false,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25184,
+  requestedStop: 25184,
+  currentTarget: 25155.25,
+  requestedTarget: null
+}
+[AdjustTrace adj-1764128834115] no-op: within tolerance
+[AdjustTrace adj-1764128837126] start newStop=25183 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128837126] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25184,
+  requestedStop: 25183,
+  currentTarget: 25155.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25183.00 is <= current 25183.00 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128840081] start newStop=25183 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128840081] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25184,
+  requestedStop: 25183,
+  currentTarget: 25155.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25183.00 is <= current 25183.00 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128844908] start newStop=25183 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128844908] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25184,
+  requestedStop: 25183,
+  currentTarget: 25155.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25183.00 is <= current 25183.00 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128847677] start newStop=25183 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128847677] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25184,
+  requestedStop: 25183,
+  currentTarget: 25155.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25183.00 is <= current 25183.00 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128850458] start newStop=25183 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128850458] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25184,
+  requestedStop: 25183,
+  currentTarget: 25155.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25183.00 is <= current 25183.00 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128853964] start newStop=25183 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764128853964] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25184,
+  requestedStop: 25183,
+  currentTarget: 25155.25,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25183.00 is <= current 25183.00 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764128858072] start newStop=25183 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Broker flat blip detected; starting debounce. Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker flat blip detected; starting debounce. Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (2ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (10ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (12ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (389ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (407ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (507ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (529ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (530ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (531ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory.
+[AdjustTrace adj-1764128858072] abort: verifyPositionFlattened returned true
+[ExecutionManager] 🚫 Broker flat per verifyPositionFlattened; clearing local position and skipping adjustments.
+[AdjustTrace adj-1764128860337] start newStop=25183 newTarget=none version=n/a
+[AdjustTrace adj-1764128860337] abort: rehydrateActivePosition returned false (broker flat / no active position)
+[ExecutionManager] 🚫 adjustActiveProtection aborted: broker reports flat / no active position.
+[OpenAI] Reasoner attempt 1 failed: terminated
+[OpenAI] Retrying reasoner with alternate delivery (non-stream).
+[OpenAI] Reasoner attempt 2 failed: Reasoner returned empty response
+[OpenAI] Retrying reasoner with alternate delivery (non-stream).
+[OpenAI] Reasoner attempt 3 failed: Reasoner returned empty response
+[OpenAI] All reasoner attempts failed. Falling back to deepseek-chat/GPT-4...
+[AdjustTrace adj-1764128863710] start newStop=25183 newTarget=none version=n/a
+[AdjustTrace adj-1764128863710] abort: rehydrateActivePosition returned false (broker flat / no active position)
+[ExecutionManager] 🚫 adjustActiveProtection aborted: broker reports flat / no active position.
