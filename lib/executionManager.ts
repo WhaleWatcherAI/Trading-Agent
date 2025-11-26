@@ -2613,9 +2613,9 @@ export class ExecutionManager {
           console.warn(`[ExecutionManager] 🛑 Stop trail skipped: unknown side=${rawSide}`);
           skipStopUpdate = true;
         } else if (isShort) {
-          // For SHORT: stop must stay ABOVE current price
-          if (normalizedStop <= currentPrice) {
-            console.warn(`[ExecutionManager] 🛑 SHORT trail skipped: newStop ${normalizedStop.toFixed(2)} is <= current ${currentPrice.toFixed(2)} (wrong side)`);
+          // For SHORT: stop must stay ABOVE current price (but allow exact match for breakeven)
+          if (normalizedStop < currentPrice) {
+            console.warn(`[ExecutionManager] 🛑 SHORT trail skipped: newStop ${normalizedStop.toFixed(2)} is < current ${currentPrice.toFixed(2)} (wrong side)`);
             skipStopUpdate = true;
           }
           const minValidStop = currentPrice + minStopDistance;
@@ -2629,9 +2629,9 @@ export class ExecutionManager {
             }
           }
         } else {
-          // For LONG: stop must stay BELOW current price
-          if (normalizedStop >= currentPrice) {
-            console.warn(`[ExecutionManager] 🛑 LONG trail skipped: newStop ${normalizedStop.toFixed(2)} is >= current ${currentPrice.toFixed(2)} (wrong side)`);
+          // For LONG: stop must stay BELOW current price (but allow exact match for breakeven)
+          if (normalizedStop > currentPrice) {
+            console.warn(`[ExecutionManager] 🛑 LONG trail skipped: newStop ${normalizedStop.toFixed(2)} is > current ${currentPrice.toFixed(2)} (wrong side)`);
             skipStopUpdate = true;
           }
           const maxValidStop = currentPrice - minStopDistance;
