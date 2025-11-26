@@ -41,7 +41,7 @@ const ACCOUNT_ID = parseInt(process.env.TOPSTEPX_ACCOUNT_ID || '0');
 const DASHBOARD_PORT = parseInt(process.env.DASHBOARD_PORT || (SYMBOL === 'NQZ5' ? '3337' : SYMBOL === 'GCZ5' ? '3338' : '3339'));
 const CONTRACTS = 1;
 const ANALYSIS_INTERVAL_MS = 60_000;
-const RISK_MGMT_INTERVAL_MS = 3_000; // Risk management checks every 3 seconds (aggressive stop tightening)
+const RISK_MGMT_INTERVAL_MS = 15_000; // Risk management checks every 15 seconds
 
 // Single-instance lock to prevent multiple NQ agents
 if (SYMBOL === 'NQZ5') {
