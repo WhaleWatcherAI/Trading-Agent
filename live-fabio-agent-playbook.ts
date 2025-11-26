@@ -1554,6 +1554,13 @@ async function processMarketUpdate() {
             await executionManager.syncProtectiveOrdersFromOpenOrders(currentPosition, !currentPosition.usesNativeBracket);
 
             currentPosition = executionManager.getActivePosition();
+
+            // Update position's currentPrice from latest bar (critical for bell curve calculations)
+            if (currentPosition && currentPosition.decisionId) {
+              executionManager.updatePositionPrice(currentPosition.decisionId, posPrice);
+              currentPosition = executionManager.getActivePosition(); // Refresh after price update
+            }
+
             if (!currentPosition) {
               log('🛡️ [RiskMgmt] Skipping analysis: position not available after sync.', 'warn');
               // Skip this risk cycle; wait for next interval
