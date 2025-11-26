@@ -120,6 +120,11 @@ function calculateBellCurveStop(pos: ActivePosition, currentPrice: number, tickS
     return null;
   }
 
+  // Require minimum 8 ticks profit before bell curve activates
+  if (profitLossTicks < 8) {
+    return null;
+  }
+
   // Find appropriate lock percentage based on bell curve waypoints
   let lockPercent = 0;
   for (const waypoint of BELL_CURVE_STOPS) {
@@ -232,20 +237,23 @@ export async function analyzePositionRisk(
     : pos.entryPrice - pos.target;
   const percentToTarget = (profitLossPoints / distanceToTarget) * 100;
 
-  // PHASE 1B: AUTO BREAKEVEN - At 10% to target, FORCE stop to breakeven and activate bell curve
+  // PHASE 1B: AUTO BREAKEVEN - At 10% to target AND 8+ ticks profit, FORCE stop to breakeven and activate bell curve
   // This overrides LLM and hands off to bell curve immediately
-  if (percentToTarget >= 10 && pos.stopLoss !== pos.entryPrice) {
+  // Require BOTH conditions: percentage progress AND minimum tick profit
+  const hasMinimumTickProfit = profitLossTicks >= 8;
+
+  if (percentToTarget >= 10 && hasMinimumTickProfit && pos.stopLoss !== pos.entryPrice) {
     const stopNotAtBreakeven = pos.side === 'long'
       ? pos.stopLoss < pos.entryPrice
       : pos.stopLoss > pos.entryPrice;
 
     if (stopNotAtBreakeven) {
-      console.log(`[RiskMgmt] 🎯 AUTO BREAKEVEN: ${percentToTarget.toFixed(1)}% to target reached. Moving stop to breakeven at ${pos.entryPrice.toFixed(2)} and activating bell curve.`);
+      console.log(`[RiskMgmt] 🎯 AUTO BREAKEVEN: ${percentToTarget.toFixed(1)}% to target (${profitLossTicks.toFixed(1)} ticks profit) reached. Moving stop to breakeven at ${pos.entryPrice.toFixed(2)} and activating bell curve.`);
       return {
         action: 'ADJUST_STOP',
         newStopLoss: pos.entryPrice,
         newTarget: null,
-        reasoning: `[AUTO BREAKEVEN] Position ${percentToTarget.toFixed(1)}% to target - automatically moving stop to breakeven (${pos.entryPrice.toFixed(2)}). Bell curve now active.`,
+        reasoning: `[AUTO BREAKEVEN] Position ${percentToTarget.toFixed(1)}% to target with ${profitLossTicks.toFixed(1)} ticks profit - automatically moving stop to breakeven (${pos.entryPrice.toFixed(2)}). Bell curve now active.`,
         urgency: 'high',
         riskLevel: 'conservative',
         positionVersion: pos.positionVersion,
