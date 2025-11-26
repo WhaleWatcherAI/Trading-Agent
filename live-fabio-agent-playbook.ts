@@ -1567,18 +1567,7 @@ async function processMarketUpdate() {
               return;
             }
 
-          const latestBarPrice = bars[bars.length - 1]?.close;
-          const priceIsFresh = livePriceTimestamp && (Date.now() - livePriceTimestamp < 5000);
-          const posPrice = currentPosition?.currentPrice || (priceIsFresh && livePrice) || latestBarPrice || currentPosition.entryPrice || 0;
-          const priceGap = latestBarPrice ? Math.abs(posPrice - latestBarPrice) : 0;
-          const gapTolerance = SYMBOL.startsWith('NQ') ? 15 : SYMBOL.startsWith('GC') ? 5 : 10; // points
-          if (priceGap > gapTolerance) {
-            log(`[Safety] 🚫 Skipping risk: price gap too large. posPrice=${posPrice}, barPrice=${latestBarPrice}, gap=${priceGap.toFixed(2)} > tol=${gapTolerance}`, 'warn');
-            lastRiskMgmtTime = nowMs; // don’t spam risk on bad data
-            lastRiskMgmtDecision = null;
-            return;
-          }
-
+          // posPrice already declared and validated above - proceed with risk analysis
           const riskDecision = await analyzePositionRisk(
             currentPosition,
             buildRiskSnapshot(
