@@ -113,6 +113,7 @@ export class ExecutionManager {
   private lastProtectiveModifyMs = 0; // track recent stop/target modifies to avoid false “no stop” detection
   private lastStopModifyMs = 0;
   private lastTargetModifyMs = 0;
+  private nextTradeContracts: number | null = null; // Override contracts for next trade only
 
   constructor(
     private symbol: string,
@@ -131,6 +132,21 @@ export class ExecutionManager {
     } catch (error: any) {
       console.warn('[ExecutionManager] Unable to initialize ProjectX REST client (falling back to legacy order flow):', error?.message || error);
       this.restClient = null;
+    }
+  }
+
+  /**
+   * Set the number of contracts for the NEXT trade only.
+   * After the trade is executed, this resets to null (uses default).
+   * This is safe for WebSocket sync as it only affects new order creation.
+   */
+  setContractsForNextTrade(contracts: number): void {
+    if (contracts >= 1 && contracts <= 10) {
+      this.nextTradeContracts = contracts;
+      console.log(`[ExecutionManager] 📊 Next trade will use ${contracts} contract(s) (confidence-based sizing)`);
+    } else {
+      console.warn(`[ExecutionManager] ⚠️ Invalid contract count ${contracts}, using default ${this.contracts}`);
+      this.nextTradeContracts = null;
     }
   }
 
@@ -609,6 +625,7 @@ export class ExecutionManager {
 
   /**
    * Create order from decision
+   * Uses nextTradeContracts if set (for confidence-based sizing), otherwise default contracts
    */
   private createOrder(decision: OpenAITradingDecision | AgentDecision, currentPrice: number): ExecutedOrder | null {
     const decisionId = 'id' in decision ? decision.id : 'unknown';
@@ -621,12 +638,17 @@ export class ExecutionManager {
 
     const orderId = `${this.symbol}-${++this.orderIdCounter}-${Date.now()}`;
 
+    // Use dynamic contracts if set, otherwise use default
+    const orderContracts = this.nextTradeContracts ?? this.contracts;
+    // Reset after use - this ensures it only applies to this one trade
+    this.nextTradeContracts = null;
+
     return {
       id: orderId,
       decisionId,
       symbol: this.symbol,
       side,
-      quantity: this.contracts,
+      quantity: orderContracts,
       orderPrice: currentPrice,
       executedPrice: currentPrice, // Simplified: assume filled at market
       executedTime: new Date().toISOString(),
