@@ -758,8 +758,8 @@ function buildRiskSnapshot(
   l2Data: any
 ): any {
   const currentBar = bars[bars.length - 1];
-  // Prefer executionManager-tracked price if available, else last bar close
-  const currentPrice = position?.currentPrice || currentBar?.close || position.entryPrice;
+  // Use ACTUAL current market price from last bar close (most recent tick data)
+  const currentPrice = currentBar?.close || position?.currentPrice || position.entryPrice;
 
   // Extract trade leg volume profile (nodes between stop and target)
   const tradeLegProfile = extractTradeLegProfile(volumeProfile, position);
