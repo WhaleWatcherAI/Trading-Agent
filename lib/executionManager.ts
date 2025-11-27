@@ -2768,26 +2768,42 @@ export class ExecutionManager {
 
       if (!existing || !isSame) {
         const fallbackLevels = this.calculateBracketLevels(entryPrice, side === 'long' ? 'buy' : 'sell');
+
+        // CRITICAL FIX: Only preserve brackets if it's truly the SAME position (same entry + side)
+        // For NEW positions, ALWAYS use freshly calculated fallbackLevels to avoid inverted brackets
+        // Bug: Previously preserved existing.stopLoss/target even for NEW positions, causing
+        // inverted brackets (e.g., stop ABOVE entry for LONG) when side changed
+        const isNewPosition = !existing || existing.side !== side || existing.entryPrice !== entryPrice;
+
         const activePosition: ActivePosition = {
           decisionId: existing?.decisionId || `ws-${Date.now()}`,
           symbol: this.symbol,
           side,
           entryPrice,
           entryTime: positionMsg.updateTimestamp || new Date().toISOString(),
-          stopLoss: existing?.stopLoss ?? fallbackLevels.stopLoss,
-          target: existing?.target ?? fallbackLevels.takeProfit,
+          // For new positions, ALWAYS use correct fallbackLevels; never preserve inverted brackets
+          stopLoss: isNewPosition ? fallbackLevels.stopLoss : (existing?.stopLoss ?? fallbackLevels.stopLoss),
+          target: isNewPosition ? fallbackLevels.takeProfit : (existing?.target ?? fallbackLevels.takeProfit),
           contracts: Math.abs(qty),
           currentPrice: entryPrice,
           unrealizedPnL: 0,
           unrealizedPnLPercent: 0,
-          stopOrderId: existing?.stopOrderId,
-          targetOrderId: existing?.targetOrderId,
-          usesNativeBracket: existing?.usesNativeBracket,
+          // Clear order IDs for truly new positions since old orders are invalid
+          stopOrderId: isNewPosition ? undefined : existing?.stopOrderId,
+          targetOrderId: isNewPosition ? undefined : existing?.targetOrderId,
+          usesNativeBracket: isNewPosition ? undefined : existing?.usesNativeBracket,
         };
         this.activePositions.clear();
         // Store positions keyed by symbol for consistent lookups
         this.activePositions.set(this.symbol, activePosition);
+
+        // Enhanced debug logging to verify bracket orientation
+        const bracketsCorrect = side === 'long'
+          ? activePosition.stopLoss < entryPrice && activePosition.target > entryPrice
+          : activePosition.stopLoss > entryPrice && activePosition.target < entryPrice;
+        const bracketStatus = bracketsCorrect ? '✅ CORRECT' : '❌ INVERTED';
         console.log(`[ExecutionManager] 🔔 Websocket position update synced: ${side.toUpperCase()} @ ${entryPrice.toFixed(2)} (${activePosition.contracts} contracts)`);
+        console.log(`[ExecutionManager] 🎯 Brackets: Stop=${activePosition.stopLoss.toFixed(2)}, Target=${activePosition.target.toFixed(2)} [${bracketStatus}] (isNewPosition=${isNewPosition})`);
       }
       this.brokerHasPosition = true;
     } catch (err: any) {

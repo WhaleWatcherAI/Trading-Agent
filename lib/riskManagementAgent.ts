@@ -109,6 +109,15 @@ function calculateBellCurveStop(pos: ActivePosition, currentPrice: number): { ne
     ? pos.target - pos.entryPrice
     : pos.entryPrice - pos.target;
 
+  // DEFENSIVE: Detect inverted brackets and warn (indicates upstream bug)
+  if (distanceToTarget <= 0) {
+    console.error(`[RiskMgmt] ❌ INVERTED BRACKETS DETECTED! ${pos.side.toUpperCase()} position has invalid brackets:`);
+    console.error(`[RiskMgmt]    Entry=${pos.entryPrice.toFixed(2)}, Stop=${pos.stopLoss.toFixed(2)}, Target=${pos.target.toFixed(2)}`);
+    console.error(`[RiskMgmt]    distanceToTarget=${distanceToTarget.toFixed(2)} (should be positive)`);
+    console.error(`[RiskMgmt]    This prevents bell curve trailing stop from activating!`);
+    return null;
+  }
+
   const percentToTarget = (profitLossPoints / distanceToTarget) * 100;
 
   // Not profitable yet - don't move stop
