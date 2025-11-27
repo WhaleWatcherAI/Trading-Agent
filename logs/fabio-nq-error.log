@@ -1,511 +1,201 @@
 DEBUG: main() function called
 DEBUG: About to print header
-[OpenAI] Reasoner attempt 1 failed: terminated
-[OpenAI] Retrying reasoner with alternate delivery (non-stream).
-[OpenAI] Reasoner attempt 2 failed: terminated
-[OpenAI] Retrying reasoner with alternate delivery (non-stream).
-[OpenAI] Reasoner attempt 1 failed: Reasoner returned empty response
-[OpenAI] Retrying reasoner with alternate delivery (non-stream).
-[OpenAI] Reasoner attempt 3 failed: Reasoner returned empty response
-[OpenAI] All reasoner attempts failed. Falling back to deepseek-chat/GPT-4...
-[OpenAI] Reasoner attempt 1 failed: Reasoner returned empty response
-[OpenAI] Retrying reasoner with alternate delivery (non-stream).
-[OpenAI] Reasoner attempt 2 failed: terminated
-[OpenAI] Retrying reasoner with alternate delivery (non-stream).
+[topstepx] Failed to fetch accounts: Request failed with status code 429
+[AdjustTrace adj-1764260009689] start newStop=25296.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764260009689] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25294.5,
+  requestedStop: 25296.5,
+  currentTarget: 25285.75,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25296.50 is <= current 25296.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[AdjustTrace adj-1764260023386] start newStop=25293.5 newTarget=none version=n/a
+[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
+[AdjustTrace adj-1764260023386] stop/target need update flags {
+  stopNeedsUpdate: true,
+  targetNeedsUpdate: false,
+  tickSize: 0.25,
+  currentStop: 25294.5,
+  requestedStop: 25293.5,
+  currentTarget: 25285.75,
+  requestedTarget: null
+}
+[ExecutionManager] 🛑 SHORT trail skipped: newStop 25293.50 is <= current 25296.50 (wrong side)
+[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
+[ExecutionManager] ⚠️ Broker flat blip detected; starting debounce. Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (6ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (9ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (34ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (369ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (586ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (644ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (669ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (709ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (736ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (740ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (762ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (813ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (818ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (892ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (1069ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (1167ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (1333ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (1431ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (1835ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (1880ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (1971ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (2024ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (2077ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ⚠️ Broker still flat but within debounce (2175ms/2500ms). Holding local position/brackets.
+[ExecutionManager] ✅ Broker flat confirmed after debounce — clearing local active position.
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] Failed to sync broker state: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
 [ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
 [OpenAI] Reasoner attempt 1 failed: terminated
 [OpenAI] Retrying reasoner with alternate delivery (non-stream).
-[OpenAI] Reasoner attempt 3 failed: Reasoner returned empty response
-[OpenAI] All reasoner attempts failed. Falling back to deepseek-chat/GPT-4...
 [OpenAI] Reasoner attempt 2 failed: Reasoner returned empty response
 [OpenAI] Retrying reasoner with alternate delivery (non-stream).
-[ExecutionManager] ⚠️ Long stop override invalid (25315.00 >= entry 25312.00). Resetting to default.
-[ExecutionManager] ⚠️ Stop distance (25.00) exceeds target distance (24.75). Clamping stop to 25287.25.
-[ExecutionManager] ⚠️ Long stop override invalid (25315.00 >= entry 25312.00). Resetting to default.
-[ExecutionManager] ⚠️ Stop distance (25.00) exceeds target distance (24.75). Clamping stop to 25287.25.
-[ExecutionManager] 🔒 Protection lock active for 6s to prevent early bracket cancels/adjusts.
-[AdjustTrace adj-1764224352837] start newStop=25315 newTarget=25336.75 version=n/a
-[AdjustTrace adj-1764224352837] abort: broker flat signal but local position exists (holding)
-[ExecutionManager] ⚠️ adjustActiveProtection skipped: broker flat signal but local position exists. Holding brackets.
-[AdjustTrace adj-1764224362610] start newStop=25310 newTarget=none version=n/a
-[AdjustTrace adj-1764224363100] start newStop=25311 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764224363100] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25286.5,
-  requestedStop: 25311,
-  currentTarget: 25336,
-  requestedTarget: null
-}
-[AdjustTrace adj-1764224362610] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25286.5,
-  requestedStop: 25310,
-  currentTarget: 25336,
-  requestedTarget: null
-}
-[RiskMgmt] 🚫 Skip stop tightening: position not in profit and proposal does not improve risk.
-[RiskMgmt] 🚫 Skip stop tightening: position not in profit and proposal does not improve risk.
-[AdjustTrace adj-1764224377142] start newStop=25312 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764224377142] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25310,
-  requestedStop: 25312,
-  currentTarget: 25336,
-  requestedTarget: null
-}
-[ExecutionManager] 🛑 LONG trail skipped: newStop 25312.00 is >= current 25312.00 (wrong side)
-[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
-[AdjustTrace adj-1764224379751] start newStop=25311 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764224379751] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25310,
-  requestedStop: 25311,
-  currentTarget: 25336,
-  requestedTarget: null
-}
-[AdjustTrace adj-1764224384763] start newStop=25311.25 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764224384763] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25311,
-  requestedStop: 25311.25,
-  currentTarget: 25336,
-  requestedTarget: null
-}
-[ExecutionManager] ⏳ Stop modify throttled (min 8s between modifies).
-[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
-[AdjustTrace adj-1764224386657] start newStop=25312 newTarget=none version=n/a
-[AdjustTrace adj-1764224386657] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25311,
-  requestedStop: 25312,
-  currentTarget: 25336,
-  requestedTarget: null
-}
-[ExecutionManager] 🛑 LONG trail skipped: newStop 25312.00 is >= current 25312.00 (wrong side)
-[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
-[OpenAI] Reasoner attempt 2 failed: Reasoner returned empty response
-[OpenAI] Retrying reasoner with alternate delivery (non-stream).
-[AdjustTrace adj-1764224391665] start newStop=25312 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764224391665] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25311,
-  requestedStop: 25312,
-  currentTarget: 25336,
-  requestedTarget: null
-}
-[ExecutionManager] 🛑 LONG trail skipped: newStop 25312.00 is >= current 25312.00 (wrong side)
-[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
-[OpenAI] Reasoner attempt 3 failed: Reasoner returned empty response
-[OpenAI] All reasoner attempts failed. Falling back to deepseek-chat/GPT-4...
-[AdjustTrace adj-1764224394949] start newStop=25312 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764224394949] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25311,
-  requestedStop: 25312,
-  currentTarget: 25336,
-  requestedTarget: null
-}
-[ExecutionManager] 🛑 LONG trail skipped: newStop 25312.00 is >= current 25312.00 (wrong side)
-[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
-[AdjustTrace adj-1764224397875] start newStop=25312 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764224397875] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25311,
-  requestedStop: 25312,
-  currentTarget: 25336,
-  requestedTarget: null
-}
-[ExecutionManager] 🛑 LONG trail skipped: newStop 25312.00 is >= current 25312.00 (wrong side)
-[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
-[ExecutionManager] ⚠️ Broker flat blip detected; starting debounce. Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (2ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (2ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (6ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (55ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (344ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (392ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (556ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (557ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (657ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (659ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (690ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (751ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (795ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1950ms/2500ms). Holding local position/brackets.
-[AdjustTrace adj-1764224402524] start newStop=25312 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Broker still flat but within debounce (2006ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (2008ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (2418ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (2418ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory.
-[ExecutionManager] ✅ Broker flat confirmed after debounce — clearing local active position.
-[AdjustTrace adj-1764224402524] abort: verifyPositionFlattened returned true
-[ExecutionManager] 🚫 Broker flat per verifyPositionFlattened; clearing local position and skipping adjustments.
 [OpenAI] Reasoner attempt 1 failed: Reasoner returned empty response
 [OpenAI] Retrying reasoner with alternate delivery (non-stream).
-[ExecutionManager] 🚫 DUPLICATE ENTRY PREVENTION: Last entry was 55s ago. Must wait 36s before new entry (grace period: 90s)
-[AdjustTrace adj-1764224407451] start newStop=25312 newTarget=none version=n/a
-[AdjustTrace adj-1764224407451] abort: rehydrateActivePosition returned false (broker flat / no active position)
-[ExecutionManager] 🚫 adjustActiveProtection aborted: broker reports flat / no active position.
-[AdjustTrace adj-1764224410299] start newStop=25312 newTarget=none version=n/a
-[AdjustTrace adj-1764224410299] abort: rehydrateActivePosition returned false (broker flat / no active position)
-[ExecutionManager] 🚫 adjustActiveProtection aborted: broker reports flat / no active position.
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
 [OpenAI] Reasoner attempt 3 failed: Reasoner returned empty response
 [OpenAI] All reasoner attempts failed. Falling back to deepseek-chat/GPT-4...
-[ExecutionManager] ⚠️ Short target override invalid (25312.00 >= entry 25308.50). Resetting to default.
-[ExecutionManager] ⚠️ Short target override invalid (25312.00 >= entry 25308.50). Resetting to default.
 [ExecutionManager] 🔒 Protection lock active for 6s to prevent early bracket cancels/adjusts.
-[AdjustTrace adj-1764224449585] start newStop=25318.25 newTarget=25312 version=n/a
-[AdjustTrace adj-1764224449585] abort: broker flat signal but local position exists (holding)
+[AdjustTrace adj-1764260263961] start newStop=25289.5 newTarget=25336.75 version=n/a
+[AdjustTrace adj-1764260263961] abort: broker flat signal but local position exists (holding)
 [ExecutionManager] ⚠️ adjustActiveProtection skipped: broker flat signal but local position exists. Holding brackets.
-[AdjustTrace adj-1764224459377] start newStop=25315.75 newTarget=none version=n/a
-[AdjustTrace adj-1764224459855] start newStop=25315.75 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764224459855] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25318,
-  requestedStop: 25315.75,
-  currentTarget: 25258.25,
-  requestedTarget: null
-}
-[AdjustTrace adj-1764224459377] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25318,
-  requestedStop: 25315.75,
-  currentTarget: 25258.25,
-  requestedTarget: null
-}
-[RiskMgmt] 🚫 Skip stop tightening: position not in profit and proposal does not improve risk.
-[OpenAI] Reasoner attempt 2 failed: Reasoner returned empty response
-[OpenAI] Retrying reasoner with alternate delivery (non-stream).
-[RiskMgmt] 🚫 Skip stop tightening: position not in profit and proposal does not improve risk.
-[AdjustTrace adj-1764224471352] start newStop=25311.75 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764224471352] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25315.75,
-  requestedStop: 25311.75,
-  currentTarget: 25258.25,
-  requestedTarget: null
-}
-[ExecutionManager] ⚠️ STOP modification attempt 1 rejected: Invalid stop price
-[ExecutionManager] ⚠️ STOP modification attempt 2 rejected: Invalid stop price
-[AdjustTrace adj-1764224475366] start newStop=25312 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[ExecutionManager] ⚠️ STOP modification attempt 3 rejected: Invalid stop price
-[ExecutionManager] ❌ STOP modification failed after 3 attempts
-[ExecutionManager] ❌ Stop modification failed after retries.
-[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
-[AdjustTrace adj-1764224475366] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25315.75,
-  requestedStop: 25312,
-  currentTarget: 25258.25,
-  requestedTarget: null
-}
-[ExecutionManager] ⚠️ STOP modification attempt 1 rejected: Invalid stop price
-[ExecutionManager] ⚠️ Broker flat blip detected; starting debounce. Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1ms/2500ms). Holding local position/brackets.
-[RiskMgmt] 🚫 Skip stop tightening: position not in profit and proposal does not improve risk.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (331ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (470ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (639ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (639ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (643ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (2225ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ✅ Broker flat confirmed after debounce — clearing local active position.
-[RiskMgmt] 🚫 Skip stop tightening: position not in profit and proposal does not improve risk.
-[RiskMgmt] 🚫 Skip stop tightening: position not in profit and proposal does not improve risk.
-[AdjustTrace adj-1764224491374] start newStop=25309.25 newTarget=none version=n/a
-[AdjustTrace adj-1764224491374] abort: rehydrateActivePosition returned false (broker flat / no active position)
-[ExecutionManager] 🚫 adjustActiveProtection aborted: broker reports flat / no active position.
 [OpenAI] Reasoner attempt 1 failed: terminated
 [OpenAI] Retrying reasoner with alternate delivery (non-stream).
-[OpenAI] Reasoner attempt 3 failed: Reasoner returned empty response
-[OpenAI] All reasoner attempts failed. Falling back to deepseek-chat/GPT-4...
-[ExecutionManager] 🚫 DUPLICATE ENTRY PREVENTION: Last entry was 78s ago. Must wait 13s before new entry (grace period: 90s)
 [OpenAI] Reasoner attempt 2 failed: Reasoner returned empty response
 [OpenAI] Retrying reasoner with alternate delivery (non-stream).
-[OpenAI] Reasoner attempt 3 failed: Reasoner returned empty response
-[OpenAI] All reasoner attempts failed. Falling back to deepseek-chat/GPT-4...
-[OpenAI] Reasoner attempt 1 failed: Reasoner returned empty response
-[OpenAI] Retrying reasoner with alternate delivery (non-stream).
-[ExecutionManager] 🔒 Protection lock active for 6s to prevent early bracket cancels/adjusts.
-[AdjustTrace adj-1764224624210] start newStop=25312.5 newTarget=25300 version=n/a
-[AdjustTrace adj-1764224624210] abort: broker flat signal but local position exists (holding)
-[ExecutionManager] ⚠️ adjustActiveProtection skipped: broker flat signal but local position exists. Holding brackets.
-[AdjustTrace adj-1764224633867] start newStop=25311 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764224634659] start newStop=25311 newTarget=none version=n/a
-[AdjustTrace adj-1764224633867] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25312,
-  requestedStop: 25311,
-  currentTarget: 25299.5,
-  requestedTarget: null
-}
-[ExecutionManager] 🛑 SHORT trail skipped: newStop 25311.00 is <= current 25311.00 (wrong side)
-[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
-[AdjustTrace adj-1764224634659] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25312,
-  requestedStop: 25311,
-  currentTarget: 25299.5,
-  requestedTarget: null
-}
-[ExecutionManager] 🛑 SHORT trail skipped: newStop 25311.00 is <= current 25311.00 (wrong side)
-[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
-[AdjustTrace adj-1764224637752] start newStop=25311 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764224637752] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25312,
-  requestedStop: 25311,
-  currentTarget: 25299.5,
-  requestedTarget: null
-}
-[ExecutionManager] 🛑 SHORT trail skipped: newStop 25311.00 is <= current 25311.00 (wrong side)
-[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
-[ExecutionManager] ⚠️ Broker flat blip detected; starting debounce. Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (0ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (6ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (8ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (464ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (496ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (623ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1561ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (2067ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (2305ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ✅ Broker flat confirmed after debounce — clearing local active position.
-[AdjustTrace adj-1764224645550] start newStop=25311 newTarget=none version=n/a
-[AdjustTrace adj-1764224645550] abort: rehydrateActivePosition returned false (broker flat / no active position)
-[ExecutionManager] 🚫 adjustActiveProtection aborted: broker reports flat / no active position.
-[AdjustTrace adj-1764224649102] start newStop=25311 newTarget=none version=n/a
-[AdjustTrace adj-1764224649102] abort: rehydrateActivePosition returned false (broker flat / no active position)
-[ExecutionManager] 🚫 adjustActiveProtection aborted: broker reports flat / no active position.
-[OpenAI] Reasoner attempt 2 failed: Reasoner returned empty response
-[OpenAI] Retrying reasoner with alternate delivery (non-stream).
-[OpenAI] Reasoner attempt 1 failed: Reasoner returned empty response
-[OpenAI] Retrying reasoner with alternate delivery (non-stream).
-[OpenAI] Reasoner attempt 3 failed: Reasoner returned empty response
-[OpenAI] All reasoner attempts failed. Falling back to deepseek-chat/GPT-4...
-[OpenAI] Reasoner attempt 2 failed: Reasoner returned empty response
-[OpenAI] Retrying reasoner with alternate delivery (non-stream).
-[ExecutionManager] ⚠️ Stop distance (7.50) exceeds target distance (0.75). Clamping stop to 25317.00.
-[ExecutionManager] REST entry rejected: Invalid stop loss ticks (-3). Price should be at least 4 ticks away.
-[ExecutionManager] 🚫 Order rejected by safeguards - NO FALLBACK TO LEGACY
-[OpenAI] Reasoner attempt 3 failed: Reasoner returned empty response
-[OpenAI] All reasoner attempts failed. Falling back to deepseek-chat/GPT-4...
-[OpenAI] Reasoner attempt 1 failed: Reasoner returned empty response
-[OpenAI] Retrying reasoner with alternate delivery (non-stream).
-[OpenAI] Reasoner attempt 2 failed: terminated
-[OpenAI] Retrying reasoner with alternate delivery (non-stream).
-[OpenAI] Reasoner attempt 3 failed: Reasoner returned empty response
-[OpenAI] All reasoner attempts failed. Falling back to deepseek-chat/GPT-4...
-[OpenAI] Reasoner attempt 1 failed: terminated
-[OpenAI] Retrying reasoner with alternate delivery (non-stream).
-[ExecutionManager] ⚠️ Long target override invalid (25318.50 <= entry 25320.50). Resetting to default.
-[ExecutionManager] ⚠️ Long target override invalid (25318.50 <= entry 25320.50). Resetting to default.
-[ExecutionManager] 🔒 Protection lock active for 6s to prevent early bracket cancels/adjusts.
-[AdjustTrace adj-1764224914247] start newStop=25311.75 newTarget=25318.5 version=n/a
-[AdjustTrace adj-1764224914247] abort: broker flat signal but local position exists (holding)
-[ExecutionManager] ⚠️ adjustActiveProtection skipped: broker flat signal but local position exists. Holding brackets.
-[AdjustTrace adj-1764224923528] start newStop=25316.75 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764224924364] start newStop=25315.75 newTarget=none version=n/a
-[AdjustTrace adj-1764224923528] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25311.75,
-  requestedStop: 25316.75,
-  currentTarget: 25370.5,
-  requestedTarget: null
-}
-[AdjustTrace adj-1764224924364] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25316.75,
-  requestedStop: 25315.75,
-  currentTarget: 25370.5,
-  requestedTarget: null
-}
-[ExecutionManager] ⏳ Stop modify throttled (min 8s between modifies).
-[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
-[RiskMgmt] 🚫 Skip stop tightening: position not in profit and proposal does not improve risk.
-[RiskMgmt] 🚫 Skip stop tightening: position not in profit and proposal does not improve risk.
-[AdjustTrace adj-1764224934165] start newStop=25319.75 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764224934165] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25316.75,
-  requestedStop: 25319.75,
-  currentTarget: 25370.5,
-  requestedTarget: null
-}
-[AdjustTrace adj-1764224936964] start newStop=25319.75 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Broker flat blip detected; starting debounce. Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (7ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (30ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (380ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (529ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (546ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (550ms/2500ms). Holding local position/brackets.
-[AdjustTrace adj-1764224936964] abort: verifyPositionFlattened returned true
-[ExecutionManager] 🚫 Broker flat per verifyPositionFlattened; clearing local position and skipping adjustments.
-[RiskMgmt] 🚫 Skip stop tightening: position not in profit and proposal does not improve risk.
-[AdjustTrace adj-1764224945294] start newStop=25320.5 newTarget=none version=n/a
-[AdjustTrace adj-1764224945294] abort: rehydrateActivePosition returned false (broker flat / no active position)
-[ExecutionManager] 🚫 adjustActiveProtection aborted: broker reports flat / no active position.
-[OpenAI] Reasoner attempt 2 failed: Reasoner returned empty response
-[OpenAI] Retrying reasoner with alternate delivery (non-stream).
-[OpenAI] Reasoner attempt 1 failed: Reasoner returned empty response
-[OpenAI] Retrying reasoner with alternate delivery (non-stream).
-[OpenAI] Reasoner attempt 3 failed: Reasoner returned empty response
-[OpenAI] All reasoner attempts failed. Falling back to deepseek-chat/GPT-4...
-[ExecutionManager] ⚠️ Long stop override invalid (25318.25 >= entry 25316.50). Resetting to default.
-[ExecutionManager] ⚠️ Stop distance (25.00) exceeds target distance (4.50). Clamping stop to 25312.00.
-[ExecutionManager] ⚠️ Long stop override invalid (25318.25 >= entry 25316.50). Resetting to default.
-[ExecutionManager] ⚠️ Stop distance (25.00) exceeds target distance (4.50). Clamping stop to 25312.00.
-[ExecutionManager] 🔒 Protection lock active for 6s to prevent early bracket cancels/adjusts.
-[AdjustTrace adj-1764225022660] start newStop=25318.25 newTarget=25321 version=n/a
-[AdjustTrace adj-1764225022660] abort: broker flat signal but local position exists (holding)
-[ExecutionManager] ⚠️ adjustActiveProtection skipped: broker flat signal but local position exists. Holding brackets.
-[AdjustTrace adj-1764225032249] start newStop=25315.75 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764225032776] start newStop=25315.75 newTarget=none version=n/a
-[AdjustTrace adj-1764225036112] start newStop=25315.75 newTarget=none version=n/a
-[OpenAI] Reasoner attempt 2 failed: Reasoner returned empty response
-[OpenAI] Retrying reasoner with alternate delivery (non-stream).
-[AdjustTrace adj-1764225039891] start newStop=25315.75 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764225039891] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25312.25,
-  requestedStop: 25315.75,
-  currentTarget: 25321.25,
-  requestedTarget: null
-}
-[AdjustTrace adj-1764225032776] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25315.5,
-  requestedStop: 25315.75,
-  currentTarget: 25321.25,
-  requestedTarget: null
-}
-[ExecutionManager] ⏳ Stop modify throttled (min 8s between modifies).
-[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
-[AdjustTrace adj-1764225032249] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25315.5,
-  requestedStop: 25315.75,
-  currentTarget: 25321.25,
-  requestedTarget: null
-}
-[ExecutionManager] ⏳ Stop modify throttled (min 8s between modifies).
-[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764225051321] start newStop=25315.75 newTarget=none version=n/a
-[AdjustTrace adj-1764225036112] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25315.5,
-  requestedStop: 25315.75,
-  currentTarget: 25321.25,
-  requestedTarget: null
-}
-[ExecutionManager] ⏳ Stop modify throttled (min 8s between modifies).
-[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory and protective orders.
-[AdjustTrace adj-1764225051321] stop/target need update flags {
-  stopNeedsUpdate: true,
-  targetNeedsUpdate: false,
-  tickSize: 0.25,
-  currentStop: 25315.5,
-  requestedStop: 25315.75,
-  currentTarget: 25321.25,
-  requestedTarget: null
-}
-[ExecutionManager] ⏳ Stop modify throttled (min 8s between modifies).
-[ExecutionManager] ❌ Bracket adjustment FAILED - no updates were applied
-[ExecutionManager] ⚠️ Broker flat blip detected; starting debounce. Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (44ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (116ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (130ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (133ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (147ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (497ms/2500ms). Holding local position/brackets.
-[AdjustTrace adj-1764225056311] start newStop=25315.75 newTarget=none version=n/a
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1240ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (1646ms/2500ms). Holding local position/brackets.
-[ExecutionManager] ⚠️ Positions API returned empty; inferring position exists from memory.
-[ExecutionManager] ⚠️ Broker still flat but within debounce (2143ms/2500ms). Holding local position/brackets.
-[AdjustTrace adj-1764225056311] abort: verifyPositionFlattened returned true
-[ExecutionManager] 🚫 Broker flat per verifyPositionFlattened; clearing local position and skipping adjustments.
-[AdjustTrace adj-1764225059537] start newStop=25316.5 newTarget=none version=n/a
-[AdjustTrace adj-1764225059537] abort: rehydrateActivePosition returned false (broker flat / no active position)
-[ExecutionManager] 🚫 adjustActiveProtection aborted: broker reports flat / no active position.
-[AdjustTrace adj-1764225063469] start newStop=25316.5 newTarget=none version=n/a
-[AdjustTrace adj-1764225063469] abort: rehydrateActivePosition returned false (broker flat / no active position)
-[ExecutionManager] 🚫 adjustActiveProtection aborted: broker reports flat / no active position.
-[OpenAI] Reasoner attempt 1 failed: Reasoner returned empty response
-[OpenAI] Retrying reasoner with alternate delivery (non-stream).
-[OpenAI] Reasoner attempt 3 failed: Reasoner returned empty response
-[OpenAI] All reasoner attempts failed. Falling back to deepseek-chat/GPT-4...
-[ExecutionManager] 🚫 DUPLICATE ENTRY PREVENTION: Last entry was 88s ago. Must wait 2s before new entry (grace period: 90s)
-[OpenAI] Reasoner attempt 2 failed: Reasoner returned empty response
-[OpenAI] Retrying reasoner with alternate delivery (non-stream).
-[OpenAI] Reasoner attempt 1 failed: terminated
-[OpenAI] Retrying reasoner with alternate delivery (non-stream).
-[OpenAI] Reasoner attempt 3 failed: Reasoner returned empty response
-[OpenAI] All reasoner attempts failed. Falling back to deepseek-chat/GPT-4...
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 
+[ExecutionManager] verifyPositionFlattened error: searchOpenOrders 429: 

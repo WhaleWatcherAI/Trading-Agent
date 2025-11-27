@@ -38,8 +38,9 @@ export interface MarketSnapshot {
  * SMOOTH FORWARD-MOVING BELL CURVE TRAILING STOP
  *
  * Philosophy:
- * - Starts immediately when position is filled
+ * - Starts IMMEDIATELY on FIRST TICK in profit (no waiting for breakeven)
  * - Moves FORWARD from entry price toward take profit as price moves in our favor
+ * - Stop drags behind current price at an exponentially shrinking distance
  * - Uses smooth continuous interpolation (no big jumps)
  * - Only needs: entry price, current price, initial stop, take profit
  * - Works on every price tick update
@@ -61,62 +62,78 @@ function calculateSmoothBellCurveStop(pos: ActivePosition, currentPrice: number,
     return null;
   }
 
-  // Calculate progress: 0% at entry, 100% at take profit
-  const percentToTarget = (profitLossPoints / distanceToTarget) * 100;
-
   // Not profitable yet - don't move stop
   if (profitLossPoints <= 0) {
+    console.log(`[RiskMgmt] ⏸️  Position not profitable yet: profitLossPoints=${profitLossPoints.toFixed(2)}, currentPrice=${currentPrice.toFixed(2)}, entryPrice=${pos.entryPrice.toFixed(2)}`);
     return null;
   }
 
-  // SMOOTH BELL CURVE INTERPOLATION
-  // Uses a cubic easing function for smooth, gradual tightening
-  // Formula: y = x^3 for smooth acceleration
-  // Maps percent to target (0-100%) to lock percent (0-95%)
-  //
-  // This creates a smooth curve that:
-  // - Starts slow (gives room to breathe early)
-  // - Accelerates in the middle
-  // - Tightens aggressively near target
+  const profitTicks = profitLossPoints / tickSize;
+  console.log(`[RiskMgmt] 💰 Position IN PROFIT: +${profitTicks.toFixed(1)} ticks (+${profitLossPoints.toFixed(2)} pts) | Entry: ${pos.entryPrice.toFixed(2)}, Current: ${currentPrice.toFixed(2)}`);
 
-  let lockPercent: number;
+  // IMMEDIATE BELL CURVE: Start dragging from FIRST TICK in profit
+  // Calculate progress from ENTRY to TAKE PROFIT (0% to 100%)
+  const percentToTarget = (profitLossPoints / distanceToTarget) * 100;
+
+  // DRAGGING STOP: Stop drags behind current price at a distance
+  // The distance SHRINKS as we approach target (bell curve shape)
+  //
+  // Distance Multiplier (how far stop drags behind current price):
+  // - 0-30% progress: 0.90-0.70 (loose, 70-90% of remaining distance)
+  // - 30-60% progress: 0.70-0.40 (tightening, 40-70%)
+  // - 60-100% progress: 0.40-0.05 (very tight, 5-40%)
+
+  let distanceMultiplier: number;
 
   if (percentToTarget <= 0) {
-    lockPercent = 0;
+    distanceMultiplier = 0.95; // Very loose at start
   } else if (percentToTarget >= 100) {
-    lockPercent = 95; // Max 95% lock at target
+    distanceMultiplier = 0.05; // Very tight at target
+  } else if (percentToTarget <= 30) {
+    // 0-30%: Linear from 0.95 to 0.70
+    // Lots of breathing room
+    const progress = percentToTarget / 30;
+    distanceMultiplier = 0.95 - (progress * 0.25);
+  } else if (percentToTarget <= 60) {
+    // 30-60%: Quadratic from 0.70 to 0.40
+    // Moderate acceleration
+    const progress = (percentToTarget - 30) / 30;
+    const quadratic = Math.pow(progress, 2);
+    distanceMultiplier = 0.70 - (quadratic * 0.30);
   } else {
-    // Cubic easing: smooth acceleration
-    // Normalized progress (0 to 1)
-    const progress = percentToTarget / 100;
-    // Apply cubic easing: progress^3
-    const eased = Math.pow(progress, 3);
-    // Scale to max 95%
-    lockPercent = eased * 95;
+    // 60-100%: Cubic from 0.40 to 0.05
+    // Aggressive tightening near target
+    const progress = (percentToTarget - 60) / 40;
+    const cubic = Math.pow(progress, 3);
+    distanceMultiplier = 0.40 - (cubic * 0.35);
   }
 
-  // Calculate new stop based on lock percentage
-  const profitToLock = profitLossPoints * (lockPercent / 100);
+  // Calculate distance from current price to target
+  const distanceToTargetFromCurrent = pos.side === 'long'
+    ? pos.target - currentPrice
+    : currentPrice - pos.target;
+
+  // Stop drags behind at the calculated distance
+  const dragDistance = distanceToTargetFromCurrent * distanceMultiplier;
+
   const newStop = pos.side === 'long'
-    ? pos.entryPrice + profitToLock
-    : pos.entryPrice - profitToLock;
+    ? currentPrice - dragDistance
+    : currentPrice + dragDistance;
 
   // Don't move stop if it would loosen
-  const currentStop = pos.stopLoss;
   const isLoosening = pos.side === 'long'
-    ? newStop < currentStop
-    : newStop > currentStop;
+    ? newStop < pos.stopLoss
+    : newStop > pos.stopLoss;
 
   if (isLoosening) {
     return null;
   }
 
-  // Only move stop if change is significant enough (at least 1 tick)
-  // This prevents constant micro-adjustments on every price tick
-  const stopChange = Math.abs(newStop - currentStop);
-  const minChange = tickSize * 1; // Minimum 1 tick movement
+  // Calculate stop change
+  const stopChange = Math.abs(newStop - pos.stopLoss);
 
-  if (stopChange < minChange) {
+  // Skip if change is negligible (less than 0.01 points)
+  if (stopChange < 0.01) {
     return null;
   }
 
@@ -124,9 +141,11 @@ function calculateSmoothBellCurveStop(pos: ActivePosition, currentPrice: number,
     ? newStop - pos.entryPrice
     : pos.entryPrice - newStop;
 
-  const reasoning = `Smooth bell curve: ${percentToTarget.toFixed(1)}% to target → ${lockPercent.toFixed(1)}% lock. Moving stop ${stopChange.toFixed(2)}pts from ${currentStop.toFixed(2)} to ${newStop.toFixed(2)} (+${profitFromEntry.toFixed(2)}pts profit locked).`;
+  const dragDistanceFormatted = dragDistance.toFixed(2);
+  const profitTicksFormatted = profitTicks.toFixed(1);
+  const reasoning = `📊 BELL CURVE: +${profitTicksFormatted} ticks (${percentToTarget.toFixed(1)}% to TP) → stop ${dragDistanceFormatted}pts behind price | ${pos.stopLoss.toFixed(2)} → ${newStop.toFixed(2)} (${profitFromEntry >= 0 ? '+' : ''}${profitFromEntry.toFixed(2)}pts from entry)`;
 
-  return { newStop, lockPercent, reasoning };
+  return { newStop, lockPercent: (1 - distanceMultiplier) * 100, reasoning };
 }
 
 /**
