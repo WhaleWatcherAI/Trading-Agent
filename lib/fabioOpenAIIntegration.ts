@@ -1083,6 +1083,19 @@ function median(values: number[]): number {
 }
 
 /**
+ * Calculate position size based on AI confidence level
+ * 65% = 1 contract, 70% = 2, 75% = 3, 80% = 4, 85%+ = 5 contracts
+ */
+function calculateContractsFromConfidence(confidence: number): number {
+  if (confidence >= 85) return 5;
+  if (confidence >= 80) return 4;
+  if (confidence >= 75) return 3;
+  if (confidence >= 70) return 2;
+  if (confidence >= 65) return 1;
+  return 0; // Below minimum threshold
+}
+
+/**
  * Process OpenAI decision and execute if criteria met
  */
 export async function processOpenAIDecision(
@@ -1106,10 +1119,10 @@ export async function processOpenAIDecision(
     return { executed: false };
   }
 
-  // Minimum confidence threshold - still show decision but don't execute
-  if (openaiDecision.confidence < 70) {
+  // Minimum confidence threshold lowered to 65% - still show decision but don't execute if below
+  if (openaiDecision.confidence < 65) {
     console.log(`[OpenAI] ${openaiDecision.decision} signal with ${openaiDecision.confidence}% confidence`);
-    console.log(`[OpenAI] Confidence below 70% threshold - Not executing trade`);
+    console.log(`[OpenAI] Confidence below 65% threshold - Not executing trade`);
     console.log(`[OpenAI] Reasoning: ${openaiDecision.reasoning}`);
     return { executed: false };
   }
@@ -1134,6 +1147,11 @@ export async function processOpenAIDecision(
     console.log('[OpenAI] Already in position - Not executing new entry');
     return { executed: false };
   }
+
+  // Calculate position size based on confidence (65%=1, 70%=2, 75%=3, 80%=4, 85%+=5)
+  const contracts = calculateContractsFromConfidence(openaiDecision.confidence);
+  console.log(`[OpenAI] 📊 Confidence ${openaiDecision.confidence}% → ${contracts} contract(s)`);
+  executionManager.setContractsForNextTrade(contracts);
 
   // Execute the decision
   const order = await executionManager.executeDecision(

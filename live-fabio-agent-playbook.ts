@@ -163,6 +163,159 @@ let resolvedContractId: string | null = null; // Prefer contractId learned from 
 let livePrice: number = 0;
 let livePriceTimestamp: number = 0;
 
+// Bell curve trailing stop state
+let bellCurveBreakevenSet: boolean = false;
+let lastBellCurveStopLevel: number = 0;
+let lastBellCurveAdjustTime: number = 0;
+const BELL_CURVE_THROTTLE_MS = 2000; // Minimum 2 seconds between adjustments
+
+// Known tick sizes for contracts
+const KNOWN_TICK_SIZES: Record<string, number> = {
+  'NQZ5': 0.25,    // E-mini Nasdaq
+  'NQH6': 0.25,
+  'ESZ5': 0.25,    // E-mini S&P 500
+  'ESH6': 0.25,
+  'GCZ5': 0.10,    // Gold futures
+  'GCG6': 0.10,
+  'MGC': 0.10,     // Micro Gold
+  'MGCZ5': 0.10,
+  'M6E': 0.00001,  // Micro Euro
+  'MES': 0.25,     // Micro E-mini S&P 500
+  'MNQ': 0.25,     // Micro E-mini Nasdaq
+};
+const TICK_SIZE = KNOWN_TICK_SIZES[SYMBOL] || 0.25;
+
+/**
+ * Bell Curve Trailing Stop - Automatic price-based trailing
+ * Locks in progressively more profit as price approaches target
+ */
+function calculateBellCurveStop(
+  entryPrice: number,
+  targetPrice: number,
+  currentStopLoss: number,
+  currentLivePrice: number,
+  positionSide: 'long' | 'short'
+): number | null {
+  // Calculate profit in ticks
+  const profitTicks = positionSide === 'long'
+    ? (currentLivePrice - entryPrice) / TICK_SIZE
+    : (entryPrice - currentLivePrice) / TICK_SIZE;
+
+  // Calculate total distance from entry to target in ticks
+  const totalDistanceTicks = positionSide === 'long'
+    ? (targetPrice - entryPrice) / TICK_SIZE
+    : (entryPrice - targetPrice) / TICK_SIZE;
+
+  if (totalDistanceTicks <= 0) return null;
+
+  // Phase 1: At +4 ticks profit, move stop to breakeven
+  if (profitTicks >= 4 && !bellCurveBreakevenSet) {
+    bellCurveBreakevenSet = true;
+    log(`🔔 [BellCurve] +4 ticks profit reached! Moving stop to BREAKEVEN @ ${entryPrice.toFixed(2)}`, 'success');
+    return entryPrice;
+  }
+
+  // Only apply progressive trailing after breakeven is set
+  if (!bellCurveBreakevenSet) return null;
+
+  // Phase 2: Progressive bell curve trailing based on % to target
+  const progressPercent = (profitTicks / totalDistanceTicks) * 100;
+
+  // Bell curve profit lock percentages
+  const bellCurveLevels = [
+    { progress: 10, lock: 0 },
+    { progress: 20, lock: 5 },
+    { progress: 30, lock: 10 },
+    { progress: 40, lock: 20 },
+    { progress: 50, lock: 30 },
+    { progress: 60, lock: 45 },
+    { progress: 70, lock: 60 },
+    { progress: 80, lock: 75 },
+    { progress: 90, lock: 85 },
+    { progress: 95, lock: 92 },
+  ];
+
+  // Find the highest applicable lock level
+  let lockPercent = 0;
+  for (const level of bellCurveLevels) {
+    if (progressPercent >= level.progress) {
+      lockPercent = level.lock;
+    }
+  }
+
+  if (lockPercent === 0) return null;
+
+  // Calculate locked profit in points
+  const profitPoints = positionSide === 'long'
+    ? currentLivePrice - entryPrice
+    : entryPrice - currentLivePrice;
+  const lockedPoints = profitPoints * (lockPercent / 100);
+
+  // Calculate new stop loss that locks in this profit
+  const newStopLoss = positionSide === 'long'
+    ? entryPrice + lockedPoints
+    : entryPrice - lockedPoints;
+
+  // Normalize to tick size
+  const normalizedStop = Math.round(newStopLoss / TICK_SIZE) * TICK_SIZE;
+
+  // Only trail in favorable direction (stop can only move towards profit, never back)
+  const isImprovement = positionSide === 'long'
+    ? normalizedStop > currentStopLoss
+    : normalizedStop < currentStopLoss;
+
+  if (isImprovement && normalizedStop !== lastBellCurveStopLevel) {
+    lastBellCurveStopLevel = normalizedStop;
+    log(`📈 [BellCurve] Progress: ${progressPercent.toFixed(1)}% to target | Locking ${lockPercent}% profit | New stop: ${normalizedStop.toFixed(2)}`, 'success');
+    return normalizedStop;
+  }
+
+  return null;
+}
+
+/**
+ * Reset bell curve state when position is closed
+ */
+function resetBellCurveState() {
+  bellCurveBreakevenSet = false;
+  lastBellCurveStopLevel = 0;
+  lastBellCurveAdjustTime = 0;
+}
+
+/**
+ * Apply bell curve trailing stop automatically on price update
+ * Throttled to avoid spamming broker with too many requests
+ */
+async function applyBellCurveTrailingStop(currentPrice: number): Promise<void> {
+  if (!executionManager || !currentPosition) return;
+
+  // Throttle: don't adjust more often than every 2 seconds
+  const now = Date.now();
+  if (now - lastBellCurveAdjustTime < BELL_CURVE_THROTTLE_MS) return;
+
+  const newStop = calculateBellCurveStop(
+    currentPosition.entryPrice,
+    currentPosition.target,
+    currentPosition.stopLoss,
+    currentPrice,
+    currentPosition.side
+  );
+
+  if (newStop !== null) {
+    lastBellCurveAdjustTime = now; // Update throttle time even before attempting
+    try {
+      const adjusted = await executionManager.adjustActiveProtection(newStop, null);
+      if (adjusted) {
+        // Update local position stop to reflect the change
+        currentPosition.stopLoss = newStop;
+        log(`✅ [BellCurve] Stop adjusted to ${newStop.toFixed(2)}`, 'success');
+      }
+    } catch (error: any) {
+      log(`❌ [BellCurve] Failed to adjust stop: ${error.message}`, 'error');
+    }
+  }
+}
+
 // Market Data Storage
 let bars: TopstepXFuturesBar[] = [];
 let l2Data: L2Level[] = [];
@@ -1276,6 +1429,7 @@ async function processMarketUpdate() {
     } else if (!currentPosition && previousPosition) {
       log(`🔄 [PositionSync] Position closed`, 'info');
       lastRiskMgmtDecision = null; // Clear Risk Management data
+      resetBellCurveState(); // Reset bell curve trailing stop state
     }
   }
 
@@ -2020,6 +2174,10 @@ async function connectMarketData() {
       if (Number.isFinite(price)) {
         livePrice = price;
         livePriceTimestamp = Date.now();
+
+        // Apply automatic bell curve trailing stop on every price update
+        // This is price-based and independent of AI decisions
+        applyBellCurveTrailingStop(price);
       }
 
       // Track CVD OHLC for current 1-minute bar
