@@ -312,43 +312,32 @@ export async function analyzeFuturesMarket(
     // console.log(prompt);
     // console.log('='.repeat(80));
 
-    const systemInstructions = `You are Fabio, a multi-time Robbins World Cup champion trading NQ/MNQ futures with elite auction-market skill, order-flow intuition, and hedge-fund level risk discipline. You are a probabilistic trader, not a rules bot. Your job is to produce high-EV trades and precise triggers based on the current tape.
+    const systemInstructions = `You are Fabio, a multi-time Robbins World Cup champion trading NQ/MNQ futures. You read the tape, identify direction from higher timeframes, and execute with precision using order flow confirmation.
+
+Core Framework
+1. DIRECTION FROM HIGHER TIMEFRAMES: Look at 15-min and 60-min structure first. Where does price WANT to go? Higher highs/lows = bullish. Lower highs/lows = bearish. This sets your directional bias.
+
+2. WHO'S IN CONTROL? Buyers or sellers?
+   - CVD trending up = buyers in control
+   - CVD trending down = sellers in control
+   - Delta surges show aggressive participation
+   - Whale prints show institutional activity
+
+3. L2 LIQUIDITY WALLS (Critical for entries/stops):
+   - Large resting bid walls = potential support (reversals: enter long, stop below wall)
+   - Large resting ask walls = potential resistance (reversals: enter short, stop above wall)
+   - Wall BREAK = continuation signal (price absorbed the wall and pushed through)
+   - Set stops BEHIND the wall you're trading against
+
+4. EXECUTION:
+   - Reversals: Trade at walls with stop behind the wall
+   - Continuations: Trade wall breaks with stop at the broken wall
+   - Tight stops, let winners run to next wall/structure
 
 Mindset
-- Intraday, scalp-focused: prioritize high-probability, tight-stop intraday setups over swing holds.
-- Favor tight, structure-based stops sized to current volatility; exits are fast if edge erodes.
-- ALWAYS pick a direction (BUY or SELL) - never HOLD. Your job is to read the tape and have an opinion on the most likely next move.
-- Express your conviction through CONFIDENCE (0-100%). Low confidence (50-60%) = weak edge, choppy. High confidence (75-95%) = strong edge, clear setup.
-- The system will filter your recommendations by confidence threshold. You just provide your best read on direction and how confident you are.
-- REVERSALS ARE VALID: Don't be afraid to fade extremes (VAH in downtrend, VAL in uptrend) when structure + location align, even if flow hasn't confirmed yet. The best reversals often happen BEFORE flow flips. Value area rejection is a high-probability setup.
-- NEUTRAL FLOW IS NOT A LOW CONFIDENCE REASON: If balance/trend + location provide edge, neutral/absent flow just means slightly lower confidence (65-70% instead of 80%+), not 50%. Flow is a booster, not a requirement.
-
-How You Think (in this order)
-1) Balance / Trend Assessment: Use POC cross count, time in/above/below value area, and recent price action to assess if market is balanced (rotating around POC) or trending. High POC crosses + time in value = balanced/chop. Low crosses + staying on one side = trending. Then assess direction from recent bar structure (higher highs/lows vs lower highs/lows).
-2) Location: relative to value (POC/VAH/VAL), HVN/LVN lanes, single prints, session high/low. Distance within 2-3 ticks = AT the level.
-3) Flow Evidence (CONFIDENCE BOOSTER ONLY - NOT A REQUIREMENT TO ENTER): CVD trend, delta impulses, whale prints, L2 liquidity walls. Flow confirmation INCREASES CONFIDENCE (e.g., 65%→80%) but is NOT MANDATORY for entry. Strong Balance+Location setups are VALID TRADES even with neutral/absent flow. DO NOT WAIT for flow confirmation - it often lags the move. If Balance+Location align, trade it. Flow just adds extra conviction.
-4) Expected Value (EV): continuation vs reversal probability; only trade when R/R and balance/location alignment create positive EV. Flow is a confidence multiplier, not a gatekeeper.
-5) Triggers & Contingencies: "If price does X → I do Y" with exact entry/stop/target numbers.
-
-Toolbox (evidence, not religion)
-- Volume/Market Profile: POC magnets, VA edge rejection, HVN stall risk, LVN/single-print continuation lanes.
-- Structure: swings, breaks, failures, pullback depth, trend strength.
-- Order Flow / L2: CVD trend, delta (buying vs selling pressure), aggressive vs passive prints, stacked liquidity walls.
-- Volatility Regime: size stops/targets to the regime; wider in strong trends, tighter in chop.
-
-Execution Discipline
-- Your JSON is the literal instruction to execute. If reasoning says BUY/SELL, JSON must say BUY/SELL with concrete prices.
-- Never mismatch text vs JSON (no BUY/SELL in text while JSON is HOLD, or vice versa).
-- Stops just beyond invalidation (structure/liquidity); never widen after entry.
-- Targets at logical auction objectives (next HVN edge, measured move, liquidity pocket); extend only when continuation edge strengthens and structure supports it.
-- Assume MARKET entries only. If the setup is not active right now, HOLD and give the exact trigger for a future market entry.
-- Always state whether the setup is a continuation or a reversal and the evidence for that choice.
-
-Precision & Validity
-- All price outputs must be valid tick increments for the symbol.
-- Distances to levels are signed (currentPrice − level); negative = below, positive = above.
-- If any microstructure fields are missing, treat them as unknown, not zero.
-- Every decision must reference current numeric evidence from the snapshot.
+- ALWAYS pick a direction (BUY or SELL). Express uncertainty through confidence level (50-60% = weak edge, 75-95% = strong edge).
+- Higher timeframe direction + order flow alignment = high confidence
+- Counter-trend trades need strong L2 wall support
 
 Respond ONLY in JSON with the required fields for execution.`;
 
@@ -565,190 +554,122 @@ function aggregateCandlesToTimeframe(
 }
 
 /**
- * Build a detailed market analysis prompt for OpenAI
- * Teaches GPT-4 Fabio's 3-layer decision framework
- * ENHANCED: Multi-timeframe analysis (5-min, 15-min, 60-min)
+ * Build a simplified market analysis prompt focused on:
+ * 1. Higher timeframe direction
+ * 2. Buyer/seller control (CVD, delta)
+ * 3. L2 liquidity walls
+ * 4. Whale prints
  */
 function buildAnalysisPrompt(
   marketData: FuturesMarketData,
   recentCandles: any[],
   currentPrice: number
 ): string {
-  const cvdTrend = marketData.cvd.trend === 'up' ? '🟢 BULLISH' :
-                   marketData.cvd.trend === 'down' ? '🔴 BEARISH' : '⚪ NEUTRAL';
+  const cvdTrend = marketData.cvd.trend === 'up' ? '🟢 BUYERS IN CONTROL' :
+                   marketData.cvd.trend === 'down' ? '🔴 SELLERS IN CONTROL' : '⚪ NEUTRAL/BALANCED';
 
-  const distToPoc = (marketData.volumeProfile && typeof marketData.volumeProfile.poc === 'number')
-    ? Number((marketData.currentPrice - marketData.volumeProfile.poc).toFixed(2))
-    : undefined;
-  const distToVah = (marketData.volumeProfile && typeof marketData.volumeProfile.vah === 'number')
-    ? Number((marketData.currentPrice - marketData.volumeProfile.vah).toFixed(2))
-    : undefined;
-  const distToVal = (marketData.volumeProfile && typeof marketData.volumeProfile.val === 'number')
-    ? Number((marketData.currentPrice - marketData.volumeProfile.val).toFixed(2))
-    : undefined;
-
-  const nearestWall = marketData.microstructure?.nearestRestingWallInDirection;
-  const currentBarRange = marketData.marketStats?.currentRangeTicks ?? null;
-  const atr = marketData.marketStats?.atr5m ?? null;
-  const stateSummary = `MARKET SNAPSHOT:
-- location: distToPOC/VAH/VAL = ${distToPoc ?? 'n/a'} / ${distToVah ?? 'n/a'} / ${distToVal ?? 'n/a'} ticks
-- flow: delta1m/5m ${marketData.flowSignals?.deltaLast1m ?? 'n/a'} / ${marketData.flowSignals?.deltaLast5m ?? 'n/a'}, CVD ${marketData.cvd?.value ?? 'n/a'}
-- liquidity: nearest wall ${nearestWall ? `${nearestWall.side}@${nearestWall.price.toFixed(2)} dist=${nearestWall.distance}` : 'n/a'}
-- volatility: current bar ${currentBarRange?.toFixed(1) ?? 'n/a'} ticks, ATR(14) ${atr?.toFixed(1) ?? 'n/a'} ticks`;
-
-  // Build multi-timeframe candle summaries from 5-minute base data
+  // Build multi-timeframe candle summaries
   const allCandles = marketData.candles;
 
-  // 1-minute candles (last 20 candles = 20 minutes)
-  const oneMinCandles = allCandles.slice(-20);
+  // 1-minute candles (last 15 candles)
+  const oneMinCandles = allCandles.slice(-15);
   const oneMinSummary = oneMinCandles
-    .map((c) => `${new Date(c.timestamp).toLocaleTimeString()}: O=${c.open.toFixed(2)}, C=${c.close.toFixed(2)}, H=${c.high.toFixed(2)}, L=${c.low.toFixed(2)}`)
+    .map((c) => `${new Date(c.timestamp).toLocaleTimeString()}: O=${c.open.toFixed(2)}, H=${c.high.toFixed(2)}, L=${c.low.toFixed(2)}, C=${c.close.toFixed(2)}`)
     .join('\n  ');
 
-  // 15-minute candles (aggregate minute bars, last 8 candles = 2 hours)
+  // 15-minute candles (last 8 = 2 hours) - KEY FOR DIRECTION
   const fifteenMinCandles = aggregateCandlesToTimeframe(allCandles, 15, 1);
   const fifteenMinSummary = fifteenMinCandles.slice(-8)
-    .map((c) => `${new Date(c.timestamp).toLocaleTimeString()}: O=${c.open.toFixed(2)}, C=${c.close.toFixed(2)}, H=${c.high.toFixed(2)}, L=${c.low.toFixed(2)}`)
+    .map((c) => `${new Date(c.timestamp).toLocaleTimeString()}: O=${c.open.toFixed(2)}, H=${c.high.toFixed(2)}, L=${c.low.toFixed(2)}, C=${c.close.toFixed(2)}`)
     .join('\n  ');
 
-  const cvdCandlesSummary = marketData.cvdCandles && marketData.cvdCandles.length > 0
-    ? marketData.cvdCandles
-        .slice(-10)  // Limit to last 10 candles to prevent huge prompts
-        .map(c => `${new Date(c.timestamp).toLocaleTimeString()}: O=${c.open.toFixed(1)}, H=${c.high.toFixed(1)}, L=${c.low.toFixed(1)}, C=${c.close.toFixed(1)}`)
-        .join('\n  ')
-    : 'Not provided';
-  // Limit CVD candles JSON to last 20 to prevent prompt overflow
-  const cvdCandlesJson = marketData.cvdCandles
-    ? JSON.stringify(marketData.cvdCandles.slice(-20))
-    : '[]';
+  // 60-minute candles (last 6 = 6 hours) - MACRO DIRECTION
+  const sixtyMinCandles = aggregateCandlesToTimeframe(allCandles, 60, 1);
+  const sixtyMinSummary = sixtyMinCandles.slice(-6)
+    .map((c) => `${new Date(c.timestamp).toLocaleTimeString()}: O=${c.open.toFixed(2)}, H=${c.high.toFixed(2)}, L=${c.low.toFixed(2)}, C=${c.close.toFixed(2)}`)
+    .join('\n  ');
 
-  const bigPrints = marketData.orderFlow?.bigTrades
-    ? marketData.orderFlow.bigTrades
-        .slice(-5)
-        .map((p) => `${p.side.toUpperCase()} ${p.size} @ ${p.price}`)
-        .join(', ') || 'None'
-    : 'None';
-
-  const priceVsProfile = (marketData.volumeProfile?.poc !== undefined && currentPrice !== undefined)
-    ? (currentPrice > marketData.volumeProfile.poc ? 'above POC' : 'below POC')
-    : 'POC not available';
-
-  // Microstructure summary
+  // Whale prints - institutional activity
   const micro = marketData.microstructure;
   const whaleTradeSummary = micro && micro.largeWhaleTrades.length > 0
     ? micro.largeWhaleTrades
         .slice(-10)
         .map(t => `${new Date(t.timestamp).toLocaleTimeString()} ${t.side.toUpperCase()} ${t.size} @ ${t.price.toFixed(2)}`)
-        .join('; ')
-    : 'No large trades recorded';
+        .join('\n  ')
+    : 'No whale prints detected';
 
+  // L2 Liquidity Walls - CRITICAL for entries/stops
   const restingLimitSummary = micro && micro.restingLimitOrders.length > 0
     ? micro.restingLimitOrders
         .slice(0, 10)
-        .map(l => `P=${l.price.toFixed(2)} | Bid=${l.restingBid.toFixed(0)} | Ask=${l.restingAsk.toFixed(0)} | Seen=${new Date(l.lastSeen).toLocaleTimeString()}`)
-        .join('; ')
-    : 'No resting liquidity clusters detected';
+        .map(l => {
+          const wallType = l.restingBid > l.restingAsk ? '🟢 BID WALL (support)' :
+                          l.restingAsk > l.restingBid ? '🔴 ASK WALL (resistance)' : '⚪ BALANCED';
+          return `${l.price.toFixed(2)} | Bid: ${l.restingBid.toFixed(0)} | Ask: ${l.restingAsk.toFixed(0)} → ${wallType}`;
+        })
+        .join('\n  ')
+    : 'No significant liquidity walls detected';
 
-  // Macrostructure summary
-  const macro = marketData.macrostructure;
-  const multiDay = macro?.multiDayProfile;
-  const higherTFs = macro?.higherTimeframes || [];
-  // Only show raw delta values, not computed derivatives
+  // Nearest wall in trade direction
+  const nearestWall = micro?.nearestRestingWallInDirection;
+  const nearestWallInfo = nearestWall
+    ? `${nearestWall.side.toUpperCase()} wall @ ${nearestWall.price.toFixed(2)} (${nearestWall.size} contracts, ${nearestWall.distance} ticks away)`
+    : 'No significant wall in direction';
+
+  // Wall break detection
+  const wallBreakInfo = micro?.liquidityPullDetected
+    ? '⚠️ LIQUIDITY PULL DETECTED - wall being absorbed'
+    : micro?.weakWallDetected
+    ? '⚠️ WEAK WALL DETECTED - may break soon'
+    : 'No wall break signals';
+
+  // Flow signals
   const flowSignals = marketData.flowSignals;
-  const flowSignalsSummary = flowSignals
-    ? `Delta 1m/5m: ${flowSignals.deltaLast1m ?? 'n/a'} / ${flowSignals.deltaLast5m ?? 'n/a'}`
-    : 'Not provided';
+  const deltaInfo = flowSignals
+    ? `1min: ${flowSignals.deltaLast1m ?? 'n/a'} | 5min: ${flowSignals.deltaLast5m ?? 'n/a'}`
+    : 'Delta not available';
 
-  const multiDaySummary = multiDay
-    ? `Lookback: ${multiDay.lookbackHours}h | POC=${multiDay.poc.toFixed(2)} VAH=${multiDay.vah.toFixed(2)} VAL=${multiDay.val.toFixed(2)} | High=${multiDay.high.toFixed(2)} Low=${multiDay.low.toFixed(2)}`
-    : 'Not provided';
-
-  const higherTfSummary = higherTFs.length > 0
-    ? higherTFs
-        .map(tf => {
-          const recent = tf.candles.slice(-6);
-          if (recent.length === 0) return `${tf.timeframe}: Not provided`;
-          const candleSummary = recent
-            .map(c => `${new Date(c.timestamp).toLocaleTimeString()}: ${c.open.toFixed(2)}/${c.high.toFixed(2)}/${c.low.toFixed(2)}/${c.close.toFixed(2)}`)
-            .join(' | ');
-          return `${tf.timeframe} (${recent.length} bars): ${candleSummary}`;
-        })
-        .join('\n  ')
-    : 'Not provided';
-
-  const recentProfiles = macro?.recentVolumeProfiles || [];
-  const volumeProfileHistory = recentProfiles.length > 0
-    ? recentProfiles
-        .slice(-5)
-        .map(profile => {
-          const start = new Date(profile.sessionStart).toLocaleString();
-          return `${start} → POC=${profile.poc.toFixed(2)} | VAH=${profile.vah.toFixed(2)} | VAL=${profile.val.toFixed(2)} | Range=${profile.sessionLow.toFixed(2)}-${profile.sessionHigh.toFixed(2)}`;
-        })
-        .join('\n  ')
-    : 'Not provided';
+  // Session structure
+  const sessionHigh = marketData.volumeProfile?.sessionHigh ?? 0;
+  const sessionLow = marketData.volumeProfile?.sessionLow ?? 0;
+  const poc = marketData.volumeProfile?.poc ?? 0;
 
 return `
-ROBBINS WORLD CUP SNAPSHOT
-==========================
+TAPE READING SNAPSHOT
+=====================
 
 Symbol: ${marketData.symbol}
 Time: ${marketData.timestamp}
 Current Price: ${currentPrice}
 
-${stateSummary}
+=== 1. HIGHER TIMEFRAME DIRECTION (Where does price want to go?) ===
 
-=== PRICE & FOOTPRINT SNAPSHOT ===
+60-MINUTE CANDLES (Last 6 bars = 6 hours) - MACRO TREND:
+  ${sixtyMinSummary || 'Not available'}
 
-1-MINUTE CANDLES (Last 20 bars ≈ 20 minutes):
-${oneMinSummary}
+15-MINUTE CANDLES (Last 8 bars = 2 hours) - INTERMEDIATE:
+  ${fifteenMinSummary || 'Not available'}
 
-15-MINUTE CANDLES (Last 8 bars ≈ 2 hours):
-${fifteenMinSummary || 'Not available'}
+1-MINUTE CANDLES (Last 15 bars) - IMMEDIATE:
+  ${oneMinSummary}
 
-=== HIGHER TIMEFRAME CONTEXT ===
-${higherTfSummary}
+Session High: ${sessionHigh.toFixed(2)} | Session Low: ${sessionLow.toFixed(2)} | POC: ${poc.toFixed(2)}
 
-RECENT SESSION PROFILES (Last 5 trading days):
-${volumeProfileHistory}
+=== 2. WHO'S IN CONTROL? (Buyers or Sellers) ===
 
-Footprint Readings:
-- CVD: ${marketData.cvd?.value !== undefined ? `${marketData.cvd.value.toFixed(2)} (${cvdTrend})` : 'n/a'}
-- Delta: ${flowSignalsSummary}
-- Whale Trades: ${whaleTradeSummary}
-- Resting Limit Orders (L2): ${restingLimitSummary}
-- Recent Large Prints: ${bigPrints}
+CVD (Cumulative Volume Delta): ${marketData.cvd?.value !== undefined ? marketData.cvd.value.toFixed(2) : 'n/a'} → ${cvdTrend}
+Delta: ${deltaInfo}
 
-CVD CANDLES (Session Sample):
-${cvdCandlesSummary}
+Whale Prints (Large Institutional Trades):
+  ${whaleTradeSummary}
 
-Full CVD Candles JSON (session start → now):
-${cvdCandlesJson}
+=== 3. L2 LIQUIDITY WALLS (Support/Resistance for entries & stops) ===
 
-=== VOLUME PROFILE & AUCTION METRICS ===
-POC: ${marketData.volumeProfile.poc} | VAH: ${marketData.volumeProfile.vah} | VAL: ${marketData.volumeProfile.val}
-LVNs: ${marketData.volumeProfile.lvns.join(', ')}
-Session High / Low: ${marketData.volumeProfile.sessionHigh} / ${marketData.volumeProfile.sessionLow}
-Current Price vs POC: ${priceVsProfile}
-Distance to POC: ${marketData.marketStats.distance_to_poc_ticks.toFixed(1)} ticks
-Session Range: ${marketData.marketStats.session_range_ticks.toFixed(1)} ticks (${(marketData.marketStats.session_range_percentile * 100).toFixed(0)}th percentile)
-Time Above / In / Below Value: ${marketData.marketStats.time_above_value_sec.toFixed(0)}s / ${marketData.marketStats.time_in_value_sec.toFixed(0)}s / ${marketData.marketStats.time_below_value_sec.toFixed(0)}s
-POC Crosses (last 5 / 15 / 30 min): ${marketData.pocCrossStats.count_last_5min} / ${marketData.pocCrossStats.count_last_15min} / ${marketData.pocCrossStats.count_last_30min}
-Time Since Last Cross: ${marketData.pocCrossStats.time_since_last_cross_sec.toFixed(1)}s | Current Side: ${marketData.pocCrossStats.current_side}
+Nearest Wall in Direction: ${nearestWallInfo}
+Wall Break Status: ${wallBreakInfo}
 
-${marketData.tradeLegProfile ? `TRADE-LEG PROFILE (since entry, capped 45m):
-- POC/VAH/VAL: ${marketData.tradeLegProfile.poc.toFixed(2)} / ${marketData.tradeLegProfile.vah.toFixed(2)} / ${marketData.tradeLegProfile.val.toFixed(2)}
-- HVN/LVN in direction: ${marketData.tradeLegProfile.hvnDir ?? 'n/a'} / ${marketData.tradeLegProfile.lvnDir ?? 'n/a'}
-- Value migration: ${marketData.tradeLegProfile.valueMigration ?? 'n/a'}, acceptanceStrengthDir: ${marketData.tradeLegProfile.acceptanceStrengthDir?.toFixed(2) ?? 'n/a'}
-- AirPocketAhead: ${marketData.tradeLegProfile.airPocketAhead ? 'yes' : 'no'}` : 'TRADE-LEG PROFILE: n/a'}
-
-${marketData.pullbackProfile && marketData.pullbackProfile.active ? `PULLBACK PROFILE (active):
-- POC/VAH/VAL: ${marketData.pullbackProfile.poc.toFixed(2)} / ${marketData.pullbackProfile.vah.toFixed(2)} / ${marketData.pullbackProfile.val.toFixed(2)}
-- Acceptance: ${marketData.pullbackProfile.acceptanceState ?? 'n/a'}` : 'PULLBACK PROFILE: none/ inactive'}
-
-${marketData.watchZoneProfiles && marketData.watchZoneProfiles.length > 0 ? `WATCH-ZONE PROFILES (key levels to watch):
-${marketData.watchZoneProfiles.slice(0, 3).map(z =>
-  `- ${z.name} ${z.low.toFixed(2)}-${z.high.toFixed(2)} | zonePOC ${z.poc?.toFixed(2) ?? 'n/a'}`
-).join('\n')}` : 'WATCH-ZONE PROFILES: none'}
+Resting Liquidity by Price Level:
+  ${restingLimitSummary}
 
 === ACCOUNT & PERFORMANCE ===
 Balance: $${marketData.account.balance.toFixed(2)} | Position: ${marketData.account.position === 0 ? 'FLAT' : `${marketData.account.position > 0 ? 'LONG' : 'SHORT'} ${Math.abs(marketData.account.position)} contracts`} | Unrealized P&L: $${marketData.account.unrealizedPnL.toFixed(2)}
@@ -783,19 +704,17 @@ ${marketData.openPosition ? `
 YOUR ONLY JOB RIGHT NOW: MANAGE THE OPEN ${marketData.openPosition.side.toUpperCase()} POSITION
 
 PRIMARY ANALYSIS FOCUS:
-1. **STOP LOSS MANAGEMENT**: Should the stop be tightened/trailed based on new support/resistance, order flow, or profit protection?
+1. **STOP LOSS MANAGEMENT**: Should the stop be tightened/trailed based on L2 walls or order flow?
    - Current stop: ${marketData.openPosition.stopLoss.toFixed(2)} (${marketData.openPosition.distanceToStopPoints.toFixed(2)} pts away)
-   - Consider: Break-even moves, trailing to higher lows (long) or lower highs (short), defending against reversals
+   - Move stop behind new bid walls (long) or ask walls (short) as they form
 
-2. **TARGET MANAGEMENT**: Should the target be extended/reduced based on momentum, absorption, or structure?
+2. **TARGET MANAGEMENT**: Should target be extended based on momentum toward next wall?
    - Current target: ${marketData.openPosition.target.toFixed(2)} (${marketData.openPosition.distanceToTargetPoints.toFixed(2)} pts away)
-   - Consider: Taking partials at resistance/support, extending if strong momentum, scaling out
+   - Extend if wall breaks and next wall is further
 
-3. **EXIT DECISION**: Should we exit now (set decision to opposite of position) or hold?
+3. **EXIT DECISION**: Should we exit now?
    - P&L: $${marketData.openPosition.unrealizedPnL.toFixed(2)}
-   - Consider: Reversal signals, target hit, major resistance/support breach, adverse order flow
-
-4. **TIMING & MONITORING**: What price levels or order flow conditions trigger the next adjustment?
+   - Exit if CVD flips against position or major wall breaks against us
 
 CRITICAL RULES:
 - Set \`decision\` to "HOLD" to keep position and manage brackets
@@ -808,13 +727,15 @@ CRITICAL RULES:
 RESPOND WITH YOUR POSITION MANAGEMENT DECISION:
 ` : `
 ANALYSIS REQUEST (NO OPEN POSITION):
-- ALWAYS pick a direction (BUY or SELL) based on your best read of the tape. Express uncertainty through CONFIDENCE, not by avoiding a decision.
-- Low confidence (50-60%): Choppy, uncertain, mixed signals. You still pick the most likely direction, but with low conviction.
-- High confidence (75-95%): Clear setup, strong edge, aligned factors. You pick direction with high conviction.
-- Provide entry price/zone, stop, target, and timing/invalidation details.
-- Defend the stop & target placement using structure/order-flow context in riskManagementReasoning.
-- Include add-on or re-entry logic if price overshoots or structure resets.
-- Multiple trades per day are expected when the tape cooperates.
+1. CHECK HTF DIRECTION: Look at 60-min and 15-min candles. Higher highs/lows = bullish. Lower highs/lows = bearish.
+2. CHECK WHO'S IN CONTROL: CVD trend up = buyers. CVD trend down = sellers. Delta surges confirm.
+3. FIND L2 WALL FOR ENTRY:
+   - For LONG: Find bid wall (support) to enter at, set stop BELOW the wall
+   - For SHORT: Find ask wall (resistance) to enter at, set stop ABOVE the wall
+4. SET TARGET: Next significant wall in trade direction
+5. WALL BREAKS = CONTINUATION: If price absorbed a wall and pushed through, trade continuation with stop at broken wall.
+
+Express uncertainty through CONFIDENCE (50-60% weak, 75-95% strong). ALWAYS pick a direction.
 `}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -830,16 +751,16 @@ Confidence: 60%
 ONLY output valid JSON format like this (CORRECT ✅):
 {
   "decision": "BUY",
-  "confidence": 60,
+  "confidence": 70,
   "stopLoss": 24905.25,
-  "target": 24875.00,
+  "target": 24965.00,
   "riskRewardRatio": 1.5,
   "riskPercent": 0.35,
-  "plan": "Enter BUY at VAL support with tight stop",
+  "plan": "Buy at bid wall support, stop below wall, target next ask wall",
   "timingPlan": "Immediate market entry",
-  "reEntryPlan": "Re-enter on bounce if stopped at VAL",
-  "reasoning": "Strong bid absorption at VAL with POC magnet above",
-  "riskManagementReasoning": "Stop at 24905.25 (below VAL structure), target at POC",
+  "reEntryPlan": "Re-enter if price retests bid wall and holds",
+  "reasoning": "HTF showing higher lows, CVD bullish, large bid wall at 24910 providing support",
+  "riskManagementReasoning": "Stop at 24905.25 (below bid wall), target at ask wall 24965",
   "noteForFuture": null
 }
 
@@ -854,8 +775,8 @@ REQUIRED JSON SCHEMA (all fields mandatory):
   "plan": "High-level summary of entry/stop/target/if-then contingencies",
   "timingPlan": "Describe when/how you intend to execute (immediate, on break, on pullback, etc.)",
   "reEntryPlan": "Describe add-on or re-entry logic if stopped/missed",
-  "reasoning": "Tie together price action, footprint cues, volume profile, and lessons/performance",
-  "riskManagementReasoning": "Specific explanation for WHY these SL/TP levels make sense (structure, liquidity, high-volume node, etc.). Required for all BUY/SELL decisions.",
+  "reasoning": "Explain HTF direction + who's in control (CVD/delta) + L2 wall setup",
+  "riskManagementReasoning": "Explain stop placement relative to L2 walls and target based on next wall. Required for BUY/SELL.",
   "noteForFuture": "Optional reminder or null"
 }
 
