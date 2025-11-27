@@ -315,13 +315,15 @@ export async function analyzeFuturesMarket(
     const systemInstructions = `You are Fabio, a multi-time Robbins World Cup champion trading NQ/MNQ futures. You read the tape, identify direction from higher timeframes, and execute with precision using order flow confirmation.
 
 Core Framework
-1. DIRECTION FROM HIGHER TIMEFRAMES: Look at 15-min and 60-min structure first. Where does price WANT to go? Higher highs/lows = bullish. Lower highs/lows = bearish. This sets your directional bias.
+1. DIRECTION FROM HIGHER TIMEFRAMES: Look at DAILY and 4-HOUR candles first. Where does price WANT to go? Higher highs/lows = bullish. Lower highs/lows = bearish. This sets your directional bias. Then use 15-min for timing.
 
 2. WHO'S IN CONTROL? Buyers or sellers?
    - CVD trending up = buyers in control
    - CVD trending down = sellers in control
    - Delta surges show aggressive participation
    - Whale prints show institutional activity
+   - ABSORPTION: Buyers/sellers defending a level (potential reversal zone)
+   - EXHAUSTION: Buyers/sellers running out of steam (trend may pause/reverse)
 
 3. L2 LIQUIDITY WALLS (Critical for entries/stops):
    - Large resting bid walls = potential support (reversals: enter long, stop below wall)
@@ -335,9 +337,9 @@ Core Framework
    - Tight stops, let winners run to next wall/structure
 
 Mindset
-- ALWAYS pick a direction (BUY or SELL). Express uncertainty through confidence level (50-60% = weak edge, 75-95% = strong edge).
-- Higher timeframe direction + order flow alignment = high confidence
-- Counter-trend trades need strong L2 wall support
+- ALWAYS pick a direction (BUY or SELL). Express uncertainty through confidence level (50-65% = weak edge, 70-85% = good edge, 85%+ = strong edge).
+- Higher timeframe direction + order flow alignment + L2 wall = high confidence
+- Counter-trend trades need strong absorption + L2 wall support
 
 Respond ONLY in JSON with the required fields for execution.`;
 
@@ -555,8 +557,8 @@ function aggregateCandlesToTimeframe(
 
 /**
  * Build a simplified market analysis prompt focused on:
- * 1. Higher timeframe direction
- * 2. Buyer/seller control (CVD, delta)
+ * 1. Higher timeframe direction (ACTUAL 4H and 1D candles)
+ * 2. Buyer/seller control (CVD, delta, absorption, exhaustion)
  * 3. L2 liquidity walls
  * 4. Whale prints
  */
@@ -571,21 +573,34 @@ function buildAnalysisPrompt(
   // Build multi-timeframe candle summaries
   const allCandles = marketData.candles;
 
-  // 1-minute candles (last 15 candles)
+  // 1-minute candles (last 15 candles) - IMMEDIATE
   const oneMinCandles = allCandles.slice(-15);
   const oneMinSummary = oneMinCandles
     .map((c) => `${new Date(c.timestamp).toLocaleTimeString()}: O=${c.open.toFixed(2)}, H=${c.high.toFixed(2)}, L=${c.low.toFixed(2)}, C=${c.close.toFixed(2)}`)
     .join('\n  ');
 
-  // 15-minute candles (last 8 = 2 hours) - KEY FOR DIRECTION
+  // Use ACTUAL higher timeframe data from macrostructure (4H and 1D candles)
+  const higherTFs = marketData.macrostructure?.higherTimeframes || [];
+
+  // Find 4H candles (240m timeframe)
+  const fourHourTF = higherTFs.find(tf => tf.timeframe === '240m');
+  const fourHourSummary = fourHourTF && fourHourTF.candles.length > 0
+    ? fourHourTF.candles.slice(-8)
+        .map((c) => `${new Date(c.timestamp).toLocaleString()}: O=${c.open.toFixed(2)}, H=${c.high.toFixed(2)}, L=${c.low.toFixed(2)}, C=${c.close.toFixed(2)}`)
+        .join('\n  ')
+    : 'Not available';
+
+  // Find Daily candles (1d timeframe)
+  const dailyTF = higherTFs.find(tf => tf.timeframe === '1d');
+  const dailySummary = dailyTF && dailyTF.candles.length > 0
+    ? dailyTF.candles.slice(-10)
+        .map((c) => `${new Date(c.timestamp).toLocaleDateString()}: O=${c.open.toFixed(2)}, H=${c.high.toFixed(2)}, L=${c.low.toFixed(2)}, C=${c.close.toFixed(2)}`)
+        .join('\n  ')
+    : 'Not available';
+
+  // 15-minute candles (aggregated from 1-min) - INTERMEDIATE
   const fifteenMinCandles = aggregateCandlesToTimeframe(allCandles, 15, 1);
   const fifteenMinSummary = fifteenMinCandles.slice(-8)
-    .map((c) => `${new Date(c.timestamp).toLocaleTimeString()}: O=${c.open.toFixed(2)}, H=${c.high.toFixed(2)}, L=${c.low.toFixed(2)}, C=${c.close.toFixed(2)}`)
-    .join('\n  ');
-
-  // 60-minute candles (last 6 = 6 hours) - MACRO DIRECTION
-  const sixtyMinCandles = aggregateCandlesToTimeframe(allCandles, 60, 1);
-  const sixtyMinSummary = sixtyMinCandles.slice(-6)
     .map((c) => `${new Date(c.timestamp).toLocaleTimeString()}: O=${c.open.toFixed(2)}, H=${c.high.toFixed(2)}, L=${c.low.toFixed(2)}, C=${c.close.toFixed(2)}`)
     .join('\n  ');
 
@@ -634,6 +649,22 @@ function buildAnalysisPrompt(
   const sessionLow = marketData.volumeProfile?.sessionLow ?? 0;
   const poc = marketData.volumeProfile?.poc ?? 0;
 
+  // Absorption & Exhaustion signals
+  const absorptionSignals = marketData.absorption || [];
+  const exhaustionSignals = marketData.exhaustion || [];
+
+  const absorptionSummary = absorptionSignals.length > 0
+    ? absorptionSignals.slice(0, 5).map(a =>
+        `${a.side.toUpperCase()} absorption at ${a.levelName} (${a.price.toFixed(2)}) - strength: ${(a.strength * 100).toFixed(0)}%${a.confirmedByCvd ? ' ✓CVD confirmed' : ''}`
+      ).join('\n  ')
+    : 'No absorption signals detected';
+
+  const exhaustionSummary = exhaustionSignals.length > 0
+    ? exhaustionSignals.slice(0, 5).map(e =>
+        `${e.side.toUpperCase()} exhaustion at ${e.levelName} (${e.price.toFixed(2)}) - strength: ${(e.strength * 100).toFixed(0)}%`
+      ).join('\n  ')
+    : 'No exhaustion signals detected';
+
 return `
 TAPE READING SNAPSHOT
 =====================
@@ -644,8 +675,11 @@ Current Price: ${currentPrice}
 
 === 1. HIGHER TIMEFRAME DIRECTION (Where does price want to go?) ===
 
-60-MINUTE CANDLES (Last 6 bars = 6 hours) - MACRO TREND:
-  ${sixtyMinSummary || 'Not available'}
+DAILY CANDLES (Last 10 days) - MACRO TREND:
+  ${dailySummary}
+
+4-HOUR CANDLES (Last 8 bars = 32 hours) - SWING:
+  ${fourHourSummary}
 
 15-MINUTE CANDLES (Last 8 bars = 2 hours) - INTERMEDIATE:
   ${fifteenMinSummary || 'Not available'}
@@ -659,6 +693,12 @@ Session High: ${sessionHigh.toFixed(2)} | Session Low: ${sessionLow.toFixed(2)} 
 
 CVD (Cumulative Volume Delta): ${marketData.cvd?.value !== undefined ? marketData.cvd.value.toFixed(2) : 'n/a'} → ${cvdTrend}
 Delta: ${deltaInfo}
+
+ABSORPTION (Buyers/Sellers holding levels):
+  ${absorptionSummary}
+
+EXHAUSTION (Buyers/Sellers running out of steam):
+  ${exhaustionSummary}
 
 Whale Prints (Large Institutional Trades):
   ${whaleTradeSummary}
@@ -751,7 +791,7 @@ Confidence: 60%
 ONLY output valid JSON format like this (CORRECT ✅):
 {
   "decision": "BUY",
-  "confidence": 70,
+  "confidence": 75,
   "stopLoss": 24905.25,
   "target": 24965.00,
   "riskRewardRatio": 1.5,
@@ -759,7 +799,7 @@ ONLY output valid JSON format like this (CORRECT ✅):
   "plan": "Buy at bid wall support, stop below wall, target next ask wall",
   "timingPlan": "Immediate market entry",
   "reEntryPlan": "Re-enter if price retests bid wall and holds",
-  "reasoning": "HTF showing higher lows, CVD bullish, large bid wall at 24910 providing support",
+  "reasoning": "Daily/4H showing higher lows, CVD bullish with BID absorption at 24910, large bid wall providing support",
   "riskManagementReasoning": "Stop at 24905.25 (below bid wall), target at ask wall 24965",
   "noteForFuture": null
 }
