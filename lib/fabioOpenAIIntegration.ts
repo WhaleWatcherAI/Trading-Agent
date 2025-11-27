@@ -1107,9 +1107,9 @@ export async function processOpenAIDecision(
   }
 
   // Minimum confidence threshold - still show decision but don't execute
-  if (openaiDecision.confidence < 70) {
+  if (openaiDecision.confidence < 65) {
     console.log(`[OpenAI] ${openaiDecision.decision} signal with ${openaiDecision.confidence}% confidence`);
-    console.log(`[OpenAI] Confidence below 70% threshold - Not executing trade`);
+    console.log(`[OpenAI] Confidence below 65% threshold - Not executing trade`);
     console.log(`[OpenAI] Reasoning: ${openaiDecision.reasoning}`);
     return { executed: false };
   }
