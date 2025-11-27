@@ -284,23 +284,26 @@ function resetBellCurveState() {
 
 /**
  * Apply bell curve trailing stop automatically on price update
+ * Uses ExecutionManager's WebSocket-synced position data for real-time accuracy
  * Throttled to avoid spamming broker with too many requests
  */
 async function applyBellCurveTrailingStop(currentPrice: number): Promise<void> {
-  // Debug: Log if we have position data
-  if (!currentPosition) {
+  if (!executionManager) {
+    return; // No execution manager yet
+  }
+
+  // Get REAL-TIME position from ExecutionManager (WebSocket-synced)
+  // Don't use the stale local currentPosition variable!
+  const wsPosition = executionManager.getActivePosition();
+
+  if (!wsPosition) {
     // No position - expected when flat
     return;
   }
 
-  if (!executionManager) {
-    log(`⚠️ [BellCurve] No executionManager available`, 'warn');
-    return;
-  }
-
   // Validate position has required fields
-  if (!currentPosition.entryPrice || !currentPosition.target || !currentPosition.stopLoss || !currentPosition.side) {
-    log(`⚠️ [BellCurve] Position missing required fields: entry=${currentPosition.entryPrice}, target=${currentPosition.target}, stop=${currentPosition.stopLoss}, side=${currentPosition.side}`, 'warn');
+  if (!wsPosition.entryPrice || !wsPosition.target || !wsPosition.stopLoss || !wsPosition.side) {
+    log(`⚠️ [BellCurve] Position missing required fields: entry=${wsPosition.entryPrice}, target=${wsPosition.target}, stop=${wsPosition.stopLoss}, side=${wsPosition.side}`, 'warn');
     return;
   }
 
@@ -309,21 +312,21 @@ async function applyBellCurveTrailingStop(currentPrice: number): Promise<void> {
   if (now - lastBellCurveAdjustTime < BELL_CURVE_THROTTLE_MS) return;
 
   // Calculate profit for debug logging
-  const profitTicks = currentPosition.side === 'long'
-    ? (currentPrice - currentPosition.entryPrice) / TICK_SIZE
-    : (currentPosition.entryPrice - currentPrice) / TICK_SIZE;
+  const profitTicks = wsPosition.side === 'long'
+    ? (currentPrice - wsPosition.entryPrice) / TICK_SIZE
+    : (wsPosition.entryPrice - currentPrice) / TICK_SIZE;
 
   // Log every 10 seconds when in profit
   if (profitTicks > 0 && now % 10000 < 2000) {
-    log(`📊 [BellCurve] Price: ${currentPrice.toFixed(2)} | Entry: ${currentPosition.entryPrice.toFixed(2)} | Profit: ${profitTicks.toFixed(1)} ticks | Breakeven set: ${bellCurveBreakevenSet}`, 'info');
+    log(`📊 [BellCurve] Price: ${currentPrice.toFixed(2)} | Entry: ${wsPosition.entryPrice.toFixed(2)} | Profit: ${profitTicks.toFixed(1)} ticks | Breakeven set: ${bellCurveBreakevenSet}`, 'info');
   }
 
   const newStop = calculateBellCurveStop(
-    currentPosition.entryPrice,
-    currentPosition.target,
-    currentPosition.stopLoss,
+    wsPosition.entryPrice,
+    wsPosition.target,
+    wsPosition.stopLoss,
     currentPrice,
-    currentPosition.side
+    wsPosition.side
   );
 
   if (newStop !== null) {
@@ -331,8 +334,6 @@ async function applyBellCurveTrailingStop(currentPrice: number): Promise<void> {
     try {
       const adjusted = await executionManager.adjustActiveProtection(newStop, null);
       if (adjusted) {
-        // Update local position stop to reflect the change
-        currentPosition.stopLoss = newStop;
         log(`✅ [BellCurve] Stop adjusted to ${newStop.toFixed(2)}`, 'success');
       }
     } catch (error: any) {
