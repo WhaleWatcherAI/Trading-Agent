@@ -1,0 +1,10 @@
+{
+  "contractId": "CON.F.US.ENQ.M25",
+  "timeframe": "15m",
+  "unit": 2,
+  "unitNumber": 15,
+  "startTime": "2025-01-01T00:00:00Z",
+  "endTime": "2025-12-31T23:59:59Z",
+  "count": 0,
+  "bars": []
+}

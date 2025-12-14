@@ -1,0 +1,62 @@
+{
+  "trained_at": "2025-12-11T03:38:39.532151",
+  "training_days": 12,
+  "validation_days": 3,
+  "train_date_list": [
+    "2025-11-25",
+    "2025-11-26",
+    "2025-11-27",
+    "2025-11-28",
+    "2025-11-30",
+    "2025-12-01",
+    "2025-12-02",
+    "2025-12-03",
+    "2025-12-04",
+    "2025-12-05",
+    "2025-12-07",
+    "2025-12-08"
+  ],
+  "val_date_list": [
+    "2025-12-09",
+    "2025-12-10",
+    "2025-12-11"
+  ],
+  "date_range": "2025-11-25 to 2025-12-11",
+  "total_bars": 352860,
+  "validation": {
+    "total_trades": 30,
+    "total_wins": 15,
+    "total_losses": 15,
+    "win_rate": 50.0,
+    "pnl_points": 31.0,
+    "pnl_dollars": 3100.0,
+    "max_dd_points": 15.9,
+    "max_dd_dollars": 1590.0,
+    "days": [
+      {
+        "date": "2025-12-09",
+        "trades": 13,
+        "wins": 9,
+        "losses": 4,
+        "pnl_points": 38.20000000000164,
+        "max_dd_points": 2.300000000000182
+      },
+      {
+        "date": "2025-12-10",
+        "trades": 17,
+        "wins": 6,
+        "losses": 11,
+        "pnl_points": -7.200000000000728,
+        "max_dd_points": 15.900000000000546
+      },
+      {
+        "date": "2025-12-11",
+        "trades": 0,
+        "wins": 0,
+        "losses": 0,
+        "pnl_points": 0,
+        "max_dd_points": 0.0
+      }
+    ]
+  }
+}

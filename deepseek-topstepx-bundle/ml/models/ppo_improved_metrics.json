@@ -1,0 +1,36 @@
+{
+  "model_type": "PPO_Improved_5min",
+  "data_config": {
+    "timeframe": "5min",
+    "train_bars": 7983,
+    "test_bars": 1996
+  },
+  "architecture": {
+    "state_dim": 20,
+    "action_dim": 5,
+    "hidden_dim": 256
+  },
+  "training": {
+    "total_timesteps": 100042,
+    "episodes": 657,
+    "avg_train_return": -3.4295790413278118,
+    "best_train_return": -0.8294671686913969
+  },
+  "test_performance": {
+    "return": 0.0,
+    "trades": 0,
+    "final_balance": 10000.0,
+    "action_distribution": {
+      "Hold": 0.0,
+      "Buy": 0.0,
+      "Sell": 1.0,
+      "Short": 0.0,
+      "Cover": 0.0
+    }
+  },
+  "capabilities": {
+    "short_selling": true,
+    "transaction_costs": 0.0
+  },
+  "trained_at": "2025-12-01T03:31:31.299165"
+}

@@ -1,0 +1,7 @@
+{
+  "architecture": "Simple LSTM+TCN\u2192XGBoost",
+  "features": "OHLCV + SMA(50,100,200)",
+  "lookback_hours": 365,
+  "test_accuracy": 0.5277435265104808,
+  "trained_samples": 3780
+}

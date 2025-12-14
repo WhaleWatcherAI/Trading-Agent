@@ -1,0 +1,58 @@
+======================================================================
+HYBRID LSTM + TCN MULTI-TASK TRAINING
+======================================================================
+Device: cpu
+Sequence length: 60 days
+Tasks: 1d, 4h, 1h direction prediction
+Loss weights: 1d=1.0, 4h=0.7, 1h=0.5
+======================================================================
+
+Loading bar data...
+  1-hour bars: 5767
+  4-hour bars: 1504
+  Daily bars: 234
+
+Computing features...
+
+Creating multi-task samples...
+  Total samples: 173
+  Feature shape: (173, 60, 26)
+  1d positive ratio: 57.225%
+  4h positive ratio: 67.630%
+  1h positive ratio: 35.838%
+
+Data splits:
+  Train: 121 samples
+  Val: 26 samples
+  Test: 26 samples (holdout)
+
+Normalizing features...
+  ✓ Scaler fit on training data only (no leakage)
+
+Initializing Hybrid LSTM + TCN model...
+  Total parameters: 609,923
+
+Training for 100 epochs...
+Epoch 10/100
+  Train Loss: 1.3400
+    1d Acc: 59.504%, 4h Acc: 68.595%, 1h Acc: 70.248%
+  Val Loss: 1.4914
+    1d Acc: 57.692%, 4h Acc: 73.077%, 1h Acc: 53.846%
+
+Early stopping at epoch 18
+
+======================================================================
+MULTI-TASK TEST SET PERFORMANCE (HOLDOUT)
+======================================================================
+1-Day Prediction Accuracy:  53.846%
+4-Hour Prediction Accuracy: 50.000%
+1-Hour Prediction Accuracy: 46.154%
+======================================================================
+
+======================================================================
+✓ TRAINING COMPLETE
+======================================================================
+Best Val Loss: 1.4569
+Test Accuracy - 1d: 53.846%, 4h: 50.000%, 1h: 46.154%
+
+Model saved to: /home/costa/Trading-Agent/qwen-topstepx-bundle/ml/models_TEST/longterm/htf_lstm_tcn_multitask.pt

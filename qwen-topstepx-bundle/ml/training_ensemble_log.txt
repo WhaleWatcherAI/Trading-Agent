@@ -1,0 +1,77 @@
+======================================================================
+HIERARCHICAL ENSEMBLE: LSTM + TCN → XGBOOST
+======================================================================
+Device: cpu
+Architecture: Deep Learning (feature extraction) + XGBoost (decisions)
+======================================================================
+
+Loading bar data...
+  1-hour bars: 5767
+  4-hour bars: 1504
+  Daily bars: 234
+Loading microstructure features...
+  Loaded 14 daily volume profiles
+  Loaded 2886 5-minute CVD values
+  Loaded 2886 5-minute CVD EMA values
+
+Computing features...
+
+Creating samples...
+  Total samples: 173
+  Feature shape: (173, 60, 32)
+
+Data splits: Train=121, Val=26, Test=26
+
+Normalizing features...
+
+======================================================================
+STEP 1: TRAINING LSTM+TCN FEATURE EXTRACTOR
+======================================================================
+  Model parameters: 614,531
+  Epoch 10/50 - Train Loss: 0.6045, Val Loss: 0.7182
+  Early stopping at epoch 16
+✓ LSTM+TCN feature extractor trained (Best Val Loss: 0.6790)
+
+======================================================================
+STEP 2: EXTRACTING EMBEDDINGS FROM LSTM+TCN
+======================================================================
+  Extracted embeddings shape: (121, 192)
+  (64 LSTM + 64 TCN = 128 total)
+  Statistical features shape: (121, 32)
+
+======================================================================
+STEP 3: TRAINING XGBOOST ENSEMBLE
+======================================================================
+
+  Training XGBoost for 1d prediction...
+    Combined features shape: (121, 224)
+    (192 embeddings + 32 statistical features)
+    Train Acc: 100.000%, Val Acc: 38.462%, Test Acc: 46.154%
+
+  Training XGBoost for 4h prediction...
+    Combined features shape: (121, 224)
+    (192 embeddings + 32 statistical features)
+    Train Acc: 100.000%, Val Acc: 76.923%, Test Acc: 61.538%
+
+  Training XGBoost for 1h prediction...
+    Combined features shape: (121, 224)
+    (192 embeddings + 32 statistical features)
+    Train Acc: 98.347%, Val Acc: 53.846%, Test Acc: 46.154%
+
+======================================================================
+SAVING ENSEMBLE MODELS
+======================================================================
+✓ Models saved:
+  - lstm_tcn_feature_extractor.pt
+  - xgb_ensemble_1d.json
+  - xgb_ensemble_4h.json
+  - xgb_ensemble_1h.json
+  - ensemble_metadata.json
+
+======================================================================
+ENSEMBLE TEST SET RESULTS (HOLDOUT)
+======================================================================
+1-Day Prediction:   46.154%
+4-Hour Prediction:  61.538%
+1-Hour Prediction:  46.154%
+======================================================================

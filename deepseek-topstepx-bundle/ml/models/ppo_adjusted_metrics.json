@@ -1,0 +1,30 @@
+{
+  "model_type": "PPO_Adjusted_5min",
+  "timeframe": "5min bars, 100min predictions",
+  "training": {
+    "best_train_return": 0.025386224380195745,
+    "avg_final_return": 0.0036743421727864814,
+    "avg_final_trades": 3410.923076923077,
+    "avg_final_win_rate": 0.499309009986625
+  },
+  "test": {
+    "return": 0.0013868877384968074,
+    "trades": 4,
+    "win_rate": 0.5,
+    "final_balance": 10013.868877384968,
+    "action_distribution": {
+      "Hold": 0.9563636363636364,
+      "Buy": 0.001038961038961039,
+      "Sell": 0.0425974025974026,
+      "Short": 0.0,
+      "Cover": 0.0
+    }
+  },
+  "config": {
+    "profit_threshold": 0.003,
+    "stop_loss": -0.005,
+    "learning_rate": 3e-05,
+    "entropy_coef": 0.05
+  },
+  "trained_at": "2025-12-01T03:39:35.434940"
+}

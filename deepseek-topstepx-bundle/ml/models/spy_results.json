@@ -1,0 +1,20 @@
+{
+  "5m_model": {
+    "accuracy": 0.9835221421215241,
+    "precision": 0.08333333333333333,
+    "recall": 0.03857142857142857,
+    "auc": 0.7860397303781501
+  },
+  "30m_model": {
+    "accuracy": 0.976519052523172,
+    "precision": 0.0,
+    "recall": 0.0,
+    "auc": 0.6378355641336154
+  },
+  "backtest": {
+    "total_return": 0,
+    "win_rate": 0,
+    "num_trades": 0,
+    "final_capital": 10000
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "lightgbm": {
+    "status": "working",
+    "win_5m": 1.0000000036274914e-15,
+    "win_30m": 0.4425219933146412
+  },
+  "lstm": {
+    "status": "working",
+    "signal": "HOLD",
+    "buy_prob": 6.137380187398733e-11,
+    "sell_prob": 5.576191244860418e-11,
+    "hold_prob": 1.0,
+    "movement": 0.0011576060205698013
+  },
+  "ppo": {
+    "status": "working",
+    "action": "BUY",
+    "hold_prob": 0.2962481379508972,
+    "buy_prob": 0.49008485674858093,
+    "sell_prob": 0.21366703510284424,
+    "state_value": 0.14529278874397278
+  },
+  "ensemble": {
+    "decision": "HOLD",
+    "confidence": 0.4,
+    "buy_votes": 2,
+    "sell_votes": 1,
+    "hold_votes": 2
+  }
+}

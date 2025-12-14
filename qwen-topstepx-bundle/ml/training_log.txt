@@ -1,0 +1,68 @@
+======================================================================
+LONG-TERM HTF LSTM TRAINING
+======================================================================
+Device: cpu
+Sequence length: 60 days
+Train/Val/Test: 70%/15%/15%
+======================================================================
+
+Loading bar data...
+  1-hour bars: 5767
+  4-hour bars: 1504
+  Daily bars: 234
+
+Computing 1-hour CVD...
+Computing daily Volume Profile...
+
+Creating training samples...
+  Total samples: 169
+  Feature shape: (169, 60, 26)
+  Positive ratio: 71.598%
+
+Data splits:
+  Train: 118 samples (oldest)
+  Val: 25 samples
+  Test: 26 samples (newest, holdout)
+
+Normalizing features...
+  ✓ Scaler fit on training data only (no leakage)
+
+Initializing LSTM model...
+  LSTM parameters: 354,656
+  Classifier parameters: 545
+
+Training for 100 epochs...
+Epoch 10/100
+  Train Loss: 0.5473, Acc: 75.424%
+  Val Loss: 0.6158, Acc: 72.000%
+Epoch 20/100
+  Train Loss: 0.4028, Acc: 81.356%
+  Val Loss: 0.7686, Acc: 72.000%
+
+Early stopping at epoch 22
+
+======================================================================
+EVALUATING ON TEST SET (HOLDOUT)
+======================================================================
+
+======================================================================
+TEST SET PERFORMANCE
+======================================================================
+Accuracy: 53.846%
+
+Confusion Matrix:
+                Predicted
+                Down    Up
+Actual Down:       0    12
+Actual Up:         0    14
+
+Precision (Up): 53.846%
+Recall (Up): 100.000%
+
+======================================================================
+✓ TRAINING COMPLETE
+======================================================================
+Best Val Loss: 0.5938
+Test Accuracy: 53.846%
+
+Model saved to: /home/costa/Trading-Agent/qwen-topstepx-bundle/ml/models_TEST/longterm/htf_lstm_model.pt

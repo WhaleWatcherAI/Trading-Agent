@@ -1,0 +1,55 @@
+======================================================================
+SIMPLE LSTM + TCN → XGBOOST
+======================================================================
+Architecture: 1-hour OHLCV + SMAs → LSTM+TCN → XGBoost
+Features: OHLCV + SMA(50,100,200) = 8 features
+Lookback: 365 hours
+Prediction: Next hour up/down
+Device: cuda
+======================================================================
+
+Loading 1-hour bars...
+  Loaded 5767 hourly bars
+
+Extracting features (NO LEAKAGE)...
+  Calculating SMAs (50, 100, 200)...
+  Creating sequences (lookback=365)...
+  Created 5401 sequences
+  Feature shape: (5401, 365, 8)
+  Positive ratio: 51.898%
+
+Data splits: Train=3780, Val=810, Test=811
+
+Normalizing...
+
+======================================================================
+STEP 1: TRAINING LSTM+TCN FEATURE EXTRACTOR
+======================================================================
+  Model parameters: 591,873
+  Epoch 10/50 - Train: 0.5364, Val: 0.5081
+  Epoch 20/50 - Train: 0.4774, Val: 0.5146
+  Early stopping at epoch 23
+✓ Feature extractor trained (Best Val Loss: 0.5021)
+
+======================================================================
+STEP 2: EXTRACTING EMBEDDINGS
+======================================================================
+  Embeddings shape: (3780, 64)
+
+======================================================================
+STEP 3: TRAINING XGBOOST
+======================================================================
+  Combined features: (3780, 72)
+  (64 embeddings + 8 statistical)
+  Train Acc: 74.392%, Val Acc: 65.802%, Test Acc: 52.774%
+
+======================================================================
+SAVING MODELS
+======================================================================
+✓ Saved to /home/costa/Trading-Agent/qwen-topstepx-bundle/ml/models_TEST/simple/
+
+======================================================================
+FINAL RESULTS (HOLDOUT TEST SET)
+======================================================================
+Next Hour Prediction Accuracy: 52.774%
+======================================================================

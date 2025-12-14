@@ -1,0 +1,12 @@
+{
+  "model_type": "LSTM",
+  "sequence_length": 60,
+  "prediction_horizon": 5,
+  "hidden_size": 128,
+  "num_layers": 2,
+  "avg_val_loss": Infinity,
+  "std_val_loss": NaN,
+  "total_sequences": 167,
+  "features": 15,
+  "trained_at": "2025-12-01T02:14:42.702411"
+}

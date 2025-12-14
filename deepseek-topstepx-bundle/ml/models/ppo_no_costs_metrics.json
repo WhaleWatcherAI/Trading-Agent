@@ -1,0 +1,16 @@
+{
+  "model_type": "PPO_NoCosts",
+  "total_timesteps": 98600,
+  "total_episodes": 2,
+  "avg_episode_reward": 12.221973396374423,
+  "std_episode_reward": 16.521088855524926,
+  "avg_episode_length": 49300.0,
+  "avg_episode_return": 0.002409999999992033,
+  "best_episode_return": 0.005247499999987667,
+  "final_balance": 9995.724999999964,
+  "final_return": -0.0004275000000036016,
+  "total_trades": 3977,
+  "win_rate": 0.40030173497611266,
+  "avg_loss": 16.990744220092893,
+  "trained_at": "2025-12-01T03:13:12.516362"
+}

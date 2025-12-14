@@ -1,0 +1,7 @@
+{
+  "model": "PPO_SMA_Fast",
+  "test_return": -0.0077049555029603655,
+  "test_trades": 1,
+  "test_win_rate": 0.0,
+  "trained_at": "2025-12-01T03:58:30.058774"
+}

@@ -1,0 +1,19 @@
+{
+  "model_type": "LSTM_Fixed",
+  "epochs_trained": 29,
+  "best_loss": 0.755214153177144,
+  "final_accuracy": 0.7974260235103364,
+  "sequence_length": 60,
+  "hidden_size": 64,
+  "num_layers": 2,
+  "features": [
+    "close",
+    "volume",
+    "rsi",
+    "macd",
+    "volatility"
+  ],
+  "train_samples": 39468,
+  "test_samples": 9868,
+  "trained_at": "2025-12-01T02:42:52.133087"
+}

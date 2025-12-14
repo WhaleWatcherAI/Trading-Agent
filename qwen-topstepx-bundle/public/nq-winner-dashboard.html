@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NQ Winner Strategy - Live Dashboard</title>
+    <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #0f172a; color: #e2e8f0; }
+        .header { background: #1e293b; padding: 1rem; border-bottom: 1px solid #334155; }
+        .header-content { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+        .title { font-size: 1.5rem; font-weight: bold; color: #f1f5f9; }
+        .subtitle { font-size: 0.875rem; color: #94a3b8; margin-top: 0.25rem; }
+        .control-panel { display: flex; gap: 1rem; align-items: center; }
+        .btn { padding: 0.5rem 1rem; border: none; border-radius: 0.375rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-start { background: #22c55e; color: white; }
+        .btn-start:hover:not(:disabled) { background: #16a34a; }
+        .btn-stop { background: #f97316; color: white; }
+        .btn-stop:hover { background: #ea580c; }
+        .btn-flatten { background: #ef4444; color: white; }
+        .btn-flatten:hover { background: #dc2626; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .trading-status { padding: 0.25rem 0.75rem; border-radius: 0.25rem; font-size: 0.875rem; font-weight: 600; }
+        .status-active { background: #16a34a; color: white; }
+        .status-inactive { background: #dc2626; color: white; }
+        .status-bar { background: #1e293b; padding: 0.75rem; border-bottom: 1px solid #334155; }
+        .status-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .status-item { display: flex; align-items: center; gap: 0.5rem; }
+        .status-label { color: #94a3b8; font-size: 0.875rem; }
+        .status-value { color: #f1f5f9; font-weight: 600; }
+        .status-value.positive { color: #22c55e; }
+        .status-value.negative { color: #ef4444; }
+        .status-connected { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; animation: pulse 2s infinite; }
+        .status-disconnected { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .container { max-width: 1400px; margin: 0 auto; padding: 1rem; }
+        .chart-container { background: #1e293b; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem; }
+        .chart-title { color: #f1f5f9; font-weight: 600; margin-bottom: 0.5rem; }
+        .chart-wrapper { position: relative; }
+        .indicator-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+        .indicator-chart { background: #1e293b; border-radius: 0.5rem; padding: 1rem; }
+        .position-monitor { background: #1e293b; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem; }
+        .position-header { font-weight: 600; color: #f1f5f9; margin-bottom: 1rem; }
+        .position-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; }
+        .position-item { }
+        .position-label { color: #94a3b8; font-size: 0.875rem; }
+        .position-value { color: #f1f5f9; font-weight: 600; margin-top: 0.25rem; }
+        .no-position { color: #94a3b8; font-style: italic; }
+        .trade-history { background: #1e293b; border-radius: 0.5rem; padding: 1rem; }
+        .trade-header { font-weight: 600; color: #f1f5f9; margin-bottom: 1rem; }
+        .trade-table { width: 100%; border-collapse: collapse; }
+        .trade-table th { text-align: left; padding: 0.5rem; color: #94a3b8; font-size: 0.875rem; border-bottom: 1px solid #334155; }
+        .trade-table td { padding: 0.5rem; color: #e2e8f0; }
+        .trade-table tr:hover { background: rgba(51, 65, 85, 0.3); }
+        .trade-side-long { color: #22c55e; font-weight: 600; }
+        .trade-side-short { color: #ef4444; font-weight: 600; }
+        .trade-pnl-positive { color: #22c55e; font-weight: 600; }
+        .trade-pnl-negative { color: #ef4444; font-weight: 600; }
+        .alert-box { position: fixed; top: 1rem; right: 1rem; max-width: 400px; padding: 1rem; border-radius: 0.5rem; animation: slideIn 0.3s; z-index: 1000; }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        .alert-success { background: #16a34a; color: white; }
+        .alert-error { background: #dc2626; color: white; }
+        .alert-warning { background: #f97316; color: white; }
+        .alert-info { background: #0284c7; color: white; }
+        .setup-indicator { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 0.25rem; font-size: 0.875rem; font-weight: 600; margin-left: 0.5rem; }
+        .setup-long { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .setup-short { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .r1-panel { background: #1e293b; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem; border: 1px solid #334155; }
+        .r1-panel h3 { margin-bottom: 0.25rem; color: #f1f5f9; }
+        .r1-note { color: #94a3b8; font-size: 0.85rem; margin-bottom: 0.5rem; }
+        .r1-textarea { width: 100%; min-height: 120px; background: #0f172a; color: #e2e8f0; border: 1px solid #334155; border-radius: 0.375rem; padding: 0.75rem; margin-bottom: 0.5rem; }
+        .r1-output { background: #0f172a; color: #e2e8f0; border: 1px solid #334155; border-radius: 0.375rem; padding: 0.75rem; min-height: 120px; white-space: pre-wrap; }
+        .r1-actions { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; }
+        .r1-status { color: #94a3b8; font-size: 0.9rem; }
+        /* Account selector disabled - controlled by multi-symbol dashboard */
+        /* .account-selector { display: flex; align-items: center; gap: 0.5rem; } */
+        /* .account-select { background: #334155; color: #e2e8f0; border: 1px solid #475569; padding: 0.5rem; border-radius: 0.375rem; } */
+        /* .account-select:focus { outline: 2px solid #3b82f6; } */
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div>
+                <div class="title">NQ Winner Strategy - Live Trading</div>
+                <div class="subtitle">
+                    <span id="symbol">NQZ5</span> |
+                    BB(20,3) | RSI(24) | TTM Squeeze
+                </div>
+            </div>
+            <div class="control-panel">
+                <button id="btnStart" class="btn btn-start">▶ Start Trading</button>
+                <button id="btnStop" class="btn btn-stop" style="display: none;">⏸ Stop Trading</button>
+                <button id="btnFlatten" class="btn btn-flatten" disabled>⏏ Flatten Position</button>
+                <div id="tradingStatus" class="trading-status status-inactive">Inactive</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-content">
+            <div class="status-item">
+                <span class="status-label">Account:</span>
+                <span id="accountBalance" class="status-value">$0.00</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Daily P&L:</span>
+                <span id="dailyPnl" class="status-value">$0.00</span>
+                <span id="dailyLimit" style="color: #94a3b8; font-size: 0.75rem; margin-left: 0.25rem;">/ -$2,000</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Open P&L:</span>
+                <span id="openPnl" class="status-value">$0.00</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Trades:</span>
+                <span id="tradeCount" class="status-value">0</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Win Rate:</span>
+                <span id="winRate" class="status-value">0%</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Connection:</span>
+                <div id="connectionStatus" class="status-disconnected"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="chart-container">
+            <div class="chart-title">Price Chart <span id="setupIndicator"></span></div>
+            <div id="mainChart" class="chart-wrapper" style="height: 400px;"></div>
+        </div>
+
+        <div class="indicator-panel">
+            <div class="indicator-chart">
+                <div class="chart-title">RSI (24)</div>
+                <div id="rsiChart" style="height: 150px;"></div>
+            </div>
+            <div class="indicator-chart">
+                <div class="chart-title">TTM Squeeze <span id="squeezeStatus" style="font-weight: bold; margin-left: 10px;">-</span></div>
+                <div id="ttmChart" style="height: 150px;"></div>
+            </div>
+        </div>
+
+        <div class="position-monitor">
+            <div class="position-header">Current Position</div>
+            <div id="positionInfo" class="no-position">No active position</div>
+        </div>
+
+        <div class="r1-panel">
+            <h3>Qwen Advisory (NQ Winner)</h3>
+            <div class="r1-note">Advisory-only. Uses the same guardrails as the live agent—no orders are sent.</div>
+            <textarea id="r1Prompt" class="r1-textarea" placeholder="Enter prompt for Qwen"></textarea>
+            <div class="r1-actions">
+                <button id="btnR1" class="btn btn-start">Run R1 Locally</button>
+                <span id="r1Status" class="r1-status"></span>
+            </div>
+            <pre id="r1Output" class="r1-output">R1 output will appear here.</pre>
+        </div>
+
+        <div class="activity-log" style="background: #1e293b; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+            <div class="trade-header" style="margin-bottom: 10px;">Strategy Activity Log</div>
+            <div id="activityLog" style="max-height: 200px; overflow-y: auto; font-family: monospace; font-size: 12px; color: #94a3b8;">
+                <div style="color: #64748b;">Waiting for activity...</div>
+            </div>
+        </div>
+
+        <div class="trade-history">
+            <div class="trade-header">Recent Trades (Last 10)</div>
+            <table class="trade-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Side</th>
+                        <th>Entry</th>
+                        <th>Exit</th>
+                        <th>Reason</th>
+                        <th>P&L</th>
+                    </tr>
+                </thead>
+                <tbody id="tradeList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let socket = null;
+        let mainChart = null;
+        let rsiChart = null;
+        let ttmChart = null;
+        let candleSeries = null;
+        let bbUpperSeries = null;
+        let bbLowerSeries = null;
+        let bbBasisSeries = null;
+        let rsiSeries = null;
+        let ttmMomentumSeries = null;
+        let ttmSqueezeSeries = null;
+        let tradingEnabled = false;
+        let currentPosition = null;
+        let trades = [];
+        let accountList = [];
+        let chartDataLoaded = false; // Prevent duplicate loads
+        let isUpdatingCharts = false; // Prevent concurrent updates
+        const defaultR1Prompt = `NQ Winner - advisory only (do not place orders).\n- Follow existing NQ Winner rules: BB(20,3), RSI(24) 30/70, TTM Squeeze entry confirmation, bracket TP 0.05%, SL 0.01%, 3 contracts.\n- Provide current directional bias, entry trigger, stop/target levels, and risk notes.\n- Keep concise bullets, no execution commands.`;
+
+        // Initialize charts
+        function initCharts() {
+            // Create main chart using the correct API
+            const mainContainer = document.getElementById('mainChart');
+            mainChart = LightweightCharts.createChart(mainContainer, {
+                width: mainContainer.clientWidth,
+                height: 400,
+                layout: {
+                    background: { type: LightweightCharts.ColorType.Solid, color: '#1e293b' },
+                    textColor: '#e2e8f0',
+                },
+                grid: {
+                    vertLines: { color: 'rgba(14,23,38,0.4)' },
+                    horzLines: { color: 'rgba(14,23,38,0.4)' },
+                },
+                timeScale: {
+                    borderColor: '#334155',
+                    timeVisible: true,
+                    secondsVisible: false,
+                },
+                rightPriceScale: {
+                    borderColor: '#334155',
+                },
+            });
+
+            // Add candlestick series using the correct method
+            candleSeries = mainChart.addCandlestickSeries({
+                upColor: '#22c55e',
+                downColor: '#ef4444',
+                borderDownColor: '#dc2626',
+                borderUpColor: '#16a34a',
+                wickDownColor: '#ef4444',
+                wickUpColor: '#22c55e',
+            });
+
+            // Add Bollinger Band series
+            bbUpperSeries = mainChart.addLineSeries({
+                color: '#3b82f6',
+                lineWidth: 1,
+                priceLineVisible: false,
+            });
+
+            bbLowerSeries = mainChart.addLineSeries({
+                color: '#3b82f6',
+                lineWidth: 1,
+                priceLineVisible: false,
+            });
+
+            bbBasisSeries = mainChart.addLineSeries({
+                color: '#94a3b8',
+                lineWidth: 1,
+                lineStyle: 2,
+                priceLineVisible: false,
+            });
+
+            // Create RSI chart
+            const rsiContainer = document.getElementById('rsiChart');
+            rsiChart = LightweightCharts.createChart(rsiContainer, {
+                width: rsiContainer.clientWidth,
+                height: 150,
+                layout: {
+                    background: { type: LightweightCharts.ColorType.Solid, color: '#1e293b' },
+                    textColor: '#e2e8f0',
+                },
+                grid: {
+                    vertLines: { color: 'rgba(14,23,38,0.4)' },
+                    horzLines: { color: 'rgba(14,23,38,0.4)' },
+                },
+                timeScale: {
+                    visible: false,
+                },
+                rightPriceScale: {
+                    borderColor: '#334155',
+                },
+            });
+
+            rsiSeries = rsiChart.addLineSeries({
+                color: '#f59e0b',
+                lineWidth: 2,
+            });
+
+            // Add RSI levels
+            rsiSeries.createPriceLine({ price: 70, color: '#ef4444', lineWidth: 1, lineStyle: 2 });
+            rsiSeries.createPriceLine({ price: 50, color: '#64748b', lineWidth: 1, lineStyle: 2 });
+            rsiSeries.createPriceLine({ price: 30, color: '#22c55e', lineWidth: 1, lineStyle: 2 });
+
+            // Create TTM Squeeze chart
+            const ttmContainer = document.getElementById('ttmChart');
+            ttmChart = LightweightCharts.createChart(ttmContainer, {
+                width: ttmContainer.clientWidth,
+                height: 150,
+                layout: {
+                    background: { type: LightweightCharts.ColorType.Solid, color: '#1e293b' },
+                    textColor: '#e2e8f0',
+                },
+                grid: {
+                    vertLines: { color: 'rgba(14,23,38,0.4)' },
+                    horzLines: { color: 'rgba(14,23,38,0.4)' },
+                },
+                timeScale: {
+                    visible: false,
+                },
+                rightPriceScale: {
+                    borderColor: '#334155',
+                },
+            });
+
+            ttmMomentumSeries = ttmChart.addHistogramSeries({
+                color: '#22c55e',
+                priceFormat: {
+                    type: 'volume',
+                },
+            });
+
+            // Add zero reference line
+            window.ttmZeroLine = ttmChart.addLineSeries({
+                color: '#64748b',
+                lineWidth: 1,
+                lineStyle: 2,  // Dashed
+                lastValueVisible: false,
+                priceLineVisible: false,
+            });
+
+            // Add squeeze indicator series (dots on zero line)
+            ttmSqueezeSeries = ttmChart.addLineSeries({
+                color: '#eab308',
+                lineWidth: 0,  // No connecting line
+                pointMarkersVisible: true,
+                lastValueVisible: false,
+                priceLineVisible: false,
+                lineStyle: 0,
+            });
+
+            // Resize handler
+            window.addEventListener('resize', () => {
+                if (mainChart) mainChart.applyOptions({ width: mainContainer.clientWidth });
+                if (rsiChart) rsiChart.applyOptions({ width: rsiContainer.clientWidth });
+                if (ttmChart) ttmChart.applyOptions({ width: ttmContainer.clientWidth });
+            });
+        }
+
+        // Update charts with data
+        async function updateCharts(data) {
+            if (!data || !Array.isArray(data) || data.length === 0) {
+                console.log('No data to update charts');
+                return;
+            }
+
+            // If charts aren't initialized yet, wait and retry
+            if (!mainChart || !candleSeries) {
+                console.log('Charts not initialized yet, retrying in 200ms...');
+                setTimeout(() => updateCharts(data), 200);
+                return;
+            }
+
+            // Prevent concurrent updates
+            if (isUpdatingCharts) {
+                console.log('Charts are already being updated, skipping...');
+                return;
+            }
+
+            isUpdatingCharts = true;
+            console.log('Starting chart update with', data.length, 'bars');
+
+            // Prepare and validate candle data
+            const candleData = data
+                .filter(point =>
+                    point &&
+                    typeof point.open === 'number' &&
+                    typeof point.high === 'number' &&
+                    typeof point.low === 'number' &&
+                    typeof point.close === 'number' &&
+                    Number.isFinite(point.open) &&
+                    Number.isFinite(point.high) &&
+                    Number.isFinite(point.low) &&
+                    Number.isFinite(point.close) &&
+                    point.timestamp
+                )
+                .map(point => ({
+                    time: Math.floor(new Date(point.timestamp).getTime() / 1000),
+                    open: point.open,
+                    high: point.high,
+                    low: point.low,
+                    close: point.close
+                }))
+                .sort((a, b) => a.time - b.time);
+
+            if (candleData.length > 0 && candleSeries) {
+                try {
+                    // Detect if this is a Forex pair by checking price range
+                    // Forex pairs typically trade below 100, while index futures are in thousands
+                    const avgPrice = candleData.reduce((sum, bar) => sum + bar.close, 0) / candleData.length;
+                    const isForex = avgPrice < 100;
+
+                    if (isForex) {
+                        console.log('Detected Forex pricing (avg price:', avgPrice.toFixed(4), '), applying high-precision format');
+                        // Apply high-precision price format for Forex
+                        mainChart.applyOptions({
+                            rightPriceScale: {
+                                borderColor: '#334155',
+                            },
+                        });
+                        // Update candlestick series with proper price format
+                        candleSeries.applyOptions({
+                            priceFormat: {
+                                type: 'price',
+                                precision: 4,
+                                minMove: 0.0001,
+                            },
+                        });
+                        // Also apply to Bollinger Band series
+                        if (bbUpperSeries) {
+                            bbUpperSeries.applyOptions({
+                                priceFormat: {
+                                    type: 'price',
+                                    precision: 4,
+                                    minMove: 0.0001,
+                                },
+                            });
+                        }
+                        if (bbLowerSeries) {
+                            bbLowerSeries.applyOptions({
+                                priceFormat: {
+                                    type: 'price',
+                                    precision: 4,
+                                    minMove: 0.0001,
+                                },
+                            });
+                        }
+                        if (bbBasisSeries) {
+                            bbBasisSeries.applyOptions({
+                                priceFormat: {
+                                    type: 'price',
+                                    precision: 4,
+                                    minMove: 0.0001,
+                                },
+                            });
+                        }
+                    }
+
+                    candleSeries.setData(candleData);
+                    console.log('Set candlestick data:', candleData.length, 'bars');
+                } catch (e) {
+                    console.error('Error setting candle data:', e);
+                }
+            }
+
+            // Update Bollinger Bands
+            const bbUpperData = data
+                .filter(point => point && typeof point.bbUpper === 'number' && Number.isFinite(point.bbUpper))
+                .map(point => ({
+                    time: Math.floor(new Date(point.timestamp).getTime() / 1000),
+                    value: point.bbUpper
+                }))
+                .sort((a, b) => a.time - b.time);
+
+            if (bbUpperData.length > 0 && bbUpperSeries) {
+                try {
+                    bbUpperSeries.setData(bbUpperData);
+                    console.log('Set BB upper data:', bbUpperData.length, 'points');
+                } catch (e) {
+                    console.error('Error setting BB upper:', e);
+                }
+            }
+
+            const bbLowerData = data
+                .filter(point => point && typeof point.bbLower === 'number' && Number.isFinite(point.bbLower))
+                .map(point => ({
+                    time: Math.floor(new Date(point.timestamp).getTime() / 1000),
+                    value: point.bbLower
+                }))
+                .sort((a, b) => a.time - b.time);
+
+            if (bbLowerData.length > 0 && bbLowerSeries) {
+                try {
+                    bbLowerSeries.setData(bbLowerData);
+                    console.log('Set BB lower data:', bbLowerData.length, 'points');
+                } catch (e) {
+                    console.error('Error setting BB lower:', e);
+                }
+            }
+
+            const bbBasisData = data
+                .filter(point => point && typeof point.bbBasis === 'number' && Number.isFinite(point.bbBasis))
+                .map(point => ({
+                    time: Math.floor(new Date(point.timestamp).getTime() / 1000),
+                    value: point.bbBasis
+                }))
+                .sort((a, b) => a.time - b.time);
+
+            if (bbBasisData.length > 0 && bbBasisSeries) {
+                try {
+                    console.log('Setting BB basis data:', bbBasisData.length, 'points');
+                    console.log('First BB basis point:', bbBasisData[0]);
+                    console.log('Last BB basis point:', bbBasisData[bbBasisData.length - 1]);
+                    bbBasisSeries.setData(bbBasisData);
+                    console.log('BB basis set successfully');
+                } catch (e) {
+                    console.error('Error setting BB basis:', e);
+                }
+            }
+
+            // Fit main chart after all main chart series are set
+            if (mainChart && candleData.length > 0) {
+                try {
+                    mainChart.timeScale().fitContent();
+                    console.log('Main chart fitted to content');
+                } catch (e) {
+                    console.error('Error fitting main chart:', e);
+                }
+            }
+
+            // Update RSI
+            const rsiData = data
+                .filter(point => point && typeof point.rsi === 'number' && Number.isFinite(point.rsi))
+                .map(point => ({
+                    time: Math.floor(new Date(point.timestamp).getTime() / 1000),
+                    value: point.rsi
+                }))
+                .sort((a, b) => a.time - b.time);
+
+            if (rsiData.length > 0 && rsiSeries) {
+                try {
+                    rsiSeries.setData(rsiData);
+                    console.log('Set RSI data:', rsiData.length, 'points');
+                    if (rsiChart) {
+                        rsiChart.timeScale().fitContent();
+                        console.log('RSI chart fitted to content');
+                    }
+                } catch (e) {
+                    console.error('Error setting RSI:', e);
+                }
+            }
+
+            // Update TTM Squeeze Momentum
+            const ttmData = data
+                .filter(point => point && typeof point.ttmMomentum === 'number' && Number.isFinite(point.ttmMomentum))
+                .map(point => ({
+                    time: Math.floor(new Date(point.timestamp).getTime() / 1000),
+                    value: point.ttmMomentum,
+                    color: point.ttmMomentum >= 0 ? '#22c55e' : '#ef4444'
+                }))
+                .sort((a, b) => a.time - b.time);
+
+            if (ttmData.length > 0 && ttmMomentumSeries) {
+                try {
+                    ttmMomentumSeries.setData(ttmData);
+                    console.log('Set TTM momentum data:', ttmData.length, 'points');
+                } catch (e) {
+                    console.error('Error setting TTM momentum:', e);
+                }
+            }
+
+            // Update TTM Squeeze State Indicator (dots on zero line)
+            // NOTE: Don't filter by other indicators - squeeze should show for all bars
+            const squeezeData = data
+                .filter(point => point && point.squeeze && typeof point.squeeze.squeezeFiring === 'boolean')
+                .map(point => ({
+                    time: Math.floor(new Date(point.timestamp).getTime() / 1000),
+                    value: 0,  // Always at zero line
+                    color: point.squeeze.squeezeFiring ? '#eab308' : '#22c55e'  // Yellow when ON, green when OFF
+                }))
+                .sort((a, b) => a.time - b.time);
+
+            console.log('Total data points:', data.length);
+            console.log('Squeeze data points:', squeezeData.length);
+            console.log('Yellow (firing) dots:', squeezeData.filter(p => p.color === '#eab308').length);
+            console.log('Green (off) dots:', squeezeData.filter(p => p.color === '#22c55e').length);
+
+            if (squeezeData.length > 0 && ttmSqueezeSeries) {
+                try {
+                    ttmSqueezeSeries.setData(squeezeData);
+                    console.log('Set TTM squeeze indicator:', squeezeData.length, 'points');
+                    console.log('First 3 squeeze:', squeezeData.slice(0, 3));
+                    console.log('Last 3 squeeze:', squeezeData.slice(-3));
+
+                    // Set zero line data
+                    const zeroLineData = data.map(point => ({
+                        time: Math.floor(new Date(point.timestamp).getTime() / 1000),
+                        value: 0
+                    })).sort((a, b) => a.time - b.time);
+
+                    if (window.ttmZeroLine) {
+                        window.ttmZeroLine.setData(zeroLineData);
+                    }
+
+                    if (ttmChart) {
+                        ttmChart.timeScale().fitContent();
+                        console.log('TTM chart fitted to content');
+                    }
+                } catch (e) {
+                    console.error('Error setting TTM squeeze indicator:', e);
+                }
+            }
+
+            console.log('Chart update complete');
+            chartDataLoaded = true;
+            isUpdatingCharts = false;
+        }
+
+        // Load accounts
+        async function loadAccounts() {
+            try {
+                const response = await fetch('/api/accounts');
+                if (!response.ok) throw new Error('Failed to fetch accounts');
+                const accounts = await response.json();
+                accountList = accounts;
+
+                const select = document.getElementById('accountSelect');
+                const currentAccount = accounts.find(acc => acc.isCurrent);
+
+                select.innerHTML = accounts.map(acc => {
+                    const label = acc.isCurrent
+                        ? `${acc.name} - $${acc.balance.toFixed(2)} (Current)`
+                        : `${acc.name} - $${acc.balance.toFixed(2)}`;
+                    return `<option value="${acc.id}">${label}</option>`;
+                }).join('');
+
+                // Select the current account
+                if (currentAccount) {
+                    select.value = currentAccount.id;
+                } else if (accounts.length > 0) {
+                    select.value = accounts[0].id;
+                }
+            } catch (error) {
+                console.error('Failed to load accounts:', error);
+                document.getElementById('accountSelect').innerHTML = '<option value="">Failed to load</option>';
+            }
+        }
+
+        // Load account status and update display
+        // For Fabio agent integration we rely on Socket.IO `status` events,
+        // so this becomes a lightweight no-op to avoid REST dependencies.
+        async function loadAccountStatus() {
+            console.log('loadAccountStatus(): waiting for socket status updates');
+        }
+
+        // Update UI elements
+        function updateStatus(data) {
+            if (!data) return;
+
+            // Normalize account stats (Fabio agent uses accountStats)
+            const account = data.accountStatus || data.accountStats || {};
+
+            // Update account balance
+            if (account.balance != null) {
+                document.getElementById('accountBalance').textContent = `$${account.balance.toFixed(2)}`;
+            }
+
+            // Update daily P&L
+            if (account.dailyPnL != null) {
+                const pnlElement = document.getElementById('dailyPnl');
+                pnlElement.textContent = `$${account.dailyPnL.toFixed(2)}`;
+                pnlElement.className = account.dailyPnL >= 0 ? 'status-value positive' : 'status-value negative';
+
+                // Warning if approaching daily limit
+                if (account.dailyPnL <= -1500) {
+                    document.getElementById('dailyLimit').style.color = '#ef4444';
+                }
+            }
+
+            // Update trading status (Fabio uses isTrading)
+            if (data.tradingEnabled != null || data.isTrading != null) {
+                tradingEnabled = data.tradingEnabled != null ? data.tradingEnabled : !!data.isTrading;
+                const statusEl = document.getElementById('tradingStatus');
+                statusEl.textContent = tradingEnabled ? 'Active' : 'Inactive';
+                statusEl.className = tradingEnabled ? 'trading-status status-active' : 'trading-status status-inactive';
+
+                document.getElementById('btnStart').style.display = tradingEnabled ? 'none' : 'inline-block';
+                document.getElementById('btnStop').style.display = tradingEnabled ? 'inline-block' : 'none';
+            }
+
+            // Update setup indicator
+            if (data.currentSetup) {
+                const indicator = document.getElementById('setupIndicator');
+                indicator.className = `setup-indicator setup-${data.currentSetup.toLowerCase()}`;
+                indicator.textContent = `${data.currentSetup} Setup`;
+            } else {
+                document.getElementById('setupIndicator').textContent = '';
+            }
+
+            // Update position info
+            if (data.position) {
+                currentPosition = data.position;
+                updatePositionDisplay();
+                document.getElementById('btnFlatten').disabled = false;
+            } else {
+                currentPosition = null;
+                document.getElementById('positionInfo').innerHTML = '<div class="no-position">No active position</div>';
+                document.getElementById('btnFlatten').disabled = true;
+                document.getElementById('openPnl').textContent = '$0.00';
+            }
+
+            // Update trade stats based on accumulated trades array
+            if (Array.isArray(trades)) {
+                const wins = trades.filter(t => t.pnl > 0).length;
+                const total = trades.length;
+                const winRate = total > 0 ? (wins / total * 100).toFixed(0) : 0;
+                document.getElementById('tradeCount').textContent = total;
+                document.getElementById('winRate').textContent = `${winRate}%`;
+            }
+        }
+
+        function updatePositionDisplay() {
+            if (!currentPosition) return;
+
+            const html = `
+                <div class="position-grid">
+                    <div class="position-item">
+                        <div class="position-label">Side</div>
+                        <div class="position-value ${currentPosition.side === 'LONG' ? 'positive' : 'negative'}">
+                            ${currentPosition.side}
+                        </div>
+                    </div>
+                    <div class="position-item">
+                        <div class="position-label">Contracts</div>
+                        <div class="position-value">${currentPosition.contracts}</div>
+                    </div>
+                    <div class="position-item">
+                        <div class="position-label">Entry Price</div>
+                        <div class="position-value">${currentPosition.entryPrice.toFixed(2)}</div>
+                    </div>
+                    <div class="position-item">
+                        <div class="position-label">Current Price</div>
+                        <div class="position-value">${(currentPosition.currentPrice || currentPosition.entryPrice).toFixed(2)}</div>
+                    </div>
+                    <div class="position-item">
+                        <div class="position-label">Stop Loss</div>
+                        <div class="position-value">${currentPosition.stopPrice.toFixed(2)}</div>
+                    </div>
+                    <div class="position-item">
+                        <div class="position-label">Take Profit</div>
+                        <div class="position-value">${currentPosition.targetPrice.toFixed(2)}</div>
+                    </div>
+                    <div class="position-item">
+                        <div class="position-label">Unrealized P&L</div>
+                        <div class="position-value ${currentPosition.unrealizedPnl >= 0 ? 'positive' : 'negative'}">
+                            $${(currentPosition.unrealizedPnl || 0).toFixed(2)}
+                        </div>
+                    </div>
+                    <div class="position-item">
+                        <div class="position-label">Entry Time</div>
+                        <div class="position-value">${new Date(currentPosition.entryTime).toLocaleTimeString()}</div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('positionInfo').innerHTML = html;
+
+            // Update open P&L
+            if (currentPosition.unrealizedPnl != null) {
+                const pnlEl = document.getElementById('openPnl');
+                pnlEl.textContent = `$${currentPosition.unrealizedPnl.toFixed(2)}`;
+                pnlEl.className = currentPosition.unrealizedPnl >= 0 ? 'status-value positive' : 'status-value negative';
+            }
+        }
+
+        function updateTradeHistory() {
+            const tbody = document.getElementById('tradeList');
+            const recentTrades = trades.slice(-10).reverse();
+
+            tbody.innerHTML = recentTrades.map(trade => {
+                const side = trade.side === 'LONG' ? 'trade-side-long' : 'trade-side-short';
+                const pnlClass = trade.pnl >= 0 ? 'trade-pnl-positive' : 'trade-pnl-negative';
+
+                return `
+                    <tr>
+                        <td>${new Date(trade.exitTime).toLocaleTimeString()}</td>
+                        <td class="${side}">${trade.side}</td>
+                        <td>${trade.entryPrice.toFixed(2)}</td>
+                        <td>${trade.exitPrice.toFixed(2)}</td>
+                        <td>${trade.exitReason || 'Manual'}</td>
+                        <td class="${pnlClass}">$${trade.pnl.toFixed(2)}</td>
+                    </tr>
+                `;
+            }).join('') || '<tr><td colspan="6" style="text-align: center; color: #94a3b8;">No trades yet</td></tr>';
+        }
+
+        function updateSqueezeStatus(squeezeFiring) {
+            const statusEl = document.getElementById('squeezeStatus');
+            if (!statusEl) return;
+
+            if (squeezeFiring) {
+                statusEl.textContent = '(ON)';
+                statusEl.style.color = '#eab308'; // Yellow
+            } else {
+                statusEl.textContent = 'OFF';
+                statusEl.style.color = '#22c55e'; // Green
+            }
+        }
+
+        function addActivityLog(message, type = 'info') {
+            const logEl = document.getElementById('activityLog');
+            if (!logEl) return;
+
+            // Clear "Waiting for activity..." message on first log
+            if (logEl.children.length === 1 && logEl.textContent.includes('Waiting for activity')) {
+                logEl.innerHTML = '';
+            }
+
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: '#94a3b8',
+                success: '#22c55e',
+                warning: '#eab308',
+                error: '#ef4444'
+            };
+
+            const entry = document.createElement('div');
+            entry.style.color = colors[type] || colors.info;
+            entry.style.marginBottom = '4px';
+            entry.textContent = `[${timestamp}] ${message}`;
+
+            logEl.appendChild(entry);
+
+            // Keep only last 50 entries
+            while (logEl.children.length > 50) {
+                logEl.removeChild(logEl.firstChild);
+            }
+
+            // Auto-scroll to bottom
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        function showAlert(message, type = 'info') {
+            const alert = document.createElement('div');
+            alert.className = `alert-box alert-${type}`;
+            alert.textContent = message;
+            document.body.appendChild(alert);
+
+            setTimeout(() => {
+                alert.style.animation = 'slideOut 0.3s';
+                setTimeout(() => alert.remove(), 300);
+            }, 3000);
+        }
+
+        // Socket connection
+        function connect() {
+            socket = io();
+
+            socket.on('connect', () => {
+                console.log('Connected to strategy server');
+                document.getElementById('connectionStatus').className = 'status-connected';
+
+                // Request initial chart history
+                socket.emit('chartHistory');
+            });
+
+            socket.on('disconnect', () => {
+                console.log('Disconnected from server');
+                document.getElementById('connectionStatus').className = 'status-disconnected';
+            });
+
+            socket.on('chartHistory', (data) => {
+                console.log('Received chart history via socket:', data ? data.length : 0, 'bars');
+                if (chartDataLoaded) {
+                    console.log('Chart data already loaded, ignoring duplicate socket data');
+                    return;
+                }
+                if (data && data.length > 0) {
+                    updateCharts(data);
+                } else {
+                    console.warn('Chart history is empty or invalid');
+                }
+            });
+
+            socket.on('bar', (bar) => {
+                console.log('Received live bar update:', bar);
+                // Update with the new bar
+                if (candleSeries && bar) {
+                    const candleData = {
+                        time: Math.floor(new Date(bar.timestamp).getTime() / 1000),
+                        open: bar.open,
+                        high: bar.high,
+                        low: bar.low,
+                        close: bar.close
+                    };
+                    candleSeries.update(candleData);
+                    console.log('Updated candlestick with live data');
+
+                    // Update indicators
+                    if (bar.bbUpper != null && bbUpperSeries) {
+                        bbUpperSeries.update({
+                            time: candleData.time,
+                            value: bar.bbUpper
+                        });
+                    }
+                    if (bar.bbLower != null && bbLowerSeries) {
+                        bbLowerSeries.update({
+                            time: candleData.time,
+                            value: bar.bbLower
+                        });
+                    }
+                    if (bar.bbBasis != null && bbBasisSeries) {
+                        bbBasisSeries.update({
+                            time: candleData.time,
+                            value: bar.bbBasis
+                        });
+                    }
+                    if (bar.rsi != null && rsiSeries) {
+                        rsiSeries.update({
+                            time: candleData.time,
+                            value: bar.rsi
+                        });
+                    }
+                    if (bar.ttmMomentum != null && ttmMomentumSeries) {
+                        ttmMomentumSeries.update({
+                            time: candleData.time,
+                            value: bar.ttmMomentum,
+                            color: bar.ttmMomentum >= 0 ? '#22c55e' : '#ef4444'
+                        });
+                    }
+                    if (bar.squeeze && typeof bar.squeeze.squeezeFiring === 'boolean' && ttmSqueezeSeries) {
+                        ttmSqueezeSeries.update({
+                            time: candleData.time,
+                            value: 0,  // Always at zero line
+                            color: bar.squeeze.squeezeFiring ? '#eab308' : '#22c55e'  // Yellow when ON, green when OFF
+                        });
+                        // Update squeeze status indicator
+                        updateSqueezeStatus(bar.squeeze.squeezeFiring);
+                    }
+                }
+            });
+
+            socket.on('tick', (tick) => {
+                // Update the current bar with live tick data (no indicators, just OHLC)
+                if (candleSeries && tick) {
+                    const candleData = {
+                        time: Math.floor(new Date(tick.timestamp).getTime() / 1000),
+                        open: tick.open,
+                        high: tick.high,
+                        low: tick.low,
+                        close: tick.close
+                    };
+                    candleSeries.update(candleData);
+                }
+            });
+
+            socket.on('status', (data) => {
+                updateStatus(data);
+            });
+
+            socket.on('trade', (trade) => {
+                trades.push(trade);
+                updateTradeHistory();
+                showAlert(`Trade closed: ${trade.side} ${trade.pnl >= 0 ? 'WIN' : 'LOSS'} $${trade.pnl.toFixed(2)}`,
+                          trade.pnl >= 0 ? 'success' : 'error');
+            });
+
+            socket.on('alert', (data) => {
+                showAlert(data.message, data.type);
+            });
+
+            socket.on('log', (data) => {
+                console.log('[ACTIVITY LOG] Received log event:', data);
+                addActivityLog(data.message, data.type || 'info');
+            });
+
+            socket.on('r1_decision', (payload) => {
+                const outputEl = document.getElementById('r1Output');
+                const statusEl = document.getElementById('r1Status');
+                const promptEl = document.getElementById('r1Prompt');
+                if (promptEl && payload?.prompt && !promptEl.value) {
+                    promptEl.value = payload.prompt;
+                }
+                if (outputEl) {
+                    outputEl.textContent = payload?.response || 'No response from R1';
+                }
+                if (statusEl) {
+                    const ts = payload?.timestamp ? new Date(payload.timestamp).toLocaleTimeString() : '';
+                    statusEl.textContent = ts ? `Updated ${ts}` : 'Updated';
+                }
+            });
+        }
+
+        // Event handlers (Fabio agent uses Socket.IO control events)
+        document.getElementById('btnStart').addEventListener('click', () => {
+            if (!socket) return;
+            console.log('Start trading button clicked');
+            socket.emit('start_trading');
+            addActivityLog('Starting trading...', 'info');
+        });
+
+        document.getElementById('btnStop').addEventListener('click', () => {
+            if (!socket) return;
+            console.log('Stop trading button clicked');
+            socket.emit('stop_trading');
+            addActivityLog('Stopping trading...', 'warning');
+        });
+
+        document.getElementById('btnFlatten').addEventListener('click', () => {
+            if (!socket) return;
+            if (confirm('Are you sure you want to close the current position?')) {
+                console.log('Flatten position requested');
+                socket.emit('flatten_positions');
+                addActivityLog('Flatten position requested', 'warning');
+            }
+        });
+
+        async function runR1() {
+            const promptEl = document.getElementById('r1Prompt');
+            const outputEl = document.getElementById('r1Output');
+            const statusEl = document.getElementById('r1Status');
+            const prompt = (promptEl?.value || '').trim();
+            if (!prompt) {
+                statusEl.textContent = 'Enter a prompt first.';
+                return;
+            }
+            statusEl.textContent = 'Requesting R1...';
+            outputEl.textContent = '';
+            try {
+                const res = await fetch('http://127.0.0.1:11434/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: 'qwen2.5:7b',
+                        prompt,
+                        stream: false,
+                        temperature: 0.2,
+                        top_p: 0.9,
+                        repeat_penalty: 1.1,
+                    }),
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(data?.error || `HTTP ${res.status}`);
+                }
+                outputEl.textContent = data?.response || JSON.stringify(data, null, 2);
+                statusEl.textContent = '';
+            } catch (err) {
+                outputEl.textContent = `Error: ${err.message}`;
+                statusEl.textContent = 'Failed';
+            }
+        }
+
+        // Account switching disabled - controlled by multi-symbol dashboard
+        // document.getElementById('accountSelect').addEventListener('change', async (e) => {
+        //     const accountId = e.target.value;
+        //     if (!accountId) return;
+        //
+        //     try {
+        //         const response = await fetch(`/api/account/${accountId}`, { method: 'POST' });
+        //         const data = await response.json();
+        //
+        //         if (response.ok) {
+        //             showAlert(data.message || 'Account selected', 'success');
+        //             // Reload account list to refresh balances
+        //             setTimeout(() => {
+        //                 loadAccounts();
+        //                 loadAccountStatus();
+        //             }, 500);
+        //         } else {
+        //             showAlert(data.message || 'Failed to select account', 'error');
+        //         }
+        //     } catch (error) {
+        //         console.error('Account selection error:', error);
+        //         showAlert('Failed to select account', 'error');
+        //     }
+        // });
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            // loadAccounts(); // Disabled - account switching controlled by multi-symbol dashboard
+            loadAccountStatus();
+            connect();
+            const promptEl = document.getElementById('r1Prompt');
+            if (promptEl && !promptEl.value) promptEl.value = defaultR1Prompt;
+            const btnR1 = document.getElementById('btnR1');
+            if (btnR1) btnR1.addEventListener('click', runR1);
+        });
+    </script>
+</body>
+</html>

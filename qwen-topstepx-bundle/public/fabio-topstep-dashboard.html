@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fabio Agent - TopStep NQ Dashboard</title>
+    <script src="lightweight-charts.js"></script>
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f1729 0%, #1a1f3a 100%);
+            color: #e2e8f0;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a1f3a 0%, #0f1729 100%);
+            padding: 1.25rem;
+            border-bottom: 2px solid #3b82f6;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.25rem;
+        }
+
+        .subtitle {
+            font-size: 0.875rem;
+            color: #94a3b8;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .status-badge.trading { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+        .status-badge.stopped { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+
+        .status-bar {
+            background: rgba(26, 31, 58, 0.8);
+            padding: 1rem;
+            border-bottom: 1px solid #2a3150;
+            backdrop-filter: blur(10px);
+            display: flex;
+            gap: 2rem;
+            overflow-x: auto;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            white-space: nowrap;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            color: #f1f5f9;
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+
+        .stat-value.positive { color: #10b981; }
+        .stat-value.negative { color: #ef4444; }
+
+        .controls {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border: none;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-start {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-start:hover {
+            background: #059669;
+        }
+
+        .btn-stop {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-stop:hover {
+            background: #dc2626;
+        }
+
+        .btn-flatten {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-flatten:hover {
+            background: #d97706;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #volumeProfileCanvas, #llmDecisionOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        #volumeProfileCanvas { z-index: 10; }
+        #llmDecisionOverlay { z-index: 15; }
+
+        .market-state-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .market-state-badge.balanced { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .market-state-badge.imbalanced { background: rgba(249, 115, 22, 0.2); color: #f97316; }
+        .market-state-badge.breakout { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(51, 65, 85, 0.2); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: rgba(59, 130, 246, 0.4); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(59, 130, 246, 0.6); }
+
+        .l2-container {
+            background: #1e293b;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            height: 100%;
+        }
+
+        .l2-header {
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 0.75rem;
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 0.5rem;
+        }
+
+        .l2-book {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            font-family: monospace;
+            font-size: 0.8rem;
+        }
+
+        .l2-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.5rem;
+            padding: 0.25rem;
+        }
+
+        .l2-row.ask {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .l2-row.bid {
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .llm-decision-panel {
+            background: #1e293b;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .llm-decision-item {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid #3b82f6;
+            border-radius: 0.25rem;
+        }
+
+        .llm-timestamp {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-bottom: 0.5rem;
+        }
+
+        .llm-reasoning {
+            color: #e2e8f0;
+            line-height: 1.5;
+            font-size: 0.875rem;
+        }
+
+        .llm-confidence {
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        .llm-confidence-bar {
+            height: 4px;
+            background: rgba(59, 130, 246, 0.3);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 0.25rem;
+        }
+
+        .llm-confidence-fill {
+            height: 100%;
+            background: #3b82f6;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div>
+                <div class="title">🧠 Fabio Agent - NQ Futures</div>
+                <div class="subtitle">TopStep Trading | Volume Profile | CVD | Order Flow | LLM Decision Engine</div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <div class="status-badge" id="statusBadge">STOPPED</div>
+                <div class="controls">
+                    <button class="btn btn-start" id="startBtn">Start Trading</button>
+                    <button class="btn btn-stop" id="stopBtn" disabled>Stop</button>
+                    <button class="btn btn-flatten" id="flattenBtn">Flatten Position</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <div class="stat-item">
+            <div class="stat-label">Account Balance</div>
+            <div class="stat-value" id="balance">—</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">Daily P&L</div>
+            <div class="stat-value" id="dailyPnL">—</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">Trades Today</div>
+            <div class="stat-value" id="tradesCount">—</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">Current Position</div>
+            <div class="stat-value" id="position">—</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">Last Price</div>
+            <div class="stat-value" id="lastPrice">—</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">Market State</div>
+            <div class="market-state-badge balanced" id="marketState">—</div>
+        </div>
+    </div>
+
+    <div style="max-width: 1600px; margin: 0 auto; padding: 1rem; overflow-y: auto; height: calc(100vh - 180px);">
+        <div style="display: grid; grid-template-columns: 1fr 300px; gap: 1rem; margin-bottom: 1rem;">
+            <div style="background: #1e293b; border-radius: 0.5rem; padding: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <div style="font-weight: 600; color: #f1f5f9;">NQ Futures Price Chart | Volume Profile | POC/VAH/VAL</div>
+                </div>
+                <div style="height: 450px; width: 100%; position: relative;">
+                    <div id="mainChart" style="height: 100%; width: 100%;"></div>
+                    <canvas id="volumeProfileCanvas"></canvas>
+                    <canvas id="llmDecisionOverlay"></canvas>
+                </div>
+            </div>
+
+            <div class="l2-container">
+                <div class="l2-header">📊 Level 2 Order Book</div>
+                <div id="l2Book" class="l2-book">
+                    <div style="color: #64748b; text-align: center; padding: 1rem;">Waiting for data...</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="background: #1e293b; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem;">
+            <div style="font-weight: 600; color: #f1f5f9; margin-bottom: 0.75rem;">📊 CVD (Cumulative Volume Delta)</div>
+            <div id="cvdChart" style="height: 180px; width: 100%;"></div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+            <div class="llm-decision-panel">
+                <div style="font-weight: 600; color: #f1f5f9; margin-bottom: 0.75rem; border-bottom: 2px solid #3b82f6; padding-bottom: 0.5rem;">🤖 LLM Decision Viewer</div>
+                <div id="llmDecisions">
+                    <div style="color: #64748b; text-align: center; padding: 1rem;">Waiting for LLM decisions...</div>
+                </div>
+            </div>
+
+            <div style="background: #1e293b; border-radius: 0.5rem; padding: 1rem;">
+                <div style="font-weight: 600; color: #f1f5f9; margin-bottom: 0.75rem; border-bottom: 2px solid #3b82f6; padding-bottom: 0.5rem;">📊 Order Flow Signals</div>
+                <div id="orderFlowSignals" style="font-family: monospace; font-size: 0.875rem; color: #94a3b8; line-height: 1.6;">
+                    <div>• CVD Trend: <span id="cvdTrend">—</span></div>
+                    <div>• Buy Absorption: <span id="buyAbsorption">—</span></div>
+                    <div>• Sell Absorption: <span id="sellAbsorption">—</span></div>
+                    <div>• Buy Exhaustion: <span id="buyExhaustion">—</span></div>
+                    <div>• Sell Exhaustion: <span id="sellExhaustion">—</span></div>
+                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #334155;">
+                        <strong>Volume Profile:</strong><br>
+                        • POC: <span id="pocValue">—</span><br>
+                        • VAH: <span id="vahValue">—</span><br>
+                        • VAL: <span id="valValue">—</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="background: #1e293b; border-radius: 0.5rem; padding: 1rem;">
+            <div style="font-weight: 600; color: #f1f5f9; margin-bottom: 0.75rem;">📋 Activity Log</div>
+            <div id="activityLog" style="max-height: 200px; overflow-y: auto; font-family: monospace; font-size: 0.875rem; color: #94a3b8; line-height: 1.5;">
+                <div style="color: #64748b;">Waiting for activity...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global error handler
+        window.addEventListener('error', function(event) {
+            if (event.message && event.message.includes('Value is null') &&
+                event.filename && event.filename.includes('lightweight-charts')) {
+                console.warn('⚠️ Suppressed chart rendering error (this is normal during updates)');
+                event.preventDefault();
+                return true;
+            }
+        });
+
+        // Global state
+        let socket = null;
+        let chart = null;
+        let candlestickSeries = null;
+        let cvdChart = null;
+        let cvdSeries = null;
+        let volumeProfileCanvas = null;
+        let volumeProfileCtx = null;
+        let llmDecisionCanvas = null;
+        let llmDecisionCtx = null;
+
+        // Data state
+        let allCandles = [];
+        let cvdData = [];
+        let volumeProfileData = null;
+        let l2Data = { bids: [], asks: [], spread: 0 };
+        let orderFlowData = null;
+        let marketStateData = null;
+        let llmDecisions = [];
+        let isTrading = false;
+        let accountStats = { balance: 0, dailyPnL: 0, tradesCount: 0 };
+
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            console.log('Page loaded, initializing...');
+            initCharts();
+            initSocket();
+            setupControls();
+        });
+
+        function initCharts() {
+            console.log('Initializing charts...');
+            const container = document.getElementById('mainChart');
+            console.log('Chart container dimensions:', {
+                width: container.clientWidth,
+                height: container.clientHeight,
+                offsetWidth: container.offsetWidth,
+                offsetHeight: container.offsetHeight
+            });
+
+            chart = LightweightCharts.createChart(container, {
+                width: container.clientWidth,
+                height: 450,
+                layout: {
+                    background: { type: LightweightCharts.ColorType.Solid, color: '#1e293b' },
+                    textColor: '#94a3b8',
+                },
+                grid: {
+                    vertLines: { color: 'rgba(14,23,38,0.4)' },
+                    horzLines: { color: 'rgba(14,23,38,0.4)' },
+                },
+                timeScale: {
+                    borderColor: '#334155',
+                    timeVisible: true,
+                    secondsVisible: false,
+                    rightOffset: 20,
+                },
+                rightPriceScale: {
+                    borderColor: '#334155',
+                    autoScale: true,
+                },
+            });
+
+            candlestickSeries = chart.addCandlestickSeries({
+                upColor: '#10b981',
+                downColor: '#ef4444',
+                borderUpColor: '#10b981',
+                borderDownColor: '#ef4444',
+                wickUpColor: '#10b981',
+                wickDownColor: '#ef4444',
+            });
+            console.log('Candlestick series created:', candlestickSeries);
+
+            // Initialize CVD chart
+            initCVDChart();
+
+            // Initialize canvases
+            initVolumeProfileCanvas();
+            initLLMDecisionCanvas();
+
+            // Re-render overlays on scroll/zoom
+            chart.timeScale().subscribeVisibleTimeRangeChange(() => {
+                renderVolumeProfile();
+                renderLLMDecisionMarkers();
+            });
+
+            window.addEventListener('resize', () => {
+                if (chart) {
+                    chart.applyOptions({ width: container.clientWidth });
+                    resizeVolumeProfileCanvas();
+                    resizeLLMDecisionCanvas();
+                }
+                if (cvdChart) {
+                    const cvdContainer = document.getElementById('cvdChart');
+                    cvdChart.applyOptions({ width: cvdContainer.clientWidth });
+                }
+            });
+
+            console.log('Charts initialized');
+        }
+
+        function initCVDChart() {
+            const cvdContainer = document.getElementById('cvdChart');
+            cvdChart = LightweightCharts.createChart(cvdContainer, {
+                width: cvdContainer.clientWidth,
+                height: 180,
+                layout: {
+                    background: { type: LightweightCharts.ColorType.Solid, color: '#1e293b' },
+                    textColor: '#94a3b8',
+                },
+                grid: {
+                    vertLines: { color: 'rgba(14,23,38,0.4)' },
+                    horzLines: { color: 'rgba(14,23,38,0.4)' },
+                },
+                timeScale: {
+                    borderColor: '#334155',
+                    timeVisible: true,
+                },
+                rightPriceScale: {
+                    borderColor: '#334155',
+                },
+            });
+
+            cvdSeries = cvdChart.addLineSeries({
+                color: '#3b82f6',
+                lineWidth: 2,
+            });
+        }
+
+        function initVolumeProfileCanvas() {
+            volumeProfileCanvas = document.getElementById('volumeProfileCanvas');
+            volumeProfileCtx = volumeProfileCanvas.getContext('2d');
+            resizeVolumeProfileCanvas();
+        }
+
+        function resizeVolumeProfileCanvas() {
+            const container = document.getElementById('mainChart');
+            volumeProfileCanvas.width = container.clientWidth;
+            volumeProfileCanvas.height = container.clientHeight;
+        }
+
+        function initLLMDecisionCanvas() {
+            llmDecisionCanvas = document.getElementById('llmDecisionOverlay');
+            llmDecisionCtx = llmDecisionCanvas.getContext('2d');
+            resizeLLMDecisionCanvas();
+        }
+
+        function resizeLLMDecisionCanvas() {
+            const container = document.getElementById('mainChart');
+            llmDecisionCanvas.width = container.clientWidth;
+            llmDecisionCanvas.height = container.clientHeight;
+        }
+
+        function initSocket() {
+            console.log('Connecting to Socket.IO server...');
+            const socketPath = '/socket.io';
+            socket = io({ path: socketPath });
+
+            socket.on('connect', () => {
+                console.log('✅ Connected to strategy server');
+                addLog('Connected to Fabio Socket.IO server', 'success');
+                socket.emit('request_chart_history');
+            });
+
+            socket.on('disconnect', () => {
+                console.log('❌ Disconnected from server');
+                addLog('Disconnected from server', 'error');
+            });
+
+            socket.on('chart_history', (candles) => {
+                console.log('Received chart history:', candles.length, 'candles');
+                if (candles && candles.length > 0) {
+                    // Parse and filter out invalid candles
+                    allCandles = candles
+                        .map(c => {
+                            const time = parseTimestamp(c.timestamp);
+                            const open = parseFloat(c.open);
+                            const high = parseFloat(c.high);
+                            const low = parseFloat(c.low);
+                            const close = parseFloat(c.close);
+
+                            return { time, open, high, low, close };
+                        })
+                        .filter(c => {
+                            // Filter out candles with invalid data
+                            if (!c.time || isNaN(c.time) || c.time <=0) return false;
+                            if (isNaN(c.open) || isNaN(c.high) || isNaN(c.low) || isNaN(c.close)) return false;
+                            return true;
+                        })
+                        .sort((a, b) => a.time - b.time); // Sort by time ascending
+
+                    if (allCandles.length > 0) {
+                        candlestickSeries.setData(allCandles);
+                        chart.timeScale().fitContent();
+                        console.log('✅ Loaded', allCandles.length, 'historical candles to chart');
+                    } else {
+                        console.warn('⚠️  No valid candles after filtering');
+                    }
+                }
+            });
+
+            socket.on('bar', (bar) => {
+                console.log('🔔 Socket.IO bar event received:', bar);
+                addLog(`Bar event received: $${bar.close?.toFixed(2) || 'N/A'}`, 'info');
+                handleBar(bar);
+            });
+
+            socket.on('tick', (tick) => {
+                if (tick.price) {
+                    document.getElementById('lastPrice').textContent = tick.price.toFixed(2);
+                }
+            });
+
+            socket.on('status', (status) => {
+                handleStatus(status);
+            });
+
+            socket.on('volume_profile', (profile) => {
+                handleVolumeProfile(profile);
+            });
+
+            socket.on('cvd', (cvd) => {
+                handleCVD(cvd);
+            });
+
+            socket.on('l2_data', (l2) => {
+                handleL2Data(l2);
+            });
+
+            socket.on('market_state', (state) => {
+                handleMarketState(state);
+            });
+
+            socket.on('llm_decision', (decision) => {
+                handleLLMDecision(decision);
+            });
+
+            socket.on('log', (log) => {
+                addLog(log.message, log.type || 'info');
+            });
+
+            socket.on('trade', (trade) => {
+                handleTrade(trade);
+            });
+
+            socket.on('absorption', (absorption) => {
+                addLog(`🔥 ABSORPTION: ${absorption.type} side at ${absorption.price} (strength: ${(absorption.strength * 100).toFixed(0)}%)`, 'warning');
+            });
+
+            socket.on('exhaustion', (exhaustion) => {
+                addLog(`⚡ EXHAUSTION: ${exhaustion.type} side at ${exhaustion.price} (strength: ${(exhaustion.strength * 100).toFixed(0)}%)`, 'warning');
+            });
+        }
+
+        function setupControls() {
+            const startBtn = document.getElementById('startBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            const flattenBtn = document.getElementById('flattenBtn');
+
+            startBtn.addEventListener('click', () => {
+                console.log('Start button clicked');
+                socket.emit('start_trading');
+            });
+
+            stopBtn.addEventListener('click', () => {
+                console.log('Stop button clicked');
+                socket.emit('stop_trading');
+            });
+
+            flattenBtn.addEventListener('click', () => {
+                console.log('Flatten button clicked');
+                socket.emit('flatten_position');
+            });
+        }
+
+        function parseTimestamp(ts) {
+            if (typeof ts === 'number') return Math.floor(ts);
+            if (typeof ts === 'string') {
+                // Parse ISO timestamp and convert to Unix seconds
+                const date = new Date(ts);
+                if (isNaN(date.getTime())) {
+                    console.error('Invalid timestamp:', ts);
+                    return Math.floor(Date.now() / 1000);
+                }
+                return Math.floor(date.getTime() / 1000);
+            }
+            return Math.floor(Date.now() / 1000);
+        }
+
+        function handleBar(bar) {
+            if (!bar || !bar.timestamp) {
+                console.warn('Invalid bar data:', bar);
+                return;
+            }
+
+            const timestamp = parseTimestamp(bar.timestamp);
+            console.log('handleBar called:', {
+                raw_timestamp: bar.timestamp,
+                parsed_timestamp: timestamp,
+                open: bar.open,
+                close: bar.close
+            });
+
+            const candle = {
+                time: timestamp,
+                open: parseFloat(bar.open),
+                high: parseFloat(bar.high),
+                low: parseFloat(bar.low),
+                close: parseFloat(bar.close),
+            };
+
+            console.log('Candle to update:', candle);
+
+            // Update or add candle
+            const existingIndex = allCandles.findIndex(c => c.time === candle.time);
+            if (existingIndex >= 0) {
+                allCandles[existingIndex] = candle;
+                console.log('Updated existing candle at index:', existingIndex);
+            } else {
+                allCandles.push(candle);
+                allCandles.sort((a, b) => a.time - b.time);
+                console.log('Added new candle, total candles:', allCandles.length);
+            }
+
+            try {
+                // Check if this is an old bar - if so, reload all data
+                const lastCandleTime = allCandles.length > 0 ? allCandles[allCandles.length - 1].time : 0;
+                if (candle.time < lastCandleTime) {
+                    console.log('⚠️ Old bar detected, reloading all data');
+                    candlestickSeries.setData(allCandles);
+                    chart.timeScale().fitContent();
+                } else {
+                    candlestickSeries.update(candle);
+                    chart.timeScale().scrollToRealTime();
+                }
+                console.log('✅ Successfully updated chart with candle');
+            } catch (error) {
+                console.error('❌ Error updating candlestick:', error, candle);
+            }
+
+            // CVD chart updates are handled separately in handleCVD()
+            // Don't update CVD here to avoid timing conflicts
+        }
+
+        function handleStatus(status) {
+            if (status.isTrading !== undefined) {
+                isTrading = status.isTrading;
+                const badge = document.getElementById('statusBadge');
+                const startBtn = document.getElementById('startBtn');
+                const stopBtn = document.getElementById('stopBtn');
+
+                if (isTrading) {
+                    badge.textContent = 'TRADING';
+                    badge.className = 'status-badge trading';
+                    startBtn.disabled = true;
+                    stopBtn.disabled = false;
+                } else {
+                    badge.textContent = 'STOPPED';
+                    badge.className = 'status-badge stopped';
+                    startBtn.disabled = false;
+                    stopBtn.disabled = true;
+                }
+            }
+
+            if (status.accountStats) {
+                accountStats = status.accountStats;
+                document.getElementById('balance').textContent = `$${accountStats.balance.toLocaleString()}`;
+
+                const pnlEl = document.getElementById('dailyPnL');
+                pnlEl.textContent = `$${accountStats.dailyPnL.toLocaleString()}`;
+                pnlEl.className = 'stat-value';
+                if (accountStats.dailyPnL > 0) {
+                    pnlEl.classList.add('positive');
+                } else if (accountStats.dailyPnL < 0) {
+                    pnlEl.classList.add('negative');
+                }
+
+                document.getElementById('tradesCount').textContent = accountStats.tradesCount;
+            }
+
+            if (status.position !== undefined) {
+                const posEl = document.getElementById('position');
+                if (status.position === 0) {
+                    posEl.textContent = 'FLAT';
+                    posEl.className = 'stat-value';
+                } else if (status.position > 0) {
+                    posEl.textContent = `LONG ${status.position}`;
+                    posEl.className = 'stat-value positive';
+                } else {
+                    posEl.textContent = `SHORT ${Math.abs(status.position)}`;
+                    posEl.className = 'stat-value negative';
+                }
+            }
+        }
+
+        function handleVolumeProfile(profile) {
+            volumeProfileData = profile;
+            renderVolumeProfile();
+
+            // Update UI
+            document.getElementById('pocValue').textContent = profile.poc ? profile.poc.toFixed(2) : '—';
+            document.getElementById('vahValue').textContent = profile.vah ? profile.vah.toFixed(2) : '—';
+            document.getElementById('valValue').textContent = profile.val ? profile.val.toFixed(2) : '—';
+        }
+
+        function renderVolumeProfile() {
+            if (!volumeProfileData || !volumeProfileCtx || !chart) return;
+
+            const ctx = volumeProfileCtx;
+            const width = volumeProfileCanvas.width;
+            const height = volumeProfileCanvas.height;
+
+            ctx.clearRect(0, 0, width, height);
+
+            try {
+                const priceScale = chart.priceScale('right');
+
+                // Check if priceToCoordinate method exists
+                if (typeof priceScale.priceToCoordinate !== 'function') {
+                    // Method not available, skip rendering overlay
+                    return;
+                }
+
+                // Draw POC line
+                if (volumeProfileData.poc) {
+                    const y = priceScale.priceToCoordinate(volumeProfileData.poc);
+                    if (y !== null) {
+                        ctx.strokeStyle = '#f59e0b';
+                        ctx.lineWidth = 2;
+                        ctx.setLineDash([5, 5]);
+                        ctx.beginPath();
+                        ctx.moveTo(0, y);
+                        ctx.lineTo(width, y);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+
+                        // Label
+                        ctx.fillStyle = '#f59e0b';
+                        ctx.font = 'bold 11px monospace';
+                        ctx.fillText('POC', 5, y - 5);
+                    }
+                }
+
+                // Draw VAH line
+                if (volumeProfileData.vah) {
+                    const y = priceScale.priceToCoordinate(volumeProfileData.vah);
+                    if (y !== null) {
+                        ctx.strokeStyle = '#10b981';
+                        ctx.lineWidth = 1;
+                        ctx.setLineDash([3, 3]);
+                        ctx.beginPath();
+                        ctx.moveTo(0, y);
+                        ctx.lineTo(width, y);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+
+                        ctx.fillStyle = '#10b981';
+                        ctx.font = '10px monospace';
+                        ctx.fillText('VAH', 5, y - 5);
+                    }
+                }
+
+                // Draw VAL line
+                if (volumeProfileData.val) {
+                    const y = priceScale.priceToCoordinate(volumeProfileData.val);
+                    if (y !== null) {
+                        ctx.strokeStyle = '#ef4444';
+                        ctx.lineWidth = 1;
+                        ctx.setLineDash([3, 3]);
+                        ctx.beginPath();
+                        ctx.moveTo(0, y);
+                        ctx.lineTo(width, y);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+
+                        ctx.fillStyle = '#ef4444';
+                        ctx.font = '10px monospace';
+                        ctx.fillText('VAL', 5, y - 5);
+                    }
+                }
+            } catch (error) {
+                // Silently fail if there's an API issue, UI values will still update
+                console.warn('Volume profile overlay rendering disabled:', error.message);
+            }
+        }
+
+        function handleCVD(cvd) {
+            orderFlowData = cvd;
+
+            // Update CVD data with current timestamp
+            const timestamp = Math.floor(Date.now() / 1000);
+            const value = parseFloat(cvd.cvd_value) || 0;
+
+            const cvdPoint = {
+                time: timestamp,
+                value: value
+            };
+
+            if (cvdSeries) {
+                try {
+                    cvdSeries.update(cvdPoint);
+                } catch (error) {
+                    console.error('Error updating CVD series:', error, cvdPoint);
+                }
+            }
+
+            // Update UI
+            document.getElementById('cvdTrend').textContent = cvd.cvd_trend || '—';
+
+            const buyAbsEl = document.getElementById('buyAbsorption');
+            buyAbsEl.textContent = cvd.buy_absorption ? `${(cvd.buy_absorption * 100).toFixed(0)}%` : '—';
+            if (cvd.buy_absorption > 0.7) buyAbsEl.style.color = '#10b981';
+            else buyAbsEl.style.color = '#94a3b8';
+
+            const sellAbsEl = document.getElementById('sellAbsorption');
+            sellAbsEl.textContent = cvd.sell_absorption ? `${(cvd.sell_absorption * 100).toFixed(0)}%` : '—';
+            if (cvd.sell_absorption > 0.7) sellAbsEl.style.color = '#ef4444';
+            else sellAbsEl.style.color = '#94a3b8';
+
+            const buyExhEl = document.getElementById('buyExhaustion');
+            buyExhEl.textContent = cvd.buy_exhaustion ? `${(cvd.buy_exhaustion * 100).toFixed(0)}%` : '—';
+            if (cvd.buy_exhaustion > 0.7) buyExhEl.style.color = '#f59e0b';
+            else buyExhEl.style.color = '#94a3b8';
+
+            const sellExhEl = document.getElementById('sellExhaustion');
+            sellExhEl.textContent = cvd.sell_exhaustion ? `${(cvd.sell_exhaustion * 100).toFixed(0)}%` : '—';
+            if (cvd.sell_exhaustion > 0.7) sellExhEl.style.color = '#f59e0b';
+            else sellExhEl.style.color = '#94a3b8';
+        }
+
+        function handleL2Data(l2) {
+            l2Data = l2;
+            renderL2Book();
+        }
+
+        function renderL2Book() {
+            const container = document.getElementById('l2Book');
+            if (!l2Data.bids || !l2Data.asks) return;
+
+            let html = '';
+
+            // Asks (reversed, highest first)
+            const asks = l2Data.asks.slice(0, 5).reverse();
+            asks.forEach(([price, size]) => {
+                html += `
+                    <div class="l2-row ask">
+                        <span style="color: #ef4444;">${size.toFixed(2)}</span>
+                        <span style="color: #f1f5f9; font-weight: 600;">${price.toFixed(2)}</span>
+                        <span style="color: transparent;">—</span>
+                    </div>
+                `;
+            });
+
+            // Spread
+            html += `
+                <div style="text-align: center; padding: 0.5rem; background: rgba(59, 130, 246, 0.1); border-radius: 0.25rem; font-weight: 600; color: #3b82f6;">
+                    Spread: ${l2Data.spread ? l2Data.spread.toFixed(2) : '—'}
+                </div>
+            `;
+
+            // Bids
+            const bids = l2Data.bids.slice(0, 5);
+            bids.forEach(([price, size]) => {
+                html += `
+                    <div class="l2-row bid">
+                        <span style="color: transparent;">—</span>
+                        <span style="color: #f1f5f9; font-weight: 600;">${price.toFixed(2)}</span>
+                        <span style="color: #10b981;">${size.toFixed(2)}</span>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function handleMarketState(state) {
+            marketStateData = state;
+
+            const badge = document.getElementById('marketState');
+            badge.textContent = state.state ? state.state.toUpperCase() : '—';
+            badge.className = 'market-state-badge';
+
+            if (state.state === 'balanced') {
+                badge.classList.add('balanced');
+            } else if (state.state === 'imbalanced') {
+                badge.classList.add('imbalanced');
+            } else if (state.state === 'breakout') {
+                badge.classList.add('breakout');
+            }
+        }
+
+        function handleLLMDecision(decision) {
+            llmDecisions.unshift(decision); // Add to beginning
+            if (llmDecisions.length > 10) {
+                llmDecisions = llmDecisions.slice(0, 10); // Keep only last 10
+            }
+
+            renderLLMDecisions();
+            renderLLMDecisionMarkers();
+        }
+
+        function renderLLMDecisions() {
+            const container = document.getElementById('llmDecisions');
+
+            if (llmDecisions.length === 0) {
+                container.innerHTML = '<div style="color: #64748b; text-align: center; padding: 1rem;">Waiting for LLM decisions...</div>';
+                return;
+            }
+
+            let html = '';
+            llmDecisions.forEach(decision => {
+                const confidence = decision.confidence || 0;
+                html += `
+                    <div class="llm-decision-item">
+                        <div class="llm-timestamp">${decision.timestamp || new Date().toISOString()}</div>
+                        <div class="llm-reasoning">
+                            ${decision.reasoning || 'No reasoning provided'}
+                        </div>
+                        ${decision.trade_decisions && decision.trade_decisions.length > 0 ? `
+                            <div style="margin-top: 0.5rem; padding: 0.5rem; background: rgba(16, 185, 129, 0.1); border-radius: 0.25rem;">
+                                <strong style="color: #10b981;">Trade Decision:</strong> ${decision.trade_decisions.join(', ')}
+                            </div>
+                        ` : ''}
+                        <div class="llm-confidence">
+                            Confidence: ${(confidence * 100).toFixed(0)}%
+                            <div class="llm-confidence-bar">
+                                <div class="llm-confidence-fill" style="width: ${confidence * 100}%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function renderLLMDecisionMarkers() {
+            if (!llmDecisionCtx || !chart) return;
+            // Placeholder for future visualization of LLM decisions on chart
+        }
+
+        function handleTrade(trade) {
+            const side = trade.side === 'buy' ? 'LONG' : 'SHORT';
+            const pnl = trade.pnl || 0;
+            const pnlClass = pnl >= 0 ? 'positive' : 'negative';
+            const pnlSign = pnl >= 0 ? '+' : '';
+            addLog(`💼 Trade closed: ${side} @ ${trade.price} | P&L: ${pnlSign}$${pnl.toFixed(2)}`, pnlClass);
+        }
+
+        function addLog(message, type = 'info') {
+            const log = document.getElementById('activityLog');
+            const timestamp = new Date().toLocaleTimeString();
+
+            let color = '#94a3b8';
+            if (type === 'success') color = '#10b981';
+            else if (type === 'error') color = '#ef4444';
+            else if (type === 'warning') color = '#f59e0b';
+            else if (type === 'positive') color = '#10b981';
+            else if (type === 'negative') color = '#ef4444';
+
+            const entry = document.createElement('div');
+            entry.style.color = color;
+            entry.textContent = `[${timestamp}] ${message}`;
+
+            log.insertBefore(entry, log.firstChild);
+
+            // Keep only last 50 entries
+            while (log.children.length > 50) {
+                log.removeChild(log.lastChild);
+            }
+        }
+    </script>
+</body>
+</html>

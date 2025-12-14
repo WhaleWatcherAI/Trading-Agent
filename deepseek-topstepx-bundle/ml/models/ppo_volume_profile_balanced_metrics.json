@@ -1,0 +1,22 @@
+{
+  "model": "PPO_VolumeProfile_Balanced",
+  "config": {
+    "lookback_bars": 100,
+    "num_price_levels": 50,
+    "state_dim": 25,
+    "hidden_dim": 192
+  },
+  "test_results": {
+    "return": -0.013533009836393467,
+    "trades": 1386,
+    "win_rate": 0.5043290043290043,
+    "final_balance": 9864.669901636065
+  },
+  "training": {
+    "total_steps": 103110,
+    "episodes": 15,
+    "avg_return": -0.014478407837259533,
+    "best_return": 0.0679951792023432
+  },
+  "trained_at": "2025-12-01T22:38:56.201748"
+}

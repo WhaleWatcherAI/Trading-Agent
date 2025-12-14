@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+.venv/
+__pycache__/
+
+# Logs
+*.log
+
+# Data files
+*.parquet
+*.npz
+*.jsonl
+trading-db/
+
+# Model files (large)
+*.pth
+*.pkl
+
+# Temporary files
+.DS_Store
+*.pid

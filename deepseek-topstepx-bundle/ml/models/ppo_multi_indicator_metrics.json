@@ -1,0 +1,16 @@
+{
+  "model": "PPO_Multi_Indicator",
+  "indicators": 50,
+  "test_return": -0.0008116042309353361,
+  "test_trades": 3,
+  "test_win_rate": 0.6666666666666666,
+  "test_balance": 9991.883957690647,
+  "action_distribution": {
+    "Buy Strong": 0.0,
+    "Buy": 0.0,
+    "Hold": 0.0,
+    "Sell": 0.9994722955145119,
+    "Sell Strong": 0.0005277044854881266
+  },
+  "trained_at": "2025-12-01T04:10:27.183129"
+}

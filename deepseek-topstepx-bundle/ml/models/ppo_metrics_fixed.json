@@ -1,0 +1,12 @@
+{
+  "model_type": "PPO_Fixed",
+  "total_timesteps": 10162,
+  "total_episodes": 83,
+  "avg_episode_reward": 0.33084367469879544,
+  "std_episode_reward": 0.71445833558031,
+  "avg_episode_length": 122.43373493975903,
+  "final_balance": 430.6750000000002,
+  "total_return": -0.9569325000000001,
+  "avg_loss": 0.017149403473386206,
+  "trained_at": "2025-12-01T02:43:17.976273"
+}

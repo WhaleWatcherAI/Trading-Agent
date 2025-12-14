@@ -1,0 +1,12 @@
+{
+  "architecture": "LSTM+TCN \u2192 XGBoost Ensemble",
+  "embedding_dim": 128,
+  "statistical_features": 32,
+  "total_features": 160,
+  "test_performance": {
+    "1d_accuracy": 0.46153846153846156,
+    "4h_accuracy": 0.6153846153846154,
+    "1h_accuracy": 0.46153846153846156
+  },
+  "trained_at": "2025-12-13T02:26:58.798260"
+}
