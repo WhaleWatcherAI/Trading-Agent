@@ -573,6 +573,9 @@ def generate_signal_with_diagnostics(models: Dict) -> Optional[Dict]:
         return {'signal': None, 'diagnostics': diagnostics}
 
     except Exception as e:
+        logger.error(f"Error in generate_signal_with_diagnostics: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
         return {'signal': None, 'diagnostics': diagnostics}
 
 def generate_signal(models: Dict) -> Optional[Dict]:
