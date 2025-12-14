@@ -123,7 +123,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(SCRIPT_DIR, '..', 'data')
 MODELS_DIR = os.path.join(SCRIPT_DIR, '..', 'models', 'baseline_full_year_no_l2')
 LOGS_DIR = os.path.join(SCRIPT_DIR, '..', 'logs')
-HISTORICAL_BARS_FILE = os.path.join(DATA_DIR, f'bars_1s_{CONTRACT_SYMBOL}.json')
+HISTORICAL_BARS_FILE = os.path.join(DATA_DIR, f'bars_1s_{CONTRACT_SYMBOL}_{TOPSTEPX_ACCOUNT_ID}.json')
 
 # Create models directory if needed
 os.makedirs(MODELS_DIR, exist_ok=True)
@@ -172,7 +172,7 @@ def setup_logging():
     global logger
     os.makedirs(LOGS_DIR, exist_ok=True)
 
-    log_file = os.path.join(LOGS_DIR, f'live_trading_{CONTRACT_SYMBOL}_{datetime.utcnow().strftime("%Y%m%d")}.log')
+    log_file = os.path.join(LOGS_DIR, f'live_trading_{CONTRACT_SYMBOL}_{TOPSTEPX_ACCOUNT_ID}_{datetime.utcnow().strftime("%Y%m%d")}.log')
     logger = logging.getLogger('live_trading')
     logger.setLevel(logging.DEBUG)
 
@@ -223,6 +223,39 @@ def get_auth_headers() -> Dict[str, str]:
         "Content-Type": "application/json",
         "Accept": "application/json",
     }
+
+def get_account_balance() -> Optional[float]:
+    """Get account balance from TopstepX API."""
+    try:
+        headers = get_auth_headers()
+        response = requests.post(
+            f"{TOPSTEPX_BASE_URL}/api/Account/search",
+            json={"onlyActiveAccounts": True},
+            headers=headers,
+            timeout=30
+        )
+
+        if response.status_code != 200:
+            logger.warning(f"Account search returned status {response.status_code}")
+            return None
+
+        data = response.json()
+        if not data.get('success'):
+            logger.warning(f"Account search failed: {data.get('errorMessage', 'Unknown error')}")
+            return None
+
+        # Find our account in the list
+        accounts = data.get('accounts', [])
+        for account in accounts:
+            if str(account.get('id')) == str(TOPSTEPX_ACCOUNT_ID):
+                return account.get('balance')
+
+        logger.warning(f"Account ID {TOPSTEPX_ACCOUNT_ID} not found in account list")
+        return None
+
+    except Exception as e:
+        logger.warning(f"Failed to get account balance: {e}")
+        return None
 
 def fetch_bars_from_api(start_time: datetime, end_time: datetime, chunk_minutes: int = 30, max_retries: int = 3) -> List[Dict]:
     """
@@ -1544,6 +1577,25 @@ def main():
         logger.error(f"  Authentication failed: {e}")
         return
 
+    # Display account confirmation with balance
+    logger.info("\n" + "="*60)
+    logger.info("ACCOUNT CONFIRMATION")
+    logger.info("="*60)
+    logger.info(f"  Account ID: {TOPSTEPX_ACCOUNT_ID}")
+    logger.info(f"  Contract: {TOPSTEPX_CONTRACT_ID}")
+    logger.info(f"  Point Value: ${POINT_VALUE}/pt")
+
+    # Fetch account balance
+    balance = get_account_balance()
+    if balance is not None:
+        logger.info(f"  Account Balance: ${balance:,.2f}")
+    else:
+        logger.info(f"  Account Balance: Unable to fetch (check dashboard)")
+
+    logger.info("")
+    logger.info("  ⚠️  VERIFY THIS IS THE CORRECT ACCOUNT!")
+    logger.info("="*60)
+
     # Load and update data
     logger.info("\nLoading data...")
     bars = update_bars_from_api()
@@ -1552,34 +1604,84 @@ def main():
         logger.error(f"Insufficient data for training: {len(bars)} bars")
         return
 
-    # Check if we need to train
+    # Load pretrained models (NO AUTO-RETRAINING - prevents conflicts with multiple instances)
+    logger.info("\nLoading pretrained models...")
     models = load_models()
 
     if models is None:
-        logger.info("\nTraining new models...")
-        try:
-            models, val_results = train_with_tiered_validation(bars)
-            save_models(models, val_results)
-        except Exception as e:
-            logger.error(f"Training failed: {e}")
-            return
-    else:
-        # Check if models are stale (> 24 hours old)
-        try:
-            with open(MODEL_FILES['metadata'], 'r') as f:
-                metadata = json.load(f)
-            trained_at = datetime.fromisoformat(metadata['trained_at'])
-            age_hours = (datetime.utcnow() - trained_at).total_seconds() / 3600
+        logger.error("FATAL: Pretrained models not found!")
+        logger.error(f"Expected models in: {MODELS_DIR}")
+        logger.error("Please train models first using: ml/scripts/train_full_year_baseline.py")
+        return
 
-            if age_hours > 24:
-                logger.info(f"\nModels are {age_hours:.1f} hours old - retraining...")
-                models, val_results = train_with_tiered_validation(bars)
-                save_models(models, val_results)
-        except:
-            pass
-
-    # Fetch any bars we missed during training
+    # Fetch any new bars
     fetch_live_update()
+
+    # Validation: Test on last 3 untrained days
+    logger.info("\n" + "="*60)
+    logger.info("STARTUP VALIDATION - Testing on last 3 untrained days")
+    logger.info("="*60)
+
+    days = get_days_from_bars(cached_bars_1s)
+    sorted_dates = sorted(days.keys())
+
+    # Get training cutoff from metadata
+    try:
+        with open(MODEL_FILES['metadata'], 'r') as f:
+            metadata = json.load(f)
+        train_dates = metadata.get('train_date_list', [])
+        last_train_date = train_dates[-1] if train_dates else '2025-12-06'
+    except:
+        last_train_date = '2025-12-06'  # Default to known cutoff
+
+    # Find untrained days (after last training date)
+    untrained_dates = [d for d in sorted_dates if d > last_train_date]
+
+    if len(untrained_dates) >= 3:
+        validation_dates = untrained_dates[-3:]  # Last 3 untrained days
+        logger.info(f"Validating on: {', '.join(validation_dates)}")
+        logger.info(f"(Days after training cutoff: {last_train_date})")
+
+        val_total_trades = 0
+        val_total_wins = 0
+        val_total_pnl = 0.0
+
+        for val_date in validation_dates:
+            val_day_bars = days[val_date]
+
+            # Run backtest on this day
+            trades_list, analysis, _, _ = run_single_day(
+                val_day_bars, val_date,
+                models['stage1_xgb'], models['timing_xgb'], models['final_xgb'],
+                models['longterm_lstm'], models['shortterm_lstm'], models['regime_lstm']
+            )
+
+            day_trades = len(trades_list)
+            day_wins = sum(1 for t in trades_list if t.get('pnl_points', 0) > 0)
+            day_pnl_pts = sum(t.get('pnl_points', 0) for t in trades_list)
+
+            val_total_trades += day_trades
+            val_total_wins += day_wins
+            val_total_pnl += day_pnl_pts
+
+            win_rate = (day_wins / day_trades * 100) if day_trades > 0 else 0
+            pnl_dollars = day_pnl_pts * POINT_VALUE
+
+            logger.info(f"  {val_date}: {day_trades} trades, {win_rate:.1f}% WR, "
+                       f"{day_pnl_pts:+.1f} pts (${pnl_dollars:+.0f})")
+
+        overall_wr = (val_total_wins / val_total_trades * 100) if val_total_trades > 0 else 0
+        val_total_dollars = val_total_pnl * POINT_VALUE
+
+        logger.info(f"  {'-'*56}")
+        logger.info(f"  VALIDATION TOTAL: {val_total_trades} trades, {overall_wr:.1f}% WR, "
+                   f"{val_total_pnl:+.1f} pts (${val_total_dollars:+.0f})")
+        logger.info(f"  ✅ Models loaded and validated successfully!")
+    else:
+        logger.info(f"  Only {len(untrained_dates)} untrained days available - skipping validation")
+        logger.info(f"  ✅ Models loaded successfully!")
+
+    logger.info("="*60 + "\n")
 
     # Start trading loop
     session_stats['start_time'] = datetime.utcnow()
