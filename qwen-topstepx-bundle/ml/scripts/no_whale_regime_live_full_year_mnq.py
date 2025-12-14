@@ -522,8 +522,10 @@ def generate_signal_with_diagnostics(models: Dict) -> Optional[Dict]:
 
         longterm_seq = extract_longterm_sequence(bars_5min, cvd_1min, bar_idx, seq_len=72)
         shortterm_seq = extract_shortterm_sequence(bars_1min, footprint_1min, bar_idx, seq_len=120)
-        regime_seq = extract_regime_sequence(bars_1min, atr_1min, bb_middle, bb_upper, bb_lower,
-                                            adx_1min, chop_1min, rsi_1min, bar_idx, vp, seq_len=60)
+        regime_seq = extract_regime_sequence(
+            bars_1min, cvd_1min, cvd_ema_1min, atr_1min, bb_middle, bb_upper, bb_lower,
+            adx_1min, chop_1min, rsi_1min, bar_idx, vp, seq_len=60
+        )
 
         if longterm_seq is None or shortterm_seq is None or regime_seq is None:
             return {'signal': None, 'diagnostics': diagnostics}
