@@ -512,24 +512,65 @@ def generate_signal_with_diagnostics(models: Dict) -> Optional[Dict]:
         stage1_confidence = stage1_proba[stage1_pred]
         diagnostics['stage1_confidence'] = stage1_confidence
 
-        if stage1_confidence < 0.6:
+        # Continue calculating all scores for diagnostics even if stage1 is low
+        footprint_1min = calculate_footprint_candles(bars_1s)
+        atr_1min = calculate_atr(bars_1min)
+        bb_middle, bb_upper, bb_lower = calculate_bollinger_bands(bars_1min)
+        adx_1min = calculate_adx(bars_1min)
+        chop_1min = calculate_choppiness_index(bars_1min)
+        rsi_1min = calculate_rsi(bars_1min)
+
+        longterm_seq = extract_longterm_sequence(bars_5min, cvd_1min, bar_idx, seq_len=72)
+        shortterm_seq = extract_shortterm_sequence(bars_1min, footprint_1min, bar_idx, seq_len=120)
+        regime_seq = extract_regime_sequence(bars_1min, atr_1min, bb_middle, bb_upper, bb_lower,
+                                            adx_1min, chop_1min, rsi_1min, bar_idx, vp, seq_len=60)
+
+        if longterm_seq is None or shortterm_seq is None or regime_seq is None:
             return {'signal': None, 'diagnostics': diagnostics}
 
-        # Continue with full signal generation
-        signal_result = generate_signal(models)
-        if signal_result:
-            # Extract final diagnostics
-            return {
-                'signal': signal_result,
-                'diagnostics': {
-                    'stage1_confidence': stage1_confidence,
-                    'timing_confidence': signal_result.get('timing_confidence', 0),
-                    'final_score': signal_result.get('final_score', 0),
-                    'direction': signal_result.get('direction', 'UNKNOWN')
+        # Get LSTM predictions
+        with torch.no_grad():
+            longterm_seq_t = torch.FloatTensor(longterm_seq).unsqueeze(0).to(DEVICE)
+            shortterm_seq_t = torch.FloatTensor(shortterm_seq).unsqueeze(0).to(DEVICE)
+            regime_seq_t = torch.FloatTensor(regime_seq).unsqueeze(0).to(DEVICE)
+
+            longterm_pred = models['longterm_lstm'](longterm_seq_t).cpu().numpy()[0]
+            shortterm_pred = models['shortterm_lstm'](shortterm_seq_t).cpu().numpy()[0]
+            regime_pred = models['regime_lstm'](regime_seq_t).cpu().numpy()[0]
+
+        # Timing model
+        timing_features = np.concatenate([longterm_pred, shortterm_pred, regime_pred])
+        X_timing = timing_features.reshape(1, -1)
+        timing_pred = models['timing_xgb'].predict(X_timing)[0]
+        timing_proba = models['timing_xgb'].predict_proba(X_timing)[0]
+        timing_confidence = timing_proba[timing_pred]
+        diagnostics['timing_confidence'] = timing_confidence
+
+        # Final model
+        final_features = np.concatenate([
+            [stage1_confidence, timing_confidence],
+            longterm_pred, shortterm_pred, regime_pred
+        ])
+        X_final = final_features.reshape(1, -1)
+        final_pred = models['final_xgb'].predict(X_final)[0]
+        final_proba = models['final_xgb'].predict_proba(X_final)[0]
+        final_score = final_proba[final_pred]
+        diagnostics['final_score'] = final_score
+
+        # Determine direction
+        direction = 'BUY' if final_pred == 1 else 'SELL'
+        diagnostics['direction'] = direction
+
+        # Only generate actual signal if all thresholds met
+        if stage1_confidence >= 0.6 and timing_confidence >= 0.5 and final_score >= 0.65 and trigger:
+            signal_result = generate_signal(models)
+            if signal_result:
+                return {
+                    'signal': signal_result,
+                    'diagnostics': diagnostics
                 }
-            }
-        else:
-            return {'signal': None, 'diagnostics': diagnostics}
+
+        return {'signal': None, 'diagnostics': diagnostics}
 
     except Exception as e:
         return {'signal': None, 'diagnostics': diagnostics}
