@@ -762,21 +762,26 @@ def trading_loop(models: Dict):
     fetch_live_nq_update()
 
     if len(cached_bars_1s) < 7200:
+        logger.debug(f"Waiting for more data: {len(cached_bars_1s)}/7200 bars")
         return
 
     current_price = cached_bars_1s[-1]['c']
     session_stats['last_price'] = current_price
 
     if check_mnq_position():
+        logger.debug("Position exists, checking timeout")
         check_position_timeout()
         return
 
     signal = generate_signal(models)
 
     if signal:
+        logger.info(f"SIGNAL: {signal['direction']} @ {signal['price']}")
         session_stats['signals_generated'] += 1
         if place_mnq_order(signal['direction'], signal['price'], signal['stop_loss'], signal['take_profit']):
             session_stats['trades'] += 1
+    else:
+        logger.info(f"SNAPSHOT | Price: {current_price} | NO SIGNAL")
 
 def print_dashboard():
     """Print dashboard."""
