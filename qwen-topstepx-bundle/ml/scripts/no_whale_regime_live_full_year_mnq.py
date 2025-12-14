@@ -323,8 +323,8 @@ def update_nq_bars_from_api() -> List[Dict]:
 
     if not local_bars:
         if logger:
-            logger.warning("No local NQ bars - fetching last 14 days")
-        start_time = datetime.utcnow() - timedelta(days=14)
+            logger.warning("No local NQ bars - fetching last 3 days")
+        start_time = datetime.utcnow() - timedelta(days=3)
     else:
         if '+' in last_ts:
             last_ts_clean = last_ts.split('+')[0]

@@ -413,8 +413,8 @@ def update_bars_from_api() -> List[Dict]:
 
     if not local_bars:
         if logger:
-            logger.warning("No local bars found - fetching last 14 days from API")
-        start_time = datetime.utcnow() - timedelta(days=14)
+            logger.warning("No local bars found - fetching last 3 days from API")
+        start_time = datetime.utcnow() - timedelta(days=3)
     else:
         # Parse last timestamp
         if '+' in last_ts:
