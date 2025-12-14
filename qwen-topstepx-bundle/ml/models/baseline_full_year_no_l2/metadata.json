@@ -1,0 +1,8 @@
+{
+  "training_cutoff": "2025-12-06",
+  "training_days": 290,
+  "symbol": "NQ",
+  "date_created": "2025-12-06",
+  "model_type": "baseline_full_year_no_l2",
+  "description": "Full year baseline trained on 290 days (Jan 1 - Dec 6, 2025)"
+}
