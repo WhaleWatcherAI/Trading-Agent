@@ -323,8 +323,9 @@ def update_nq_bars_from_api() -> List[Dict]:
 
     if not local_bars:
         if logger:
-            logger.warning("No local NQ bars - fetching last 3 days")
-        start_time = datetime.utcnow() - timedelta(days=3)
+            logger.warning("No local NQ bars - fetching last 5 days")
+        # Fetch from midnight 5 days ago to ensure we get complete trading days
+        start_time = (datetime.utcnow() - timedelta(days=5)).replace(hour=0, minute=0, second=0, microsecond=0)
     else:
         if '+' in last_ts:
             last_ts_clean = last_ts.split('+')[0]
@@ -466,6 +467,72 @@ def load_models() -> Optional[Dict]:
 # =============================================================================
 # SIGNAL GENERATION (uses NQ data)
 # =============================================================================
+
+def generate_signal_with_diagnostics(models: Dict) -> Optional[Dict]:
+    """Generate signal with diagnostic info for logging."""
+    global cached_bars_1s
+
+    if len(cached_bars_1s) < 7200:
+        return None
+
+    bars_1s = cached_bars_1s[-21600:]
+    bars_1min, cvd_1min, cvd_ema_1min = calculate_cvd_1min(bars_1s)
+    bars_5min = aggregate_bars(bars_1s, 5)
+    bars_15min = aggregate_bars(bars_1s, 15)
+    bars_1h = aggregate_bars(bars_1s, 60)
+
+    if len(bars_1min) < 60 or len(bars_5min) < 72:
+        return None
+
+    current_price = bars_1s[-1]['c']
+    bar_idx = len(bars_1min) - 1
+
+    vp = calculate_volume_profile(bars_1min[:bar_idx+1], lookback=30)
+    trigger = detect_trade_trigger(bars_1min, cvd_1min, cvd_ema_1min, vp, bar_idx)
+
+    diagnostics = {
+        'stage1_confidence': 0,
+        'timing_confidence': 0,
+        'final_score': 0,
+        'direction': 'UNKNOWN'
+    }
+
+    try:
+        xgb_features = extract_xgb_features(
+            bars_1min, bars_5min, bars_15min, bars_1h,
+            cvd_1min, cvd_ema_1min, bar_idx, vp,
+            trigger_sentiment=trigger if trigger else 'neutral'
+        )
+        if xgb_features is None:
+            return {'signal': None, 'diagnostics': diagnostics}
+
+        X_stage1 = np.array(list(xgb_features.values())).reshape(1, -1)
+        stage1_pred = models['stage1_xgb'].predict(X_stage1)[0]
+        stage1_proba = models['stage1_xgb'].predict_proba(X_stage1)[0]
+        stage1_confidence = stage1_proba[stage1_pred]
+        diagnostics['stage1_confidence'] = stage1_confidence
+
+        if stage1_confidence < 0.6:
+            return {'signal': None, 'diagnostics': diagnostics}
+
+        # Continue with full signal generation
+        signal_result = generate_signal(models)
+        if signal_result:
+            # Extract final diagnostics
+            return {
+                'signal': signal_result,
+                'diagnostics': {
+                    'stage1_confidence': stage1_confidence,
+                    'timing_confidence': signal_result.get('timing_confidence', 0),
+                    'final_score': signal_result.get('final_score', 0),
+                    'direction': signal_result.get('direction', 'UNKNOWN')
+                }
+            }
+        else:
+            return {'signal': None, 'diagnostics': diagnostics}
+
+    except Exception as e:
+        return {'signal': None, 'diagnostics': diagnostics}
 
 def generate_signal(models: Dict) -> Optional[Dict]:
     """Generate signal using NQ data analysis."""
@@ -773,15 +840,28 @@ def trading_loop(models: Dict):
         check_position_timeout()
         return
 
-    signal = generate_signal(models)
+    # Get signal and diagnostics
+    result = generate_signal_with_diagnostics(models)
 
-    if signal:
+    if result and result.get('signal'):
+        signal = result['signal']
         logger.info(f"SIGNAL: {signal['direction']} @ {signal['price']}")
         session_stats['signals_generated'] += 1
         if place_mnq_order(signal['direction'], signal['price'], signal['stop_loss'], signal['take_profit']):
             session_stats['trades'] += 1
     else:
-        logger.info(f"SNAPSHOT | Price: {current_price} | NO SIGNAL")
+        # Log snapshot with diagnostics
+        diag = result.get('diagnostics', {}) if result else {}
+        stage1_pct = int(diag.get('stage1_confidence', 0) * 100)
+        timing_pct = int(diag.get('timing_confidence', 0) * 100)
+        final_pct = int(diag.get('final_score', 0) * 100)
+        direction = diag.get('direction', 'UNKNOWN')
+
+        stage1_status = "OK" if stage1_pct >= 60 else "LOW"
+        timing_status = "OK" if timing_pct >= 50 else "LOW"
+        final_status = "OK" if final_pct >= 65 else "LOW"
+
+        logger.info(f"SNAPSHOT | Price: {current_price} | Stage1: {stage1_pct}% ({stage1_status}) | Timing: {timing_pct}% ({timing_status}) | Final: {final_pct}% ({final_status}) | Dir: {direction} | NO TRADE")
 
 def print_dashboard():
     """Print dashboard."""
