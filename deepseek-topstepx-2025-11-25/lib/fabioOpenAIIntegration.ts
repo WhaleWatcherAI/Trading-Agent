@@ -137,7 +137,8 @@ export function buildFuturesMarketData(
   realizedPnL: number = 0,
   higherTimeframes: HigherTimeframeSnapshot[] = [],
   recentVolumeProfiles: SessionVolumeProfileSummary[] = [],
-  cvdCandles: CurrentCvdBar[] = []
+  cvdCandles: CurrentCvdBar[] = [],
+  connectionHealth?: FuturesMarketData['connectionHealth'],
 ): FuturesMarketData {
   const selfLearning = isSelfLearningEnabled();
   // Get current price from latest bar
@@ -360,6 +361,7 @@ export function buildFuturesMarketData(
     flowSignals,
     absorption: absorptionSignals,
     exhaustion: exhaustionSignals,
+    connectionHealth,
   };
 
   return marketData;

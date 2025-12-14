@@ -1,5 +1,10 @@
 # dependencies
-/node_modules
+node_modules
+**/node_modules
+.venv
+**/.venv
+__pycache__
+**/__pycache__
 /.pnp
 .pnp.js
 
@@ -29,6 +34,13 @@ yarn-error.log*
 
 # data storage
 /data
+*.parquet
+*.npz
+*.jsonl
+*.pth
+*.pkl
+trading-db/
+**/*.log
 
 # vercel
 .vercel

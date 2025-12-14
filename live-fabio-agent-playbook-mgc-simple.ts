@@ -19,7 +19,9 @@ import express from 'express';
 import cors from 'cors';
 import { Server } from 'socket.io';
 import http from 'http';
+import path from 'path';
 import { writeFileSync, readFileSync, existsSync } from 'fs';
+import fetch from 'node-fetch';
 import {
   buildFuturesMarketData,
   processOpenAIDecision,
@@ -31,17 +33,20 @@ import {
   HigherTimeframeSnapshot,
   SessionVolumeProfileSummary,
 } from './lib/fabioOpenAIIntegration';
-import { analyzeFuturesMarket } from './lib/openaiTradingAgent';
+import { analyzeFuturesMarket, buildDecisionPromptPayload, FuturesMarketData } from './lib/openaiTradingAgent';
 import { createExecutionManager } from './lib/executionManager';
 import { analyzePositionRisk } from './lib/riskManagementAgent';
+import { buildMlFeatureSnapshot } from './lib/mlFeatureExtractor';
+import { predictMetaLabel } from './lib/mlMetaLabelService';
 
-// Configuration - GOLD (GC) SIMPLIFIED - Liquidity + Spread + Volume Profile ONLY
-const SYMBOL = process.env.TOPSTEPX_SYMBOL || 'GCZ5';
+// Configuration
+const SYMBOL = process.env.TOPSTEPX_SYMBOL || 'NQZ5';
 const ACCOUNT_ID = parseInt(process.env.TOPSTEPX_ACCOUNT_ID || '0');
-const DASHBOARD_PORT = 3339; // Simplified Gold instance
+const DASHBOARD_PORT = parseInt(process.env.DASHBOARD_PORT || (SYMBOL === 'NQZ5' ? '3337' : SYMBOL === 'GCZ5' ? '3338' : '3339'));
+const SOCKET_PATH = process.env.SOCKET_PATH || '';
 const CONTRACTS = 1;
 const ANALYSIS_INTERVAL_MS = 60_000;
-const RISK_MGMT_INTERVAL_MS = 30_000; // Risk management checks every 30 seconds
+const RISK_MGMT_INTERVAL_MS = 10_000; // Risk management checks every 10 seconds for active drawdown prevention
 
 // Volume Profile Types
 interface VolumeNode {
@@ -161,6 +166,35 @@ let recentSessionProfiles: SessionVolumeProfileSummary[] = [];
 let lastHigherTimeframeRefresh = 0;
 let lastVolumeProfileRefresh = 0;
 let cvdMinuteBars: CurrentCvdBar[] = [];
+let marketHubState: 'connected' | 'reconnecting' | 'disconnected' = 'disconnected';
+let lastMarketHubEventMs = 0;
+let lastMarketHubDisconnectMs: number | null = null;
+
+function rehydrateCvdFromSnapshots(symbol: string): number {
+  try {
+    const file = path.resolve(__dirname, 'ml', 'data', 'snapshots.jsonl');
+    if (!existsSync(file)) return 0;
+    const lines = readFileSync(file, 'utf-8').trim().split('\n');
+    for (let i = lines.length - 1; i >= 0; i -= 1) {
+      const line = lines[i].trim();
+      if (!line) continue;
+      try {
+        const parsed = JSON.parse(line) as { symbol?: string; features?: Record<string, any> };
+        if (parsed.symbol !== symbol) continue;
+        const cvdVal = parsed.features?.cvd_value;
+        const num = typeof cvdVal === 'string' ? Number(cvdVal) : cvdVal;
+        if (Number.isFinite(num)) {
+          return Number(num);
+        }
+      } catch {
+        continue;
+      }
+    }
+  } catch (err) {
+    console.warn('[CVD] Failed to rehydrate from snapshots:', (err as Error)?.message || err);
+  }
+  return 0;
+}
 
 // Position Management
 let currentPosition: any = null;
@@ -182,6 +216,44 @@ function log(message: string, type: 'info' | 'success' | 'warning' | 'error' = '
 
   if (io) {
     io.emit('log', { timestamp, message, type });
+  }
+}
+
+async function emitR1Advisory(marketData: FuturesMarketData) {
+  try {
+    const { systemInstructions, decisionPrompt } = buildDecisionPromptPayload(marketData);
+    const hardGuards = `
+STRICT CONSTRAINTS (apply to the JSON you return):
+- Use ONLY the provided auction/order-flow/profile fields. Do NOT mention EMA, SMA, MACD, RSI, generic TA indicators, or "broader market news".
+- Keep the Fabio role: auction/location/flow/EV. No generic disclaimers.
+- Output JSON ONLY per the schema. No prose, no markdown, no extra fields.
+- If a value is unknown, set it to null; never invent data.`;
+    const combinedPrompt = `${systemInstructions}\n\n${decisionPrompt}\n${hardGuards}\n\nRespond ONLY with valid JSON per the schema in the prompt. No extra text.`;
+    log(`[R1] sending prompt (len=${combinedPrompt.length}) symbol=${marketData.symbol}`, 'info');
+    const ollamaHost = process.env.OLLAMA_HOST || 'http://127.0.0.1:11434';
+    const url = `${ollamaHost.replace(/\/$/, '')}/api/generate`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'deepseek-r1',
+        prompt: combinedPrompt,
+        stream: false,
+        temperature: 0.2,
+        top_p: 0.9,
+        repeat_penalty: 1.1,
+      }),
+    });
+    const data: any = await res.json().catch(() => ({}));
+    const responseText = data?.response || JSON.stringify(data);
+    io?.emit('r1_decision', {
+      timestamp: new Date().toISOString(),
+      response: responseText,
+      prompt: combinedPrompt,
+      symbol: marketData.symbol,
+    });
+  } catch (err: any) {
+    log(`[R1] advisory failed: ${err.message || err}`, 'warning');
   }
 }
 
@@ -264,6 +336,11 @@ function calculateExhaustion(): { buy: number; sell: number } {
   const LONG_PERIOD = 18;
   const SMOOTHING = 0.35; // Dampens visual flicker
 
+  // Safety check: ensure cvdHistory exists before accessing
+  if (!orderFlowData.cvdHistory || orderFlowData.cvdHistory.length === 0) {
+    return orderFlowData.exhaustion || { buy: 0, sell: 0 };
+  }
+
   const history = orderFlowData.cvdHistory.slice(-HISTORY_WINDOW);
   if (history.length < MIN_EVENTS) {
     return orderFlowData.exhaustion || { buy: 0, sell: 0 };
@@ -342,50 +419,6 @@ function emitLLMDecision(analysis: any) {
   if (io) {
     io.emit('llm_decision', decision);
   }
-}
-
-// Build Risk Snapshot for Risk Management Agent
-function buildRiskSnapshot(
-  position: any,
-  bars: TopstepXFuturesBar[],
-  volumeProfile: VolumeProfile,
-  orderFlowData: any,
-  marketStructure: any,
-  currentCvdBar: CurrentCvdBar | null,
-  l2Data: any
-): any {
-  const currentBar = bars[bars.length - 1];
-  const currentPrice = currentBar?.close || position.entryPrice;
-
-  return {
-    currentPrice,
-    recentBars: bars.slice(-20), // Last 20 bars
-    cvd: orderFlowData.cvd,
-    cvdTrend: orderFlowData.cvdTrend,
-    orderFlowPressure: orderFlowData.cvdTrend === 'up' ? 'bullish' : orderFlowData.cvdTrend === 'down' ? 'bearish' : 'neutral',
-    volumeProfile: {
-      poc: volumeProfile.poc,
-      vah: volumeProfile.vah,
-      val: volumeProfile.val,
-    },
-    whaleActivity: orderFlowData.whaleActivity || 'No significant whale activity',
-    marketStructure: marketStructure?.state || 'unknown',
-    distToPoc: currentPrice - volumeProfile.poc,
-    distToVah: currentPrice - volumeProfile.vah,
-    distToVal: currentPrice - volumeProfile.val,
-    deltaLast1m: orderFlowData.delta1m,
-    deltaLast5m: orderFlowData.delta5m,
-    cvdSlopeShort: currentCvdBar?.cvdSlope,
-    cvdSlopeLong: orderFlowData.cvdSlope,
-    cvdDivergence: orderFlowData.cvdDivergence || 'none',
-    absorptionZone: orderFlowData.absorption,
-    exhaustionFlag: orderFlowData.exhaustion,
-    largePrints: l2Data?.whalePrints || [],
-    restingLiquidityWalls: l2Data?.walls || [],
-    liquidityPullDetected: l2Data?.wallPullDetected || false,
-    volRegime: marketStructure?.volatilityRegime || 'normal',
-    structureState: marketStructure?.state,
-  };
 }
 
 // Calculate Volume Profile
@@ -1036,66 +1069,40 @@ async function processMarketUpdate() {
     }
   }
 
-  // ========== SIMPLIFIED AGENT: Use EMPTY order flow data ==========
-  // Create zeroed-out order flow data so buildFuturesMarketData has nothing to work with
-  const emptyOrderFlowData: OrderFlowData = {
-    bigPrints: [],
-    cvd: 0,
-    footprintImbalance: {},
-    absorption: { buy: 0, sell: 0 },
-    exhaustion: { buy: 0, sell: 0 },
-    cvdHistory: [],
-    volumeAtPrice: {},
-  };
-
-  // Build market data with EMPTY order flow
+  // ========== NEW: Build market data for OpenAI ==========
   const marketData = buildFuturesMarketData(
     SYMBOL,
     bars,
     volumeProfile,
-    emptyOrderFlowData, // ← EMPTY order flow data instead of real data
+    orderFlowData,
     marketStructure,
-    null, // ← No CVD bar
+    currentCvdBar,
     accountBalance,
     currentPosition,
     realizedPnL,
     higherTimeframeSnapshots,
     recentSessionProfiles,
-    [] // ← Empty CVD minute bars
+    cvdMinuteBars,
+    {
+      marketHubState,
+      lastMarketHubEventAgoSec: lastMarketHubEventMs ? Number(((Date.now() - lastMarketHubEventMs) / 1000).toFixed(1)) : null,
+      lastMarketHubDisconnectAgoSec: lastMarketHubDisconnectMs ? Number(((Date.now() - lastMarketHubDisconnectMs) / 1000).toFixed(1)) : null,
+    }
   );
 
-  // Double-check: Strip ANY and ALL order flow derived fields
-  marketData.flowSignals = undefined;
-  marketData.absorption = [];
-  marketData.exhaustion = [];
-  marketData.reversalScores = undefined;
-  marketData.orderFlowConfirmed = false;
-
-  // Zero out CVD completely
-  marketData.cvd = {
-    value: 0,
-    trend: 'neutral' as const,
-    ohlc: {
-      timestamp: new Date().toISOString(),
-      open: 0,
-      high: 0,
-      low: 0,
-      close: 0,
-    },
-  };
-
-  if (marketData.microstructure) {
-    marketData.microstructure.largeWhaleTrades = [];
-    marketData.microstructure.restingLimitOrders = marketData.microstructure.restingLimitOrders || []; // Keep L2 liquidity walls
-    marketData.microstructure.wallPullDetected = undefined;
-    marketData.microstructure.absorptionZone = undefined;
-    marketData.microstructure.exhaustionFlag = undefined;
+  // Lightweight ML prefilter (probabilities only, no gating yet)
+  try {
+    const mlSnapshot = buildMlFeatureSnapshot(marketData);
+    const mlScores = predictMetaLabel(mlSnapshot);
+    if (mlScores) {
+      marketData.mlScores = {
+        ...mlScores,
+        modelVersion: 'lightgbm-meta-label-v0',
+      };
+    }
+  } catch (error: any) {
+    console.warn('[ML] Meta-label scoring failed:', error?.message || error);
   }
-  if (marketData.orderFlow) {
-    marketData.orderFlow.bigTrades = [];
-    marketData.orderFlow.imbalances = [];
-  }
-  // =====================================================================
 
   // ========== NEW: Get OpenAI decision on a fixed interval (every minute) ==========
   let openaiDecision = null;
@@ -1104,9 +1111,12 @@ async function processMarketUpdate() {
   const nowMs = Date.now();
   const currentCandleTimestamp = bars[bars.length - 1]?.timestamp;
   const timeSinceLastAnalysis = nowMs - lastOpenAIAnalysisTime;
-  const shouldAnalyze = timeSinceLastAnalysis >= ANALYSIS_INTERVAL_MS && !currentPosition;
 
-  log(`[DEBUG processMarketUpdate] Time since last analysis: ${timeSinceLastAnalysis}ms, threshold: ${ANALYSIS_INTERVAL_MS}ms, hasPosition: ${!!currentPosition}, shouldAnalyze: ${shouldAnalyze}`, 'info');
+  // Check if we can enter new trades (respects grace period after position close)
+  const canEnterNewTrade = executionManager ? executionManager.canEnterNewTrade() : true;
+  const shouldAnalyze = timeSinceLastAnalysis >= ANALYSIS_INTERVAL_MS && !currentPosition && canEnterNewTrade;
+
+  log(`[DEBUG processMarketUpdate] Time since last analysis: ${timeSinceLastAnalysis}ms, threshold: ${ANALYSIS_INTERVAL_MS}ms, hasPosition: ${!!currentPosition}, canEnterNewTrade: ${canEnterNewTrade}, shouldAnalyze: ${shouldAnalyze}`, 'info');
 
   // ONLY analyze for new trades when we have NO position
   // When we have a position, the Risk Management Agent handles everything
@@ -1116,6 +1126,7 @@ async function processMarketUpdate() {
     try {
       log(`🧠 [OpenAI] Analyzing market for NEW TRADE opportunities (no active position)`, 'info');
       openaiDecision = await analyzeFuturesMarket(marketData);
+      emitR1Advisory(marketData).catch(() => {});
 
       if (openaiDecision) {
         const clampedConfidence = Math.max(0, Math.min(100, openaiDecision.confidence || 0));
@@ -1495,20 +1506,26 @@ function broadcastDashboardUpdate() {
     });
   }
 
-  // SIMPLIFIED AGENT: NO CVD or order flow broadcasting
-  // Dashboard will only receive L2 liquidity, spread, volume profile, and price action
+  // Emit CVD and order flow event
   const cvdData = {
-    cvd_value: 0,
-    cvd_trend: 'neutral',
-    cvd_ohlc: null,
-    buy_absorption: 0,
-    sell_absorption: 0,
-    buy_exhaustion: 0,
-    sell_exhaustion: 0,
-    cvd_candles: [],
-    big_prints: [],
+    cvd_value: orderFlowData.cvd,
+    cvd_trend: orderFlowData.cvd > 0 ? 'up' : orderFlowData.cvd < 0 ? 'down' : 'neutral',
+    // CVD OHLC candlestick data
+    cvd_ohlc: currentCvdBar ? {
+      timestamp: currentCvdBar.timestamp,
+      open: currentCvdBar.open,
+      high: currentCvdBar.high,
+      low: currentCvdBar.low,
+      close: currentCvdBar.close,
+    } : null,
+    buy_absorption: orderFlowData.absorption.buy,
+    sell_absorption: orderFlowData.absorption.sell,
+    buy_exhaustion: orderFlowData.exhaustion.buy,
+    sell_exhaustion: orderFlowData.exhaustion.sell,
+    cvd_candles: [...cvdMinuteBars, ...(currentCvdBar ? [currentCvdBar] : [])],
+    big_prints: (orderFlowData.bigPrints || []).slice(-10),
   };
-  log(`📡 [SIMPLIFIED] Broadcasting: Liquidity + Spread only (No CVD/order flow)`, 'info');
+  log(`📡 Broadcasting CVD: ${orderFlowData.cvd.toFixed(2)}, trend=${cvdData.cvd_trend}, OHLC=[O:${currentCvdBar?.open.toFixed(1)}, H:${currentCvdBar?.high.toFixed(1)}, L:${currentCvdBar?.low.toFixed(1)}, C:${currentCvdBar?.close.toFixed(1)}], total candles=${cvdMinuteBars.length}`, 'info');
   io.emit('cvd', cvdData);
 
   // Emit L2 data event
@@ -1522,19 +1539,34 @@ function broadcastDashboardUpdate() {
     });
   }
 
-  // Emit market state event (SIMPLIFIED: no CVD-based control metrics)
+  // Emit market state event
+  const buyerSellerControl = (() => {
+    const history = orderFlowData.cvdHistory || [];
+    const now = Date.now();
+    const windowMs = 3 * 60_000; // last 3 minutes
+    const deltas = history.filter(h => now - h.timestamp <= windowMs).map(h => h.delta);
+    const buy = deltas.filter(d => d > 0).reduce((acc, d) => acc + d, 0);
+    const sell = Math.abs(deltas.filter(d => d < 0).reduce((acc, d) => acc + d, 0));
+    const total = buy + sell;
+    if (total <= 0) {
+      return { buyers: 0.5, sellers: 0.5 };
+    }
+    const buyers = Math.max(0, Math.min(1, buy / total));
+    return { buyers: Number(buyers.toFixed(2)), sellers: Number((1 - buyers).toFixed(2)) };
+  })();
+
   io.emit('market_state', {
     state: marketStructure.state,
-    range_condition: 'normal',
+    range_condition: 'normal', // TODO: calculate
     location_vs_value: volumeProfile && currentBar ?
       currentBar.close > volumeProfile.vah ? 'above' :
       currentBar.close < volumeProfile.val ? 'below' : 'inside' : 'unknown',
     location_vs_poc: volumeProfile && currentBar ?
       currentBar.close > volumeProfile.poc ? 'above' : 'below' : 'unknown',
-    buyers_control: 0.5, // SIMPLIFIED: No CVD tracking
-    sellers_control: 0.5, // SIMPLIFIED: No CVD tracking
-    poc_crosses: 0,
-    time_in_value: 0,
+    buyers_control: buyerSellerControl.buyers,
+    sellers_control: buyerSellerControl.sellers,
+    poc_crosses: 0, // TODO: track
+    time_in_value: 0, // TODO: track
   });
 }
 
@@ -1542,15 +1574,28 @@ function broadcastDashboardUpdate() {
 async function initDashboard() {
   app = express();
   app.use(cors());
+  app.use(express.static(path.resolve(__dirname, 'public')));
 
   server = http.createServer(app);
   io = new Server(server, {
-    cors: { origin: '*', methods: ['GET', 'POST'] }
+    cors: { origin: '*', methods: ['GET', 'POST'] },
+    path: SOCKET_PATH || undefined,
   });
 
-  // Serve dashboard HTML
+  // Serve dashboard HTML (with timestamp to bust cache)
   app.get('/', (req, res) => {
-    res.sendFile('/Users/coreycosta/trading-agent/public/fabio-agent-dashboard-mgc.html');
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    const dashboardPath = path.resolve(__dirname, 'public', 'fabio-topstep-dashboard-new.html');
+    res.sendFile(dashboardPath);
+  });
+
+  // Also serve on /dashboard with version
+  app.get('/dashboard', (req, res) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    const dashboardPath = path.resolve(__dirname, 'public', 'fabio-topstep-dashboard-new.html');
+    res.sendFile(dashboardPath);
   });
 
   // Socket.IO connection
@@ -1571,7 +1616,7 @@ async function initDashboard() {
     });
   });
 
-  server.listen(DASHBOARD_PORT, () => {
+  server.listen(DASHBOARD_PORT, '0.0.0.0', () => {
     log(`Dashboard running on http://localhost:${DASHBOARD_PORT}`, 'success');
   });
 }
@@ -1579,6 +1624,14 @@ async function initDashboard() {
 // Connect to Market Data
 async function connectMarketData() {
   const token = await authenticate();
+
+  // Rehydrate CVD baseline from last ML snapshot so restart doesn't zero out flow context
+  const rehydratedCvd = rehydrateCvdFromSnapshots(SYMBOL);
+  if (Number.isFinite(rehydratedCvd) && rehydratedCvd !== 0) {
+    orderFlowData.cvd = rehydratedCvd;
+    orderFlowData.cvdHistory = [{ timestamp: Date.now(), cvd: rehydratedCvd, delta: 0 }];
+    log(`♻️ Rehydrated CVD baseline: ${rehydratedCvd.toFixed(2)}`, 'info');
+  }
 
   // Create market hub
   marketHub = new HubConnectionBuilder()
@@ -1590,10 +1643,31 @@ async function connectMarketData() {
     .configureLogging(LogLevel.Warning)
     .build();
 
+  marketHub.onreconnecting(error => {
+    marketHubState = 'reconnecting';
+    lastMarketHubDisconnectMs = Date.now();
+    log(`⚠️ Market hub reconnecting: ${error?.message || 'unknown error'}`, 'warning');
+  });
+
+  marketHub.onreconnected(connectionId => {
+    marketHubState = 'connected';
+    lastMarketHubEventMs = Date.now();
+    log(`✅ Market hub reconnected${connectionId ? ` (${connectionId})` : ''}`, 'success');
+  });
+
+  marketHub.onclose(error => {
+    marketHubState = 'disconnected';
+    lastMarketHubDisconnectMs = Date.now();
+    log(`❌ Market hub disconnected: ${error?.message || 'no error provided'}`, 'error');
+  });
+
   // Subscribe to market events
-  marketHub.on('gatewayquote', (contractId: string, quotes: any) => {
+  marketHub.on('gatewayquote', (incomingContractId: string, quotes: any) => {
+    if (incomingContractId !== contractId) return;
+    lastMarketHubEventMs = Date.now();
+
     // Process Level 2 data
-    if (quotes.bids && quotes.asks) {
+    if (quotes?.bids && quotes?.asks) {
       l2Data = [];
       for (let i = 0; i < Math.min(10, quotes.bids.length); i++) {
         l2Data.push({
@@ -1610,6 +1684,7 @@ async function connectMarketData() {
   // Note: Use execution events as fast invalidators for position version
   marketHub.on('gatewayexecution', async (id: string, exec: any) => {
     if (id !== contractId) return;
+    lastMarketHubEventMs = Date.now();
     const status = (exec?.status || '').toString().toLowerCase();
     const filledQty = Number(exec?.filledSize ?? exec?.fillSize ?? exec?.lastQty ?? exec?.lastFillQty ?? 0);
     const isFill = status.includes('fill') || filledQty > 0;
@@ -1619,8 +1694,10 @@ async function connectMarketData() {
     }
   });
 
-  marketHub.on('gatewaytrade', (contractId: string, trades: any[]) => {
-    log(`📊 Received ${trades.length} trade(s) for ${contractId}`, 'info');
+  marketHub.on('gatewaytrade', (incomingContractId: string, trades: any[]) => {
+    if (incomingContractId !== contractId) return;
+    lastMarketHubEventMs = Date.now();
+    log(`📊 Received ${trades.length} trade(s) for ${incomingContractId}`, 'info');
     trades.forEach((trade, idx) => {
       const price = parseFloat(trade.price);
       const size = parseFloat(trade.volume); // TopStepX uses "volume" not "size"
@@ -1668,19 +1745,102 @@ async function connectMarketData() {
         currentBar.volume = (currentBar.volume || 0) + size;
       }
 
-      // ========== SIMPLIFIED AGENT: NO ORDER FLOW TRACKING ==========
-      // All CVD, delta, whale prints, absorption, exhaustion tracking is DISABLED
-      // This agent ONLY uses L2 liquidity + spread + volume profile + price action
-      // =================================================================
+      // Update CVD
+      const delta = side === 'Buy' ? size : -size;
+      const previousCvd = orderFlowData.cvd;
+      orderFlowData.cvd += delta;
+
+      // Track CVD OHLC for current 1-minute bar
+      if (!currentCvdBar || currentCvdBar.timestamp !== currentMinuteISO) {
+        if (currentCvdBar) {
+          cvdMinuteBars.push(currentCvdBar);
+          if (cvdMinuteBars.length > 1500) {
+            cvdMinuteBars.shift();
+          }
+        }
+
+        currentCvdBar = {
+          timestamp: currentMinuteISO,
+          open: orderFlowData.cvd,
+          high: orderFlowData.cvd,
+          low: orderFlowData.cvd,
+          close: orderFlowData.cvd,
+        };
+        log(`📊 NEW CVD BAR: ${currentMinuteISO}, CVD=${orderFlowData.cvd.toFixed(2)}`, 'info');
+      } else {
+        // Update existing CVD bar
+        currentCvdBar.high = Math.max(currentCvdBar.high, orderFlowData.cvd);
+        currentCvdBar.low = Math.min(currentCvdBar.low, orderFlowData.cvd);
+        currentCvdBar.close = orderFlowData.cvd;
+      }
+
+      // Track CVD history for exhaustion detection
+      orderFlowData.cvdHistory.push({
+        timestamp: Date.now(),
+        cvd: orderFlowData.cvd,
+        delta,
+      });
+      // Keep last 100 entries
+      if (orderFlowData.cvdHistory.length > 100) {
+        orderFlowData.cvdHistory.shift();
+      }
+
+      // Track volume at price for absorption detection
+      const priceLevel = Math.round(price * 4) / 4;
+      if (!orderFlowData.volumeAtPrice[priceLevel]) {
+        orderFlowData.volumeAtPrice[priceLevel] = {
+          buy: 0,
+          sell: 0,
+          timestamp: Date.now(),
+        };
+      }
+      if (side === 'Buy') {
+        orderFlowData.volumeAtPrice[priceLevel].buy += size;
+      } else {
+        orderFlowData.volumeAtPrice[priceLevel].sell += size;
+      }
+      orderFlowData.volumeAtPrice[priceLevel].timestamp = Date.now();
+      const retentionWindow = 10 * 60 * 1000;
+      Object.keys(orderFlowData.volumeAtPrice).forEach(level => {
+        if (Date.now() - orderFlowData.volumeAtPrice[Number(level)].timestamp > retentionWindow) {
+          delete orderFlowData.volumeAtPrice[Number(level)];
+        }
+      });
+
+      // Check for big prints
+      if (size >= 10) { // 10+ contracts is big
+        orderFlowData.bigPrints.push({
+          price,
+          size,
+          side: side === 'Buy' ? 'buy' : 'sell',
+          timestamp: Date.now(),
+        });
+
+        // Keep only recent big prints
+        orderFlowData.bigPrints = orderFlowData.bigPrints.filter(p =>
+          Date.now() - p.timestamp < 300000 // 5 minutes
+        );
+      }
+
+      // Update footprint imbalance
+      orderFlowData.footprintImbalance[priceLevel] =
+        (orderFlowData.footprintImbalance[priceLevel] || 0) + delta;
+
+      // Calculate real absorption and exhaustion
+      orderFlowData.absorption = calculateAbsorption();
+      orderFlowData.exhaustion = calculateExhaustion();
     });
 
-    log(`📈 Processed ${trades.length} trade(s), bars: ${bars.length} [SIMPLIFIED: No CVD tracking]`, 'info');
+    log(`📈 Processed ${trades.length} trade(s), CVD: ${orderFlowData.cvd.toFixed(2)}, bars: ${bars.length}`, 'info');
     processMarketUpdate();
     broadcastDashboardUpdate();
   });
 
   await marketHub.start();
   log('Connected to market data hub', 'success');
+  marketHubState = 'connected';
+  lastMarketHubEventMs = Date.now();
+  lastMarketHubDisconnectMs = null;
 
   // Subscribe to contract
   const metadata = await fetchTopstepXFuturesMetadata(SYMBOL);
@@ -1693,22 +1853,39 @@ async function connectMarketData() {
 
   // Initialize execution manager with live trading capability
   const LIVE_TRADING = process.env.LIVE_TRADING === 'true';  // Set to 'true' to enable real order submission
+
+  // CRITICAL: Override tick sizes for known contracts (TopStepX API sometimes returns wrong values)
+  const KNOWN_TICK_SIZES: Record<string, number> = {
+    'NQZ5': 0.25,    // E-mini Nasdaq
+    'NQH6': 0.25,    // E-mini Nasdaq
+    'ESZ5': 0.25,    // E-mini S&P 500
+    'ESH6': 0.25,    // E-mini S&P 500
+    'GCZ5': 0.10,    // Gold futures
+    'GCG6': 0.10,    // Gold futures
+    'MGC': 0.10,     // Micro Gold
+    'MGCZ5': 0.10,   // Micro Gold
+    'M6E': 0.00001,  // Micro Euro
+    'MES': 0.25,     // Micro E-mini S&P 500
+    'MNQ': 0.25,     // Micro E-mini Nasdaq
+  };
+
+  const correctTickSize = KNOWN_TICK_SIZES[SYMBOL] || metadata.tickSize || 0.25;
+
+  if (KNOWN_TICK_SIZES[SYMBOL] && metadata.tickSize !== correctTickSize) {
+    log(`⚠️ TopStepX API returned wrong tick size for ${SYMBOL}: ${metadata.tickSize} (corrected to ${correctTickSize})`, 'warning');
+  }
+
   executionManager = createExecutionManager(SYMBOL, contractId, CONTRACTS, LIVE_TRADING, {
-    tickSize: metadata.tickSize || 0.25,
+    tickSize: correctTickSize,
     preferredAccountId: ACCOUNT_ID > 0 ? ACCOUNT_ID : undefined,
     enableNativeBrackets: process.env.TOPSTEPX_ENABLE_NATIVE_BRACKETS === 'true',
   });
-  log(`⚙️ Execution manager initialized for ${SYMBOL} (${LIVE_TRADING ? 'LIVE TRADING' : 'SIM MODE'})`, LIVE_TRADING ? 'warning' : 'success');
+  log(`⚙️ Execution manager initialized for ${SYMBOL} with tickSize=${correctTickSize} (${LIVE_TRADING ? 'LIVE TRADING' : 'SIM MODE'})`, LIVE_TRADING ? 'warning' : 'success');
 
   // Initialize trading account (selects account with balance < $40k)
   const accountInitialized = await executionManager.initializeTradingAccount();
   if (!accountInitialized) {
     log('⚠️ Failed to initialize trading account. Orders will not be submitted.', 'error');
-  }
-
-  // Initialize websocket position feed for real-time sync
-  if (accountInitialized) {
-    await executionManager.initializeAccountFeed();
   }
 
   if (accountInitialized) {

@@ -1823,7 +1823,7 @@ async function initDashboard() {
 
   // Serve dashboard HTML
   app.get('/', (req, res) => {
-    res.sendFile('/Users/coreycosta/trading-agent/public/fabio-topstep-dashboard.html');
+    res.sendFile('/home/costa/Trading-Agent/public/fabio-topstep-dashboard.html');
   });
 
   // Socket.IO connection

@@ -19,7 +19,9 @@ import express from 'express';
 import cors from 'cors';
 import { Server } from 'socket.io';
 import http from 'http';
+import path from 'path';
 import { writeFileSync, readFileSync, existsSync } from 'fs';
+import fetch from 'node-fetch';
 import {
   buildFuturesMarketData,
   processOpenAIDecision,
@@ -31,18 +33,20 @@ import {
   HigherTimeframeSnapshot,
   SessionVolumeProfileSummary,
 } from './lib/fabioOpenAIIntegration';
-import { analyzeFuturesMarket } from './lib/openaiTradingAgent';
+import { analyzeFuturesMarket, buildDecisionPromptPayload, FuturesMarketData } from './lib/openaiTradingAgent';
 import { createExecutionManager } from './lib/executionManager';
 import { analyzePositionRisk } from './lib/riskManagementAgent';
+import { buildMlFeatureSnapshot } from './lib/mlFeatureExtractor';
+import { predictMetaLabel } from './lib/mlMetaLabelService';
 
-// Configuration - GOLD (MGC) Instance - Micro Gold
-const SYMBOL = process.env.TOPSTEPX_SYMBOL || 'MGCZ5';
+// Configuration - GOLD (GC) Instance - Full-Size Gold
+const SYMBOL = process.env.TOPSTEPX_SYMBOL || 'GCZ5';
 const ACCOUNT_ID = parseInt(process.env.TOPSTEPX_ACCOUNT_ID || '0');
 const DASHBOARD_PORT = 3338; // Different port for GC instance
+const SOCKET_PATH = process.env.SOCKET_PATH || '';
 const CONTRACTS = 1;
-// Analyze with DeepSeek Reasoner every 60 seconds (same cadence as NQ)
 const ANALYSIS_INTERVAL_MS = 60_000;
-const RISK_MGMT_INTERVAL_MS = 3_000; // Risk management checks every 3 seconds (aggressive stop tightening)
+const RISK_MGMT_INTERVAL_MS = 10_000; // Risk management checks every 10 seconds for active drawdown prevention
 
 // Volume Profile Types
 interface VolumeNode {
@@ -127,7 +131,6 @@ let io: Server;
 let app: express.Application;
 let server: http.Server;
 let contractId: string = ''; // Resolved TopstepX contract ID for SYMBOL
-let resolvedContractId: string | null = null; // Prefer contractId learned from live position feed
 
 // Market Data Storage
 let bars: TopstepXFuturesBar[] = [];
@@ -150,12 +153,6 @@ let currentCvdBar: {
   low: number;
   close: number;
 } | null = null;
-// Track contractId from live position feed to accept market data even if REST resolve fails
-const noteContractIdFromPosition = (pos: any) => {
-  if (pos?.contractId) {
-    resolvedContractId = String(pos.contractId);
-  }
-};
 let volumeProfile: VolumeProfile | null = null;
 let marketStructure: MarketStructure = {
   state: 'balanced',
@@ -169,6 +166,35 @@ let recentSessionProfiles: SessionVolumeProfileSummary[] = [];
 let lastHigherTimeframeRefresh = 0;
 let lastVolumeProfileRefresh = 0;
 let cvdMinuteBars: CurrentCvdBar[] = [];
+let marketHubState: 'connected' | 'reconnecting' | 'disconnected' = 'disconnected';
+let lastMarketHubEventMs = 0;
+let lastMarketHubDisconnectMs: number | null = null;
+
+function rehydrateCvdFromSnapshots(symbol: string): number {
+  try {
+    const file = path.resolve(__dirname, 'ml', 'data', 'snapshots.jsonl');
+    if (!existsSync(file)) return 0;
+    const lines = readFileSync(file, 'utf-8').trim().split('\n');
+    for (let i = lines.length - 1; i >= 0; i -= 1) {
+      const line = lines[i].trim();
+      if (!line) continue;
+      try {
+        const parsed = JSON.parse(line) as { symbol?: string; features?: Record<string, any> };
+        if (parsed.symbol !== symbol) continue;
+        const cvdVal = parsed.features?.cvd_value;
+        const num = typeof cvdVal === 'string' ? Number(cvdVal) : cvdVal;
+        if (Number.isFinite(num)) {
+          return Number(num);
+        }
+      } catch {
+        continue;
+      }
+    }
+  } catch (err) {
+    console.warn('[CVD] Failed to rehydrate from snapshots:', (err as Error)?.message || err);
+  }
+  return 0;
+}
 
 // Position Management
 let currentPosition: any = null;
@@ -190,6 +216,44 @@ function log(message: string, type: 'info' | 'success' | 'warning' | 'error' = '
 
   if (io) {
     io.emit('log', { timestamp, message, type });
+  }
+}
+
+async function emitR1Advisory(marketData: FuturesMarketData) {
+  try {
+    const { systemInstructions, decisionPrompt } = buildDecisionPromptPayload(marketData);
+    const hardGuards = `
+STRICT CONSTRAINTS (apply to the JSON you return):
+- Use ONLY the provided auction/order-flow/profile fields. Do NOT mention EMA, SMA, MACD, RSI, generic TA indicators, or "broader market news".
+- Keep the Fabio role: auction/location/flow/EV. No generic disclaimers.
+- Output JSON ONLY per the schema. No prose, no markdown, no extra fields.
+- If a value is unknown, set it to null; never invent data.`;
+    const combinedPrompt = `${systemInstructions}\n\n${decisionPrompt}\n${hardGuards}\n\nRespond ONLY with valid JSON per the schema in the prompt. No extra text.`;
+    log(`[R1] sending prompt (len=${combinedPrompt.length}) symbol=${marketData.symbol}`, 'info');
+    const ollamaHost = process.env.OLLAMA_HOST || 'http://127.0.0.1:11434';
+    const url = `${ollamaHost.replace(/\/$/, '')}/api/generate`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'deepseek-r1',
+        prompt: combinedPrompt,
+        stream: false,
+        temperature: 0.2,
+        top_p: 0.9,
+        repeat_penalty: 1.1,
+      }),
+    });
+    const data: any = await res.json().catch(() => ({}));
+    const responseText = data?.response || JSON.stringify(data);
+    io?.emit('r1_decision', {
+      timestamp: new Date().toISOString(),
+      response: responseText,
+      prompt: combinedPrompt,
+      symbol: marketData.symbol,
+    });
+  } catch (err: any) {
+    log(`[R1] advisory failed: ${err.message || err}`, 'warning');
   }
 }
 
@@ -328,66 +392,6 @@ function computeEMA(values: number[], period: number): number {
   return ema;
 }
 
-// Process L2 Data - Extract walls, whale prints, and detect wall pulls
-let previousL2Walls: Array<{ side: 'bid' | 'ask'; price: number; size: number }> = [];
-
-function processL2Data(l2Levels: L2Level[], currentPrice: number): {
-  walls: Array<{ side: 'bid' | 'ask'; price: number; size: number }>;
-  whalePrints: Array<{ side: 'bid' | 'ask'; size: number; price: number }>;
-  wallPullDetected: boolean;
-} {
-  if (!l2Levels || l2Levels.length === 0) {
-    return { walls: [], whalePrints: [], wallPullDetected: false };
-  }
-
-  // Calculate average sizes for comparison
-  const bidSizes = l2Levels.map(l => l.bidSize || 0).filter(s => s > 0);
-  const askSizes = l2Levels.map(l => l.askSize || 0).filter(s => s > 0);
-
-  const avgBidSize = bidSizes.length > 0 ? bidSizes.reduce((a, b) => a + b, 0) / bidSizes.length : 0;
-  const avgAskSize = askSizes.length > 0 ? askSizes.reduce((a, b) => a + b, 0) / askSizes.length : 0;
-
-  // Identify walls (orders significantly larger than average)
-  const WALL_THRESHOLD = 3; // 3x average size
-  const walls: Array<{ side: 'bid' | 'ask'; price: number; size: number }> = [];
-
-  l2Levels.forEach(level => {
-    if (level.bidSize > avgBidSize * WALL_THRESHOLD && level.bidSize > 50) {
-      walls.push({ side: 'bid', price: level.price, size: level.bidSize });
-    }
-    if (level.askSize > avgAskSize * WALL_THRESHOLD && level.askSize > 50) {
-      walls.push({ side: 'ask', price: level.price, size: level.askSize });
-    }
-  });
-
-  // Detect wall pulls (large orders that disappeared)
-  let wallPullDetected = false;
-  if (previousL2Walls.length > 0) {
-    for (const prevWall of previousL2Walls) {
-      // Check if this wall still exists with similar size
-      const stillExists = walls.some(
-        w => w.side === prevWall.side &&
-             Math.abs(w.price - prevWall.price) < 1 &&
-             w.size >= prevWall.size * 0.5
-      );
-      if (!stillExists && prevWall.size > 100) {
-        wallPullDetected = true;
-        break;
-      }
-    }
-  }
-  previousL2Walls = walls;
-
-  // Extract whale prints from order flow data (already tracked separately)
-  const whalePrints = (orderFlowData.bigPrints || []).slice(-5);
-
-  return {
-    walls,
-    whalePrints,
-    wallPullDetected,
-  };
-}
-
 // Emit LLM Decision
 function emitLLMDecision(analysis: any) {
   const normalizedConfidence = typeof analysis.confidence === 'number'
@@ -410,53 +414,6 @@ function emitLLMDecision(analysis: any) {
   if (io) {
     io.emit('llm_decision', decision);
   }
-}
-
-// Build Risk Snapshot for Risk Management Agent
-function buildRiskSnapshot(
-  position: any,
-  bars: TopstepXFuturesBar[],
-  volumeProfile: VolumeProfile,
-  orderFlowData: any,
-  marketStructure: any,
-  currentCvdBar: CurrentCvdBar | null,
-  l2Data: any
-): any {
-  const currentBar = bars[bars.length - 1];
-  const currentPrice = currentBar?.close || position.entryPrice;
-
-  // Process L2 data to extract walls, whale prints, wall pulls
-  const l2Analysis = processL2Data(l2Data, currentPrice);
-
-  return {
-    currentPrice,
-    recentBars: bars.slice(-20), // Last 20 bars
-    cvd: orderFlowData.cvd,
-    cvdTrend: orderFlowData.cvdTrend,
-    orderFlowPressure: orderFlowData.cvdTrend === 'up' ? 'bullish' : orderFlowData.cvdTrend === 'down' ? 'bearish' : 'neutral',
-    volumeProfile: {
-      poc: volumeProfile.poc,
-      vah: volumeProfile.vah,
-      val: volumeProfile.val,
-    },
-    whaleActivity: orderFlowData.whaleActivity || 'No significant whale activity',
-    marketStructure: marketStructure?.state || 'unknown',
-    distToPoc: currentPrice - volumeProfile.poc,
-    distToVah: currentPrice - volumeProfile.vah,
-    distToVal: currentPrice - volumeProfile.val,
-    deltaLast1m: orderFlowData.delta1m,
-    deltaLast5m: orderFlowData.delta5m,
-    cvdSlopeShort: currentCvdBar?.cvdSlope,
-    cvdSlopeLong: orderFlowData.cvdSlope,
-    cvdDivergence: orderFlowData.cvdDivergence || 'none',
-    absorptionZone: orderFlowData.absorption,
-    exhaustionFlag: orderFlowData.exhaustion,
-    largePrints: l2Analysis.whalePrints,
-    restingLiquidityWalls: l2Analysis.walls,
-    liquidityPullDetected: l2Analysis.wallPullDetected,
-    volRegime: marketStructure?.volatilityRegime || 'normal',
-    structureState: marketStructure?.state,
-  };
 }
 
 // Calculate Volume Profile
@@ -932,12 +889,12 @@ function detectMarketState(): MarketState {
     const recentLow = Math.min(...recentBars.slice(-5).map(b => b.low));
 
     if (recentHigh > profile.vah && currentPrice < profile.vah) {
-      return 'in_value_failed_breakout_above';
+      return 'balanced_with_failed_breakout_above';
     }
     if (recentLow < profile.val && currentPrice > profile.val) {
-      return 'in_value_failed_breakout_below';
+      return 'balanced_with_failed_breakout_below';
     }
-    return 'in_value';
+    return 'balanced';
   }
 
   // Out of balance if strong directional move
@@ -947,12 +904,12 @@ function detectMarketState(): MarketState {
   }, 0);
 
   if (trend > priceRange * 0.3) {
-    return 'above_value';
+    return 'out_of_balance_uptrend';
   } else if (trend < -priceRange * 0.3) {
-    return 'below_value';
+    return 'out_of_balance_downtrend';
   }
 
-  return 'in_value';
+  return 'balanced';
 }
 
 // Analyze Order Flow
@@ -1004,33 +961,33 @@ function makeDecision(): AgentDecision {
   let reason = '';
   let confidence = 0;
 
-  if (state === 'above_value' || state === 'below_value') {
+  if (state.includes('out_of_balance')) {
     model = 'trend_continuation';
 
-    if (state === 'above_value' && location === 'at_lvn' && orderFlowConfirmed) {
+    if (state === 'out_of_balance_uptrend' && location === 'at_lvn' && orderFlowConfirmed) {
       if (orderFlowData.cvd > 0 && orderFlowData.bigPrints.filter(p => p.side === 'buy').length > 0) {
         entrySide = 'long';
-        reason = 'Trend continuation: Pullback to LVN above value with buy aggression';
+        reason = 'Trend continuation: Pullback to LVN with buy aggression confirmed';
         confidence = 80;
       }
-    } else if (state === 'below_value' && location === 'at_lvn' && orderFlowConfirmed) {
+    } else if (state === 'out_of_balance_downtrend' && location === 'at_lvn' && orderFlowConfirmed) {
       if (orderFlowData.cvd < 0 && orderFlowData.bigPrints.filter(p => p.side === 'sell').length > 0) {
         entrySide = 'short';
-        reason = 'Trend continuation: Pullback to LVN below value with sell aggression';
+        reason = 'Trend continuation: Pullback to LVN with sell aggression confirmed';
         confidence = 80;
       }
     }
   } else if (state.includes('failed_breakout')) {
     model = 'mean_reversion';
 
-    if (state === 'in_value_failed_breakout_above' && location === 'at_vah' && orderFlowConfirmed) {
+    if (state === 'balanced_with_failed_breakout_above' && location === 'at_vah' && orderFlowConfirmed) {
       // Failed breakout above means buy exhaustion - buyers couldn't push through
       if (orderFlowData.exhaustion.buy > 0.6) {
         entrySide = 'short';
         reason = 'Mean reversion: Failed breakout above VAH with buy exhaustion';
         confidence = 75;
       }
-    } else if (state === 'in_value_failed_breakout_below' && location === 'at_val' && orderFlowConfirmed) {
+    } else if (state === 'balanced_with_failed_breakout_below' && location === 'at_val' && orderFlowConfirmed) {
       // Failed breakout below means sell exhaustion - sellers couldn't push through
       if (orderFlowData.exhaustion.sell > 0.6) {
         entrySide = 'long';
@@ -1096,9 +1053,6 @@ async function processMarketUpdate() {
   if (executionManager) {
     const previousPosition = currentPosition;
     currentPosition = executionManager.getActivePosition();
-    if (currentPosition) {
-      noteContractIdFromPosition(currentPosition);
-    }
 
     if (currentPosition && !previousPosition) {
       log(`🔄 [PositionSync] Position detected from broker: ${currentPosition.side.toUpperCase()} @ ${currentPosition.entryPrice.toFixed(2)}`, 'info');
@@ -1123,12 +1077,30 @@ async function processMarketUpdate() {
     realizedPnL,
     higherTimeframeSnapshots,
     recentSessionProfiles,
-    cvdMinuteBars
+    cvdMinuteBars,
+    {
+      marketHubState,
+      lastMarketHubEventAgoSec: lastMarketHubEventMs ? Number(((Date.now() - lastMarketHubEventMs) / 1000).toFixed(1)) : null,
+      lastMarketHubDisconnectAgoSec: lastMarketHubDisconnectMs ? Number(((Date.now() - lastMarketHubDisconnectMs) / 1000).toFixed(1)) : null,
+    }
   );
+
+  // Lightweight ML prefilter (probabilities only, no gating yet)
+  try {
+    const mlSnapshot = buildMlFeatureSnapshot(marketData);
+    const mlScores = predictMetaLabel(mlSnapshot);
+    if (mlScores) {
+      marketData.mlScores = {
+        ...mlScores,
+        modelVersion: 'lightgbm-meta-label-v0',
+      };
+    }
+  } catch (error: any) {
+    console.warn('[ML] Meta-label scoring failed:', error?.message || error);
+  }
 
   // ========== NEW: Get OpenAI decision on a fixed interval (every minute) ==========
   let openaiDecision = null;
-  const orderFlowConfirmed = analyzeOrderFlow();  // Check order flow confirmation
 
   log(`[DEBUG processMarketUpdate] About to check if should analyze`, 'info');
   const nowMs = Date.now();
@@ -1146,30 +1118,16 @@ async function processMarketUpdate() {
     try {
       log(`🧠 [OpenAI] Analyzing market for NEW TRADE opportunities (no active position)`, 'info');
       openaiDecision = await analyzeFuturesMarket(marketData);
+      emitR1Advisory(marketData).catch(() => {});
 
       if (openaiDecision) {
-        // Confidence gating: require flow/L2 signals for high confidence
-        const hasFlowSignal =
-          orderFlowConfirmed ||
-          (orderFlowData.exhaustion && (orderFlowData.exhaustion.buy > 0.6 || orderFlowData.exhaustion.sell > 0.6)) ||
-          (orderFlowData.absorption && (orderFlowData.absorption.buy > 0.6 || orderFlowData.absorption.sell > 0.6)) ||
-          (orderFlowData.bigPrints && orderFlowData.bigPrints.length > 0) ||
-          (l2Data && l2Data.some(l => (l.bidSize || 0) > 0 || (l.askSize || 0) > 0));
-
-        let clampedConfidence = Math.max(0, Math.min(100, openaiDecision.confidence || 0));
-        // Cap at 60% if no flow signal; allow >60 only when flow/L2 signals present
-        if (!hasFlowSignal && clampedConfidence > 60) {
-          clampedConfidence = 60;
-        }
+        const clampedConfidence = Math.max(0, Math.min(100, openaiDecision.confidence || 0));
         const normalizedConfidence = clampedConfidence / 100;
-
         log(`🤖 [OpenAI] ${openaiDecision.decision} @ ${openaiDecision.entryPrice?.toFixed(2) || 'null'} | Confidence: ${clampedConfidence}% | Regime: ${openaiDecision.inferredRegime || 'unknown'}`, 'success');
 
         // Emit OpenAI decision to dashboard
-        // Let the AI agent decide based on all order flow data it received
-        // No secondary gating - trust the reasoner's analysis
         if (io) {
-          const decisionPayload = {
+          io.emit('llm_decision', {
             timestamp: new Date().toISOString(),
             decision: openaiDecision.decision,
             reasoning: openaiDecision.reasoning,
@@ -1180,10 +1138,7 @@ async function processMarketUpdate() {
             riskManagementReasoning: openaiDecision.riskManagementReasoning || null, // SL/TP placement explanation
             inferredRegime: openaiDecision.inferredRegime,
             trade_decisions: openaiDecision.decision !== 'HOLD' ? [openaiDecision.decision] : [],
-          };
-          io.emit('llm_decision', decisionPayload);
-          log(`📤 [Dashboard] Emitted llm_decision: ${openaiDecision.decision} @ ${openaiDecision.entryPrice} (confidence: ${(normalizedConfidence*100).toFixed(0)}%)`, 'info');
-          log(`   Reasoning preview: ${(openaiDecision.reasoning || '').substring(0, 100)}...`, 'info');
+          });
         }
       }
     } catch (error: any) {
@@ -1219,16 +1174,6 @@ async function processMarketUpdate() {
         lastRiskMgmtTime = nowMs;
 
         try {
-          // Hard-sync protective orders before analysis to ensure correct IDs/legs
-          await executionManager.syncProtectiveOrdersFromOpenOrders(currentPosition, !currentPosition.usesNativeBracket);
-
-          currentPosition = executionManager.getActivePosition();
-          if (!currentPosition) {
-            log('🛡️ [RiskMgmt] Skipping immediate analysis: position not available after sync.', 'warn');
-            // Skip immediate risk; wait for next cycle
-            return;
-          }
-
           const riskDecision = await analyzePositionRisk(
             currentPosition,
             buildRiskSnapshot(
@@ -1239,8 +1184,7 @@ async function processMarketUpdate() {
               marketStructure,
               currentCvdBar,
               l2Data,
-            ),
-            0.1 // Gold tick size
+            )
           );
 
           log(`🛡️ [RiskMgmt] Initial Decision: ${riskDecision.action} (${riskDecision.urgency} urgency)`, 'info');
@@ -1316,40 +1260,24 @@ async function processMarketUpdate() {
   // }
 
   // ========== NEW: Update position and check exits ==========
-  if (executionManager) {
-    // Hard-sync with broker: if Topstep reports FLAT (no position + no protectives),
-    // clear any stale local position so the risk manager doesn't keep firing when we're flat.
-    const brokerFlat = await executionManager.clearIfBrokerFlat();
-    if (brokerFlat) {
-      currentPosition = null;
-      lastRiskMgmtTime = 0;
-      lastRiskMgmtDecision = null;
-      log('🛡️ [RiskMgmt] Broker confirmed FLAT - clearing local position and skipping risk management.', 'info');
-    }
+  if (executionManager && currentPosition) {
+    const exitResult = await updatePositionAndCheckExits(
+      executionManager,
+      bars[bars.length - 1].close,
+      bars
+    );
 
-    if (currentPosition) {
-      currentPosition = executionManager.getActivePosition();
-      if (!currentPosition) {
-        log('🛡️ [RiskMgmt] Skipping management: no active position found.', 'warn');
+    if (exitResult.exited) {
+      // Update realized P&L
+      const { tradingDB } = await import('./lib/tradingDatabase');
+      const outcome = tradingDB.getOutcome(exitResult.closedDecisionId);
+      if (outcome) {
+        realizedPnL += outcome.profitLoss;
       }
-
-      const exitResult = await updatePositionAndCheckExits(
-        executionManager,
-        bars[bars.length - 1].close,
-        bars
-      );
-
-      if (exitResult.exited) {
-        // Update realized P&L
-        const { tradingDB } = await import('./lib/tradingDatabase');
-        const outcome = tradingDB.getOutcome(exitResult.closedDecisionId);
-        if (outcome) {
-          realizedPnL += outcome.profitLoss;
-        }
-        currentPosition = null;
-        lastRiskMgmtTime = 0; // Reset risk management timer
-        lastRiskMgmtDecision = null; // Clear old Risk Management decision from dashboard
-      } else {
+      currentPosition = null;
+      lastRiskMgmtTime = 0; // Reset risk management timer
+      lastRiskMgmtDecision = null; // Clear old Risk Management decision from dashboard
+    } else {
       // ========== RISK MANAGEMENT AGENT ==========
       // Run risk management analysis every 30 seconds for active drawdown prevention
       // This REPLACES the main trading agent when we have a position
@@ -1362,17 +1290,7 @@ async function processMarketUpdate() {
           lastRiskMgmtTime = Date.now();
 
           // Safety check: ensure we have bars before analyzing
-          if (bars && bars.length > 0 && currentPosition) {
-            // Hard-sync protective orders before analysis to ensure correct IDs/legs
-            await executionManager.syncProtectiveOrdersFromOpenOrders(currentPosition, !currentPosition.usesNativeBracket);
-
-            currentPosition = executionManager.getActivePosition();
-            if (!currentPosition) {
-              log('🛡️ [RiskMgmt] Skipping analysis: position not available after sync.', 'warn');
-              // Skip this risk cycle; wait for next interval
-              return;
-            }
-
+          if (bars && bars.length > 0) {
             const riskDecision = await analyzePositionRisk(
               currentPosition,
               buildRiskSnapshot(
@@ -1459,10 +1377,12 @@ async function processMarketUpdate() {
           log(`🛡️ [RiskMgmt] ❌ Error in risk management: ${error.message}`, 'error');
           // Timer already set at start of try block, don't reset
         }
-      } else if (currentPosition && timeSinceLastRiskMgmt > 0) {
+      } else {
         // Log why we're not running (for debugging silent periods)
-        const secondsRemaining = Math.ceil((RISK_MGMT_INTERVAL_MS - timeSinceLastRiskMgmt) / 1000);
-        log(`🛡️ [RiskMgmt] ⏳ Next check in ${secondsRemaining}s (${Math.floor(timeSinceLastRiskMgmt / 1000)}s/${RISK_MGMT_INTERVAL_MS / 1000}s elapsed)`, 'debug');
+        if (currentPosition && timeSinceLastRiskMgmt < RISK_MGMT_INTERVAL_MS && timeSinceLastRiskMgmt > 0) {
+          const secondsRemaining = Math.ceil((RISK_MGMT_INTERVAL_MS - timeSinceLastRiskMgmt) / 1000);
+          log(`🛡️ [RiskMgmt] ⏳ Next check in ${secondsRemaining}s (${Math.floor(timeSinceLastRiskMgmt / 1000)}s/${RISK_MGMT_INTERVAL_MS / 1000}s elapsed)`, 'debug');
+        }
       }
     }
   }
@@ -1503,7 +1423,6 @@ async function processMarketUpdate() {
 
   // Update dashboard (existing)
   broadcastDashboardUpdate();
-}
 }
 
 // Execute Trade Entry
@@ -1635,12 +1554,15 @@ async function initDashboard() {
 
   server = http.createServer(app);
   io = new Server(server, {
-    cors: { origin: '*', methods: ['GET', 'POST'] }
+    cors: { origin: '*', methods: ['GET', 'POST'] },
+    path: SOCKET_PATH || undefined,
   });
 
   // Serve dashboard HTML
   app.get('/', (req, res) => {
-    res.sendFile('/Users/coreycosta/trading-agent/public/fabio-agent-dashboard-mgc.html');
+    // Use GC-specific dashboard
+    const dashboardPath = path.resolve(__dirname, 'public', 'fabio-agent-dashboard-mgc.html');
+    res.sendFile(dashboardPath);
   });
 
   // Socket.IO connection
@@ -1661,7 +1583,7 @@ async function initDashboard() {
     });
   });
 
-  server.listen(DASHBOARD_PORT, () => {
+  server.listen(DASHBOARD_PORT, '0.0.0.0', () => {
     log(`Dashboard running on http://localhost:${DASHBOARD_PORT}`, 'success');
   });
 }
@@ -1669,6 +1591,14 @@ async function initDashboard() {
 // Connect to Market Data
 async function connectMarketData() {
   const token = await authenticate();
+
+  // Rehydrate CVD baseline from last ML snapshot so restart doesn't zero out flow context
+  const rehydratedCvd = rehydrateCvdFromSnapshots(SYMBOL);
+  if (Number.isFinite(rehydratedCvd) && rehydratedCvd !== 0) {
+    orderFlowData.cvd = rehydratedCvd;
+    orderFlowData.cvdHistory = [{ timestamp: Date.now(), cvd: rehydratedCvd, delta: 0 }];
+    log(`♻️ Rehydrated CVD baseline: ${rehydratedCvd.toFixed(2)}`, 'info');
+  }
 
   // Create market hub
   marketHub = new HubConnectionBuilder()
@@ -1680,74 +1610,48 @@ async function connectMarketData() {
     .configureLogging(LogLevel.Warning)
     .build();
 
+  marketHub.onreconnecting(error => {
+    marketHubState = 'reconnecting';
+    lastMarketHubDisconnectMs = Date.now();
+    log(`⚠️ Market hub reconnecting: ${error?.message || 'unknown error'}`, 'warning');
+  });
+
+  marketHub.onreconnected(connectionId => {
+    marketHubState = 'connected';
+    lastMarketHubEventMs = Date.now();
+    log(`✅ Market hub reconnected${connectionId ? ` (${connectionId})` : ''}`, 'success');
+  });
+
+  marketHub.onclose(error => {
+    marketHubState = 'disconnected';
+    lastMarketHubDisconnectMs = Date.now();
+    log(`❌ Market hub disconnected: ${error?.message || 'no error provided'}`, 'error');
+  });
+
   // Subscribe to market events
-  marketHub.on('gatewayquote', (id: string, quotes: any) => {
-    const allowId = resolvedContractId || contractId;
-    if (!id || !allowId || id !== allowId) return;
+  marketHub.on('gatewayquote', (incomingContractId: string, quotes: any) => {
+    if (incomingContractId !== contractId) return;
+    lastMarketHubEventMs = Date.now();
+
     // Process Level 2 data
-    if (quotes.bids && quotes.asks) {
+    if (quotes?.bids && quotes?.asks) {
       l2Data = [];
-      const depthLevels = Math.min(10, Math.max(quotes.bids.length, quotes.asks.length));
-      const book: Record<number, { price: number; bidSize: number; askSize: number }> = {};
-      for (let i = 0; i < depthLevels; i++) {
-        if (quotes.bids[i]) {
-          const price = quotes.bids[i].price;
-          book[price] = book[price] || { price, bidSize: 0, askSize: 0 };
-          book[price].bidSize += quotes.bids[i].size;
-        }
-        if (quotes.asks[i]) {
-          const price = quotes.asks[i].price;
-          book[price] = book[price] || { price, bidSize: 0, askSize: 0 };
-          book[price].askSize += quotes.asks[i].size;
-        }
-      }
-      l2Data = Object.values(book).sort((a, b) => a.price - b.price);
-    }
-    processMarketUpdate();
-  });
-
-  const handleDepth = (id: string, depth: any) => {
-    const allowId = resolvedContractId || contractId;
-    if (id && allowId && id !== allowId) return;
-    const bids = depth?.bids || depth?.Bids;
-    const asks = depth?.asks || depth?.Asks;
-    if (!Array.isArray(bids) || !Array.isArray(asks)) return;
-
-    l2Data = [];
-    const depthLevels = Math.min(10, Math.max(bids.length, asks.length));
-    const book: Record<number, { price: number; bidSize: number; askSize: number }> = {};
-    for (let i = 0; i < depthLevels; i++) {
-      if (bids[i]) {
-        const price = bids[i].price;
-        book[price] = book[price] || { price, bidSize: 0, askSize: 0 };
-        book[price].bidSize += bids[i].size;
-      }
-      if (asks[i]) {
-        const price = asks[i].price;
-        book[price] = book[price] || { price, bidSize: 0, askSize: 0 };
-        book[price].askSize += asks[i].size;
+      for (let i = 0; i < Math.min(10, quotes.bids.length); i++) {
+        l2Data.push({
+          price: quotes.bids[i].price,
+          bidSize: quotes.bids[i].size,
+          askSize: quotes.asks[i]?.size || 0,
+        });
       }
     }
-    l2Data = Object.values(book).sort((a, b) => a.price - b.price);
     processMarketUpdate();
-  };
-
-  marketHub.on('gatewaydepth', handleDepth);
-  marketHub.on('GatewayMarketDepth', handleDepth);
-  marketHub.on('gatewayDepth', handleDepth);
-  marketHub.on('GatewayDepth', handleDepth);
-  marketHub.on('gatewaylogout', (msg: any) => {
-    log(`[MarketHub] gatewaylogout event: ${JSON.stringify(msg)}`, 'warn');
-  });
-  marketHub.on('GatewayLogout', (msg: any) => {
-    log(`[MarketHub] GatewayLogout event: ${JSON.stringify(msg)}`, 'warn');
   });
 
   // Execution / fills stream (if provided by TopstepX feed)
   // Note: Use execution events as fast invalidators for position version
   marketHub.on('gatewayexecution', async (id: string, exec: any) => {
-    const allowId = resolvedContractId || contractId;
-    if (id !== allowId) return;
+    if (id !== contractId) return;
+    lastMarketHubEventMs = Date.now();
     const status = (exec?.status || '').toString().toLowerCase();
     const filledQty = Number(exec?.filledSize ?? exec?.fillSize ?? exec?.lastQty ?? exec?.lastFillQty ?? 0);
     const isFill = status.includes('fill') || filledQty > 0;
@@ -1757,10 +1661,10 @@ async function connectMarketData() {
     }
   });
 
-  marketHub.on('gatewaytrade', (id: string, trades: any[]) => {
-    const allowId = resolvedContractId || contractId;
-    if (!id || !allowId || id !== allowId) return;
-    log(`📊 Received ${trades.length} trade(s) for ${id}`, 'info');
+  marketHub.on('gatewaytrade', (incomingContractId: string, trades: any[]) => {
+    if (incomingContractId !== contractId) return;
+    lastMarketHubEventMs = Date.now();
+    log(`📊 Received ${trades.length} trade(s) for ${incomingContractId}`, 'info');
     trades.forEach((trade, idx) => {
       const price = parseFloat(trade.price);
       const size = parseFloat(trade.volume); // TopStepX uses "volume" not "size"
@@ -1901,45 +1805,25 @@ async function connectMarketData() {
 
   await marketHub.start();
   log('Connected to market data hub', 'success');
+  marketHubState = 'connected';
+  lastMarketHubEventMs = Date.now();
+  lastMarketHubDisconnectMs = null;
 
   // Subscribe to contract
-  let metadata: any = null;
-  try {
-    metadata = await fetchTopstepXFuturesMetadata(SYMBOL);
-    contractId = metadata?.id || '';
-  } catch (err: any) {
-    log(`[Init] ⚠️ Contract resolve failed for ${SYMBOL}: ${err?.message || err}. Will wait for contractId from position feed.`, 'warn');
-    contractId = '';
+  const metadata = await fetchTopstepXFuturesMetadata(SYMBOL);
+  if (!metadata) {
+    log(`Failed to resolve TopstepX metadata for ${SYMBOL}`, 'error');
+    return;
   }
+
+  contractId = metadata.id;
 
   // Initialize execution manager with live trading capability
   const LIVE_TRADING = process.env.LIVE_TRADING === 'true';  // Set to 'true' to enable real order submission
-
-  // CRITICAL: Override tick sizes for known contracts (TopStepX API sometimes returns wrong values)
-  const KNOWN_TICK_SIZES: Record<string, number> = {
-    'GCZ5': 0.10,    // Gold futures
-    'GCG6': 0.10,    // Gold futures
-    'MGC': 0.10,     // Micro Gold
-    'MGCZ5': 0.10,   // Micro Gold
-    'NQZ5': 0.25,    // E-mini Nasdaq
-    'NQH6': 0.25,    // E-mini Nasdaq
-    'ESZ5': 0.25,    // E-mini S&P 500
-    'ESH6': 0.25,    // E-mini S&P 500
-    'M6E': 0.00001,  // Micro Euro
-    'MES': 0.25,     // Micro E-mini S&P 500
-    'MNQ': 0.25,     // Micro E-mini Nasdaq
-  };
-
-  const correctTickSize = KNOWN_TICK_SIZES[SYMBOL] || metadata.tickSize || 0.25;
-  if (KNOWN_TICK_SIZES[SYMBOL] && metadata.tickSize !== correctTickSize) {
-    log(`⚠️ TopStepX API returned wrong tick size for ${SYMBOL}: ${metadata.tickSize} (corrected to ${correctTickSize})`, 'warning');
-  }
-
   executionManager = createExecutionManager(SYMBOL, contractId, CONTRACTS, LIVE_TRADING, {
-    tickSize: correctTickSize,
+    tickSize: metadata.tickSize || 0.25,
     preferredAccountId: ACCOUNT_ID > 0 ? ACCOUNT_ID : undefined,
     enableNativeBrackets: process.env.TOPSTEPX_ENABLE_NATIVE_BRACKETS === 'true',
-    requireNativeBrackets: process.env.TOPSTEPX_REQUIRE_NATIVE_BRACKETS !== 'false',
   });
   log(`⚙️ Execution manager initialized for ${SYMBOL} (${LIVE_TRADING ? 'LIVE TRADING' : 'SIM MODE'})`, LIVE_TRADING ? 'warning' : 'success');
 
@@ -1949,16 +1833,10 @@ async function connectMarketData() {
     log('⚠️ Failed to initialize trading account. Orders will not be submitted.', 'error');
   }
 
-  // Initialize websocket position feed for real-time sync
-  if (accountInitialized) {
-    await executionManager.initializeAccountFeed();
-  }
-
   if (accountInitialized) {
     const rehydrated = await executionManager.rehydrateActivePosition();
     if (rehydrated) {
       currentPosition = rehydrated;
-      noteContractIdFromPosition(rehydrated);
       log(
         `♻️ Rehydrated existing ${rehydrated.side.toUpperCase()} position (${rehydrated.contracts} contracts) @ ${rehydrated.entryPrice.toFixed(2)} | SL ${rehydrated.stopLoss.toFixed(2)} | TP ${rehydrated.target.toFixed(2)}`,
         'warning'
@@ -2044,8 +1922,8 @@ async function loadHistoricalData() {
       startTime: startTime.toISOString(),
       endTime: endTime.toISOString(),
       unit: 2,        // Minutes
-      unitNumber: 5,  // 5-minute bars (less data, avoids rate limit)
-      limit: 500,     // ~18 hours * 12 bars/hour = 216 bars
+      unitNumber: 1,  // 1-minute bars
+      limit: 500,     // ~23 hours * 12 bars/hour = 276 bars max
     });
 
     if (historicalBars && historicalBars.length > 0) {

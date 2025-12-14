@@ -1,0 +1,12 @@
+lightgbm
+pandas
+numpy
+scikit-learn
+joblib
+pyarrow
+pydantic
+tqdm
+torch>=2.0.0
+torchvision>=0.15.0
+alpaca-trade-api>=3.0.0
+python-dotenv>=1.0.0

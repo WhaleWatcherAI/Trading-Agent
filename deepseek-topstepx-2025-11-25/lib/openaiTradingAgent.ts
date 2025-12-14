@@ -3,6 +3,7 @@ import type { ReasoningEffort } from 'openai/resources/shared';
 import { jsonrepair } from 'jsonrepair';
 import { fabioPlaybook, MarketState, SetupModel } from './fabioPlaybook';
 import { POCCrossStats, MarketStatistics, PerformanceMetrics, HistoricalNote } from './enhancedFeatures';
+import { buildDeepseekCacheOptions } from './deepseekCache';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -77,6 +78,11 @@ export interface FuturesMarketData {
   symbol: string;
   timestamp: string;
   currentPrice: number;
+  connectionHealth?: {
+    marketHubState: 'connected' | 'reconnecting' | 'disconnected';
+    lastMarketHubEventAgoSec?: number | null;
+    lastMarketHubDisconnectAgoSec?: number | null;
+  };
 
   // Price candles (5-minute bars)
   candles: {
@@ -226,6 +232,13 @@ export interface FuturesMarketData {
   // Raw Market Statistics (for LLM regime inference)
   marketStats: MarketStatistics;
 
+  // ML meta-label probabilities (LightGBM)
+  mlScores?: {
+    p_win_5m?: number;
+    p_win_30m?: number;
+    modelVersion?: string;
+  };
+
   // Performance Metrics (self-learning feedback)
   performance: PerformanceMetrics | null;
 
@@ -288,52 +301,25 @@ export interface OpenAITradingDecision {
  * Analyze real futures market data with OpenAI
  * Uses GPT-4 to interpret order flow, volume profile, and candlestick patterns
  */
-export async function analyzeFuturesMarket(
-  marketData: FuturesMarketData
-): Promise<OpenAITradingDecision> {
-  try {
-    const recentCandles = marketData.candles.slice(-5); // Last 5 candles (25 minutes)
-    const currentPrice = marketData.candles[marketData.candles.length - 1]?.close || 0;
-
-    let prompt: string;
-    try {
-      prompt = buildAnalysisPrompt(marketData, recentCandles, currentPrice);
-      console.log(`[DEBUG] Built prompt successfully, size: ${prompt.length} characters`);
-    } catch (error) {
-      console.error('[ERROR] Failed to build analysis prompt:', error);
-      throw new Error(`Prompt building failed: ${error}`);
-    }
-
-    console.log(`📊 [OpenAI] Analyzing ${marketData.symbol} at ${currentPrice}`);
-    // Debug prompt logging disabled to reduce output
-    // console.log('='.repeat(80));
-    // console.log('[DEBUG] EXACT PROMPT SENT TO DEEPSEEK:');
-    // console.log('='.repeat(80));
-    // console.log(prompt);
-    // console.log('='.repeat(80));
-
-    const systemInstructions = `You are Fabio, a multi-time Robbins World Cup champion trading NQ/MNQ futures with elite auction-market skill, order-flow intuition, and hedge-fund level risk discipline. You are a probabilistic trader, not a rules bot. Your job is to produce high-EV trades and precise triggers based on the current tape.
+const SYSTEM_INSTRUCTIONS = `You are Fabio, a multi-time Robbins World Cup champion trading NQ/MNQ futures with elite auction-market skill, order-flow intuition, and hedge-fund level risk discipline. You are a probabilistic trader, not a rules bot. Your job is to produce high-EV trades and precise triggers based on the current tape.
 
 Mindset
-- Intraday, scalp-focused: prioritize high-probability, tight-stop intraday setups over swing holds.
-- Favor tight, structure-based stops sized to current volatility; exits are fast if edge erodes.
-- ALWAYS pick a direction (BUY or SELL) - never HOLD. Your job is to read the tape and have an opinion on the most likely next move.
-- Express your conviction through CONFIDENCE (0-100%). Low confidence (50-60%) = weak edge, choppy. High confidence (75-95%) = strong edge, clear setup.
-- The system will filter your recommendations by confidence threshold. You just provide your best read on direction and how confident you are.
-- REVERSALS ARE VALID: Don't be afraid to fade extremes (VAH in downtrend, VAL in uptrend) when structure + location align, even if flow hasn't confirmed yet. The best reversals often happen BEFORE flow flips. Value area rejection is a high-probability setup.
-- NEUTRAL FLOW IS NOT A LOW CONFIDENCE REASON: If balance/trend + location provide edge, neutral/absent flow just means slightly lower confidence (65-70% instead of 80%+), not 50%. Flow is a booster, not a requirement.
+- You trade only when EV is clearly positive. HOLD in chop/low-edge conditions is a successful decision.
+- Hunt constantly for edge, but do not manufacture trades. If the missing ingredient isn’t present, say HOLD and state the exact trigger that would flip you.
+- You expect multiple high-quality trades per day when the market permits — not because you want activity.
+- If edge is unclear, your best trade is no trade. Preserve ammo for high-EV moments.
 
 How You Think (in this order)
-1) Balance / Trend Assessment: Use POC cross count, time in/above/below value area, and recent price action to assess if market is balanced (rotating around POC) or trending. High POC crosses + time in value = balanced/chop. Low crosses + staying on one side = trending. Then assess direction from recent bar structure (higher highs/lows vs lower highs/lows).
-2) Location: relative to value (POC/VAH/VAL), HVN/LVN lanes, single prints, session high/low. Distance within 2-3 ticks = AT the level.
-3) Flow Evidence (CONFIDENCE BOOSTER ONLY - NOT A REQUIREMENT TO ENTER): CVD trend, delta impulses, whale prints, L2 liquidity walls. Flow confirmation INCREASES CONFIDENCE (e.g., 65%→80%) but is NOT MANDATORY for entry. Strong Balance+Location setups are VALID TRADES even with neutral/absent flow. DO NOT WAIT for flow confirmation - it often lags the move. If Balance+Location align, trade it. Flow just adds extra conviction.
-4) Expected Value (EV): continuation vs reversal probability; only trade when R/R and balance/location alignment create positive EV. Flow is a confidence multiplier, not a gatekeeper.
-5) Triggers & Contingencies: "If price does X → I do Y" with exact entry/stop/target numbers.
+1) Regime / Auction Context: trend, balanced, breakout, failed breakout, or chop using higher-TF structure + session profile + vol regime.
+2) Location: relative to value (POC/VAH/VAL), HVN/LVN lanes, single prints, session high/low, round numbers.
+3) Flow Confirmation: CVD slope/divergence, delta impulses, whale prints, absorption/exhaustion strength, resting liquidity holding/pulling.
+4) Expected Value (EV): continuation vs reversal probability; only trade when R/R and flow/structure alignment create positive EV.
+5) Triggers & Contingencies: “If price does X → I do Y” with exact entry/stop/target numbers.
 
 Toolbox (evidence, not religion)
 - Volume/Market Profile: POC magnets, VA edge rejection, HVN stall risk, LVN/single-print continuation lanes.
 - Structure: swings, breaks, failures, pullback depth, trend strength.
-- Order Flow / L2: CVD trend, delta (buying vs selling pressure), aggressive vs passive prints, stacked liquidity walls.
+- Order Flow / L2: CVD trend+slope+divergence, aggressive vs passive prints, stacked liquidity, absorption/exhaustion signals.
 - Volatility Regime: size stops/targets to the regime; wider in strong trends, tighter in chop.
 
 Execution Discipline
@@ -350,30 +336,106 @@ Precision & Validity
 - If any microstructure fields are missing, treat them as unknown, not zero.
 - Every decision must reference current numeric evidence from the snapshot.
 
-Respond ONLY in JSON with the required fields for execution.`;
+When to HOLD
+You HOLD when EV is not clearly positive right now.
+A HOLD must include:
+(1) specific regime evidence,
+(2) specific location evidence vs value/HVN/LVN/single prints,
+(3) specific flow evidence (CVD slope/divergence, delta, walls/prints),
+(4) the single missing ingredient,
+(5) 1–3 exact IF/THEN triggers with entry/stop/target,
+(6) what would invalidate those triggers.
+Generic HOLDs are unacceptable.
 
-    // ---------- DECISION MODE ONLY (reasoner every interval) ----------
-    const messages = [
-      { role: 'system' as const, content: systemInstructions },
-      { role: 'user' as const, content: prompt },
+Required Output
+- Respond ONLY with valid JSON in the schema provided in the user prompt. No extra text or markdown.
+- Purpose: read multi-timeframe auction + footprint/order-flow clues, then strike only when reward-to-risk and probabilities are clearly in your favor.`;
+
+export function buildDecisionPromptPayload(
+  marketData: FuturesMarketData
+): { systemInstructions: string; decisionPrompt: string } {
+  const recentCandles = marketData.candles.slice(-5); // Last 5 candles (25 minutes)
+  const currentPrice = marketData.candles[marketData.candles.length - 1]?.close || 0;
+  const prompt = buildAnalysisPrompt(marketData, recentCandles, currentPrice);
+  const decisionPrompt = `MODE: DECISION (confirm). A setup appears live. Give full thesis + exact execution. Include EV logic + contingencies.\n${prompt}`;
+  return {
+    systemInstructions: SYSTEM_INSTRUCTIONS,
+    decisionPrompt,
+  };
+}
+
+export async function analyzeFuturesMarket(
+  marketData: FuturesMarketData
+): Promise<OpenAITradingDecision> {
+  try {
+    const recentCandles = marketData.candles.slice(-5); // Last 5 candles (25 minutes)
+    const currentPrice = marketData.candles[marketData.candles.length - 1]?.close || 0;
+
+    const prompt = buildAnalysisPrompt(marketData, recentCandles, currentPrice);
+
+    console.log(`📊 [OpenAI] Analyzing ${marketData.symbol} at ${currentPrice}`);
+    console.log('='.repeat(80));
+    console.log('[DEBUG] EXACT PROMPT SENT TO DEEPSEEK:');
+    console.log('='.repeat(80));
+    console.log(prompt);
+    console.log('='.repeat(80));
+
+    // ---------- SCAN MODE (deepseek-chat) ----------
+    const scanPrompt = `MODE: SCAN (fast). Do not force trades. Maintain regime/edge + precise triggers. Be concise unless setup is live.\n${prompt}`;
+    const scanMessages = [
+      { role: 'system' as const, content: SYSTEM_INSTRUCTIONS },
+      { role: 'user' as const, content: scanPrompt },
+    ];
+
+    const scanResponse = await openai.chat.completions.create({
+      model: 'deepseek-chat',
+      temperature: 0.4,
+      max_tokens: 900,
+      messages: scanMessages,
+      response_format: { type: 'json_object' },
+    }, buildDeepseekCacheOptions('trading-agent-scan'));
+
+    const scanContent = extractMessageText(scanResponse.choices[0]?.message);
+    if (!scanContent) {
+      throw new Error('Scan stage returned empty response');
+    }
+    const scanDecision = parseOpenAIResponse(scanContent);
+    console.log(`✅ [OpenAI:SCAN] ${scanDecision.decision} | Conf: ${scanDecision.confidence}%`);
+
+    const symbol = marketData.symbol || 'default';
+    const bestReversal = marketData.reversalScores
+      ? Math.max(marketData.reversalScores.long, marketData.reversalScores.short)
+      : 0;
+    const baseHit = scanDecision.decision !== 'HOLD' || (scanDecision.confidence ?? 0) >= 70 || bestReversal >= 0.65;
+    // Simple hysteresis: require two consecutive hits before promoting (per symbol)
+    if (!baseHit) {
+      promoteStreakBySymbol[symbol] = Math.max(0, (promoteStreakBySymbol[symbol] ?? 0) - 1);
+      return scanDecision;
+    }
+    promoteStreakBySymbol[symbol] = (promoteStreakBySymbol[symbol] ?? 0) + 1;
+    const shouldPromote = promoteStreakBySymbol[symbol] >= 2;
+    if (!shouldPromote) {
+      return scanDecision;
+    }
+    promoteStreakBySymbol[symbol] = 0; // reset after promotion
+
+    // ---------- DECISION MODE (reasoner / configured model) ----------
+    const decisionPrompt = `MODE: DECISION (confirm). A setup appears live. Give full thesis + exact execution. Include EV logic + contingencies.\n${prompt}`;
+    const decisionMessages = [
+      { role: 'system' as const, content: SYSTEM_INSTRUCTIONS },
+      { role: 'user' as const, content: decisionPrompt },
     ];
 
     const model = resolveOpenAIModel();
     const useReasoner = shouldUseReasoningModel(model);
-    // IMPORTANT: For DeepSeek, don't use json_object format because it wastes
-    // reasoning tokens on "how to format JSON" instead of market analysis.
-    // We extract JSON from the natural response instead.
-    const responseFormat = (model.includes('deepseek'))
-      ? undefined
-      : { type: 'json_object' as const };
+    const responseFormat = useReasoner ? undefined : { type: 'json_object' as const };
     let content: string | null = null;
     const reasoningEffort = resolveReasoningEffort();
 
     if (useReasoner) {
         const reasonerAttempts: Array<{ stream: boolean; maxTokens: number; temperature: number }> = [
-          { stream: false, maxTokens: 2000, temperature: 0.35 },
-          { stream: false, maxTokens: 1600, temperature: 0.35 },
-          { stream: false, maxTokens: 1200, temperature: 0.35 },
+          { stream: false, maxTokens: 3200, temperature: 0.35 },
+          { stream: false, maxTokens: 2400, temperature: 0.35 },
         ];
 
         for (let i = 0; i < reasonerAttempts.length; i += 1) {
@@ -382,13 +444,13 @@ Respond ONLY in JSON with the required fields for execution.`;
             if (attempt.stream) {
               const stream = await openai.chat.completions.create({
                 model,
-                messages: messages,
+                messages: decisionMessages,
                 max_tokens: attempt.maxTokens,
                 temperature: attempt.temperature,
                 reasoning_effort: reasoningEffort,
                 ...(responseFormat ? { response_format: responseFormat } : {}),
                 stream: true,
-              });
+              }, buildDeepseekCacheOptions('trading-agent-decision'));
 
               let streamedContent = '';
               let reasoningLog = '';
@@ -427,12 +489,12 @@ Respond ONLY in JSON with the required fields for execution.`;
             } else {
               const completion = await openai.chat.completions.create({
                 model,
-                messages: messages,
+                messages: decisionMessages,
                 max_tokens: attempt.maxTokens,
                 temperature: attempt.temperature,
                 reasoning_effort: reasoningEffort,
                 ...(responseFormat ? { response_format: responseFormat } : {}),
-              });
+              }, buildDeepseekCacheOptions('trading-agent-decision'));
 
               const message: any = completion.choices?.[0]?.message;
               const reasoning = extractReasoningFromMessage(message);
@@ -445,21 +507,6 @@ Respond ONLY in JSON with the required fields for execution.`;
               }
 
               content = extractMessageText(message);
-
-              // Debug logging for DeepSeek responses
-              console.log('[DEBUG] DeepSeek Response Analysis:');
-              console.log('- Has content:', !!message.content);
-              console.log('- Has reasoning_content:', !!message.reasoning_content);
-              if (message.content) {
-                console.log('- Content type:', typeof message.content);
-                console.log('- Content preview (first 200 chars):',
-                  typeof message.content === 'string'
-                    ? message.content.substring(0, 200)
-                    : JSON.stringify(message.content).substring(0, 200));
-              }
-              if (content) {
-                console.log('- Extracted content preview (first 200 chars):', content.substring(0, 200));
-              }
             }
 
             if (content && content.trim()) {
@@ -470,32 +517,7 @@ Respond ONLY in JSON with the required fields for execution.`;
             console.warn(`[OpenAI] Reasoner attempt ${i + 1} failed: ${error?.message || error}`);
             const shouldRetry = shouldRetryReasoner(error) && i < reasonerAttempts.length - 1;
             if (!shouldRetry) {
-              // If all reasoner attempts failed, fall back to deepseek-chat or GPT-4
-              console.warn('[OpenAI] All reasoner attempts failed. Falling back to deepseek-chat/GPT-4...');
-              try {
-                const fallbackModel = model.includes('deepseek') ? 'deepseek-chat' : 'gpt-4o';
-                console.log(`[OpenAI] Using fallback model: ${fallbackModel}`);
-
-                const fallbackResponse = await openai.chat.completions.create({
-                  model: fallbackModel,
-                  messages: messages,
-                  max_tokens: 700,
-                  temperature: 0.2,
-                  response_format: responseFormat,
-                });
-
-                content = extractMessageText(fallbackResponse.choices[0]?.message);
-
-                if (content && content.trim()) {
-                  console.log('[OpenAI] Fallback model succeeded');
-                  break;
-                } else {
-                  throw new Error(`Fallback model ${fallbackModel} also returned empty response`);
-                }
-              } catch (fallbackError: any) {
-                console.error('[OpenAI] Fallback also failed:', fallbackError?.message || fallbackError);
-                throw error; // Throw original error
-              }
+              throw error;
             }
             console.warn('[OpenAI] Retrying reasoner with alternate delivery (non-stream).');
           }
@@ -505,16 +527,20 @@ Respond ONLY in JSON with the required fields for execution.`;
           model,
           temperature: 0.7,
           max_tokens: 1000,
-          messages: messages,
+          messages: decisionMessages,
           ...(responseFormat ? { response_format: responseFormat } : {}),
-        });
+        }, buildDeepseekCacheOptions('trading-agent-decision'));
         content = extractMessageText(response.choices[0]?.message);
       }
 
     if (!content) {
       throw new Error('No content generated by OpenAI response');
     }
-
+    console.log('='.repeat(80));
+    console.log('[DEBUG] RAW DEEPSEEK RESPONSE:');
+    console.log('='.repeat(80));
+    console.log(content);
+    console.log('='.repeat(80));
     const decision = parseOpenAIResponse(content);
 
     console.log(`✅ [OpenAI:DECISION] ${decision.decision} @ ${decision.entryPrice} | Confidence: ${decision.confidence}%`);
@@ -588,13 +614,14 @@ function buildAnalysisPrompt(
     : undefined;
 
   const nearestWall = marketData.microstructure?.nearestRestingWallInDirection;
-  const currentBarRange = marketData.marketStats?.currentRangeTicks ?? null;
-  const atr = marketData.marketStats?.atr5m ?? null;
-  const stateSummary = `MARKET SNAPSHOT:
-- location: distToPOC/VAH/VAL = ${distToPoc ?? 'n/a'} / ${distToVah ?? 'n/a'} / ${distToVal ?? 'n/a'} ticks
-- flow: delta1m/5m ${marketData.flowSignals?.deltaLast1m ?? 'n/a'} / ${marketData.flowSignals?.deltaLast5m ?? 'n/a'}, CVD ${marketData.cvd?.value ?? 'n/a'}
-- liquidity: nearest wall ${nearestWall ? `${nearestWall.side}@${nearestWall.price.toFixed(2)} dist=${nearestWall.distance}` : 'n/a'}
-- volatility: current bar ${currentBarRange?.toFixed(1) ?? 'n/a'} ticks, ATR(14) ${atr?.toFixed(1) ?? 'n/a'} ticks`;
+  const stateSummary = `STATE SUMMARY:
+- regime: ${marketData.marketState.state}, buyersControl: ${marketData.marketState.buyersControl?.toFixed(2) ?? 'n/a'}, sellersControl: ${marketData.marketState.sellersControl?.toFixed(2) ?? 'n/a'}
+- location: distToPOC/VAH/VAL = ${distToPoc ?? 'n/a'} / ${distToVah ?? 'n/a'} / ${distToVal ?? 'n/a'}
+- flow: delta1m/5m ${marketData.flowSignals?.deltaLast1m ?? 'n/a'} / ${marketData.flowSignals?.deltaLast5m ?? 'n/a'}, cvdSlopeS/L ${marketData.flowSignals?.cvdSlopeShort ?? 'n/a'} / ${marketData.flowSignals?.cvdSlopeLong ?? 'n/a'}, divergence ${marketData.flowSignals?.cvdDivergence ?? 'n/a'}
+- liquidity: nearest wall ${nearestWall ? `${nearestWall.side}@${nearestWall.price.toFixed(2)} dist=${nearestWall.distance}` : 'n/a'}, weakWallDetected: ${marketData.microstructure?.weakWallDetected ?? false}
+- volRegime: ${marketData.marketStats?.volatilityRegime ?? 'n/a'}
+- reversalScores L/S: ${marketData.reversalScores ? `${marketData.reversalScores.long.toFixed(2)} / ${marketData.reversalScores.short.toFixed(2)}` : 'n/a'}
+- EV hints: orderFlowConfirmed=${marketData.orderFlowConfirmed}`;
 
   // Build multi-timeframe candle summaries from 5-minute base data
   const allCandles = marketData.candles;
@@ -611,27 +638,19 @@ function buildAnalysisPrompt(
     .map((c) => `${new Date(c.timestamp).toLocaleTimeString()}: O=${c.open.toFixed(2)}, C=${c.close.toFixed(2)}, H=${c.high.toFixed(2)}, L=${c.low.toFixed(2)}`)
     .join('\n  ');
 
-  const cvdCandlesSummary = marketData.cvdCandles && marketData.cvdCandles.length > 0
+  const cvdCandlesSummary = marketData.cvdCandles.length > 0
     ? marketData.cvdCandles
-        .slice(-10)  // Limit to last 10 candles to prevent huge prompts
         .map(c => `${new Date(c.timestamp).toLocaleTimeString()}: O=${c.open.toFixed(1)}, H=${c.high.toFixed(1)}, L=${c.low.toFixed(1)}, C=${c.close.toFixed(1)}`)
         .join('\n  ')
     : 'Not provided';
-  // Limit CVD candles JSON to last 20 to prevent prompt overflow
-  const cvdCandlesJson = marketData.cvdCandles
-    ? JSON.stringify(marketData.cvdCandles.slice(-20))
-    : '[]';
+  const cvdCandlesJson = JSON.stringify(marketData.cvdCandles);
 
-  const bigPrints = marketData.orderFlow?.bigTrades
-    ? marketData.orderFlow.bigTrades
-        .slice(-5)
-        .map((p) => `${p.side.toUpperCase()} ${p.size} @ ${p.price}`)
-        .join(', ') || 'None'
-    : 'None';
+  const bigPrints = marketData.orderFlow.bigTrades
+    .slice(-5)
+    .map((p) => `${p.side.toUpperCase()} ${p.size} @ ${p.price}`)
+    .join(', ') || 'None';
 
-  const priceVsProfile = (marketData.volumeProfile?.poc !== undefined && currentPrice !== undefined)
-    ? (currentPrice > marketData.volumeProfile.poc ? 'above POC' : 'below POC')
-    : 'POC not available';
+  const priceVsProfile = currentPrice > marketData.volumeProfile.poc ? 'above POC' : 'below POC';
 
   // Microstructure summary
   const micro = marketData.microstructure;
@@ -653,11 +672,20 @@ function buildAnalysisPrompt(
   const macro = marketData.macrostructure;
   const multiDay = macro?.multiDayProfile;
   const higherTFs = macro?.higherTimeframes || [];
-  // Only show raw delta values, not computed derivatives
   const flowSignals = marketData.flowSignals;
   const flowSignalsSummary = flowSignals
-    ? `Delta 1m/5m: ${flowSignals.deltaLast1m ?? 'n/a'} / ${flowSignals.deltaLast5m ?? 'n/a'}`
+    ? `Delta 1m/5m: ${flowSignals.deltaLast1m ?? 'n/a'} / ${flowSignals.deltaLast5m ?? 'n/a'}, CVD slope (short/long): ${flowSignals.cvdSlopeShort ?? 'n/a'} / ${flowSignals.cvdSlopeLong ?? 'n/a'}, Divergence: ${flowSignals.cvdDivergence ?? 'none'}`
     : 'Not provided';
+  const absorptionSummary = marketData.absorption && marketData.absorption.length > 0
+    ? marketData.absorption
+        .map(a => `${a.levelName}@${a.price.toFixed(2)} ${a.side.toUpperCase()} str=${Number.isFinite(a.strength) ? a.strength.toFixed(2) : 'n/a'} (${a.durationSec}s${a.confirmedByCvd ? ', cvd' : ''})`)
+        .join('; ')
+    : 'None detected';
+  const exhaustionSummary = marketData.exhaustion && marketData.exhaustion.length > 0
+    ? marketData.exhaustion
+        .map(a => `${a.side.toUpperCase()} str=${Number.isFinite(a.strength) ? a.strength.toFixed(2) : 'n/a'} (${a.durationSec}s${a.confirmedByCvd ? ', cvd' : ''})`)
+        .join('; ')
+    : 'None detected';
 
   const multiDaySummary = multiDay
     ? `Lookback: ${multiDay.lookbackHours}h | POC=${multiDay.poc.toFixed(2)} VAH=${multiDay.vah.toFixed(2)} VAL=${multiDay.val.toFixed(2)} | High=${multiDay.high.toFixed(2)} Low=${multiDay.low.toFixed(2)}`
@@ -712,11 +740,13 @@ RECENT SESSION PROFILES (Last 5 trading days):
 ${volumeProfileHistory}
 
 Footprint Readings:
-- CVD: ${marketData.cvd?.value !== undefined ? `${marketData.cvd.value.toFixed(2)} (${cvdTrend})` : 'n/a'}
-- Delta: ${flowSignalsSummary}
+- CVD Trend: ${cvdTrend} | Value: ${marketData.cvd.value.toFixed(2)} | Structure (OHLC): O=${marketData.cvd.ohlc.open}, H=${marketData.cvd.ohlc.high}, L=${marketData.cvd.ohlc.low}, C=${marketData.cvd.ohlc.close}
 - Whale Trades: ${whaleTradeSummary}
-- Resting Limit Orders (L2): ${restingLimitSummary}
+- Resting Limit Orders: ${restingLimitSummary}
 - Recent Large Prints: ${bigPrints}
+Flow Signals: ${flowSignalsSummary}
+Absorption Signals: ${absorptionSummary}
+Exhaustion Signals: ${exhaustionSummary}
 
 CVD CANDLES (Session Sample):
 ${cvdCandlesSummary}
@@ -745,9 +775,9 @@ ${marketData.pullbackProfile && marketData.pullbackProfile.active ? `PULLBACK PR
 - POC/VAH/VAL: ${marketData.pullbackProfile.poc.toFixed(2)} / ${marketData.pullbackProfile.vah.toFixed(2)} / ${marketData.pullbackProfile.val.toFixed(2)}
 - Acceptance: ${marketData.pullbackProfile.acceptanceState ?? 'n/a'}` : 'PULLBACK PROFILE: none/ inactive'}
 
-${marketData.watchZoneProfiles && marketData.watchZoneProfiles.length > 0 ? `WATCH-ZONE PROFILES (key levels to watch):
+${marketData.watchZoneProfiles && marketData.watchZoneProfiles.length > 0 ? `WATCH-ZONE PROFILES (next areas):
 ${marketData.watchZoneProfiles.slice(0, 3).map(z =>
-  `- ${z.name} ${z.low.toFixed(2)}-${z.high.toFixed(2)} | zonePOC ${z.poc?.toFixed(2) ?? 'n/a'}`
+  `- ${z.name} ${z.low.toFixed(2)}-${z.high.toFixed(2)} | zonePOC ${z.poc?.toFixed(2) ?? 'n/a'}, acceptance ${z.acceptanceState ?? 'n/a'}/${z.acceptanceStrength?.toFixed(2) ?? 'n/a'}, breakthrough ${z.breakthroughScore ?? 'n/a'}, absorption ${z.absorptionScore ?? 'n/a'}`
 ).join('\n')}` : 'WATCH-ZONE PROFILES: none'}
 
 === ACCOUNT & PERFORMANCE ===
@@ -808,42 +838,14 @@ CRITICAL RULES:
 RESPOND WITH YOUR POSITION MANAGEMENT DECISION:
 ` : `
 ANALYSIS REQUEST (NO OPEN POSITION):
-- ALWAYS pick a direction (BUY or SELL) based on your best read of the tape. Express uncertainty through CONFIDENCE, not by avoiding a decision.
-- Low confidence (50-60%): Choppy, uncertain, mixed signals. You still pick the most likely direction, but with low conviction.
-- High confidence (75-95%): Clear setup, strong edge, aligned factors. You pick direction with high conviction.
-- Provide entry price/zone, stop, target, and timing/invalidation details.
-- Defend the stop & target placement using structure/order-flow context in riskManagementReasoning.
+- Identify the best trade(s) available RIGHT NOW or within the next few bars.
+- Provide direction (BUY/SELL/HOLD), confidence (0-100%), entry price/zone, stop, target, and timing/invalidation details.
+- When calling BUY/SELL, defend the stop & target placement using structure/order-flow context and surface that explanation in riskManagementReasoning.
 - Include add-on or re-entry logic if price overshoots or structure resets.
-- Multiple trades per day are expected when the tape cooperates.
+- Multiple trades per day are expected when the tape cooperates. If you stay on HOLD, state exactly what must happen (price level, order-flow cue, time event) to trigger a trade soon.
 `}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🚨 CRITICAL OUTPUT FORMAT REQUIREMENT 🚨
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-YOU MUST OUTPUT **ONLY** VALID JSON. NO PLAIN TEXT. NO MARKDOWN OUTSIDE JSON. ONLY JSON.
-
-DO NOT output format like this (WRONG ❌):
-Trade Decision: BUY
-Confidence: 60%
-
-ONLY output valid JSON format like this (CORRECT ✅):
-{
-  "decision": "BUY",
-  "confidence": 60,
-  "stopLoss": 24905.25,
-  "target": 24875.00,
-  "riskRewardRatio": 1.5,
-  "riskPercent": 0.35,
-  "plan": "Enter BUY at VAL support with tight stop",
-  "timingPlan": "Immediate market entry",
-  "reEntryPlan": "Re-enter on bounce if stopped at VAL",
-  "reasoning": "Strong bid absorption at VAL with POC magnet above",
-  "riskManagementReasoning": "Stop at 24905.25 (below VAL structure), target at POC",
-  "noteForFuture": null
-}
-
-REQUIRED JSON SCHEMA (all fields mandatory):
+Respond **only** with valid JSON conforming to this schema:
 {
   "decision": "BUY|SELL|HOLD",
   "confidence": 0-100,
@@ -855,13 +857,11 @@ REQUIRED JSON SCHEMA (all fields mandatory):
   "timingPlan": "Describe when/how you intend to execute (immediate, on break, on pullback, etc.)",
   "reEntryPlan": "Describe add-on or re-entry logic if stopped/missed",
   "reasoning": "Tie together price action, footprint cues, volume profile, and lessons/performance",
-  "riskManagementReasoning": "Specific explanation for WHY these SL/TP levels make sense (structure, liquidity, high-volume node, etc.). Required for all BUY/SELL decisions.",
+  "riskManagementReasoning": "Specific explanation for WHY these SL/TP levels make sense (structure, liquidity, high-volume node, etc.). Required when decision is BUY/SELL.",
   "noteForFuture": "Optional reminder or null"
 }
 
-Always include an actionable plan with specific entry/stop/target prices and timing details.
-
-REMEMBER: OUTPUT ONLY THE JSON OBJECT. START WITH { AND END WITH }. NOTHING ELSE. 
+Always include an actionable plan even for HOLD decisions. 
 `;
 }
 
@@ -922,27 +922,6 @@ function parseOpenAIResponse(content: string): OpenAITradingDecision {
       console.error('[parseOpenAIResponse] Raw content preview (last 500 chars):');
       console.error(content.substring(Math.max(0, content.length - 500)));
       throw new Error('No JSON found in response');
-    }
-
-    // Extract reasoning text (everything before the JSON)
-    let reasoningText = '';
-    const jsonStartIndex = content.indexOf(jsonStr);
-    if (jsonStartIndex > 0) {
-      reasoningText = content.substring(0, jsonStartIndex).trim();
-      // Clean up the reasoning text - remove template markers and markdown
-      reasoningText = reasoningText
-        .replace(/```json\s*$/gm, '')  // Remove trailing ```json markers
-        .replace(/```\s*$/gm, '')       // Remove trailing ``` markers
-        .replace(/DECISION:.*$/gm, '')
-        .replace(/CONFIDENCE:.*$/gm, '')
-        .replace(/ENTRY:.*$/gm, '')
-        .replace(/STOP:.*$/gm, '')
-        .replace(/TARGET:.*$/gm, '')
-        .replace(/Trade Decision:.*$/gm, '')  // Remove "Trade Decision:" lines
-        .replace(/Confidence:.*$/gm, '')       // Remove "Confidence:" lines
-        .replace(/Then provide valid JSON.*$/gm, '')
-        .trim();
-      console.log('[parseOpenAIResponse] Extracted reasoning text (' + reasoningText.length + ' chars)');
     }
 
     // Try parsing the extracted JSON
@@ -1021,30 +1000,16 @@ function parseOpenAIResponse(content: string): OpenAITradingDecision {
       throw new Error('riskManagementReasoning is required for BUY/SELL decisions');
     }
 
-    // Use extracted reasoning text from the response, fall back to JSON reasoning field, then to default
-    let finalReasoning = reasoningText || parsed.reasoning || '';
-    if (!finalReasoning) {
-      finalReasoning = decision === 'HOLD'
-        ? 'Market conditions unclear - no high-probability setup identified. Waiting for better risk/reward opportunity.'
-        : 'No reasoning provided';
-    }
-
-    // Ensure confidence is a valid number (default to 0 for HOLD, 50 for trades)
-    const defaultConfidence = decision === 'HOLD' ? 0 : 50;
-    const confidence = typeof parsed.confidence === 'number'
-      ? Math.min(100, Math.max(0, parsed.confidence))
-      : defaultConfidence;
-
     return {
       decision,
-      confidence,
+      confidence: Math.min(100, Math.max(0, parsed.confidence || 50)),
       marketState,
       location,
       setupModel,
       entryPrice: parsed.entryPrice || null,
       stopLoss: parsed.stopLoss || null,
       target: parsed.target || null,
-      reasoning: finalReasoning,
+      reasoning: parsed.reasoning || 'No reasoning provided',
       plan: stitchedPlan,
       timingPlan: timingPlan || undefined,
       reEntryPlan: reEntryPlan || undefined,
@@ -1137,6 +1102,7 @@ function extractTextPart(part: any): string {
   }
   return '';
 }
+
 function extractMessageText(message: any): string {
   if (!message) return '';
   const { content } = message;
