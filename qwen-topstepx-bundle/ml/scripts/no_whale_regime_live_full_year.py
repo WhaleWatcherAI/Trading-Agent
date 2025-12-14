@@ -172,7 +172,7 @@ def setup_logging():
     global logger
     os.makedirs(LOGS_DIR, exist_ok=True)
 
-    log_file = os.path.join(LOGS_DIR, f'live_trading_{CONTRACT_SYMBOL}_{TOPSTEPX_ACCOUNT_ID}_{datetime.utcnow().strftime("%Y%m%d")}.log')
+    log_file = os.path.join(LOGS_DIR, f'no_whale_regime_live_full_year_{CONTRACT_SYMBOL}_{TOPSTEPX_ACCOUNT_ID}_{datetime.utcnow().strftime("%Y%m%d")}.log')
     logger = logging.getLogger('live_trading')
     logger.setLevel(logging.DEBUG)
 
